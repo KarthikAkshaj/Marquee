@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { AmbientBackground } from "@/components/shell/AmbientBackground";
 import { MobileTopBar } from "@/components/shell/MobileTopBar";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { getCategories, getViewer } from "@/lib/queries";
@@ -23,10 +22,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh">
-      <AmbientBackground variant={dim ? "empty" : "app"} />
       <Sidebar categories={categories} user={user} dim={dim} />
       <div className="relative z-2 flex min-w-0 flex-1 flex-col">
-        <MobileTopBar user={user} dim={dim} />
+        <MobileTopBar user={user} categories={categories} dim={dim} />
         <main className="flex flex-1 flex-col px-5 pt-6.5 pb-10 md:px-10 md:pt-8.5">
           {children}
         </main>

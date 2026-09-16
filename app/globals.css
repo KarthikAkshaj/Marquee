@@ -13,6 +13,8 @@
   --color-inset:    #141417; /* disabled controls */
   --color-menu:     #141418; /* floating menus (used at 94%) */
   --color-elevated: #18181C;
+  --color-sheet:    #0E0E11; /* dialogs and the item sheet */
+  --color-scrim:    #060608; /* behind dialogs, used at ~70% */
 
   --color-border:        rgb(255 255 255 / 0.07);
   --color-border-strong: rgb(255 255 255 / 0.14);
@@ -99,6 +101,10 @@
   --shadow-dialog:      0 40px 100px rgb(0 0 0 / 0.65);
   --shadow-dialog-sm:   0 30px 70px rgb(0 0 0 / 0.6);
   --shadow-menu:        0 26px 60px rgb(0 0 0 / 0.66), 0 0 0 1px rgb(0 0 0 / 0.4);
+  --shadow-modal:       0 34px 80px rgb(0 0 0 / 0.7);
+  --shadow-card-ring:   0 0 0 4px rgb(244 182 80 / 0.1);
+  --shadow-progress:    0 0 8px rgb(244 182 80 / 0.8);
+  --shadow-tab:         0 0 12px rgb(244 182 80 / 0.6);
   --shadow-mockup:      0 70px 150px rgb(0 0 0 / 0.8), 0 0 70px rgb(244 182 80 / 0.1);
   --shadow-input-focus: 0 0 0 3px rgb(244 182 80 / 0.1);
 
@@ -204,6 +210,9 @@
   .glow-amber-mockup { background: radial-gradient(closest-side, rgb(244 182 80 / 0.22), transparent); }
   .glow-crimson      { background: radial-gradient(closest-side, rgb(229 72 77 / 0.16), transparent); }
   .vignette-app      { background: radial-gradient(120% 80% at 50% 40%, transparent 40%, rgb(0 0 0 / 0.55)); }
+  .vignette-category { background: radial-gradient(120% 80% at 50% 35%, transparent 45%, rgb(0 0 0 / 0.5)); }
+  /* Category-tinted light: set --glow to a colour token on the element. */
+  .glow-tint         { background: radial-gradient(closest-side, color-mix(in oklab, var(--glow) 20%, transparent), transparent); }
   .vignette-empty    { background: radial-gradient(110% 80% at 55% 45%, transparent 30%, rgb(0 0 0 / 0.6)); }
   .vignette-hero     { background: radial-gradient(120% 90% at 50% 40%, transparent 38%, rgb(0 0 0 / 0.72)); }
   .vignette-login    { background: radial-gradient(120% 90% at 50% 45%, transparent 35%, rgb(0 0 0 / 0.7)); }

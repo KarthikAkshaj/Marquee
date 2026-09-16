@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { emailSchema, otpCodeSchema, safeRedirectPath } from "./validators";
+import { createItemSchema, emailSchema, otpCodeSchema, safeRedirectPath } from "./validators";
 
 describe("safeRedirectPath", () => {
   it("keeps same-origin paths", () => {
@@ -46,5 +46,36 @@ describe("otpCodeSchema", () => {
     for (const code of ["12345", "1234567", "12a456", " 123456", ""]) {
       expect(otpCodeSchema.safeParse(code).success).toBe(false);
     }
+  });
+});
+
+describe("createItemSchema", () => {
+  const base = {
+    categoryId: "7d8f2a64-3a4e-4c1b-9b5f-2e9a1c0d4b11",
+    title: "  Frieren  ",
+    year: "",
+    status: "planned",
+    progressTotal: "",
+  };
+
+  it("trims the title and treats empty optional fields as missing", () => {
+    const parsed = createItemSchema.parse(base);
+    expect(parsed.title).toBe("Frieren");
+    expect(parsed.year).toBeUndefined();
+    expect(parsed.progressTotal).toBeUndefined();
+  });
+
+  it("coerces numbers from form strings", () => {
+    const parsed = createItemSchema.parse({ ...base, year: "2023", progressTotal: "28" });
+    expect(parsed.year).toBe(2023);
+    expect(parsed.progressTotal).toBe(28);
+  });
+
+  it("rejects bad input with a readable message", () => {
+    const result = createItemSchema.safeParse({ ...base, title: "   ", year: "20x3", status: "watching" });
+    expect(result.success).toBe(false);
+    expect(createItemSchema.safeParse({ ...base, year: "1500" }).success).toBe(false);
+    expect(createItemSchema.safeParse({ ...base, progressTotal: "0" }).success).toBe(false);
+    expect(createItemSchema.safeParse({ ...base, categoryId: "anime" }).success).toBe(false);
   });
 });

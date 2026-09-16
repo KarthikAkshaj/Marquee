@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 
@@ -41,3 +41,32 @@ export const getCategories = cache(async () => {
 });
 
 export type CategoryWithCount = Awaited<ReturnType<typeof getCategories>>[number];
+
+/** One category by its URL slug, or the 404 page. RLS limits it to the viewer's own. */
+export const getCategoryBySlug = cache(async (slug: string) => {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, slug, kind, color, icon, position")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) throw new Error(`Couldn't load this category: ${error.message}`);
+  if (!data) notFound();
+  return data;
+});
+
+/** Every item on a shelf. Status tabs, favourites and sort are applied in lib/items. */
+export const getCategoryItems = cache(async (categoryId: string) => {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("items")
+    .select("*")
+    .eq("category_id", categoryId)
+    .order("updated_at", { ascending: false });
+
+  if (error) throw new Error(`Couldn't load these titles: ${error.message}`);
+  return data;
+});
+
+export type Category = Awaited<ReturnType<typeof getCategoryBySlug>>;

@@ -1,12 +1,34 @@
+import type { CSSProperties } from "react";
+import { isCategoryColor } from "@/lib/categories";
+
+type AmbientBackgroundProps =
+  | { variant: "app" | "empty" }
+  | { variant: "category"; color: string };
+
 /**
  * The light in the room (SPEC §9.3). `app` is the populated screen: amber from
- * the upper left, a warm red from the right. `empty` is the lights-down state:
- * one faint amber pool where the marquee sign stands.
+ * the upper left, a warm red from the right. `empty` is the lights-down state.
+ * `category` washes the page in that category's colour.
  * Vignettes sit behind content: they darken the room, never the text
  * (over content they pushed sidebar text below WCAG AA contrast).
  */
-export function AmbientBackground({ variant }: { variant: "app" | "empty" }) {
-  if (variant === "empty") {
+export function AmbientBackground(props: AmbientBackgroundProps) {
+  if (props.variant === "category") {
+    const token = isCategoryColor(props.color) ? props.color : "amber";
+    return (
+      <div aria-hidden className="pointer-events-none">
+        <div
+          className="fixed inset-0 -z-10 overflow-hidden"
+          style={{ "--glow": `var(--color-cat-${token})` } as CSSProperties}
+        >
+          <div className="glow-tint absolute -top-60 left-30 h-120 w-190 blur-[70px] max-md:-top-47.5 max-md:-left-10 max-md:h-95 max-md:w-117.5 max-md:blur-[60px]" />
+        </div>
+        <div className="vignette-category fixed inset-0 -z-10" />
+      </div>
+    );
+  }
+
+  if (props.variant === "empty") {
     return (
       <div aria-hidden className="pointer-events-none">
         <div className="fixed inset-0 -z-10 overflow-hidden">

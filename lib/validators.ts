@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ITEM_STATUSES } from "@/lib/status";
 
 /** Every server action input is parsed through zod (SPEC §11). */
 export const emailSchema = z
@@ -20,6 +21,41 @@ export const verifyEmailCodeSchema = z.object({
   email: emailSchema,
   token: otpCodeSchema,
 });
+
+/** Empty form fields arrive as "" — treat them as not provided. */
+const blankToUndefined = (value: unknown) =>
+  value === "" || value === null || value === undefined ? undefined : value;
+
+/** Manual add from the category page (SPEC §8.7 "Add manually"). */
+export const createItemSchema = z.object({
+  categoryId: z.string().uuid("Pick a category."),
+  title: z
+    .string()
+    .trim()
+    .min(1, "Give it a title.")
+    .max(200, "Keep the title under 200 characters."),
+  year: z.preprocess(
+    blankToUndefined,
+    z.coerce
+      .number()
+      .int("Years are whole numbers.")
+      .min(1870, "That year is before film existed.")
+      .max(2100, "That year is a little far off.")
+      .optional(),
+  ),
+  status: z.enum(ITEM_STATUSES),
+  progressTotal: z.preprocess(
+    blankToUndefined,
+    z.coerce
+      .number()
+      .int("Use a whole number.")
+      .min(1, "At least 1.")
+      .max(100_000, "That's a lot of episodes.")
+      .optional(),
+  ),
+});
+
+export type CreateItemInput = z.infer<typeof createItemSchema>;
 
 /**
  * Only same-origin, path-only redirects survive — an open redirect here would

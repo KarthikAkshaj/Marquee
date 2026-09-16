@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MarqueeSign } from "@/components/home/MarqueeSign";
+import { AmbientBackground } from "@/components/shell/AmbientBackground";
 import { getCategories, getViewer } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Home" };
@@ -11,6 +12,7 @@ export default async function HomePage() {
   if (totalItems === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center py-10 md:px-10">
+        <AmbientBackground variant="empty" />
         <MarqueeSign />
         <div className="mt-11 flex max-w-130 flex-col items-center gap-3.5 text-center">
           <h1 className="font-display text-[40px] leading-[1.05] md:text-[50px]">
@@ -28,8 +30,11 @@ export default async function HomePage() {
   // Continue, stats and recently finished arrive with Phase 3 (SPEC §8.4).
   const name = viewer.profile?.display_name ?? viewer.profile?.username ?? "you";
   return (
-    <h1 className="font-display text-[40px] leading-[1.02] wrap-break-word md:text-[62px] md:leading-none md:tracking-[-.01em]">
+    <>
+      <AmbientBackground variant="app" />
+      <h1 className="font-display text-[40px] leading-[1.02] wrap-break-word md:text-[62px] md:leading-none md:tracking-[-.01em]">
       Welcome back, <em className="text-accent">{name}.</em>
     </h1>
+    </>
   );
 }
