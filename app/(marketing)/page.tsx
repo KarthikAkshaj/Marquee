@@ -81,7 +81,7 @@ export default function LandingPage() {
             <Link href="/login">Get started — it&apos;s free</Link>
           </Button>
           <p className="text-center text-[12.5px] text-text-muted md:text-13">
-            One email link, ten seconds, done.
+            One email code, ten seconds, done.
           </p>
         </div>
       </main>
