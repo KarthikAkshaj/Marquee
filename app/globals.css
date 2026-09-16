@@ -1,0 +1,241 @@
+@import "tailwindcss";
+
+/*
+ * Cinematic Dark — design tokens.
+ * Values come from the design handoff, which wins over SPEC §9 where they differ.
+ */
+@theme {
+  /* surfaces, darkest to lightest */
+  --color-bg:       #09090B;
+  --color-sunken:   #0B0B0E; /* landing feature strip + footer */
+  --color-surface:  #111114;
+  --color-tile:     #131317; /* icon tiles */
+  --color-inset:    #141417; /* disabled controls */
+  --color-menu:     #141418; /* floating menus (used at 94%) */
+  --color-elevated: #18181C;
+
+  --color-border:        rgb(255 255 255 / 0.07);
+  --color-border-strong: rgb(255 255 255 / 0.14);
+
+  /* text */
+  --color-text:       #EDE9E3;
+  --color-text-muted: #8E8A83;
+  --color-text-faint: #57544F;
+  --color-text-ghost: #3A3835; /* separators, empty counts */
+
+  /* accent — marquee bulb amber */
+  --color-accent:        #F4B650;
+  --color-accent-hover:  #FFC96B;
+  --color-accent-bright: #FFD58F; /* link hover */
+  --color-accent-ink:    #09090B;
+
+  /* status */
+  --color-planned:       #8C9BFF;
+  --color-progress:      #F4B650;
+  --color-completed:     #6FDDA8;
+  --color-dropped:       #F2777A;
+  --color-dropped-muted: #C26A6C;
+
+  /* category palette (token names are what live in the DB) */
+  --color-cat-amber:   #F4B650;
+  --color-cat-crimson: #E5484D;
+  --color-cat-violet:  #A78BFA;
+  --color-cat-teal:    #2DD4BF;
+  --color-cat-sky:     #60A5FA;
+  --color-cat-rose:    #FB7185;
+  --color-cat-lime:    #A3E635;
+  --color-cat-sand:    #D6C3A1;
+
+  /* generated avatar (SPEC §8.10: initials on a warm gradient) */
+  --color-avatar-light: #F7C169;
+  --color-avatar-mid:   #C2591F;
+  --color-avatar-deep:  #7A2B12;
+  --color-avatar-ink:   #1C0F06;
+
+  /* TMDB attribution badge — their brand colours */
+  --color-tmdb-green: #90CEA1;
+  --color-tmdb-blue:  #01B4E4;
+  --color-tmdb-ink:   #062A35;
+
+  /* type — wired to next/font in app/layout.tsx */
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-sans:    var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-geist-mono), ui-monospace, monospace;
+
+  /* type scale (SPEC §9.1), named by pixel size. The handoff also uses half
+     sizes (13.5px, 10.5px…); those are written as exact arbitrary values. */
+  --text-*: initial;
+  --text-12: 0.75rem;   --text-12--line-height: 1.5;
+  --text-13: 0.8125rem; --text-13--line-height: 1.5;
+  --text-14: 0.875rem;  --text-14--line-height: 1.5;
+  --text-16: 1rem;      --text-16--line-height: 1.55;
+  --text-20: 1.25rem;   --text-20--line-height: 1.45;
+  --text-28: 1.75rem;   --text-28--line-height: 1.15;
+  --text-40: 2.5rem;    --text-40--line-height: 1.08;
+  --text-56: 3.5rem;    --text-56--line-height: 1.02;
+  --text-80: 5rem;      --text-80--line-height: 1;
+
+  /* shape */
+  --radius-pill:  6px;
+  --radius-nav:   8px;
+  --radius-card:  10px;
+  --radius-tile:  14px;
+  --radius-sheet: 16px;
+
+  /* coloured light, never black smudges (SPEC §9.4) */
+  --shadow-mark:        0 0 18px rgb(244 182 80 / 0.55);
+  --shadow-mark-card:   0 0 16px rgb(244 182 80 / 0.5);
+  --shadow-mark-sm:     0 0 14px rgb(244 182 80 / 0.5);
+  --shadow-mark-xs:     0 0 12px rgb(244 182 80 / 0.6);
+  --shadow-mark-dim:    0 0 14px rgb(244 182 80 / 0.2);
+  --shadow-cta:         0 14px 40px rgb(244 182 80 / 0.3);
+  --shadow-cta-sm:      0 10px 30px rgb(244 182 80 / 0.25);
+  --shadow-cta-md:      0 12px 32px rgb(244 182 80 / 0.28);
+  --shadow-avatar:      0 0 14px rgb(244 182 80 / 0.22);
+  --shadow-avatar-lg:   0 6px 18px rgb(244 182 80 / 0.28);
+  --shadow-bulb:        0 0 14px rgb(244 182 80 / 0.8);
+  --shadow-bulb-warm:   0 0 8px rgb(244 182 80 / 0.22);
+  --shadow-bulb-low:    0 0 12px rgb(244 182 80 / 0.5);
+  --shadow-dialog:      0 40px 100px rgb(0 0 0 / 0.65);
+  --shadow-dialog-sm:   0 30px 70px rgb(0 0 0 / 0.6);
+  --shadow-menu:        0 26px 60px rgb(0 0 0 / 0.66), 0 0 0 1px rgb(0 0 0 / 0.4);
+  --shadow-mockup:      0 70px 150px rgb(0 0 0 / 0.8), 0 0 70px rgb(244 182 80 / 0.1);
+  --shadow-input-focus: 0 0 0 3px rgb(244 182 80 / 0.1);
+
+  /* motion (SPEC §9.6) */
+  --ease-cinematic: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* wrong code: a short no-shake of the head */
+  --animate-shake: shake 360ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  --animate-drift-a: drift-a 64s ease-in-out infinite alternate;
+  --animate-drift-b: drift-b 78s ease-in-out infinite alternate;
+  --animate-drift-c: drift-c 92s ease-in-out infinite alternate;
+
+  @keyframes drift-a {
+    from { transform: translate3d(-2%, 0, 0); }
+    to   { transform: translate3d(2%, -3%, 0); }
+  }
+  @keyframes drift-b {
+    from { transform: translate3d(2%, -2%, 0); }
+    to   { transform: translate3d(-2%, 2%, 0); }
+  }
+  @keyframes drift-c {
+    from { transform: translate3d(-1%, 2%, 0); }
+    to   { transform: translate3d(3%, -1%, 0); }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark; /* dark only for MVP */
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Fraunces at SOFT 70, weight 420. Optical size is set per use in the
+     handoff: 96 for UI, 120 for card headings, 144 for the hero. */
+  .font-display {
+    font-family: var(--font-display);
+    font-variation-settings: "SOFT" 70, "opsz" var(--opsz, 96);
+    font-weight: 420;
+  }
+
+  /* Mono is for counts, progress, dates, shortcuts — always tabular. */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* One amber focus ring everywhere (SPEC §9.5). */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-bg);
+  }
+}
+
+@layer utilities {
+  .opsz-120 { --opsz: 120; }
+  .opsz-144 { --opsz: 144; }
+
+  /* Surfaces are never flat gray: 1px inner top highlight (SPEC §9.3). */
+  .surface-highlight {
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+  }
+
+  /* Mono micro-labels: LISTS, EMAIL… */
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* Film grain tiles (SPEC §9.3, values from the handoff). */
+  .grain {
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .grain-fine {
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Ambient light and vignettes. */
+  .glow-amber        { background: radial-gradient(closest-side, rgb(244 182 80 / 0.2), transparent); }
+  .glow-amber-soft   { background: radial-gradient(closest-side, rgb(244 182 80 / 0.11), transparent); }
+  .glow-amber-floor  { background: radial-gradient(closest-side, rgb(244 182 80 / 0.16), transparent); }
+  .glow-amber-mockup { background: radial-gradient(closest-side, rgb(244 182 80 / 0.22), transparent); }
+  .glow-crimson      { background: radial-gradient(closest-side, rgb(229 72 77 / 0.16), transparent); }
+  .vignette-app      { background: radial-gradient(120% 80% at 50% 40%, transparent 40%, rgb(0 0 0 / 0.55)); }
+  .vignette-empty    { background: radial-gradient(110% 80% at 55% 45%, transparent 30%, rgb(0 0 0 / 0.6)); }
+  .vignette-hero     { background: radial-gradient(120% 90% at 50% 40%, transparent 38%, rgb(0 0 0 / 0.72)); }
+  .vignette-login    { background: radial-gradient(120% 90% at 50% 45%, transparent 35%, rgb(0 0 0 / 0.7)); }
+
+  /* Scrims that sink the poster wall behind the copy. */
+  .scrim-hero-side   { background: radial-gradient(75% 70% at 20% 44%, rgb(9 9 11 / 0.9) 26%, rgb(9 9 11 / 0.35) 66%, transparent); }
+  .scrim-hero-bottom { background: linear-gradient(to bottom, rgb(9 9 11 / 0.5), rgb(9 9 11 / 0.1) 30%, var(--color-bg)); }
+  .scrim-hero-mobile { background: linear-gradient(to bottom, rgb(9 9 11 / 0.55), rgb(9 9 11 / 0.25) 25%, var(--color-bg)); }
+  .scrim-login       { background: radial-gradient(80% 70% at 50% 45%, rgb(9 9 11 / 0.9) 25%, rgb(9 9 11 / 0.55) 65%, rgb(9 9 11 / 0.85)); }
+
+  /* Cover sheen and the marquee sign. */
+  .poster-sheen   { background: radial-gradient(120% 80% at 30% 20%, rgb(255 255 255 / 0.08), transparent); }
+  .sign-face      { background: linear-gradient(180deg, rgb(255 255 255 / 0.035), rgb(255 255 255 / 0.008)); }
+  .sign-stand     { background: linear-gradient(180deg, rgb(255 255 255 / 0.05), transparent); }
+  .sign-footlight { background: linear-gradient(to right, transparent, rgb(244 182 80 / 0.35), transparent); }
+
+  .avatar-gradient {
+    background: linear-gradient(145deg, var(--color-avatar-light), var(--color-avatar-mid) 56%, var(--color-avatar-deep));
+  }
+  .tmdb-gradient {
+    background: linear-gradient(90deg, var(--color-tmdb-green), var(--color-tmdb-blue));
+  }
+}
+
+/* Motion is a courtesy, not a requirement (SPEC §9.6): no drift, no sheen. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

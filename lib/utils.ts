@@ -1,0 +1,41 @@
+import { clsx, type ClassValue } from "clsx";
+import { extendTailwindMerge } from "tailwind-merge";
+
+/**
+ * tailwind-merge only knows Tailwind's default scale names. Without these, a
+ * custom size like `text-14` is mistaken for a text *colour* and silently
+ * deletes the real colour class it sits next to. Keep in sync with @theme in
+ * app/globals.css.
+ */
+const twMerge = extendTailwindMerge({
+  extend: {
+    theme: {
+      text: ["12", "13", "14", "16", "20", "28", "40", "56", "80"],
+      radius: ["pill", "nav", "card", "tile", "sheet"],
+      shadow: [
+        "mark",
+        "mark-card",
+        "mark-sm",
+        "mark-xs",
+        "mark-dim",
+        "cta",
+        "cta-sm",
+        "cta-md",
+        "avatar",
+        "avatar-lg",
+        "bulb",
+        "bulb-warm",
+        "bulb-low",
+        "dialog",
+        "dialog-sm",
+        "menu",
+        "mockup",
+        "input-focus",
+      ],
+    },
+  },
+});
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
