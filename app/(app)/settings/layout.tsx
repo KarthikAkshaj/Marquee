@@ -24,6 +24,7 @@ export default async function SettingsLayout({ children }: LayoutProps<"/setting
             // No count on Profile (SPEC §8.10 design overrides).
             { href: "/settings/profile", label: "Profile" },
             { href: "/settings/categories", label: "Categories", meta: String(categories.length).padStart(2, "0") },
+            { href: "/settings/account", label: "Account" },
           ]}
         />
         <div className="min-w-0 flex-1 pb-10 md:max-w-180">{children}</div>

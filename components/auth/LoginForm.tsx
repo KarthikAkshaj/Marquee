@@ -9,6 +9,7 @@ import { signInWithEmail, type AuthActionState } from "@/lib/actions/auth";
 import { emailSchema } from "@/lib/validators";
 import { AuthCard } from "./AuthCard";
 import { CheckInbox } from "./CheckInbox";
+import { GoogleButton } from "./GoogleButton";
 
 const initialState: AuthActionState = { status: "idle" };
 
@@ -16,9 +17,11 @@ type LoginFormProps = {
   next: string;
   /** Set when a sign-in attempt bounced back with `?error=`. */
   urlError: string | null;
+  /** Google only shows once it is switched on in Supabase. */
+  googleEnabled: boolean;
 };
 
-export function LoginForm({ next, urlError }: LoginFormProps) {
+export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
   const [state, formAction, pending] = useActionState(signInWithEmail, initialState);
   const [email, setEmail] = useState("");
   // "Different email" hides the inbox view without losing what was typed.
@@ -61,7 +64,18 @@ export function LoginForm({ next, urlError }: LoginFormProps) {
         </p>
       )}
 
-      <form action={formAction} className="mt-6" noValidate>
+      {googleEnabled && (
+        <>
+          <GoogleButton next={next} className="mt-6" />
+          <div aria-hidden className="my-4.5 flex items-center gap-3">
+            <span className="h-px flex-1 bg-border" />
+            <span className="label-mono text-text-muted">or</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
+        </>
+      )}
+
+      <form action={formAction} className={googleEnabled ? undefined : "mt-6"} noValidate>
         <input type="hidden" name="next" value={next} />
         <label htmlFor="email" className="label-mono mb-2 block tracking-[.12em] text-text-muted">
           Email

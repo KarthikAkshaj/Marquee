@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { otpErrorMessage } from "@/lib/auth/otp";
+import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 import { safeRedirectPath, signInWithEmailSchema, verifyEmailCodeSchema } from "@/lib/validators";
 
@@ -14,10 +15,6 @@ export type VerifyCodeState =
   | { status: "idle" }
   /** `attempt` changes on every failure so the code boxes can reset. */
   | { status: "error"; message: string; attempt: number };
-
-function siteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-}
 
 /**
  * Emails a 6-digit sign-in code (SPEC §6). The same email carries a magic link
@@ -99,8 +96,8 @@ export async function verifyEmailCode(
 }
 
 /**
- * Google OAuth (SPEC §6). Wired and ready; the button is hidden until the
- * Google provider is configured in Supabase.
+ * Google OAuth (SPEC §6). The login page shows the button once the Google
+ * provider is switched on in Supabase (lib/auth/providers.ts).
  * `prompt: 'select_account'` is what makes "Switch account" show the chooser
  * instead of silently reusing the last Google account.
  */

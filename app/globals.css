@@ -58,6 +58,15 @@
   --color-avatar-deep:  #7A2B12;
   --color-avatar-ink:   #1C0F06;
 
+  /* "Continue with Google": Google's dark-theme button and logo colours (brand guidelines) */
+  --color-google-fill:   #131314;
+  --color-google-stroke: #8E918F;
+  --color-google-text:   #E3E3E3;
+  --color-google-blue:   #4285F4;
+  --color-google-green:  #34A853;
+  --color-google-yellow: #FBBC05;
+  --color-google-red:    #EA4335;
+
   /* TMDB attribution badge — their brand colours */
   --color-tmdb-green: #90CEA1;
   --color-tmdb-blue:  #01B4E4;

@@ -102,3 +102,31 @@ export const getProfile = cache(async () => {
 });
 
 export type Profile = Awaited<ReturnType<typeof getProfile>>;
+
+/** Settings → Account (SPEC §8.10): how the user signs in, and what deleting would take with it. */
+export const getAccount = cache(async () => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) redirect("/login");
+
+  const { user } = data;
+  const providers = new Set((user.identities ?? []).map((identity) => identity.provider));
+  const [profile, titles, categories] = await Promise.all([
+    supabase.from("profiles").select("username").eq("id", user.id).single(),
+    supabase.from("items").select("id", { count: "exact", head: true }),
+    supabase.from("categories").select("id", { count: "exact", head: true }),
+  ]);
+  if (profile.error) throw new Error(`Couldn't load your account: ${profile.error.message}`);
+
+  return {
+    email: user.email ?? null,
+    /** Set while an email change waits for its confirmation links. */
+    pendingEmail: user.new_email ?? null,
+    signsInWith: { google: providers.has("google"), email: providers.has("email") },
+    username: profile.data.username,
+    titleCount: titles.count ?? 0,
+    categoryCount: categories.count ?? 0,
+  };
+});
+
+export type Account = Awaited<ReturnType<typeof getAccount>>;

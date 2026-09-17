@@ -4,6 +4,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { CenteredAttributions } from "@/components/marketing/Attributions";
 import { PosterWall } from "@/components/marketing/PosterWall";
 import { BrandMark } from "@/components/shell/BrandMark";
+import { isGoogleSignInEnabled } from "@/lib/auth/providers";
 import { safeRedirectPath } from "@/lib/validators";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const params = await searchParams;
   const next = safeRedirectPath(typeof params.next === "string" ? params.next : null);
   const error = typeof params.error === "string" ? params.error : null;
+  const googleEnabled = await isGoogleSignInEnabled();
 
   return (
     <div className="relative flex min-h-dvh flex-col overflow-hidden px-5 pt-4 pb-6 md:items-center md:justify-center md:gap-5.5 md:p-0">
@@ -43,9 +45,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       </Link>
 
       <main className="relative z-7 my-auto w-full md:my-0 md:w-104">
-        {/* Google sign-in is built (lib/actions/auth.ts → signInWithGoogle) and
-            ships once the provider is configured in Supabase. */}
-        <LoginForm next={next} urlError={error} />
+        <LoginForm next={next} urlError={error} googleEnabled={googleEnabled} />
       </main>
 
       <CenteredAttributions className="relative z-7" />

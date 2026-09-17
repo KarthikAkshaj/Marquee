@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { GoodbyeToast } from "@/components/marketing/GoodbyeToast";
 import { FooterAttributions } from "@/components/marketing/Attributions";
 import { FeatureStrip } from "@/components/marketing/FeatureStrip";
 import { HomeMockup } from "@/components/marketing/HomeMockup";
@@ -10,6 +12,10 @@ import { Button } from "@/components/ui/Button";
 export default function LandingPage() {
   return (
     <div className="relative flex min-h-dvh flex-col overflow-hidden">
+      {/* Reads ?goodbye=1; Suspense keeps the rest of the page static. */}
+      <Suspense>
+        <GoodbyeToast />
+      </Suspense>
       <div aria-hidden className="absolute inset-x-0 top-0 h-130 overflow-hidden md:h-165">
         <PosterWall
           rows={[
