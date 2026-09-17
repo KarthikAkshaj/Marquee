@@ -6,11 +6,19 @@ import type { ItemStatus } from "@/lib/status";
 import { createClient } from "@/lib/supabase/server";
 import { createItemSchema, itemFavoriteSchema, itemIdSchema, itemStatusSchema } from "@/lib/validators";
 
+/** What was typed, handed back on an error: React resets the form after every submit. */
+export type CreateItemValues = { title: string; year: string; progressTotal: string; progressCurrent: string };
+
 export type CreateItemState =
   | { status: "idle" }
-  | { status: "error"; message: string }
+  | { status: "error"; message: string; values: CreateItemValues }
   /** `at` changes on every success so the dialog can react to repeat adds. */
   | { status: "created"; id: string; title: string; at: number };
+
+const field = (formData: FormData, name: string) => {
+  const value = formData.get(name);
+  return typeof value === "string" ? value : "";
+};
 
 /** Signed-in user id, re-checked inside every action (proxy.ts is not the boundary). */
 async function requireUserId() {
@@ -24,22 +32,29 @@ export async function createItem(
   _prev: CreateItemState,
   formData: FormData,
 ): Promise<CreateItemState> {
+  const values: CreateItemValues = {
+    title: field(formData, "title"),
+    year: field(formData, "year"),
+    progressTotal: field(formData, "progressTotal"),
+    progressCurrent: field(formData, "progressCurrent"),
+  };
   const parsed = createItemSchema.safeParse({
     categoryId: formData.get("categoryId"),
-    title: formData.get("title"),
-    year: formData.get("year"),
     status: formData.get("status"),
-    progressTotal: formData.get("progressTotal"),
+    ...values,
   });
 
   if (!parsed.success) {
-    return { status: "error", message: parsed.error.issues[0]?.message ?? "Check the details." };
+    return { status: "error", message: parsed.error.issues[0]?.message ?? "Check the details.", values };
   }
 
   const { supabase, userId } = await requireUserId();
-  if (!userId) return { status: "error", message: "Your session ended. Sign in again." };
+  if (!userId) return { status: "error", message: "Your session ended. Sign in again.", values };
 
-  const { categoryId, title, year, status, progressTotal } = parsed.data;
+  const { categoryId, title, year, status, progressTotal, progressCurrent } = parsed.data;
+  // Only a title you're partway through has a place to be up to: queued starts at
+  // zero, and finished fills to the total in the database.
+  const midway = status === "in_progress" || status === "dropped";
   const { data, error } = await supabase
     .from("items")
     .insert({
@@ -49,12 +64,13 @@ export async function createItem(
       year: year ?? null,
       status,
       progress_total: progressTotal ?? null,
+      progress_current: midway ? (progressCurrent ?? 0) : 0,
     })
     .select("id")
     .single();
 
   if (error) {
-    return { status: "error", message: "Couldn't add that title. Try again." };
+    return { status: "error", message: "Couldn't add that title. Try again.", values };
   }
 
   // Sidebar counts live in the layout, so refresh the whole app tree.

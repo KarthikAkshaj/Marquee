@@ -43,6 +43,9 @@ function AddItemForm({
   const [status, setStatus] = useState<ItemStatus>(defaultStatus);
   const labels = statusLabels(category.kind);
   const totalLabel = progressUnit(category.kind);
+  // Partway through: say where you're up to instead of pressing +1 eight hundred times.
+  const showCurrent = totalLabel !== null && (status === "in_progress" || status === "dropped");
+  const typed = state.status === "error" ? state.values : undefined;
 
   const finish = useEffectEvent((title: string) => {
     toast.success(`Added ${title}.`);
@@ -70,7 +73,7 @@ function AddItemForm({
           <label htmlFor="add-title" className="label-mono mb-2 block tracking-[.12em] text-text-muted">
             Title
           </label>
-          <Input id="add-title" name="title" required maxLength={200} autoComplete="off" />
+          <Input id="add-title" name="title" required maxLength={200} autoComplete="off" defaultValue={typed?.title} />
         </div>
 
         <div className="flex gap-3">
@@ -78,14 +81,28 @@ function AddItemForm({
             <label htmlFor="add-year" className="label-mono mb-2 block tracking-[.12em] text-text-muted">
               Year
             </label>
-            <Input id="add-year" name="year" inputMode="numeric" placeholder="2024" className="font-mono" />
+            <Input
+              id="add-year"
+              name="year"
+              inputMode="numeric"
+              placeholder="2024"
+              className="font-mono"
+              defaultValue={typed?.year}
+            />
           </div>
           {totalLabel && (
             <div className="flex-1">
               <label htmlFor="add-total" className="label-mono mb-2 block tracking-[.12em] text-text-muted">
                 {totalLabel}
               </label>
-              <Input id="add-total" name="progressTotal" inputMode="numeric" placeholder="24" className="font-mono" />
+              <Input
+                id="add-total"
+                name="progressTotal"
+                inputMode="numeric"
+                placeholder="24"
+                className="font-mono"
+                defaultValue={typed?.progressTotal}
+              />
             </div>
           )}
         </div>
@@ -113,6 +130,22 @@ function AddItemForm({
             })}
           </div>
         </fieldset>
+
+        {showCurrent && (
+          <div className="w-[calc(50%-6px)]">
+            <label htmlFor="add-current" className="label-mono mb-2 block tracking-[.12em] text-text-muted">
+              {totalLabel === "Episodes" ? "On episode" : "Done so far"}
+            </label>
+            <Input
+              id="add-current"
+              name="progressCurrent"
+              inputMode="numeric"
+              placeholder="0"
+              className="font-mono"
+              defaultValue={typed?.progressCurrent}
+            />
+          </div>
+        )}
 
         {state.status === "error" && (
           <p role="alert" className="text-13 text-dropped">

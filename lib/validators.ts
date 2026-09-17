@@ -27,33 +27,49 @@ const blankToUndefined = (value: unknown) =>
   value === "" || value === null || value === undefined ? undefined : value;
 
 /** Manual add from the category page (SPEC §8.7 "Add manually"). */
-export const createItemSchema = z.object({
-  categoryId: z.string().uuid("Pick a category."),
-  title: z
-    .string()
-    .trim()
-    .min(1, "Give it a title.")
-    .max(200, "Keep the title under 200 characters."),
-  year: z.preprocess(
-    blankToUndefined,
-    z.coerce
-      .number()
-      .int("Years are whole numbers.")
-      .min(1870, "That year is before film existed.")
-      .max(2100, "That year is a little far off.")
-      .optional(),
-  ),
-  status: z.enum(ITEM_STATUSES),
-  progressTotal: z.preprocess(
-    blankToUndefined,
-    z.coerce
-      .number()
-      .int("Use a whole number.")
-      .min(1, "At least 1.")
-      .max(100_000, "That's a lot of episodes.")
-      .optional(),
-  ),
-});
+export const createItemSchema = z
+  .object({
+    categoryId: z.string().uuid("Pick a category."),
+    title: z
+      .string()
+      .trim()
+      .min(1, "Give it a title.")
+      .max(200, "Keep the title under 200 characters."),
+    year: z.preprocess(
+      blankToUndefined,
+      z.coerce
+        .number()
+        .int("Years are whole numbers.")
+        .min(1870, "That year is before film existed.")
+        .max(2100, "That year is a little far off.")
+        .optional(),
+    ),
+    status: z.enum(ITEM_STATUSES),
+    progressTotal: z.preprocess(
+      blankToUndefined,
+      z.coerce
+        .number()
+        .int("Use a whole number.")
+        .min(1, "At least 1.")
+        .max(100_000, "That's a lot of episodes.")
+        .optional(),
+    ),
+    /** Where you're up to, so a long show doesn't take 800 presses of +1. */
+    progressCurrent: z.preprocess(
+      blankToUndefined,
+      z.coerce
+        .number()
+        .int("Use a whole number.")
+        .min(0, "Can't be below zero.")
+        .max(100_000, "That's a lot of episodes.")
+        .optional(),
+    ),
+  })
+  .refine(
+    ({ progressCurrent, progressTotal }) =>
+      progressCurrent === undefined || progressTotal === undefined || progressCurrent <= progressTotal,
+    { message: "That's past the last one. Check the total.", path: ["progressCurrent"] },
+  );
 
 export type CreateItemInput = z.infer<typeof createItemSchema>;
 
