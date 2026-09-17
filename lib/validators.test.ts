@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { createItemSchema, emailSchema, otpCodeSchema, safeRedirectPath } from "./validators";
+import {
+  createItemSchema,
+  emailSchema,
+  itemFavoriteSchema,
+  itemIdSchema,
+  itemStatusSchema,
+  otpCodeSchema,
+  safeRedirectPath,
+} from "./validators";
 
 describe("safeRedirectPath", () => {
   it("keeps same-origin paths", () => {
@@ -77,5 +85,21 @@ describe("createItemSchema", () => {
     expect(createItemSchema.safeParse({ ...base, year: "1500" }).success).toBe(false);
     expect(createItemSchema.safeParse({ ...base, progressTotal: "0" }).success).toBe(false);
     expect(createItemSchema.safeParse({ ...base, categoryId: "anime" }).success).toBe(false);
+  });
+});
+
+describe("quick action schemas", () => {
+  const id = "7d8f2a64-3a4e-4c1b-9b5f-2e9a1c0d4b11";
+
+  it("accepts a real id with a known status or a favourite flag", () => {
+    expect(itemStatusSchema.safeParse({ id, status: "dropped" }).success).toBe(true);
+    expect(itemFavoriteSchema.safeParse({ id, favorite: false }).success).toBe(true);
+    expect(itemIdSchema.safeParse(id).success).toBe(true);
+  });
+
+  it("rejects made-up statuses, loose flags and non-ids", () => {
+    expect(itemStatusSchema.safeParse({ id, status: "watching" }).success).toBe(false);
+    expect(itemFavoriteSchema.safeParse({ id, favorite: "true" }).success).toBe(false);
+    expect(itemIdSchema.safeParse("frieren").success).toBe(false);
   });
 });

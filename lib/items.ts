@@ -1,5 +1,5 @@
 import type { Database } from "@/lib/supabase/database.types";
-import { ITEM_STATUSES, type ItemStatus } from "@/lib/status";
+import { ITEM_STATUSES, type CategoryKind, type ItemStatus } from "@/lib/status";
 
 export type Item = Database["public"]["Tables"]["items"]["Row"];
 
@@ -162,4 +162,75 @@ export function progressLabel(item: Pick<Item, "progress_current" | "progress_to
   return item.progress_total
     ? `${pad(item.progress_current)} / ${pad(item.progress_total)}`
     : pad(item.progress_current);
+}
+
+/** What a shelf counts, if anything. Movies and games don't get a +1. */
+export function progressUnit(kind: CategoryKind): "Episodes" | "Total" | null {
+  if (kind === "anime" || kind === "series") return "Episodes";
+  return kind === "custom" ? "Total" : null;
+}
+
+type ProgressFields = Pick<Item, "status" | "progress_current" | "progress_total">;
+
+/**
+ * Marking a title done fills its progress bar. The database trigger only does
+ * that the first time a title is finished, so the actions say it outright.
+ */
+export function statusPatch(item: ProgressFields, status: ItemStatus) {
+  return status === "completed" && item.progress_total !== null
+    ? { status, progress_current: item.progress_total }
+    : { status };
+}
+
+/**
+ * +1 starts a queued or dropped title and finishes it on the last episode.
+ * null when there's nothing left to count.
+ */
+export function incrementPatch(item: ProgressFields): { status: ItemStatus; progress_current: number } | null {
+  if (item.status === "completed") return null;
+  const total = item.progress_total;
+  if (total !== null && item.progress_current >= total) return null;
+  const progress_current = item.progress_current + 1;
+  return {
+    status: total !== null && progress_current >= total ? "completed" : "in_progress",
+    progress_current,
+  };
+}
+
+export type ItemChange =
+  | { type: "status"; status: ItemStatus }
+  | { type: "increment" }
+  | { type: "favorite"; favorite: boolean }
+  | { type: "delete" };
+
+/** The dates the database stamps on a status change (SPEC §5), so optimistic rows match saved ones. */
+function stampStatusDates(item: Item, today: string): Item {
+  const next = { ...item };
+  if (next.status === "in_progress" && !next.started_at) next.started_at = today;
+  if (next.status === "completed" && !next.finished_at) {
+    next.finished_at = today;
+    if (next.progress_total !== null) next.progress_current = next.progress_total;
+  }
+  return next;
+}
+
+/** One change applied to a shelf ahead of the save. Unknown ids leave it untouched. */
+export function applyItemChange(items: Item[], id: string, change: ItemChange, now = new Date()): Item[] {
+  if (change.type === "delete") return items.filter((item) => item.id !== id);
+
+  const updated_at = now.toISOString();
+  const today = updated_at.slice(0, 10);
+  return items.map((item) => {
+    if (item.id !== id) return item;
+    switch (change.type) {
+      case "favorite":
+        return { ...item, is_favorite: change.favorite, updated_at };
+      case "status":
+        return stampStatusDates({ ...item, ...statusPatch(item, change.status), updated_at }, today);
+      case "increment": {
+        const patch = incrementPatch(item);
+        return patch ? stampStatusDates({ ...item, ...patch, updated_at }, today) : item;
+      }
+    }
+  });
 }

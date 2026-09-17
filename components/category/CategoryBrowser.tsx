@@ -2,23 +2,23 @@
 
 import { Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { ItemRow } from "@/components/items/ItemRow";
-import { PosterCard } from "@/components/items/PosterCard";
+import { DeleteItemDialog } from "@/components/items/DeleteItemDialog";
+import { useItemActions } from "@/components/items/useItemActions";
 import { Button } from "@/components/ui/Button";
 import { categoryStyle } from "@/lib/categories";
-import { filterByTitle, itemHref, type CategoryParams, type Item, type StatusTab } from "@/lib/items";
+import { countByStatus, filterByTitle, selectItems, type CategoryParams, type Item } from "@/lib/items";
 import type { CategoryKind } from "@/lib/status";
 import { cn } from "@/lib/utils";
 import { AddItemDialog } from "./AddItemDialog";
 import { CategoryToolbar } from "./CategoryToolbar";
 import { EmptyShelf, type EmptyReason } from "./EmptyShelf";
+import { ShelfItems } from "./ShelfItems";
 import { StatusTabs } from "./StatusTabs";
 
 type CategoryBrowserProps = {
   category: { id: string; name: string; slug: string; kind: CategoryKind; color: string };
   params: CategoryParams;
-  counts: Record<StatusTab, number>;
-  /** Already narrowed to the status tab and favourites, and sorted, on the server. */
+  /** Every title on the shelf. Tabs, counts and sort are worked out here so quick actions update them at once. */
   items: Item[];
 };
 
@@ -30,10 +30,12 @@ function isTyping(target: EventTarget | null) {
 }
 
 /** The category page's interactive body (SPEC §8.5). */
-export function CategoryBrowser({ category, params, counts, items }: CategoryBrowserProps) {
+export function CategoryBrowser({ category, params, items }: CategoryBrowserProps) {
   const [query, setQuery] = useState("");
   const [adding, setAdding] = useState(false);
+  const [deleting, setDeleting] = useState<Item | null>(null);
   const filterRef = useRef<HTMLInputElement>(null);
+  const shelf = useItemActions(items);
 
   // `/` focuses the filter, `N` adds a title (SPEC §8.7b).
   useEffect(() => {
@@ -51,7 +53,8 @@ export function CategoryBrowser({ category, params, counts, items }: CategoryBro
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  const visible = filterByTitle(items, query);
+  const counts = countByStatus(shelf.items);
+  const visible = filterByTitle(selectItems(shelf.items, params), query);
   const reason: EmptyReason | null =
     visible.length > 0
       ? null
@@ -64,8 +67,6 @@ export function CategoryBrowser({ category, params, counts, items }: CategoryBro
             : params.status !== "all"
               ? { type: "status", status: params.status }
               : { type: "empty" };
-
-  const hrefFor = (item: Item) => itemHref(category.slug, params, item.id);
 
   return (
     <>
@@ -109,36 +110,18 @@ export function CategoryBrowser({ category, params, counts, items }: CategoryBro
             onAdd={() => setAdding(true)}
             onClearFilter={() => setQuery("")}
           />
-        ) : params.view === "grid" ? (
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-4.5 sm:grid-cols-3 md:grid-cols-4 md:gap-5 xl:grid-cols-6">
-            {visible.map((item) => (
-              <li key={item.id}>
-                <PosterCard item={item} href={hrefFor(item)} kind={category.kind} categoryColor={category.color} />
-              </li>
-            ))}
-          </ul>
         ) : (
-          <div>
-            <div
-              aria-hidden
-              className="hidden grid-cols-[40px_minmax(0,1fr)_140px_80px_72px_96px] gap-5 border-b border-border px-2 pb-2.5 md:grid"
-            >
-              <span />
-              {["Title", "Status", "Progress", "Rating"].map((label) => (
-                <span key={label} className="label-mono text-text-muted">
-                  {label}
-                </span>
-              ))}
-              <span className="label-mono text-right text-text-muted">Updated</span>
-            </div>
-            <ul className="divide-y divide-border">
-              {visible.map((item) => (
-                <li key={item.id}>
-                  <ItemRow item={item} href={hrefFor(item)} kind={category.kind} categoryColor={category.color} />
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ShelfItems
+            category={category}
+            params={params}
+            items={visible}
+            actions={{
+              onStatusChange: shelf.setStatus,
+              onIncrement: shelf.increment,
+              onToggleFavorite: shelf.toggleFavorite,
+              onDelete: setDeleting,
+            }}
+          />
         )}
       </section>
 
@@ -147,6 +130,14 @@ export function CategoryBrowser({ category, params, counts, items }: CategoryBro
         onOpenChange={setAdding}
         category={category}
         defaultStatus={params.status === "all" ? "planned" : params.status}
+      />
+      <DeleteItemDialog
+        title={deleting?.title ?? null}
+        onCancel={() => setDeleting(null)}
+        onConfirm={() => {
+          if (deleting) shelf.remove(deleting);
+          setDeleting(null);
+        }}
       />
     </>
   );

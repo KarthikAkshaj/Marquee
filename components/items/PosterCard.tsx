@@ -6,19 +6,34 @@ import { generatedCover } from "@/lib/poster-art";
 import { STATUS_STYLE, statusLabel, type CategoryKind } from "@/lib/status";
 import { cn } from "@/lib/utils";
 import { ItemCover } from "./ItemCover";
+import { QuickActions, type ItemQuickActions } from "./QuickActions";
 
 type PosterCardProps = {
   item: Item;
   href: string;
   kind: CategoryKind;
   categoryColor: string;
+  actions: ItemQuickActions;
+};
+
+/** Hovered, keyboard-focused, or holding an open menu: the card is "lit". */
+const lit = {
+  frame:
+    "group-hover:-translate-y-1.5 group-hover:scale-[1.03] group-hover:border-accent/45 group-hover:shadow-[0_26px_60px_var(--card-glow),var(--shadow-card-ring)] group-has-[:focus-visible]:-translate-y-1.5 group-has-[:focus-visible]:border-accent/45 group-has-[:focus-visible]:shadow-[0_26px_60px_var(--card-glow),var(--shadow-card-ring)] group-has-[[data-state=open]]:-translate-y-1.5 group-has-[[data-state=open]]:border-accent/45",
+  bar: "group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 group-has-[[data-state=open]]:opacity-100",
+  /** Only the buttons take the pointer; the gradient around them still opens the title. */
+  buttons:
+    "pointer-events-none group-hover:pointer-events-auto group-has-[:focus-visible]:pointer-events-auto group-has-[[data-state=open]]:pointer-events-auto",
 };
 
 /**
  * A 2:3 poster (SPEC §9.5, handoff §02): status dot, favourite star, amber
- * progress for titles in progress, and a lift with coloured light on hover.
+ * progress for titles in progress, and on hover a lift, a sheen and the quick
+ * actions. The title is the card's link; the cover repeats it for the mouse.
+ * `hover:` only applies on devices that can hover, so phones never tap an
+ * invisible button.
  */
-export function PosterCard({ item, href, kind, categoryColor }: PosterCardProps) {
+export function PosterCard({ item, href, kind, categoryColor, actions }: PosterCardProps) {
   const status = STATUS_STYLE[item.status];
   const percent = item.status === "in_progress" ? progressPercent(item) : null;
   const glow = item.accent_color
@@ -26,46 +41,62 @@ export function PosterCard({ item, href, kind, categoryColor }: PosterCardProps)
     : generatedCover(item.id, categoryColor).glow;
 
   return (
-    <Link
-      href={href}
-      scroll={false}
-      className="group flex flex-col gap-2.5 rounded-card outline-offset-4"
-      style={{ "--card-glow": glow } as CSSProperties}
-    >
-      <div
-        className={cn(
-          "relative aspect-[2/3] overflow-hidden rounded-card border border-white/7",
-          "shadow-[0_10px_26px_var(--card-glow)] transition-[translate,scale,box-shadow,border-color] duration-200 ease-cinematic",
-          "group-hover:-translate-y-1.5 group-hover:scale-[1.03] group-hover:border-accent/45",
-          "group-hover:shadow-[0_26px_60px_var(--card-glow),var(--shadow-card-ring)]",
-        )}
-      >
-        <ItemCover item={item} categoryColor={categoryColor} sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 50vw" />
-
-        <span aria-hidden className={cn("absolute top-2.25 right-2.25 size-1.75 rounded-full", status.fill, status.glow)} />
-        {item.is_favorite && (
-          <Star
-            aria-label="Favourite"
-            className="absolute top-2 left-2 size-3.5 fill-accent text-accent drop-shadow"
-            strokeWidth={1.5}
-          />
-        )}
-        {percent !== null && (
-          <div aria-hidden className="absolute inset-x-0 bottom-0 h-0.75 bg-white/8">
-            <div className="h-full bg-accent shadow-progress" style={{ width: `${percent}%` }} />
-          </div>
-        )}
-      </div>
-
+    <div className="group flex flex-col gap-2.5" style={{ "--card-glow": glow } as CSSProperties}>
       <div>
         <p className="text-13 leading-[1.3] font-medium text-pretty transition-colors group-hover:text-white">
-          {item.title}
+          <Link href={href} scroll={false}>
+            {item.title}
+          </Link>
         </p>
         <p className="mt-1 flex items-center gap-2 font-mono text-[11px]">
           {item.year && <span className="text-text-muted">{item.year}</span>}
           <span className={status.text}>{statusLabel(kind, item.status)}</span>
         </p>
       </div>
-    </Link>
+
+      <div
+        className={cn(
+          "relative order-first aspect-2/3 overflow-hidden rounded-card border border-white/7",
+          "shadow-[0_10px_26px_var(--card-glow)] transition-[translate,scale,box-shadow,border-color] duration-200 ease-cinematic",
+          lit.frame,
+        )}
+      >
+        <Link href={href} scroll={false} tabIndex={-1} aria-hidden className="absolute inset-0">
+          <ItemCover
+            item={item}
+            categoryColor={categoryColor}
+            sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 50vw"
+          />
+        </Link>
+
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -translate-x-full bg-linear-115 from-transparent from-35% via-white/10 to-transparent to-65% group-hover:translate-x-full group-hover:transition-transform group-hover:duration-350 group-hover:ease-cinematic"
+        />
+        <span aria-hidden className={cn("pointer-events-none absolute top-2.25 right-2.25 size-1.75 rounded-full", status.fill, status.glow)} />
+        {item.is_favorite && (
+          <Star
+            aria-label="Favourite"
+            className="pointer-events-none absolute top-2 left-2 size-3.5 fill-accent text-accent drop-shadow"
+            strokeWidth={1.5}
+          />
+        )}
+
+        <div
+          className={cn(
+            "@container pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-bg/96 from-45% to-bg/0 pt-10 pb-2.5 opacity-0 transition-opacity duration-200 ease-cinematic",
+            lit.bar,
+          )}
+        >
+          <QuickActions item={item} kind={kind} href={href} actions={actions} className={lit.buttons} />
+        </div>
+
+        {percent !== null && (
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-0.75 bg-white/8">
+            <div className="h-full bg-accent shadow-progress" style={{ width: `${percent}%` }} />
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

@@ -57,6 +57,19 @@ export const createItemSchema = z.object({
 
 export type CreateItemInput = z.infer<typeof createItemSchema>;
 
+/** Quick actions on one title: status, +1, favourite, delete. */
+export const itemIdSchema = z.string().uuid();
+
+export const itemStatusSchema = z.object({
+  id: itemIdSchema,
+  status: z.enum(ITEM_STATUSES),
+});
+
+export const itemFavoriteSchema = z.object({
+  id: itemIdSchema,
+  favorite: z.boolean(),
+});
+
 /**
  * Only same-origin, path-only redirects survive — an open redirect here would
  * send a freshly signed-in user to whatever host an attacker put in the URL.

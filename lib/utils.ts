@@ -35,6 +35,7 @@ const twMerge = extendTailwindMerge({
         "progress",
         "tab",
         "input-focus",
+        "danger",
       ],
     },
   },

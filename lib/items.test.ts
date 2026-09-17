@@ -1,15 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_CATEGORY_PARAMS,
+  applyItemChange,
   categoryHref,
   itemHref,
   countByStatus,
   filterByTitle,
+  incrementPatch,
   parseCategoryParams,
   progressLabel,
   progressPercent,
+  progressUnit,
   selectItems,
   sortItems,
+  statusPatch,
   type Item,
 } from "./items";
 
@@ -162,5 +166,87 @@ describe("progress", () => {
   it("pads the label like the design", () => {
     expect(progressLabel({ progress_current: 7, progress_total: 24 })).toBe("07 / 24");
     expect(progressLabel({ progress_current: 3, progress_total: null })).toBe("03");
+  });
+});
+
+describe("progressUnit", () => {
+  it("only counts where episodes or parts make sense", () => {
+    expect(progressUnit("anime")).toBe("Episodes");
+    expect(progressUnit("series")).toBe("Episodes");
+    expect(progressUnit("custom")).toBe("Total");
+    expect(progressUnit("movie")).toBeNull();
+    expect(progressUnit("game")).toBeNull();
+  });
+});
+
+describe("statusPatch", () => {
+  it("fills progress when a title with a total is marked done", () => {
+    expect(statusPatch(item({ progress_current: 3, progress_total: 12 }), "completed")).toEqual({
+      status: "completed",
+      progress_current: 12,
+    });
+  });
+
+  it("leaves progress alone otherwise", () => {
+    expect(statusPatch(item({ progress_current: 3, progress_total: null }), "completed")).toEqual({ status: "completed" });
+    expect(statusPatch(item({ progress_current: 3, progress_total: 12 }), "dropped")).toEqual({ status: "dropped" });
+  });
+});
+
+describe("incrementPatch", () => {
+  it("starts a queued or dropped title", () => {
+    expect(incrementPatch(item({ status: "planned", progress_total: 12 }))).toEqual({
+      status: "in_progress",
+      progress_current: 1,
+    });
+    expect(incrementPatch(item({ status: "dropped", progress_current: 4, progress_total: null }))).toEqual({
+      status: "in_progress",
+      progress_current: 5,
+    });
+  });
+
+  it("finishes the title on the last episode", () => {
+    expect(incrementPatch(item({ status: "in_progress", progress_current: 11, progress_total: 12 }))).toEqual({
+      status: "completed",
+      progress_current: 12,
+    });
+  });
+
+  it("has nothing to add once finished or at the total", () => {
+    expect(incrementPatch(item({ status: "completed", progress_current: 12, progress_total: 12 }))).toBeNull();
+    expect(incrementPatch(item({ status: "in_progress", progress_current: 12, progress_total: 12 }))).toBeNull();
+  });
+});
+
+describe("applyItemChange", () => {
+  const now = new Date("2026-09-17T10:00:00Z");
+  const shelf = [
+    item({ id: "a", title: "Alpha", status: "planned", progress_total: 2 }),
+    item({ id: "b", title: "Beta", status: "in_progress", progress_current: 1, started_at: "2026-01-02" }),
+  ];
+
+  it("changes status and stamps dates like the database does", () => {
+    const [alpha] = applyItemChange(shelf, "a", { type: "status", status: "in_progress" }, now);
+    expect(alpha).toMatchObject({ status: "in_progress", started_at: "2026-09-17", updated_at: now.toISOString() });
+
+    const [, beta] = applyItemChange(shelf, "b", { type: "status", status: "completed" }, now);
+    expect(beta).toMatchObject({ status: "completed", started_at: "2026-01-02", finished_at: "2026-09-17" });
+  });
+
+  it("adds one, and finishes at the total", () => {
+    const once = applyItemChange(shelf, "a", { type: "increment" }, now);
+    expect(once[0]).toMatchObject({ status: "in_progress", progress_current: 1 });
+    const twice = applyItemChange(once, "a", { type: "increment" }, now);
+    expect(twice[0]).toMatchObject({ status: "completed", progress_current: 2, finished_at: "2026-09-17" });
+    expect(applyItemChange(twice, "a", { type: "increment" }, now)[0]).toBe(twice[0]);
+  });
+
+  it("toggles favourites and removes deleted titles", () => {
+    expect(applyItemChange(shelf, "b", { type: "favorite", favorite: true }, now)[1].is_favorite).toBe(true);
+    expect(titles(applyItemChange(shelf, "a", { type: "delete" }, now))).toEqual(["Beta"]);
+  });
+
+  it("leaves the shelf alone for an unknown id", () => {
+    expect(applyItemChange(shelf, "zzz", { type: "status", status: "dropped" }, now)).toEqual(shelf);
   });
 });

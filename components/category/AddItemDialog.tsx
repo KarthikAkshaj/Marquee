@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { createItem, type CreateItemState } from "@/lib/actions/items";
+import { progressUnit } from "@/lib/items";
 import { ITEM_STATUSES, STATUS_STYLE, statusLabels, type CategoryKind, type ItemStatus } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
@@ -41,8 +42,7 @@ function AddItemForm({
   const [state, formAction, pending] = useActionState(createItem, initialState);
   const [status, setStatus] = useState<ItemStatus>(defaultStatus);
   const labels = statusLabels(category.kind);
-  const totalLabel =
-    category.kind === "anime" || category.kind === "series" ? "Episodes" : category.kind === "custom" ? "Total" : null;
+  const totalLabel = progressUnit(category.kind);
 
   const finish = useEffectEvent((title: string) => {
     toast.success(`Added ${title}.`);

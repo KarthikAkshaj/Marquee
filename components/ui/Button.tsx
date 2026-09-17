@@ -15,6 +15,8 @@ const button = cva(
         secondary:
           "border border-white/12 bg-elevated text-text hover:border-accent/50 hover:text-accent disabled:text-text-faint",
         ghost: "text-text-muted hover:text-text",
+        danger:
+          "border border-danger bg-danger font-semibold text-danger-ink shadow-danger hover:brightness-110 disabled:opacity-60",
       },
       size: {
         sm: "h-8 px-3 text-13",

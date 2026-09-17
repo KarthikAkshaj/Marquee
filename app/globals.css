@@ -38,6 +38,10 @@
   --color-dropped:       #F2777A;
   --color-dropped-muted: #C26A6C;
 
+  /* destructive confirm buttons */
+  --color-danger:     #C0393D;
+  --color-danger-ink: #FFF3F3;
+
   /* category palette (token names are what live in the DB) */
   --color-cat-amber:   #F4B650;
   --color-cat-crimson: #E5484D;
@@ -107,6 +111,7 @@
   --shadow-tab:         0 0 12px rgb(244 182 80 / 0.6);
   --shadow-mockup:      0 70px 150px rgb(0 0 0 / 0.8), 0 0 70px rgb(244 182 80 / 0.1);
   --shadow-input-focus: 0 0 0 3px rgb(244 182 80 / 0.1);
+  --shadow-danger:      0 10px 28px rgb(192 57 61 / 0.4);
 
   /* motion (SPEC §9.6) */
   --ease-cinematic: cubic-bezier(0.22, 1, 0.36, 1);

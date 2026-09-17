@@ -17,7 +17,7 @@ export default function CategoryLoading() {
       <ul className="grid grid-cols-2 gap-x-4 gap-y-4.5 pt-6 sm:grid-cols-3 md:grid-cols-4 md:gap-5 xl:grid-cols-6">
         {Array.from({ length: 12 }, (_, index) => (
           <li key={index} className="flex flex-col gap-2.5">
-            <div className="aspect-[2/3] rounded-card border border-border bg-surface" />
+            <div className="aspect-2/3 rounded-card border border-border bg-surface" />
             <div className="h-3.5 w-3/4 rounded-full bg-surface" />
             <div className="h-3 w-1/2 rounded-full bg-surface" />
           </li>
