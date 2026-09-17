@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_KINDS } from "@/lib/categories";
 import { ITEM_STATUSES } from "@/lib/status";
 
 /** Every server action input is parsed through zod (SPEC §11). */
@@ -110,6 +111,33 @@ export const moveItemSchema = z.object({
   id: itemIdSchema,
   categoryId: z.string().uuid("Pick a category."),
 });
+
+/** A category's editable parts (SPEC §8.10 Categories). Colour and icon are token names, never hex or markup. */
+const categoryFields = {
+  name: z.string().trim().min(1, "Give it a name.").max(40, "Keep the name under 40 characters."),
+  kind: z.enum(CATEGORY_KINDS),
+  color: z.enum(CATEGORY_COLORS),
+  icon: z.enum(CATEGORY_ICONS),
+};
+
+export const categoryIdSchema = z.string().uuid();
+
+export const createCategorySchema = z.object(categoryFields);
+
+export const updateCategorySchema = z
+  .object({ id: categoryIdSchema, ...categoryFields })
+  .partial({ name: true, kind: true, color: true, icon: true })
+  .strict()
+  .refine((patch) => Object.keys(patch).length > 1, "Nothing to save.");
+
+/** Every category id in its new order, top first. */
+export const reorderCategoriesSchema = z
+  .array(z.string().uuid())
+  .min(1)
+  .max(100)
+  .refine((ids) => new Set(ids).size === ids.length, "Each category once.");
+
+export type CategoryInput = z.infer<typeof createCategorySchema>;
 
 /**
  * Only same-origin, path-only redirects survive — an open redirect here would

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  createCategorySchema,
   createItemSchema,
   emailSchema,
   itemDetailsSchema,
@@ -9,7 +10,9 @@ import {
   itemStatusSchema,
   moveItemSchema,
   otpCodeSchema,
+  reorderCategoriesSchema,
   safeRedirectPath,
+  updateCategorySchema,
 } from "./validators";
 
 describe("safeRedirectPath", () => {
@@ -170,5 +173,31 @@ describe("moveItemSchema", () => {
     const id = "7d8f2a64-3a4e-4c1b-9b5f-2e9a1c0d4b11";
     expect(moveItemSchema.safeParse({ id, categoryId: id }).success).toBe(true);
     expect(moveItemSchema.safeParse({ id, categoryId: "movies" }).success).toBe(false);
+  });
+});
+
+describe("category schemas", () => {
+  const id = "7d8f2a64-3a4e-4c1b-9b5f-2e9a1c0d4b11";
+  const valid = { name: "  K-Dramas ", kind: "series", color: "rose", icon: "heart" } as const;
+
+  it("accepts known kinds, colour tokens and icons, trimming the name", () => {
+    expect(createCategorySchema.parse(valid)).toEqual({ ...valid, name: "K-Dramas" });
+    expect(updateCategorySchema.safeParse({ id, kind: "game" }).success).toBe(true);
+  });
+
+  it("rejects hex colours, unknown icons, long or blank names and empty updates", () => {
+    expect(createCategorySchema.safeParse({ ...valid, color: "#ff0000" }).success).toBe(false);
+    expect(createCategorySchema.safeParse({ ...valid, icon: "skull" }).success).toBe(false);
+    expect(createCategorySchema.safeParse({ ...valid, name: "   " }).success).toBe(false);
+    expect(createCategorySchema.safeParse({ ...valid, name: "x".repeat(41) }).success).toBe(false);
+    expect(updateCategorySchema.safeParse({ id }).success).toBe(false);
+    expect(updateCategorySchema.safeParse({ id, slug: "sneaky" }).success).toBe(false);
+  });
+
+  it("takes each id once when reordering", () => {
+    const other = "8d8f2a64-3a4e-4c1b-9b5f-2e9a1c0d4b11";
+    expect(reorderCategoriesSchema.safeParse([id, other]).success).toBe(true);
+    expect(reorderCategoriesSchema.safeParse([id, id]).success).toBe(false);
+    expect(reorderCategoriesSchema.safeParse([]).success).toBe(false);
   });
 });

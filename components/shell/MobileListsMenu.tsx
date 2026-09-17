@@ -53,6 +53,25 @@ export function MobileListsMenu({ categories }: { categories: CategoryWithCount[
               </DropdownMenu.Item>
             );
           })}
+          <DropdownMenu.Item asChild>
+            <Link
+              href="/settings/categories?new=1"
+              className="flex min-h-11 items-center gap-2.5 rounded-nav px-2.5 text-14 text-text-muted outline-none data-highlighted:bg-white/5 data-highlighted:text-text"
+            >
+              <span aria-hidden className="size-1.75 shrink-0 rounded-full border border-dashed border-white/30" />
+              New category
+            </Link>
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator className="mx-2.5 my-1.5 h-px bg-border" />
+          <DropdownMenu.Item asChild>
+            <Link
+              href="/settings"
+              className="flex min-h-11 items-center gap-2.5 rounded-nav px-2.5 text-14 outline-none data-highlighted:bg-white/5"
+            >
+              <span aria-hidden className="size-1.5 rounded-full bg-white/28" />
+              Settings
+            </Link>
+          </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

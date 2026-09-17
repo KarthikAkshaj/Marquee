@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronUp, Ellipsis } from "lucide-react";
+import Link from "next/link";
 import { DropdownMenu } from "radix-ui";
 import { useTransition } from "react";
 import { signOut, switchAccount } from "@/lib/actions/auth";
@@ -20,8 +21,7 @@ type UserMenuProps = {
 };
 
 /**
- * The account menu (SPEC §8.3). Profile and Settings join it once those
- * pages exist; for now it offers what works: switching and signing out.
+ * The account menu (SPEC §8.3). Profile joins it once that page exists.
  */
 export function UserMenu({ user, variant }: UserMenuProps) {
   const [pending, startTransition] = useTransition();
@@ -89,6 +89,19 @@ export function UserMenu({ user, variant }: UserMenuProps) {
           </div>
 
           <div className="p-1.5">
+            <DropdownMenu.Item asChild>
+              <Link
+                href="/settings"
+                className={cn(
+                  "flex cursor-pointer items-center gap-2.25 rounded-nav px-2.5 py-2.25 text-13 text-text outline-none select-none data-highlighted:bg-white/5",
+                  !chip && "min-h-11",
+                )}
+              >
+                <span aria-hidden className="size-1.25 rounded-full bg-white/28" />
+                Settings
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Separator className="mx-2.5 my-1.5 h-px bg-border" />
             <MenuItem tall={!chip} disabled={pending} onSelect={() => startTransition(() => switchAccount())}>
               Switch account
             </MenuItem>

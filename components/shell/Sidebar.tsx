@@ -15,8 +15,8 @@ type SidebarProps = {
 };
 
 /**
- * Desktop sidebar (SPEC §8.3, handoff §01). Search, Import, Settings and
- * "New category" join it as their features land, so nothing here leads nowhere.
+ * Desktop sidebar (SPEC §8.3, handoff §01). Search and Import join it as
+ * their features land, so nothing here leads nowhere.
  */
 export function Sidebar({ categories, user, dim }: SidebarProps) {
   return (
@@ -78,10 +78,25 @@ export function Sidebar({ categories, user, dim }: SidebarProps) {
             );
           })}
         </ul>
+        <Link
+          href="/settings/categories?new=1"
+          className="flex items-center gap-2.5 rounded-nav px-2.5 py-2.25 text-13 text-text-muted transition-colors hover:text-text"
+        >
+          <span aria-hidden className="size-1.75 shrink-0 rounded-full border border-dashed border-white/30" />
+          New category
+        </Link>
       </nav>
 
-      <div className="mt-auto border-t border-border pt-3.5">
-        <UserMenu user={user} variant="chip" />
+      <div className="mt-auto flex flex-col gap-0.5 border-t border-border pt-3.5">
+        <NavLink
+          href="/settings"
+          className="rounded-nav px-2.5 py-2 text-13 text-text-muted transition-colors hover:text-text aria-[current=page]:bg-accent/12 aria-[current=page]:font-medium aria-[current=page]:text-accent"
+        >
+          Settings
+        </NavLink>
+        <div className="mt-2.5 border-t border-border pt-2.5">
+          <UserMenu user={user} variant="chip" />
+        </div>
       </div>
     </aside>
   );
