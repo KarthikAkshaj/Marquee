@@ -1,11 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { SOURCE_FOR_KIND, searchKindOf, type AddFromSearchInput } from "@/lib/add";
 import { incrementPatch, progressPatch, statusPatch, type ItemDetails } from "@/lib/items";
+import { getSeriesDetails } from "@/lib/search";
 import type { ItemStatus } from "@/lib/status";
 import { createClient } from "@/lib/supabase/server";
 import {
+  addFromSearchSchema,
   createItemSchema,
+  itemAccentSchema,
   itemDetailsSchema,
   itemFavoriteSchema,
   itemIdSchema,
@@ -242,6 +246,82 @@ export async function deleteItem(id: string): Promise<ItemActionResult> {
     .maybeSingle();
   if (error) return { ok: false, message: "Couldn't remove that title. Try again." };
   if (!data) return GONE;
+
+  revalidatePath("/", "layout");
+  return SAVED;
+}
+
+const NOT_ADDED = { ok: false, message: "Couldn't add that title. Try again." } as const satisfies ItemActionResult;
+
+/**
+ * Adds a title picked from search (SPEC §8.7) with its metadata snapshot (§7).
+ * The browser picks the id so the title can show, open and be undone at once.
+ */
+export async function addFromSearch(input: AddFromSearchInput): Promise<ItemActionResult> {
+  const parsed = addFromSearchSchema.safeParse(input);
+  if (!parsed.success) return NOT_ADDED;
+
+  const { supabase, userId } = await requireUserId();
+  if (!userId) return SESSION_ENDED;
+
+  const { id, categoryId, status, result } = parsed.data;
+  const { data: category, error: categoryError } = await supabase
+    .from("categories")
+    .select("kind")
+    .eq("id", categoryId)
+    .maybeSingle();
+  if (categoryError) return NOT_ADDED;
+  if (!category) return { ok: false, message: "That shelf isn't there anymore." };
+
+  const kind = searchKindOf(category.kind);
+  if (!kind || SOURCE_FOR_KIND[kind] !== result.source) return NOT_ADDED;
+
+  // Search results don't carry a series' episode count; look it up now, once.
+  const series = kind === "series" ? await getSeriesDetails(result.externalId) : null;
+  const progressTotal = series ? series.progressTotal : result.progressTotal;
+
+  const { error } = await supabase.from("items").insert({
+    id,
+    user_id: userId,
+    category_id: categoryId,
+    title: result.title,
+    status,
+    year: result.year ?? null,
+    progress_total: progressTotal ?? null,
+    progress_current: 0,
+    cover_url: result.coverUrl ?? null,
+    backdrop_url: result.backdropUrl ?? null,
+    accent_color: result.accentColor ?? null,
+    source: result.source,
+    external_id: result.externalId,
+    genres: series?.genres ?? result.genres ?? [],
+    community_score: result.communityScore ?? null,
+  });
+  // 23505: the same search result is already on this shelf.
+  if (error?.code === "23505") return { ok: false, message: "That's already on this shelf." };
+  if (error) return NOT_ADDED;
+
+  revalidatePath("/", "layout");
+  return SAVED;
+}
+
+/**
+ * The cover's colour, worked out in the browser after an add (SPEC §3). Only
+ * fills a blank, so it never overwrites a colour the provider gave.
+ */
+export async function setItemAccent(id: string, color: string): Promise<ItemActionResult> {
+  const parsed = itemAccentSchema.safeParse({ id, color });
+  if (!parsed.success) return NOT_SAVED;
+
+  const { supabase, userId } = await requireUserId();
+  if (!userId) return SESSION_ENDED;
+
+  const { error } = await supabase
+    .from("items")
+    .update({ accent_color: parsed.data.color })
+    .eq("id", parsed.data.id)
+    .is("accent_color", null);
+  if (error) return NOT_SAVED;
 
   revalidatePath("/", "layout");
   return SAVED;

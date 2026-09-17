@@ -171,6 +171,41 @@ export const avatarFileSchema = z.object({
   size: z.number().positive("That file is empty.").max(AVATAR_MAX_BYTES, "That photo is over 2 MB."),
 });
 
+/** Cover art only from the hosts next.config.ts allows, so a crafted URL can't reach next/image. */
+const PROVIDER_IMAGE = /^https:\/\/(image\.tmdb\.org\/t\/p\/|s4\.anilist\.co\/|images\.igdb\.com\/igdb\/image\/upload\/)[\w\-./%]+$/;
+
+export const hexColorSchema = z.string().regex(/^#[0-9a-f]{6}$/i).toLowerCase();
+
+/**
+ * A search result coming back from the browser to be saved (SPEC §8.7). Who
+ * it is must be exact; the extras are a snapshot, so anything odd is dropped
+ * rather than blocking the add.
+ */
+const searchResultSchema = z.object({
+  source: z.enum(["anilist", "tmdb", "igdb"]),
+  externalId: z.string().regex(/^\d{1,12}$/),
+  title: titleSchema,
+  year: releasedSchema.optional().catch(undefined),
+  coverUrl: z.string().max(500).regex(PROVIDER_IMAGE).optional().catch(undefined),
+  backdropUrl: z.string().max(500).regex(PROVIDER_IMAGE).optional().catch(undefined),
+  progressTotal: z.number().int().min(1).max(100_000).optional().catch(undefined),
+  genres: z.array(z.string().trim().min(1).max(40)).max(12).optional().catch(undefined),
+  communityScore: z.number().int().min(0).max(100).optional().catch(undefined),
+  accentColor: hexColorSchema.optional().catch(undefined),
+});
+
+export const addFromSearchSchema = z.object({
+  id: z.string().uuid(),
+  categoryId: z.string().uuid(),
+  status: z.enum(ITEM_STATUSES),
+  result: searchResultSchema,
+});
+
+export const itemAccentSchema = z.object({
+  id: z.string().uuid(),
+  color: hexColorSchema,
+});
+
 /** GET /api/search?kind=&q= (SPEC §7). Custom shelves have no provider. */
 export const searchQuerySchema = z.object({
   kind: z.enum(SEARCH_KINDS),

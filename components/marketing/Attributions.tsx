@@ -1,7 +1,7 @@
+import { TMDB_NOTICE } from "@/lib/add";
 import { cn } from "@/lib/utils";
 
-/** Required by the TMDB, AniList and IGDB terms (SPEC §8.1). */
-const TMDB_NOTICE = "This product uses the TMDB API but is not endorsed or certified by TMDB.";
+// Required by the TMDB, AniList and IGDB terms (SPEC §8.1).
 
 function TmdbBadge() {
   return (

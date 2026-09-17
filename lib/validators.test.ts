@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  addFromSearchSchema,
   avatarFileSchema,
   createCategorySchema,
   createItemSchema,
   emailSchema,
+  itemAccentSchema,
   itemDetailsSchema,
   itemFavoriteSchema,
   itemIdSchema,
@@ -237,5 +239,52 @@ describe("searchQuerySchema", () => {
     expect(searchQuerySchema.safeParse({ kind: "custom", q: "frieren" }).success).toBe(false);
     expect(searchQuerySchema.safeParse({ kind: "movie", q: " a " }).success).toBe(false);
     expect(searchQuerySchema.safeParse({ kind: "game", q: "x".repeat(101) }).success).toBe(false);
+  });
+});
+
+describe("addFromSearchSchema", () => {
+  const input = {
+    id: "7d8f2a64-3a4e-4c1b-9b5f-2e9a1c0d4b11",
+    categoryId: "0b5a3a2e-1f0c-4c6e-9a7d-3e2f1a0b9c8d",
+    status: "planned",
+    result: {
+      source: "tmdb",
+      externalId: "438631",
+      title: "Dune",
+      year: 2021,
+      coverUrl: "https://image.tmdb.org/t/p/w500/v1tRXZ4JtD2Iv6fjkPvT4GiwslV.jpg",
+      genres: ["Science Fiction", "Adventure"],
+      communityScore: 78,
+      accentColor: "#C08040",
+    },
+  };
+
+  it("keeps a real result and normalises its colour", () => {
+    const parsed = addFromSearchSchema.parse(input);
+    expect(parsed.result).toMatchObject({ title: "Dune", coverUrl: input.result.coverUrl, accentColor: "#c08040" });
+  });
+
+  it("drops extras that don't check out instead of refusing the add", () => {
+    const parsed = addFromSearchSchema.parse({
+      ...input,
+      result: { ...input.result, coverUrl: "https://evil.example/x.jpg", year: 1066, communityScore: 140, genres: "Drama" },
+    });
+    expect(parsed.result.coverUrl).toBeUndefined();
+    expect(parsed.result.year).toBeUndefined();
+    expect(parsed.result.communityScore).toBeUndefined();
+    expect(parsed.result.genres).toBeUndefined();
+    expect(parsed.result.title).toBe("Dune");
+  });
+
+  it("refuses a result it can't identify", () => {
+    expect(addFromSearchSchema.safeParse({ ...input, result: { ...input.result, source: "manual" } }).success).toBe(false);
+    expect(addFromSearchSchema.safeParse({ ...input, result: { ...input.result, externalId: "../1" } }).success).toBe(false);
+    expect(addFromSearchSchema.safeParse({ ...input, result: { ...input.result, title: " " } }).success).toBe(false);
+    expect(addFromSearchSchema.safeParse({ ...input, id: "not-a-uuid" }).success).toBe(false);
+  });
+
+  it("only takes hex colours for the cover glow", () => {
+    expect(itemAccentSchema.safeParse({ id: input.id, color: "#3a5f8c" }).success).toBe(true);
+    expect(itemAccentSchema.safeParse({ id: input.id, color: "red; background:url(x)" }).success).toBe(false);
   });
 });

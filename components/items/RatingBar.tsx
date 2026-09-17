@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 type RatingBarProps = {
   value: number | null;
   onChange: (rating: number | null) => void;
+  /** The provider's score out of 100, e.g. { source: "AniList", score: 91 } (SPEC §7). */
+  community?: { source: string; score: number } | null;
 };
 
 // Bars rise 12px → 30px, as in the handoff.
@@ -16,7 +18,7 @@ const HEIGHTS = ["h-3", "h-3.5", "h-4", "h-4.5", "h-5", "h-5.5", "h-6", "h-6.5",
  * Hover previews, click sets, clicking the current rating clears it.
  * One tab stop: a slider driven by the arrow keys.
  */
-export function RatingBar({ value, onChange }: RatingBarProps) {
+export function RatingBar({ value, onChange, community }: RatingBarProps) {
   const [preview, setPreview] = useState<number | null>(null);
   const labelId = useId();
   const lit = preview ?? value ?? 0;
@@ -44,8 +46,13 @@ export function RatingBar({ value, onChange }: RatingBarProps) {
         <p id={labelId} className="label-mono tracking-[.12em] text-text-muted">
           Rating
         </p>
-        <p className={cn("font-mono text-13", value ? "text-accent" : "text-text-muted")}>
-          {value ? `${value} / 10` : "Not rated"}
+        <p className="flex items-baseline gap-2.5 font-mono text-13">
+          {community && (
+            <span className="text-12 text-text-muted">
+              {community.source} {community.score}
+            </span>
+          )}
+          <span className={value ? "text-accent" : "text-text-muted"}>{value ? `${value} / 10` : "Not rated"}</span>
         </p>
       </div>
       <div

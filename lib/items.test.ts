@@ -330,4 +330,11 @@ describe("applyItemChange", () => {
   it("leaves the shelf alone for an unknown id", () => {
     expect(applyItemChange(shelf, "zzz", { type: "status", status: "dropped" }, now)).toEqual(shelf);
   });
+
+  it("puts an added title first, once", () => {
+    const frieren = item({ id: "c", title: "Frieren" });
+    const added = applyItemChange(shelf, "c", { type: "add", item: frieren }, now);
+    expect(titles(added)).toEqual(["Frieren", "Alpha", "Beta"]);
+    expect(titles(applyItemChange(added, "c", { type: "add", item: frieren }, now))).toEqual(["Frieren", "Alpha", "Beta"]);
+  });
 });

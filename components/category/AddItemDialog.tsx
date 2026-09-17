@@ -16,16 +16,23 @@ type AddItemDialogProps = {
   onOpenChange: (open: boolean) => void;
   category: { id: string; name: string; kind: CategoryKind };
   defaultStatus: ItemStatus;
+  /** What was typed into search before choosing "Add manually". */
+  initialTitle?: string;
 };
 
-/** Manual add (SPEC §8.7 "Add manually"). Search-as-you-add arrives with the palette in Phase 3. */
-export function AddItemDialog({ open, onOpenChange, category, defaultStatus }: AddItemDialogProps) {
+/** Manual add (SPEC §8.7 "Add manually"): custom shelves, and anything search can't find. */
+export function AddItemDialog({ open, onOpenChange, category, defaultStatus, initialTitle = "" }: AddItemDialogProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-scrim/72 backdrop-blur-[3px]" />
         <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-32px)] max-w-110 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-tile border border-white/10 bg-sheet shadow-modal">
-          <AddItemForm category={category} defaultStatus={defaultStatus} onDone={() => onOpenChange(false)} />
+          <AddItemForm
+            category={category}
+            defaultStatus={defaultStatus}
+            initialTitle={initialTitle}
+            onDone={() => onOpenChange(false)}
+          />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
@@ -37,6 +44,7 @@ const initialState: CreateItemState = { status: "idle" };
 function AddItemForm({
   category,
   defaultStatus,
+  initialTitle,
   onDone,
 }: Omit<AddItemDialogProps, "open" | "onOpenChange"> & { onDone: () => void }) {
   const [state, formAction, pending] = useActionState(createItem, initialState);
@@ -72,7 +80,7 @@ function AddItemForm({
           <label htmlFor="add-title" className="label-mono mb-2 block tracking-[.12em] text-text-muted">
             Title
           </label>
-          <Input id="add-title" name="title" required maxLength={200} autoComplete="off" defaultValue={typed?.title} />
+          <Input id="add-title" name="title" required maxLength={200} autoComplete="off" defaultValue={typed?.title ?? initialTitle} />
         </div>
 
         <div className="flex gap-3">

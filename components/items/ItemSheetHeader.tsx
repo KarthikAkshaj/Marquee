@@ -117,6 +117,12 @@ export function ItemSheetHeader({ item, category, onDetails, onToggleFavorite }:
               Favourite
             </button>
           </div>
+          {item.genres.length > 0 && (
+            <p className="truncate text-12 text-text-muted md:mt-1.5 md:text-13">
+              <span className="sr-only">Genres: </span>
+              {item.genres.slice(0, 3).join(" · ")}
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { SOURCE_NAMES } from "@/lib/add";
 import { progressUnit, type Item } from "@/lib/items";
 import type { CategoryKind } from "@/lib/status";
 import { ItemDates } from "./ItemDates";
@@ -20,6 +21,10 @@ type ItemSheetFieldsProps = {
 export function ItemSheetFields({ item, kind, actions }: ItemSheetFieldsProps) {
   const statusLabel = useId();
   const unit = progressUnit(kind);
+  const community =
+    item.community_score !== null && item.source !== "manual"
+      ? { source: SOURCE_NAMES[item.source], score: item.community_score }
+      : null;
 
   return (
     // relative: the header's backdrop runs taller than the header on phones and would paint over these.
@@ -45,7 +50,11 @@ export function ItemSheetFields({ item, kind, actions }: ItemSheetFieldsProps) {
             onChange={(current, total) => actions.setProgress(item, current, total)}
           />
         )}
-        <RatingBar value={item.rating} onChange={(rating) => actions.updateDetails(item, { rating })} />
+        <RatingBar
+          value={item.rating}
+          community={community}
+          onChange={(rating) => actions.updateDetails(item, { rating })}
+        />
       </div>
 
       <ItemDates item={item} onChange={(dates) => actions.updateDetails(item, dates)} />

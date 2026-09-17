@@ -3,17 +3,22 @@
 import { useRouter } from "next/navigation";
 import { useOptimistic, useTransition } from "react";
 import { toast } from "sonner";
+import { itemFromResult, newItemId } from "@/lib/add";
 import {
+  addFromSearch,
   deleteItem,
   incrementItemProgress,
   moveItem,
+  setItemAccent,
   setItemFavorite,
   setItemProgress,
   setItemStatus,
   updateItemDetails,
   type ItemActionResult,
 } from "@/lib/actions/items";
+import { accentFromCover } from "@/lib/image/accent-color";
 import { applyItemChange, type Item, type ItemChange, type ItemDetails } from "@/lib/items";
+import type { SearchResult } from "@/lib/search/types";
 import type { ItemStatus } from "@/lib/status";
 
 type PendingChange = { id: string; change: ItemChange };
@@ -42,8 +47,31 @@ export function useItemActions(items: Item[]) {
     });
   }
 
+  function remove(item: Item) {
+    run(item.id, { type: "remove" }, () => deleteItem(item.id), () => toast.success(`Removed ${item.title}.`));
+  }
+
   return {
     items: optimisticItems,
+    /**
+     * A search result onto this shelf (SPEC §8.7): shown at once, with Undo once
+     * it's saved. Covers without a provider colour get one worked out afterwards.
+     */
+    addFromSearch(category: ShelfCategory, result: SearchResult, status: ItemStatus): Item {
+      const input = { id: newItemId(), categoryId: category.id, status, result };
+      const item = itemFromResult(input);
+      run(item.id, { type: "add", item }, () => addFromSearch(input), () => {
+        toast.success(`Added ${item.title} to ${category.name}.`, {
+          action: { label: "Undo", onClick: () => remove(item) },
+        });
+        if (item.cover_url && !item.accent_color) {
+          void accentFromCover(item.cover_url).then((color) => {
+            if (color) void setItemAccent(item.id, color);
+          });
+        }
+      });
+      return item;
+    },
     setStatus(item: Item, status: ItemStatus) {
       if (status === item.status) return;
       run(item.id, { type: "status", status }, () => setItemStatus(item.id, status));
@@ -69,9 +97,7 @@ export function useItemActions(items: Item[]) {
         }),
       );
     },
-    remove(item: Item) {
-      run(item.id, { type: "remove" }, () => deleteItem(item.id), () => toast.success(`Removed ${item.title}.`));
-    },
+    remove,
   };
 }
 

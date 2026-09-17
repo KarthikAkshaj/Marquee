@@ -240,10 +240,12 @@ export type ItemChange =
   | { type: "favorite"; favorite: boolean }
   | { type: "details"; details: ItemDetails }
   /** Moved to another shelf, or deleted: either way it leaves this one. */
-  | { type: "remove" };
+  | { type: "remove" }
+  /** Added from search; the id was made in the browser. */
+  | { type: "add"; item: Item };
 
 /** The dates the database stamps on a status change (SPEC §5), so optimistic rows match saved ones. */
-function stampStatusDates(item: Item, today: string): Item {
+export function stampStatusDates(item: Item, today: string): Item {
   const next = { ...item };
   if (next.status === "in_progress" && !next.started_at) next.started_at = today;
   if (next.status === "completed" && !next.finished_at) {
@@ -256,6 +258,7 @@ function stampStatusDates(item: Item, today: string): Item {
 /** One change applied to a shelf ahead of the save. Unknown ids leave it untouched. */
 export function applyItemChange(items: Item[], id: string, change: ItemChange, now = new Date()): Item[] {
   if (change.type === "remove") return items.filter((item) => item.id !== id);
+  if (change.type === "add") return [change.item, ...items.filter((item) => item.id !== change.item.id)];
 
   const updated_at = now.toISOString();
   const today = updated_at.slice(0, 10);
