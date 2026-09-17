@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
+import { ContinueRow } from "@/components/home/ContinueRow";
+import { HomeGreeting } from "@/components/home/HomeGreeting";
 import { MarqueeSign } from "@/components/home/MarqueeSign";
+import { RecentlyFinished } from "@/components/home/RecentlyFinished";
+import { StartAdding } from "@/components/home/StartAdding";
+import { StatsStrip } from "@/components/home/StatsStrip";
 import { AmbientBackground } from "@/components/shell/AmbientBackground";
-import { getCategories, getViewer } from "@/lib/queries";
+import { midFlightLine, statTiles } from "@/lib/home";
+import { getCategories, getHome, getViewer } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Home" };
 
+/** Home (SPEC §8.4): greeting, what's in progress, the numbers, and what you finished. */
 export default async function HomePage() {
   const [viewer, categories] = await Promise.all([getViewer(), getCategories()]);
   const totalItems = categories.reduce((sum, category) => sum + category.itemCount, 0);
@@ -22,19 +29,38 @@ export default async function HomePage() {
             Add the thing you&apos;re three episodes into, or hand over that Word doc
             you&apos;ve been keeping since 2019.
           </p>
+          <StartAdding />
         </div>
       </div>
     );
   }
 
-  // Continue, stats and recently finished arrive with Phase 3 (SPEC §8.4).
+  const home = await getHome();
+  const shelves = categories.map(({ id, name, slug, color, icon, kind }) => ({ id, name, slug, color, icon, kind }));
+  const inProgress = [...home.counts.values()].reduce((sum, count) => sum + count.inProgress, 0);
+  const tiles = statTiles(
+    categories.map((category) => ({
+      id: category.id,
+      name: category.name,
+      color: category.color,
+      kind: category.kind,
+      total: category.itemCount,
+      inProgress: home.counts.get(category.id)?.inProgress ?? 0,
+      planned: home.counts.get(category.id)?.planned ?? 0,
+    })),
+    home.finishedThisYear,
+  );
   const name = viewer.profile?.display_name ?? viewer.profile?.username ?? "you";
+
   return (
     <>
       <AmbientBackground variant="app" />
-      <h1 className="font-display text-[40px] leading-[1.02] wrap-break-word md:text-[62px] md:leading-none md:tracking-[-.01em]">
-      Welcome back, <em className="text-accent">{name}.</em>
-    </h1>
+      <HomeGreeting name={name} line={midFlightLine(inProgress)} />
+      <div className="mt-5.5 md:mt-8.5">
+        <ContinueRow items={home.continuing} shelves={shelves} />
+      </div>
+      <StatsStrip tiles={tiles} className="mt-4 md:mt-6.5" />
+      <RecentlyFinished items={home.finished} shelves={shelves} className="mt-4.5 md:mt-7" />
     </>
   );
 }
