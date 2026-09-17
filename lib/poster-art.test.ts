@@ -28,6 +28,11 @@ describe("generatedCover", () => {
     expect(generatedCover("x", "sky").background).toContain("#22314F");
   });
 
+  it("gives a solid tint in the glow's colour", () => {
+    expect(generatedCover("x", "crimson").tint).toBe("rgb(229 72 77)");
+    expect(generatedCover("x", "teal").tint).toBe("rgb(45 212 191)");
+  });
+
   it("falls back to amber for an unknown colour", () => {
     expect(generatedCover("x", "chartreuse").background).toContain("#6A4113");
   });

@@ -16,10 +16,13 @@ type PosterCardProps = {
   actions: ItemQuickActions;
 };
 
-/** Hovered, keyboard-focused, or holding an open menu: the card is "lit". */
+/**
+ * Hovered, keyboard-focused, or holding an open menu: the card is "lit", in
+ * its own cover colour (the focus outline on the title stays amber).
+ */
 const lit = {
   frame:
-    "group-hover:-translate-y-1.5 group-hover:scale-[1.03] group-hover:border-accent/45 group-hover:shadow-[0_26px_60px_var(--card-glow),var(--shadow-card-ring)] group-has-[:focus-visible]:-translate-y-1.5 group-has-[:focus-visible]:border-accent/45 group-has-[:focus-visible]:shadow-[0_26px_60px_var(--card-glow),var(--shadow-card-ring)] group-has-[[data-state=open]]:-translate-y-1.5 group-has-[[data-state=open]]:border-accent/45",
+    "group-hover:-translate-y-1.5 group-hover:scale-[1.03] group-hover:border-(--card-edge) group-hover:shadow-[0_26px_60px_var(--card-glow-lit),var(--card-ring)] group-has-[:focus-visible]:-translate-y-1.5 group-has-[:focus-visible]:border-(--card-edge) group-has-[:focus-visible]:shadow-[0_26px_60px_var(--card-glow-lit),var(--card-ring)] group-has-[[data-state=open]]:-translate-y-1.5 group-has-[[data-state=open]]:border-(--card-edge) group-has-[[data-state=open]]:shadow-[0_26px_60px_var(--card-glow-lit),var(--card-ring)]",
   bar: "group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 group-has-[[data-state=open]]:opacity-100",
   /** Only the buttons take the pointer; the gradient around them still opens the title. */
   buttons:
@@ -38,9 +41,16 @@ export function PosterCard({ item, href, kind, categoryColor, actions }: PosterC
   const watching = item.status === "in_progress";
   const percent = watching ? progressPercent(item) : null;
   const episode = watching ? progressShort(item, kind) : null;
-  const glow = item.accent_color
-    ? `color-mix(in oklab, ${item.accent_color} 26%, transparent)`
-    : generatedCover(item.id, categoryColor).glow;
+  const cover = generatedCover(item.id, categoryColor);
+  const tint = item.accent_color ?? cover.tint;
+  // Lifted a little toward white so a dark cover still gets an edge you can see.
+  const bright = `color-mix(in oklab, ${tint}, white 30%)`;
+  const light = {
+    "--card-glow": item.accent_color ? `color-mix(in oklab, ${tint} 26%, transparent)` : cover.glow,
+    "--card-glow-lit": `color-mix(in oklab, ${tint} 38%, transparent)`,
+    "--card-edge": `color-mix(in oklab, ${bright} 55%, transparent)`,
+    "--card-ring": `0 0 0 4px color-mix(in oklab, ${bright} 14%, transparent)`,
+  } as CSSProperties;
   // A plain click opens the sheet in place; ctrl/⌘-click still opens the link in a new tab.
   const open = (event: MouseEvent) => {
     if (!isPlainClick(event)) return;
@@ -49,7 +59,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions }: PosterC
   };
 
   return (
-    <div className="group @container flex flex-col gap-2.5" style={{ "--card-glow": glow } as CSSProperties}>
+    <div className="group @container flex flex-col gap-2.5" style={light}>
       <div>
         <p className="text-13 leading-[1.3] font-medium text-pretty transition-colors group-hover:text-white">
           <Link href={href} scroll={false} onClick={open}>

@@ -45,6 +45,12 @@ export function posterGlow(tone: PosterTone) {
   return TONES[tone].glow;
 }
 
+/** The glow's colour at full strength ("rgb(229 72 77)"), for edges that need to be seen. */
+export function posterTint(tone: PosterTone) {
+  const [r, g, b] = TONES[tone].glow.match(/\d+(?=\s*,)/g) ?? [];
+  return `rgb(${r} ${g} ${b})`;
+}
+
 export const POSTER_GRADIENTS = WALL_ORDER.map((tone) => posterGradient(tone));
 
 /** One row of the drifting wall: eight tiles, rotated so rows don't line up. */
@@ -111,5 +117,6 @@ export function generatedCover(itemId: string, categoryColor: string) {
       `linear-gradient(${angle}deg,${stops[0]},${stops[1]} ${depth}%,${stops[2]})`,
     sheen: `radial-gradient(120% 80% at ${Math.min(poolX, 60)}% ${poolY}%,rgba(255,255,255,.08),transparent)`,
     glow: posterGlow(tone),
+    tint: posterTint(tone),
   };
 }
