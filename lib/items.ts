@@ -172,36 +172,75 @@ export function progressUnit(kind: CategoryKind): "Episodes" | "Total" | null {
 
 type ProgressFields = Pick<Item, "status" | "progress_current" | "progress_total">;
 
-/**
- * Marking a title done fills its progress bar. The database trigger only does
- * that the first time a title is finished, so the actions say it outright.
- */
-export function statusPatch(item: ProgressFields, status: ItemStatus) {
-  return status === "completed" && item.progress_total !== null
-    ? { status, progress_current: item.progress_total }
-    : { status };
+/** Leaving "completed" drops the finish date, so finishing again stamps a fresh one. */
+function finishDate(from: ItemStatus, to: ItemStatus): { finished_at?: null } {
+  return from === "completed" && to !== "completed" ? { finished_at: null } : {};
 }
 
 /**
- * +1 starts a queued or dropped title and finishes it on the last episode.
- * null when there's nothing left to count.
+ * A status picked outright. Marking a title done fills its progress bar (the
+ * database trigger only does that the first time, so the patch says it).
  */
-export function incrementPatch(item: ProgressFields): { status: ItemStatus; progress_current: number } | null {
+export function statusPatch(item: ProgressFields, status: ItemStatus) {
+  return {
+    status,
+    ...(status === "completed" && item.progress_total !== null ? { progress_current: item.progress_total } : {}),
+    ...finishDate(item.status, status),
+  };
+}
+
+/**
+ * Where a title stands after its count or total changes: counting starts a
+ * queued title, reaching the total finishes it, and falling below the total
+ * (say a new episode aired) un-finishes it. Dropped stays dropped.
+ */
+export function progressPatch(item: ProgressFields, current: number, total: number | null) {
+  let status = item.status;
+  if (status === "planned" && current > 0) status = "in_progress";
+  if (status === "in_progress" && total !== null && current >= total) status = "completed";
+  if (status === "completed" && total !== null && current < total) status = "in_progress";
+  return { progress_current: current, progress_total: total, status, ...finishDate(item.status, status) };
+}
+
+/**
+ * +1 means you watched one more: it starts a queued title, picks a dropped one
+ * back up, and finishes it on the last episode. null when there's nothing left
+ * to count.
+ */
+export function incrementPatch(item: ProgressFields) {
   if (item.status === "completed") return null;
   const total = item.progress_total;
   if (total !== null && item.progress_current >= total) return null;
-  const progress_current = item.progress_current + 1;
-  return {
-    status: total !== null && progress_current >= total ? "completed" : "in_progress",
-    progress_current,
-  };
+  const status = item.status === "dropped" ? "in_progress" : item.status;
+  return progressPatch({ ...item, status }, item.progress_current + 1, total);
 }
+
+/** −1, e.g. after a mis-tap. null at zero. */
+export function decrementPatch(item: ProgressFields) {
+  if (item.progress_current <= 0) return null;
+  return progressPatch(item, item.progress_current - 1, item.progress_total);
+}
+
+/** On the card under a title you're watching: "13/24", or "Ep 13" while it's still airing. */
+export function progressShort(item: Pick<Item, "progress_current" | "progress_total">, kind: CategoryKind) {
+  const unit = progressUnit(kind);
+  if (!unit) return null;
+  if (item.progress_total !== null) return `${item.progress_current}/${item.progress_total}`;
+  if (item.progress_current === 0) return null;
+  return unit === "Episodes" ? `Ep ${item.progress_current}` : String(item.progress_current);
+}
+
+/** Fields the item sheet edits directly (SPEC §8.6). */
+export type ItemDetails = Partial<Pick<Item, "title" | "year" | "rating" | "notes" | "started_at" | "finished_at">>;
 
 export type ItemChange =
   | { type: "status"; status: ItemStatus }
   | { type: "increment" }
+  | { type: "progress"; current: number; total: number | null }
   | { type: "favorite"; favorite: boolean }
-  | { type: "delete" };
+  | { type: "details"; details: ItemDetails }
+  /** Moved to another shelf, or deleted: either way it leaves this one. */
+  | { type: "remove" };
 
 /** The dates the database stamps on a status change (SPEC §5), so optimistic rows match saved ones. */
 function stampStatusDates(item: Item, today: string): Item {
@@ -216,7 +255,7 @@ function stampStatusDates(item: Item, today: string): Item {
 
 /** One change applied to a shelf ahead of the save. Unknown ids leave it untouched. */
 export function applyItemChange(items: Item[], id: string, change: ItemChange, now = new Date()): Item[] {
-  if (change.type === "delete") return items.filter((item) => item.id !== id);
+  if (change.type === "remove") return items.filter((item) => item.id !== id);
 
   const updated_at = now.toISOString();
   const today = updated_at.slice(0, 10);
@@ -225,8 +264,12 @@ export function applyItemChange(items: Item[], id: string, change: ItemChange, n
     switch (change.type) {
       case "favorite":
         return { ...item, is_favorite: change.favorite, updated_at };
+      case "details":
+        return { ...item, ...change.details, updated_at };
       case "status":
         return stampStatusDates({ ...item, ...statusPatch(item, change.status), updated_at }, today);
+      case "progress":
+        return stampStatusDates({ ...item, ...progressPatch(item, change.current, change.total), updated_at }, today);
       case "increment": {
         const patch = incrementPatch(item);
         return patch ? stampStatusDates({ ...item, ...patch, updated_at }, today) : item;

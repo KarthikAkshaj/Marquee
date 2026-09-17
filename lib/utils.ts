@@ -36,6 +36,9 @@ const twMerge = extendTailwindMerge({
         "tab",
         "input-focus",
         "danger",
+        "poster",
+        "sheet",
+        "sheet-up",
       ],
     },
   },
@@ -43,4 +46,20 @@ const twMerge = extendTailwindMerge({
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+type ClickLike = {
+  button: number;
+  metaKey: boolean;
+  ctrlKey: boolean;
+  shiftKey: boolean;
+  altKey: boolean;
+  defaultPrevented: boolean;
+};
+
+/** A plain left click. Ctrl/⌘/shift/middle clicks should still open the real link in a new tab. */
+export function isPlainClick(event: ClickLike) {
+  return (
+    event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && !event.defaultPrevented
+  );
 }

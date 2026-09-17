@@ -30,12 +30,13 @@ const base: Item = {
 function setup(overrides: Partial<Item> = {}, kind: CategoryKind = "anime") {
   const item = { ...base, ...overrides };
   const actions = {
+    onOpen: vi.fn(),
     onStatusChange: vi.fn(),
     onIncrement: vi.fn(),
     onToggleFavorite: vi.fn(),
     onDelete: vi.fn(),
   };
-  render(<QuickActions item={item} kind={kind} href="/c/anime?item=1" actions={actions} />);
+  render(<QuickActions item={item} kind={kind} actions={actions} />);
   return { item, actions };
 }
 

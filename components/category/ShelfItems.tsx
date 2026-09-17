@@ -50,7 +50,13 @@ export function ShelfItems({ category, params, items, actions }: ShelfItemsProps
       <ul className="divide-y divide-border">
         {items.map((item) => (
           <li key={item.id}>
-            <ItemRow item={item} href={hrefFor(item)} kind={category.kind} categoryColor={category.color} />
+            <ItemRow
+              item={item}
+              href={hrefFor(item)}
+              kind={category.kind}
+              categoryColor={category.color}
+              onOpen={() => actions.onOpen(item)}
+            />
           </li>
         ))}
       </ul>

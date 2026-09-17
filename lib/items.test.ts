@@ -6,10 +6,13 @@ import {
   itemHref,
   countByStatus,
   filterByTitle,
+  decrementPatch,
   incrementPatch,
   parseCategoryParams,
   progressLabel,
+  progressPatch,
   progressPercent,
+  progressShort,
   progressUnit,
   selectItems,
   sortItems,
@@ -191,30 +194,96 @@ describe("statusPatch", () => {
     expect(statusPatch(item({ progress_current: 3, progress_total: null }), "completed")).toEqual({ status: "completed" });
     expect(statusPatch(item({ progress_current: 3, progress_total: 12 }), "dropped")).toEqual({ status: "dropped" });
   });
+
+  it("clears the finish date when a title stops being finished", () => {
+    const done = item({ status: "completed", progress_current: 12, progress_total: 12, finished_at: "2026-09-01" });
+    expect(statusPatch(done, "in_progress")).toEqual({ status: "in_progress", finished_at: null });
+  });
+});
+
+describe("progressPatch", () => {
+  it("starts a queued title once there's something counted", () => {
+    expect(progressPatch(item({ status: "planned" }), 800, 1100)).toEqual({
+      status: "in_progress",
+      progress_current: 800,
+      progress_total: 1100,
+    });
+    expect(progressPatch(item({ status: "planned" }), 0, 12).status).toBe("planned");
+  });
+
+  it("finishes at the total and un-finishes below it", () => {
+    expect(progressPatch(item({ status: "in_progress", progress_current: 5 }), 12, 12).status).toBe("completed");
+    const done = item({ status: "completed", progress_current: 12, progress_total: 12 });
+    expect(progressPatch(done, 11, 12)).toEqual({
+      status: "in_progress",
+      progress_current: 11,
+      progress_total: 12,
+      finished_at: null,
+    });
+  });
+
+  it("picks a caught-up title back up when a new episode raises the total", () => {
+    const caughtUp = item({ status: "completed", progress_current: 12, progress_total: 12 });
+    expect(progressPatch(caughtUp, 12, 13)).toMatchObject({ status: "in_progress", progress_total: 13, finished_at: null });
+  });
+
+  it("never finishes a title with no total, and leaves dropped alone", () => {
+    expect(progressPatch(item({ status: "in_progress" }), 900, null).status).toBe("in_progress");
+    expect(progressPatch(item({ status: "dropped", progress_current: 3 }), 4, 12).status).toBe("dropped");
+  });
 });
 
 describe("incrementPatch", () => {
-  it("starts a queued or dropped title", () => {
+  it("starts a queued title and picks a dropped one back up", () => {
     expect(incrementPatch(item({ status: "planned", progress_total: 12 }))).toEqual({
       status: "in_progress",
       progress_current: 1,
+      progress_total: 12,
     });
-    expect(incrementPatch(item({ status: "dropped", progress_current: 4, progress_total: null }))).toEqual({
+    expect(incrementPatch(item({ status: "dropped", progress_current: 4 }))).toMatchObject({
       status: "in_progress",
       progress_current: 5,
     });
   });
 
-  it("finishes the title on the last episode", () => {
-    expect(incrementPatch(item({ status: "in_progress", progress_current: 11, progress_total: 12 }))).toEqual({
+  it("finishes the title on the last episode, but never without a total", () => {
+    expect(incrementPatch(item({ status: "in_progress", progress_current: 11, progress_total: 12 }))).toMatchObject({
       status: "completed",
       progress_current: 12,
+    });
+    expect(incrementPatch(item({ status: "in_progress", progress_current: 999 }))).toMatchObject({
+      status: "in_progress",
+      progress_current: 1000,
     });
   });
 
   it("has nothing to add once finished or at the total", () => {
     expect(incrementPatch(item({ status: "completed", progress_current: 12, progress_total: 12 }))).toBeNull();
     expect(incrementPatch(item({ status: "in_progress", progress_current: 12, progress_total: 12 }))).toBeNull();
+  });
+});
+
+describe("decrementPatch", () => {
+  it("steps back, un-finishing a completed title", () => {
+    const done = item({ status: "completed", progress_current: 12, progress_total: 12 });
+    expect(decrementPatch(done)).toMatchObject({ status: "in_progress", progress_current: 11, finished_at: null });
+  });
+
+  it("stops at zero", () => {
+    expect(decrementPatch(item({ progress_current: 0 }))).toBeNull();
+  });
+});
+
+describe("progressShort", () => {
+  it("shows where you are on the card", () => {
+    expect(progressShort({ progress_current: 13, progress_total: 24 }, "anime")).toBe("13/24");
+    expect(progressShort({ progress_current: 13, progress_total: null }, "series")).toBe("Ep 13");
+    expect(progressShort({ progress_current: 4, progress_total: null }, "custom")).toBe("4");
+  });
+
+  it("stays quiet with nothing to show, or where nothing is counted", () => {
+    expect(progressShort({ progress_current: 0, progress_total: null }, "anime")).toBeNull();
+    expect(progressShort({ progress_current: 3, progress_total: 10 }, "movie")).toBeNull();
   });
 });
 
@@ -241,9 +310,19 @@ describe("applyItemChange", () => {
     expect(applyItemChange(twice, "a", { type: "increment" }, now)[0]).toBe(twice[0]);
   });
 
-  it("toggles favourites and removes deleted titles", () => {
+  it("sets a typed count and total", () => {
+    const [alpha] = applyItemChange(shelf, "a", { type: "progress", current: 1, total: null }, now);
+    expect(alpha).toMatchObject({ status: "in_progress", progress_current: 1, progress_total: null, started_at: "2026-09-17" });
+  });
+
+  it("saves edited details as they are", () => {
+    const [, beta] = applyItemChange(shelf, "b", { type: "details", details: { rating: 8, notes: "Ep 7!" } }, now);
+    expect(beta).toMatchObject({ rating: 8, notes: "Ep 7!", status: "in_progress", updated_at: now.toISOString() });
+  });
+
+  it("toggles favourites and removes moved or deleted titles", () => {
     expect(applyItemChange(shelf, "b", { type: "favorite", favorite: true }, now)[1].is_favorite).toBe(true);
-    expect(titles(applyItemChange(shelf, "a", { type: "delete" }, now))).toEqual(["Beta"]);
+    expect(titles(applyItemChange(shelf, "a", { type: "remove" }, now))).toEqual(["Beta"]);
   });
 
   it("leaves the shelf alone for an unknown id", () => {

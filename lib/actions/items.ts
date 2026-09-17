@@ -1,10 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { incrementPatch, statusPatch } from "@/lib/items";
+import { incrementPatch, progressPatch, statusPatch, type ItemDetails } from "@/lib/items";
 import type { ItemStatus } from "@/lib/status";
 import { createClient } from "@/lib/supabase/server";
-import { createItemSchema, itemFavoriteSchema, itemIdSchema, itemStatusSchema } from "@/lib/validators";
+import {
+  createItemSchema,
+  itemDetailsSchema,
+  itemFavoriteSchema,
+  itemIdSchema,
+  itemProgressSchema,
+  itemStatusSchema,
+  moveItemSchema,
+} from "@/lib/validators";
 
 /** What was typed, handed back on an error: React resets the form after every submit. */
 export type CreateItemValues = { title: string; year: string; progressTotal: string; progressCurrent: string };
@@ -80,10 +88,10 @@ export async function createItem(
 
 export type ItemActionResult = { ok: true } | { ok: false; message: string };
 
-const SESSION_ENDED: ItemActionResult = { ok: false, message: "Your session ended. Sign in again." };
-const GONE: ItemActionResult = { ok: false, message: "That title isn't on your shelf anymore." };
-const NOT_SAVED: ItemActionResult = { ok: false, message: "Couldn't save that. Try again." };
-const SAVED: ItemActionResult = { ok: true };
+const SESSION_ENDED = { ok: false, message: "Your session ended. Sign in again." } as const satisfies ItemActionResult;
+const GONE = { ok: false, message: "That title isn't on your shelf anymore." } as const satisfies ItemActionResult;
+const NOT_SAVED = { ok: false, message: "Couldn't save that. Try again." } as const satisfies ItemActionResult;
+const SAVED = { ok: true } as const satisfies ItemActionResult;
 
 /** The progress fields a status change or +1 is worked out from. RLS keeps it to the viewer's rows. */
 async function readProgress(id: string) {
@@ -148,6 +156,70 @@ export async function setItemFavorite(id: string, favorite: boolean): Promise<It
     .select("id")
     .maybeSingle();
   if (error) return NOT_SAVED;
+  if (!data) return GONE;
+
+  revalidatePath("/", "layout");
+  return SAVED;
+}
+
+/** A typed count, a total (null while airing), or the stepper's −. */
+export async function setItemProgress(id: string, current: number, total: number | null): Promise<ItemActionResult> {
+  const parsed = itemProgressSchema.safeParse({ id, current, total });
+  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? NOT_SAVED.message };
+
+  const read = await readProgress(parsed.data.id);
+  if (!read.found) return read.failure;
+
+  const { error } = await read.supabase
+    .from("items")
+    .update(progressPatch(read.item, parsed.data.current, parsed.data.total))
+    .eq("id", parsed.data.id);
+  if (error) return NOT_SAVED;
+
+  revalidatePath("/", "layout");
+  return SAVED;
+}
+
+/** Title, year, rating, notes and dates from the item sheet. */
+export async function updateItemDetails(id: string, details: ItemDetails): Promise<ItemActionResult> {
+  const parsedId = itemIdSchema.safeParse(id);
+  const parsed = itemDetailsSchema.safeParse(details);
+  if (!parsedId.success) return NOT_SAVED;
+  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? NOT_SAVED.message };
+
+  const { supabase, userId } = await requireUserId();
+  if (!userId) return SESSION_ENDED;
+
+  const { data, error } = await supabase
+    .from("items")
+    .update(parsed.data)
+    .eq("id", parsedId.data)
+    .select("id")
+    .maybeSingle();
+  if (error) return NOT_SAVED;
+  if (!data) return GONE;
+
+  revalidatePath("/", "layout");
+  return SAVED;
+}
+
+/** Onto another shelf. RLS rejects a category that isn't the viewer's. */
+export async function moveItem(id: string, categoryId: string): Promise<ItemActionResult> {
+  const parsed = moveItemSchema.safeParse({ id, categoryId });
+  if (!parsed.success) return NOT_SAVED;
+
+  const { supabase, userId } = await requireUserId();
+  if (!userId) return SESSION_ENDED;
+
+  const { data, error } = await supabase
+    .from("items")
+    .update({ category_id: parsed.data.categoryId })
+    .eq("id", parsed.data.id)
+    .select("id")
+    .maybeSingle();
+  // 23505: that shelf already has this exact title from the same search source.
+  if (error?.code === "23505") return { ok: false, message: "It's already on that shelf." };
+  if (error) return { ok: false, message: "Couldn't move that title. Try again." };
   if (!data) return GONE;
 
   revalidatePath("/", "layout");

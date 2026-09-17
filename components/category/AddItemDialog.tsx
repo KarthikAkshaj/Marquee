@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { createItem, type CreateItemState } from "@/lib/actions/items";
 import { progressUnit } from "@/lib/items";
-import { ITEM_STATUSES, STATUS_STYLE, statusLabels, type CategoryKind, type ItemStatus } from "@/lib/status";
-import { cn } from "@/lib/utils";
+import type { CategoryKind, ItemStatus } from "@/lib/status";
+import { StatusSegmented } from "@/components/items/StatusSegmented";
 
 type AddItemDialogProps = {
   open: boolean;
@@ -41,7 +41,6 @@ function AddItemForm({
 }: Omit<AddItemDialogProps, "open" | "onOpenChange"> & { onDone: () => void }) {
   const [state, formAction, pending] = useActionState(createItem, initialState);
   const [status, setStatus] = useState<ItemStatus>(defaultStatus);
-  const labels = statusLabels(category.kind);
   const totalLabel = progressUnit(category.kind);
   // Partway through: say where you're up to instead of pressing +1 eight hundred times.
   const showCurrent = totalLabel !== null && (status === "in_progress" || status === "dropped");
@@ -62,7 +61,7 @@ function AddItemForm({
       <input type="hidden" name="status" value={status} />
 
       <div className="border-b border-border px-5 pt-4.5 pb-3.5">
-        <Dialog.Title className="font-display text-[24px] leading-[1.1]">Add a title</Dialog.Title>
+        <Dialog.Title className="font-display text-28 leading-[1.1]">Add a title</Dialog.Title>
         <Dialog.Description className="mt-1.25 text-12 text-text-muted">
           Straight onto your {category.name} shelf.
         </Dialog.Description>
@@ -78,8 +77,9 @@ function AddItemForm({
 
         <div className="flex gap-3">
           <div className="flex-1">
+            {/* The year it came out; when you started watching is tracked on its own. */}
             <label htmlFor="add-year" className="label-mono mb-2 block tracking-[.12em] text-text-muted">
-              Year
+              Released
             </label>
             <Input
               id="add-year"
@@ -102,34 +102,21 @@ function AddItemForm({
                 placeholder="24"
                 className="font-mono"
                 defaultValue={typed?.progressTotal}
+                aria-describedby="add-total-hint"
               />
+              <p id="add-total-hint" className="mt-1.5 text-12 text-text-muted">
+                {totalLabel === "Episodes" ? "Blank if it's still airing." : "Blank if you don't know."}
+              </p>
             </div>
           )}
         </div>
 
-        <fieldset>
-          <legend className="label-mono mb-2 tracking-[.12em] text-text-muted">Status</legend>
-          <div role="radiogroup" className="flex gap-1 rounded-[9px] border border-border bg-surface p-1">
-            {ITEM_STATUSES.map((option) => {
-              const selected = option === status;
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  onClick={() => setStatus(option)}
-                  className={cn(
-                    "min-h-11 flex-1 rounded-pill px-1 text-[11.5px] leading-tight transition-colors md:min-h-9 md:text-12",
-                    selected ? cn(STATUS_STYLE[option].fill, "font-semibold text-accent-ink") : "text-text-muted hover:text-text",
-                  )}
-                >
-                  {labels[option]}
-                </button>
-              );
-            })}
-          </div>
-        </fieldset>
+        <div>
+          <p id="add-status" className="label-mono mb-2 tracking-[.12em] text-text-muted">
+            Status
+          </p>
+          <StatusSegmented kind={category.kind} value={status} onChange={setStatus} labelledBy="add-status" />
+        </div>
 
         {showCurrent && (
           <div className="w-[calc(50%-6px)]">

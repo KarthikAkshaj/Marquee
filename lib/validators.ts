@@ -26,54 +26,44 @@ export const verifyEmailCodeSchema = z.object({
 const blankToUndefined = (value: unknown) =>
   value === "" || value === null || value === undefined ? undefined : value;
 
+const PAST_THE_END = "That's past the last one. Check the total.";
+const TOO_MANY = "That's a lot of episodes.";
+
+const titleSchema = z.string().trim().min(1, "Give it a title.").max(200, "Keep the title under 200 characters.");
+
+/** The year a title came out (not when you watched it). */
+const releasedSchema = z
+  .number()
+  .int("Years are whole numbers.")
+  .min(1870, "That year is before film existed.")
+  .max(2100, "That year is a little far off.");
+
 /** Manual add from the category page (SPEC §8.7 "Add manually"). */
 export const createItemSchema = z
   .object({
     categoryId: z.string().uuid("Pick a category."),
-    title: z
-      .string()
-      .trim()
-      .min(1, "Give it a title.")
-      .max(200, "Keep the title under 200 characters."),
-    year: z.preprocess(
-      blankToUndefined,
-      z.coerce
-        .number()
-        .int("Years are whole numbers.")
-        .min(1870, "That year is before film existed.")
-        .max(2100, "That year is a little far off.")
-        .optional(),
-    ),
+    title: titleSchema,
+    year: z.preprocess(blankToUndefined, z.coerce.number().pipe(releasedSchema).optional()),
     status: z.enum(ITEM_STATUSES),
     progressTotal: z.preprocess(
       blankToUndefined,
-      z.coerce
-        .number()
-        .int("Use a whole number.")
-        .min(1, "At least 1.")
-        .max(100_000, "That's a lot of episodes.")
-        .optional(),
+      z.coerce.number().int("Use a whole number.").min(1, "At least 1.").max(100_000, TOO_MANY).optional(),
     ),
     /** Where you're up to, so a long show doesn't take 800 presses of +1. */
     progressCurrent: z.preprocess(
       blankToUndefined,
-      z.coerce
-        .number()
-        .int("Use a whole number.")
-        .min(0, "Can't be below zero.")
-        .max(100_000, "That's a lot of episodes.")
-        .optional(),
+      z.coerce.number().int("Use a whole number.").min(0, "Can't be below zero.").max(100_000, TOO_MANY).optional(),
     ),
   })
   .refine(
     ({ progressCurrent, progressTotal }) =>
       progressCurrent === undefined || progressTotal === undefined || progressCurrent <= progressTotal,
-    { message: "That's past the last one. Check the total.", path: ["progressCurrent"] },
+    { message: PAST_THE_END, path: ["progressCurrent"] },
   );
 
 export type CreateItemInput = z.infer<typeof createItemSchema>;
 
-/** Quick actions on one title: status, +1, favourite, delete. */
+/** Quick actions and the item sheet act on one title at a time. */
 export const itemIdSchema = z.string().uuid();
 
 export const itemStatusSchema = z.object({
@@ -84,6 +74,41 @@ export const itemStatusSchema = z.object({
 export const itemFavoriteSchema = z.object({
   id: itemIdSchema,
   favorite: z.boolean(),
+});
+
+/** The stepper, or a typed count. A null total means it's still airing. */
+export const itemProgressSchema = z
+  .object({
+    id: itemIdSchema,
+    current: z.number().int("Use a whole number.").min(0, "Can't be below zero.").max(100_000, TOO_MANY),
+    total: z.number().int("Use a whole number.").min(1, "At least 1.").max(100_000, TOO_MANY).nullable(),
+  })
+  .refine(({ current, total }) => total === null || current <= total, { message: PAST_THE_END, path: ["current"] });
+
+const dateSchema = z.iso.date("That isn't a real date.").nullable();
+
+/** Fields edited in place on the item sheet (SPEC §8.6). Only what changed is sent. */
+export const itemDetailsSchema = z
+  .object({
+    title: titleSchema,
+    year: releasedSchema.nullable(),
+    rating: z.number().int("Ratings are whole numbers.").min(1, "Ratings run 1 to 10.").max(10, "Ratings run 1 to 10.").nullable(),
+    // Blank notes are no notes.
+    notes: z
+      .string()
+      .max(2000, "Notes top out at 2,000 characters.")
+      .nullable()
+      .transform((notes) => (notes?.trim() ? notes : null)),
+    started_at: dateSchema,
+    finished_at: dateSchema,
+  })
+  .partial()
+  .strict()
+  .refine((details) => Object.keys(details).length > 0, "Nothing to save.");
+
+export const moveItemSchema = z.object({
+  id: itemIdSchema,
+  categoryId: z.string().uuid("Pick a category."),
 });
 
 /**

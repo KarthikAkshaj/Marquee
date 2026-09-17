@@ -1,13 +1,14 @@
 "use client";
 
 import { Check, Ellipsis, Pencil, Star, Trash2 } from "lucide-react";
-import Link from "next/link";
 import { DropdownMenu } from "radix-ui";
 import { incrementPatch, progressUnit, type Item } from "@/lib/items";
 import { ITEM_STATUSES, STATUS_STYLE, statusLabels, type CategoryKind, type ItemStatus } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
 export type ItemQuickActions = {
+  /** Opens the item sheet. */
+  onOpen: (item: Item) => void;
   onStatusChange: (item: Item, status: ItemStatus) => void;
   onIncrement: (item: Item) => void;
   onToggleFavorite: (item: Item) => void;
@@ -18,8 +19,6 @@ export type ItemQuickActions = {
 type QuickActionsProps = {
   item: Item;
   kind: CategoryKind;
-  /** Where "Edit details" goes: this shelf with the item's sheet open. */
-  href: string;
   actions: ItemQuickActions;
   className?: string;
 };
@@ -38,7 +37,7 @@ const menuItem =
   "flex min-h-9 cursor-pointer items-center gap-2 rounded-nav px-2.5 text-13 outline-none select-none data-highlighted:bg-white/5";
 
 /** Status · +1 · favourite · more, along the foot of a poster (handoff §02). */
-export function QuickActions({ item, kind, href, actions, className }: QuickActionsProps) {
+export function QuickActions({ item, kind, actions, className }: QuickActionsProps) {
   const labels = statusLabels(kind);
   const counts = progressUnit(kind) !== null;
 
@@ -93,18 +92,16 @@ export function QuickActions({ item, kind, href, actions, className }: QuickActi
         <Star aria-hidden className={cn("size-3", item.is_favorite && "fill-accent")} strokeWidth={2} />
       </button>
 
-      {/* Not modal: its Delete opens a confirm dialog, and two focus traps fight. */}
+      {/* Not modal: its items open the sheet or a confirm dialog, and two focus traps fight. */}
       <DropdownMenu.Root modal={false}>
         <DropdownMenu.Trigger aria-label="More actions" className={cn(chip, iconChip)}>
           <Ellipsis aria-hidden className="size-3.5" strokeWidth={2} />
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>
           <DropdownMenu.Content align="end" sideOffset={6} className={menu}>
-            <DropdownMenu.Item asChild className={menuItem}>
-              <Link href={href} scroll={false}>
-                <Pencil aria-hidden className="size-3.5 text-text-muted" strokeWidth={1.8} />
-                Edit details
-              </Link>
+            <DropdownMenu.Item onSelect={() => actions.onOpen(item)} className={menuItem}>
+              <Pencil aria-hidden className="size-3.5 text-text-muted" strokeWidth={1.8} />
+              Edit details
             </DropdownMenu.Item>
             <DropdownMenu.Separator className="mx-2 my-1 h-px bg-border" />
             <DropdownMenu.Item

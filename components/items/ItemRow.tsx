@@ -1,7 +1,9 @@
 import { Star } from "lucide-react";
 import Link from "next/link";
+import type { MouseEvent } from "react";
 import { progressLabel, type Item } from "@/lib/items";
 import type { CategoryKind } from "@/lib/status";
+import { isPlainClick } from "@/lib/utils";
 import { ItemCover } from "./ItemCover";
 import { StatusPill } from "./StatusPill";
 
@@ -10,10 +12,12 @@ type ItemRowProps = {
   href: string;
   kind: CategoryKind;
   categoryColor: string;
+  /** Opens the item sheet in place; ctrl/⌘-click still opens the link. */
+  onOpen: () => void;
 };
 
 /** Dense list row (SPEC §8.5): 40×60 thumb, title, year, status, progress, rating, updated. */
-export function ItemRow({ item, href, kind, categoryColor }: ItemRowProps) {
+export function ItemRow({ item, href, kind, categoryColor, onOpen }: ItemRowProps) {
   const progress = item.progress_total || item.progress_current ? progressLabel(item) : "—";
   const rating = item.rating ? `${item.rating} / 10` : "—";
 
@@ -21,6 +25,11 @@ export function ItemRow({ item, href, kind, categoryColor }: ItemRowProps) {
     <Link
       href={href}
       scroll={false}
+      onClick={(event: MouseEvent) => {
+        if (!isPlainClick(event)) return;
+        event.preventDefault();
+        onOpen();
+      }}
       className="grid min-h-19 grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-3.5 rounded-card px-2 py-2 transition-colors hover:bg-white/4 md:grid-cols-[40px_minmax(0,1fr)_140px_80px_72px_96px] md:gap-5"
     >
       <div className="relative h-15 w-10 overflow-hidden rounded-[5px] border border-white/7">

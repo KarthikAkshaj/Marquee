@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   createItemSchema,
   emailSchema,
+  itemDetailsSchema,
   itemFavoriteSchema,
   itemIdSchema,
+  itemProgressSchema,
   itemStatusSchema,
+  moveItemSchema,
   otpCodeSchema,
   safeRedirectPath,
 } from "./validators";
@@ -118,5 +121,54 @@ describe("quick action schemas", () => {
     expect(itemStatusSchema.safeParse({ id, status: "watching" }).success).toBe(false);
     expect(itemFavoriteSchema.safeParse({ id, favorite: "true" }).success).toBe(false);
     expect(itemIdSchema.safeParse("frieren").success).toBe(false);
+  });
+});
+
+describe("itemProgressSchema", () => {
+  const id = "7d8f2a64-3a4e-4c1b-9b5f-2e9a1c0d4b11";
+
+  it("takes a count with a total, or no total while airing", () => {
+    expect(itemProgressSchema.safeParse({ id, current: 800, total: 1100 }).success).toBe(true);
+    expect(itemProgressSchema.safeParse({ id, current: 13, total: null }).success).toBe(true);
+  });
+
+  it("rejects a count past the total, a zero total and fractions", () => {
+    expect(itemProgressSchema.safeParse({ id, current: 13, total: 12 }).success).toBe(false);
+    expect(itemProgressSchema.safeParse({ id, current: 0, total: 0 }).success).toBe(false);
+    expect(itemProgressSchema.safeParse({ id, current: 1.5, total: null }).success).toBe(false);
+  });
+});
+
+describe("itemDetailsSchema", () => {
+  it("accepts any one field on its own", () => {
+    expect(itemDetailsSchema.parse({ rating: 8 })).toEqual({ rating: 8 });
+    expect(itemDetailsSchema.parse({ rating: null })).toEqual({ rating: null });
+    expect(itemDetailsSchema.parse({ title: "  One Piece " })).toEqual({ title: "One Piece" });
+    expect(itemDetailsSchema.parse({ started_at: "2026-08-02", finished_at: null })).toEqual({
+      started_at: "2026-08-02",
+      finished_at: null,
+    });
+  });
+
+  it("stores blank notes as none", () => {
+    expect(itemDetailsSchema.parse({ notes: "   " })).toEqual({ notes: null });
+    expect(itemDetailsSchema.parse({ notes: "Ep 7!" })).toEqual({ notes: "Ep 7!" });
+  });
+
+  it("rejects half ratings, bad dates, unknown fields and empty saves", () => {
+    expect(itemDetailsSchema.safeParse({ rating: 8.5 }).success).toBe(false);
+    expect(itemDetailsSchema.safeParse({ rating: 11 }).success).toBe(false);
+    expect(itemDetailsSchema.safeParse({ started_at: "02-08-2026" }).success).toBe(false);
+    expect(itemDetailsSchema.safeParse({ year: 1500 }).success).toBe(false);
+    expect(itemDetailsSchema.safeParse({ user_id: "someone-else" }).success).toBe(false);
+    expect(itemDetailsSchema.safeParse({}).success).toBe(false);
+  });
+});
+
+describe("moveItemSchema", () => {
+  it("needs two real ids", () => {
+    const id = "7d8f2a64-3a4e-4c1b-9b5f-2e9a1c0d4b11";
+    expect(moveItemSchema.safeParse({ id, categoryId: id }).success).toBe(true);
+    expect(moveItemSchema.safeParse({ id, categoryId: "movies" }).success).toBe(false);
   });
 });

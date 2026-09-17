@@ -11,6 +11,16 @@ export type EmptyReason =
   | { type: "favourites" }
   | { type: "filter"; query: string };
 
+/** Why nothing is showing, or null when something is. */
+export function emptyReason(shown: number, query: string, total: number, params: CategoryParams): EmptyReason | null {
+  if (shown > 0) return null;
+  if (query.trim()) return { type: "filter", query };
+  if (total === 0) return { type: "empty" };
+  if (params.fav) return { type: "favourites" };
+  if (params.status !== "all") return { type: "status", status: params.status };
+  return { type: "empty" };
+}
+
 type EmptyShelfProps = {
   kind: CategoryKind;
   slug: string;

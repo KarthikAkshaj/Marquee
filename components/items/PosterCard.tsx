@@ -1,10 +1,10 @@
 import { Star } from "lucide-react";
 import Link from "next/link";
-import type { CSSProperties } from "react";
-import { progressPercent, type Item } from "@/lib/items";
+import type { CSSProperties, MouseEvent } from "react";
+import { progressPercent, progressShort, type Item } from "@/lib/items";
 import { generatedCover } from "@/lib/poster-art";
 import { STATUS_STYLE, statusLabel, type CategoryKind } from "@/lib/status";
-import { cn } from "@/lib/utils";
+import { cn, isPlainClick } from "@/lib/utils";
 import { ItemCover } from "./ItemCover";
 import { QuickActions, type ItemQuickActions } from "./QuickActions";
 
@@ -35,22 +35,32 @@ const lit = {
  */
 export function PosterCard({ item, href, kind, categoryColor, actions }: PosterCardProps) {
   const status = STATUS_STYLE[item.status];
-  const percent = item.status === "in_progress" ? progressPercent(item) : null;
+  const watching = item.status === "in_progress";
+  const percent = watching ? progressPercent(item) : null;
+  const episode = watching ? progressShort(item, kind) : null;
   const glow = item.accent_color
     ? `color-mix(in oklab, ${item.accent_color} 26%, transparent)`
     : generatedCover(item.id, categoryColor).glow;
+  // A plain click opens the sheet in place; ctrl/⌘-click still opens the link in a new tab.
+  const open = (event: MouseEvent) => {
+    if (!isPlainClick(event)) return;
+    event.preventDefault();
+    actions.onOpen(item);
+  };
 
   return (
-    <div className="group flex flex-col gap-2.5" style={{ "--card-glow": glow } as CSSProperties}>
+    <div className="group @container flex flex-col gap-2.5" style={{ "--card-glow": glow } as CSSProperties}>
       <div>
         <p className="text-13 leading-[1.3] font-medium text-pretty transition-colors group-hover:text-white">
-          <Link href={href} scroll={false}>
+          <Link href={href} scroll={false} onClick={open}>
             {item.title}
           </Link>
         </p>
-        <p className="mt-1 flex items-center gap-2 font-mono text-[11px]">
-          {item.year && <span className="text-text-muted">{item.year}</span>}
+        {/* 2023 · Watching · 13/24. Narrow cards drop the year to fit the episode. */}
+        <p className="mt-1 flex flex-wrap items-center gap-x-2 font-mono text-[11px]">
+          {item.year && <span className={cn("text-text-muted", episode && "@max-[160px]:hidden")}>{item.year}</span>}
           <span className={status.text}>{statusLabel(kind, item.status)}</span>
+          {episode && <span className="text-text">{episode}</span>}
         </p>
       </div>
 
@@ -61,7 +71,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions }: PosterC
           lit.frame,
         )}
       >
-        <Link href={href} scroll={false} tabIndex={-1} aria-hidden className="absolute inset-0">
+        <Link href={href} scroll={false} onClick={open} tabIndex={-1} aria-hidden className="absolute inset-0">
           <ItemCover
             item={item}
             categoryColor={categoryColor}
@@ -88,7 +98,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions }: PosterC
             lit.bar,
           )}
         >
-          <QuickActions item={item} kind={kind} href={href} actions={actions} className={lit.buttons} />
+          <QuickActions item={item} kind={kind} actions={actions} className={lit.buttons} />
         </div>
 
         {percent !== null && (
