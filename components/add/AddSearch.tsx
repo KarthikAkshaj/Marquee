@@ -4,12 +4,14 @@ import { Command } from "cmdk";
 import { useState, type KeyboardEvent } from "react";
 import { SOURCE_FOR_KIND, SOURCE_NAMES, findDuplicate, searchNotice } from "@/lib/add";
 import { ITEM_STATUSES } from "@/lib/status";
-import { cn } from "@/lib/utils";
 import { AddPanelFooter } from "./AddPanelFooter";
 import { AddSearchHeader } from "./AddSearchHeader";
 import type { AddTitlePanelProps } from "./AddTitlePanel";
+import { GroupHeading } from "./GroupHeading";
+import { ManualAddRow } from "./ManualAddRow";
 import { ResultSkeleton } from "./ResultSkeleton";
-import { SearchResultRow, paletteRow } from "./SearchResultRow";
+import { SearchResultRow } from "./SearchResultRow";
+import { ShelfChip } from "./ShelfChip";
 import { useMetadataSearch } from "./useMetadataSearch";
 
 const MANUAL = "manual";
@@ -21,8 +23,8 @@ type AddSearchProps = Omit<AddTitlePanelProps, "open" | "onOpenChange">;
  * through them, ←→ change the status; Alt+Enter adds and opens the title.
  * The last row always adds whatever was typed by hand.
  */
-export function AddSearch({ category, items, defaultStatus, onAdd, onOpenExisting, onManual }: AddSearchProps) {
-  const [query, setQuery] = useState("");
+export function AddSearch({ category, items, defaultStatus, initialQuery = "", onAdd, onOpenExisting, onManual }: AddSearchProps) {
+  const [query, setQuery] = useState(initialQuery);
   const [status, setStatus] = useState(defaultStatus);
   const [navigating, setNavigating] = useState(false);
   const [selected, setSelected] = useState("");
@@ -94,9 +96,8 @@ export function AddSearch({ category, items, defaultStatus, onAdd, onOpenExistin
         }}
         placeholder={`Search ${SOURCE_NAMES[source]}…`}
         loading={search.loading}
-        category={category}
-        status={status}
-        onStepStatus={stepStatus}
+        target={<ShelfChip name={category.name} color={category.color} />}
+        status={{ kind: category.kind, value: status, onStep: stepStatus }}
       />
 
       <Command.List aria-busy={search.loading} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
@@ -107,9 +108,7 @@ export function AddSearch({ category, items, defaultStatus, onAdd, onOpenExistin
         {search.loading && rows.length === 0 && <ResultSkeleton />}
 
         {rows.length > 0 && (
-          <Command.Group
-            heading={<span className="block px-3 pt-2 pb-1.5 font-mono text-[10px] tracking-[.12em] text-text-muted">RESULTS</span>}
-          >
+          <Command.Group heading={<GroupHeading>Results</GroupHeading>}>
             {rows.map((row) => (
               <SearchResultRow
                 key={row.value}
@@ -126,21 +125,12 @@ export function AddSearch({ category, items, defaultStatus, onAdd, onOpenExistin
         )}
 
         {typed && (
-          // Pinned to the bottom of the list, so a long page of results never hides it.
-          <div className="sticky -bottom-2 -mx-2 -mb-2 bg-menu px-2 pb-2">
-            {(rows.length > 0 || notice || search.loading) && <Command.Separator className="mx-3 mb-2 h-px bg-white/7" />}
-            <Command.Item value={MANUAL} onSelect={() => choose(MANUAL, false)} className={cn(paletteRow, "py-2.75")}>
-              <span
-                aria-hidden
-                className="grid h-12.5 w-8.5 shrink-0 place-items-center rounded-[5px] border border-dashed border-white/18 text-[15px] text-text-muted"
-              >
-                +
-              </span>
-              <span className="min-w-0 flex-1 text-14 text-text">
-                Add “{typed}” manually <span className="text-text-muted">— nobody&apos;s heard of it, that&apos;s fine</span>
-              </span>
-            </Command.Item>
-          </div>
+          <ManualAddRow
+            value={MANUAL}
+            title={typed}
+            divided={rows.length > 0 || Boolean(notice) || search.loading}
+            onSelect={() => choose(MANUAL, false)}
+          />
         )}
       </Command.List>
 

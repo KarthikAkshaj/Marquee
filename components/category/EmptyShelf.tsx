@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
+import { SOURCE_FOR_KIND, SOURCE_NAMES, searchKindOf } from "@/lib/add";
 import { categoryHref, type CategoryParams } from "@/lib/items";
 import { STATUS_STYLE, statusLabels, type CategoryKind, type ItemStatus } from "@/lib/status";
 import { ShelfIllustration } from "./ShelfIllustration";
@@ -27,11 +28,13 @@ type EmptyShelfProps = {
   params: CategoryParams;
   reason: EmptyReason;
   onAdd: () => void;
+  /** Look the filter text up to add it; only shelves with a provider. */
+  onSearch?: (query: string) => void;
   onClearFilter: () => void;
 };
 
 /** One serif line, one muted sentence, one action. */
-export function EmptyShelf({ kind, slug, params, reason, onAdd, onClearFilter }: EmptyShelfProps) {
+export function EmptyShelf({ kind, slug, params, reason, onAdd, onSearch, onClearFilter }: EmptyShelfProps) {
   const labels = statusLabels(kind);
   const link = (patch: Partial<CategoryParams>, text: string) => (
     <Button asChild variant="secondary">
@@ -53,9 +56,26 @@ export function EmptyShelf({ kind, slug, params, reason, onAdd, onClearFilter }:
   let action: ReactNode;
 
   if (reason.type === "filter") {
+    const typed = reason.query.trim();
+    const source = searchKindOf(kind);
     title = <>Nothing called <em className={accent}>that.</em></>;
-    body = `No titles here match “${reason.query.trim()}”.`;
-    action = <Button variant="secondary" onClick={onClearFilter}>Clear filter</Button>;
+    if (onSearch && source) {
+      // Not on the shelf yet: offer to go and find it, text already typed.
+      body = `No titles here match “${typed}”. Want to add it?`;
+      action = (
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+          <Button variant="secondary" onClick={() => onSearch(typed)}>
+            Search {SOURCE_NAMES[SOURCE_FOR_KIND[source]]} for “{typed}”
+          </Button>
+          <button type="button" onClick={onClearFilter} className="min-h-11 text-13 text-text-muted transition-colors hover:text-text">
+            Clear filter
+          </button>
+        </div>
+      );
+    } else {
+      body = `No titles here match “${typed}”.`;
+      action = <Button variant="secondary" onClick={onClearFilter}>Clear filter</Button>;
+    }
   } else if (reason.type === "favourites") {
     title = <>No favourites <em className={accent}>here.</em></>;
     body = "Star a title and it shows up in this view.";

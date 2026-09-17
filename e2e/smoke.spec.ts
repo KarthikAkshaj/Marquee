@@ -23,10 +23,14 @@ test("signed-out visitors are bounced from the app to login", async ({ page }) =
   await expect(page.getByRole("heading", { name: "Let's get you in." })).toBeVisible();
 });
 
-test("metadata search needs a session", async ({ request }) => {
-  const response = await request.get("/api/search?kind=anime&q=frieren");
-  expect(response.status()).toBe(401);
-  expect(await response.json()).toEqual({ results: [], error: "signed_out" });
+test("metadata search and the palette's title list need a session", async ({ request }) => {
+  const search = await request.get("/api/search?kind=anime&q=frieren");
+  expect(search.status()).toBe(401);
+  expect(await search.json()).toEqual({ results: [], error: "signed_out" });
+
+  const titles = await request.get("/api/titles");
+  expect(titles.status()).toBe(401);
+  expect(await titles.json()).toEqual({ titles: [] });
 });
 
 test("email code button only wakes up for a valid email", async ({ page }) => {

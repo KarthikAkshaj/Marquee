@@ -1,12 +1,13 @@
 import Link from "next/link";
+import { PaletteTrigger } from "@/components/palette/PaletteTrigger";
 import { UserMenu, type MenuUser } from "@/components/user/UserMenu";
 import type { CategoryWithCount } from "@/lib/queries";
 import { BrandMark } from "./BrandMark";
 import { MobileListsMenu } from "./MobileListsMenu";
 
 /**
- * Phone header (handoff §08). The Lists menu stands in for the bottom nav
- * (Phase 4); search arrives with the palette (Phase 3).
+ * Phone header (handoff §08): search, then the Lists menu, which stands in
+ * for the bottom nav until Phase 4.
  */
 type MobileTopBarProps = { user: MenuUser; categories: CategoryWithCount[]; dim: boolean };
 
@@ -17,6 +18,7 @@ export function MobileTopBar({ user, categories, dim }: MobileTopBarProps) {
         <BrandMark variant="mobile" dim={dim} />
       </Link>
       <div className="flex items-center gap-2">
+        <PaletteTrigger variant="icon" />
         <MobileListsMenu categories={categories} />
         <UserMenu user={user} variant="compact" />
       </div>

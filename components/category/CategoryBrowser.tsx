@@ -26,7 +26,7 @@ type CategoryBrowserProps = {
 };
 
 /** Search first where the shelf has a provider (SPEC §8.7); by hand for custom shelves or from the search's last row. */
-type Adding = { mode: "search" } | { mode: "manual"; title: string } | null;
+type Adding = { mode: "search"; query?: string } | { mode: "manual"; title: string } | null;
 
 /** The category page's interactive body (SPEC §8.5) and its item sheet (§8.6). */
 export function CategoryBrowser({ category, categories, params, items }: CategoryBrowserProps) {
@@ -72,6 +72,7 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
             params={params}
             reason={reason}
             onAdd={startAdding}
+            onSearch={searchKind ? (text) => setAdding({ mode: "search", query: text }) : undefined}
             onClearFilter={() => setQuery("")}
           />
         ) : (
@@ -93,7 +94,8 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
       {searchKind && (
         <AddTitlePanel
           open={adding?.mode === "search"}
-          onOpenChange={(open) => setAdding(open ? { mode: "search" } : null)}
+          onOpenChange={(open) => !open && setAdding(null)}
+          initialQuery={adding?.mode === "search" ? adding.query : undefined}
           category={{ ...category, kind: searchKind }}
           items={shelf.items}
           defaultStatus={defaultStatus}

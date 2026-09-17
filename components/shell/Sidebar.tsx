@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PaletteTrigger } from "@/components/palette/PaletteTrigger";
 import { UserMenu } from "@/components/user/UserMenu";
 import { categoryStyle } from "@/lib/categories";
 import type { CategoryWithCount } from "@/lib/queries";
@@ -15,8 +16,8 @@ type SidebarProps = {
 };
 
 /**
- * Desktop sidebar (SPEC §8.3, handoff §01). Search and Import join it as
- * their features land, so nothing here leads nowhere.
+ * Desktop sidebar (SPEC §8.3, handoff §01). Import joins it in Phase 4, so
+ * nothing here leads nowhere.
  */
 export function Sidebar({ categories, user, dim }: SidebarProps) {
   return (
@@ -88,6 +89,7 @@ export function Sidebar({ categories, user, dim }: SidebarProps) {
       </nav>
 
       <div className="mt-auto flex flex-col gap-0.5 border-t border-border pt-3.5">
+        <PaletteTrigger variant="sidebar" dim={dim} />
         <NavLink
           href="/settings"
           className="rounded-nav px-2.5 py-2 text-13 text-text-muted transition-colors hover:text-text aria-[current=page]:bg-accent/12 aria-[current=page]:font-medium aria-[current=page]:text-accent"

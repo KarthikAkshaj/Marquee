@@ -13,6 +13,8 @@ export type AddTitlePanelProps = {
   /** The shelf's titles, to spot duplicates. */
   items: Item[];
   defaultStatus: ItemStatus;
+  /** Start with this already typed (the filter hand-off). */
+  initialQuery?: string;
   onAdd: (result: SearchResult, status: ItemStatus, openAfter: boolean) => void;
   onOpenExisting: (id: string) => void;
   onManual: (title: string) => void;

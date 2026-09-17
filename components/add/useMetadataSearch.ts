@@ -15,7 +15,7 @@ export type MetadataSearch = {
   /** Results for the query, or the last ones shown while the next arrive. */
   response: SearchResponse | undefined;
   loading: boolean;
-  /** The query is too short to search yet. */
+  /** Nothing to search: no provider, or the query is too short. */
   idle: boolean;
 };
 
@@ -23,14 +23,14 @@ export type MetadataSearch = {
  * Live results from /api/search (SPEC §7): debounced, cancelled when the query
  * moves on, and cached per tab. Failures aren't cached, so reopening retries.
  */
-export function useMetadataSearch(kind: SearchKind, query: string): MetadataSearch {
-  const idle = query.trim().length < MIN_QUERY;
+export function useMetadataSearch(kind: SearchKind | null, query: string): MetadataSearch {
+  const idle = !kind || query.trim().length < MIN_QUERY;
   const key = idle ? null : keyFor(kind, query);
   const [answers, setAnswers] = useState<ReadonlyMap<string, SearchResponse>>(() => new Map(answered));
-  const [lastShown, setLastShown] = useState<SearchResponse | undefined>(undefined);
+  const [lastShown, setLastShown] = useState<{ kind: SearchKind; response: SearchResponse } | null>(null);
 
   useEffect(() => {
-    if (!key || answers.has(key)) return;
+    if (!key || !kind || answers.has(key)) return;
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
       let body: SearchResponse;
@@ -45,7 +45,7 @@ export function useMetadataSearch(kind: SearchKind, query: string): MetadataSear
       if (controller.signal.aborted) return;
       if (!body.error) answered.set(key, body);
       setAnswers((previous) => new Map(previous).set(key, body));
-      setLastShown(body);
+      setLastShown({ kind, response: body });
     }, DEBOUNCE_MS);
 
     return () => {
@@ -56,7 +56,8 @@ export function useMetadataSearch(kind: SearchKind, query: string): MetadataSear
 
   const current = key ? answers.get(key) : undefined;
   return {
-    response: key ? (current ?? lastShown) : undefined,
+    // Stale results only stand in for the same provider; switching shelves starts clean.
+    response: key ? (current ?? (lastShown?.kind === kind ? lastShown.response : undefined)) : undefined,
     loading: key !== null && current === undefined,
     idle,
   };
