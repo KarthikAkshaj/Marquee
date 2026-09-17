@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronUp, Ellipsis } from "lucide-react";
+import { ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { DropdownMenu } from "radix-ui";
 import { useTransition } from "react";
@@ -12,17 +12,17 @@ export type MenuUser = {
   displayName: string;
   username: string | null;
   email: string | null;
+  /** Uploaded or Google photo; initials when null. */
+  avatarUrl: string | null;
 };
 
 type UserMenuProps = {
   user: MenuUser;
-  /** `chip` sits at the foot of the sidebar; `compact` is the ⋯ button on phones. */
+  /** `chip` sits at the foot of the sidebar; `compact` is the avatar button on phones. */
   variant: "chip" | "compact";
 };
 
-/**
- * The account menu (SPEC §8.3). Profile joins it once that page exists.
- */
+/** The account menu (SPEC §8.3): Profile, Settings, Switch account, Sign out. */
 export function UserMenu({ user, variant }: UserMenuProps) {
   const [pending, startTransition] = useTransition();
   const chip = variant === "chip";
@@ -35,7 +35,7 @@ export function UserMenu({ user, variant }: UserMenuProps) {
             type="button"
             className="group flex w-full items-center gap-2.5 rounded-[9px] border border-transparent px-2.25 py-2 text-left transition-colors hover:bg-white/5 data-[state=open]:border-white/12 data-[state=open]:bg-white/5"
           >
-            <Avatar name={user.displayName} size="sm" />
+            <Avatar name={user.displayName} src={user.avatarUrl} size="sm" />
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[12.5px] leading-[1.2] font-medium">
                 {user.displayName}
@@ -56,9 +56,9 @@ export function UserMenu({ user, variant }: UserMenuProps) {
           <button
             type="button"
             aria-label="Account menu"
-            className="flex size-11 items-center justify-center rounded-card border border-border bg-surface text-text-muted transition-colors hover:text-text data-[state=open]:text-text"
+            className="rounded-full outline-offset-2 transition-opacity hover:opacity-90"
           >
-            <Ellipsis aria-hidden className="size-4" strokeWidth={2} />
+            <Avatar name={user.displayName} src={user.avatarUrl} size="md" />
           </button>
         )}
       </DropdownMenu.Trigger>
@@ -74,7 +74,7 @@ export function UserMenu({ user, variant }: UserMenuProps) {
           )}
         >
           <div className="flex items-center gap-2.75 border-b border-border px-3.5 pt-3.5 pb-3.25">
-            <Avatar name={user.displayName} size="lg" />
+            <Avatar name={user.displayName} src={user.avatarUrl} size="lg" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-[13.5px] font-medium">{user.displayName}</p>
               {user.username && (
@@ -89,19 +89,12 @@ export function UserMenu({ user, variant }: UserMenuProps) {
           </div>
 
           <div className="p-1.5">
-            <DropdownMenu.Item asChild>
-              <Link
-                href="/settings"
-                className={cn(
-                  "flex cursor-pointer items-center gap-2.25 rounded-nav px-2.5 py-2.25 text-13 text-text outline-none select-none data-highlighted:bg-white/5",
-                  !chip && "min-h-11",
-                )}
-              >
-                <span aria-hidden className="size-1.25 rounded-full bg-white/28" />
-                Settings
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Separator className="mx-2.5 my-1.5 h-px bg-border" />
+            <LinkItem href="/settings/profile" tall={!chip}>
+              Profile
+            </LinkItem>
+            <LinkItem href="/settings/categories" tall={!chip}>
+              Settings
+            </LinkItem>
             <MenuItem tall={!chip} disabled={pending} onSelect={() => startTransition(() => switchAccount())}>
               Switch account
             </MenuItem>
@@ -147,6 +140,23 @@ function MenuItem({
         className={cn("size-1.25 rounded-full", danger ? "bg-dropped-muted" : "bg-white/28")}
       />
       {children}
+    </DropdownMenu.Item>
+  );
+}
+
+function LinkItem({ href, tall, children }: { href: string; tall: boolean; children: string }) {
+  return (
+    <DropdownMenu.Item asChild>
+      <Link
+        href={href}
+        className={cn(
+          "flex cursor-pointer items-center gap-2.25 rounded-nav px-2.5 py-2.25 text-13 text-text outline-none select-none data-highlighted:bg-white/5",
+          tall && "min-h-11",
+        )}
+      >
+        <span aria-hidden className="size-1.25 rounded-full bg-white/28" />
+        {children}
+      </Link>
     </DropdownMenu.Item>
   );
 }

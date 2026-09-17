@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  avatarFileSchema,
   createCategorySchema,
   createItemSchema,
   emailSchema,
@@ -10,9 +11,11 @@ import {
   itemStatusSchema,
   moveItemSchema,
   otpCodeSchema,
+  profileSchema,
   reorderCategoriesSchema,
   safeRedirectPath,
   updateCategorySchema,
+  usernameSchema,
 } from "./validators";
 
 describe("safeRedirectPath", () => {
@@ -199,5 +202,30 @@ describe("category schemas", () => {
     expect(reorderCategoriesSchema.safeParse([id, other]).success).toBe(true);
     expect(reorderCategoriesSchema.safeParse([id, id]).success).toBe(false);
     expect(reorderCategoriesSchema.safeParse([]).success).toBe(false);
+  });
+});
+
+describe("profile schemas", () => {
+  it("trims, lowercases the username and stores a blank bio as none", () => {
+    expect(profileSchema.parse({ display_name: "  Akuma ", username: " Night_Owl ", bio: "   " })).toEqual({
+      display_name: "Akuma",
+      username: "night_owl",
+      bio: null,
+    });
+  });
+
+  it("holds the same username rule as the database", () => {
+    for (const bad of ["ab", "has space", "dash-name", "x".repeat(21), "émile"]) {
+      expect(usernameSchema.safeParse(bad).success).toBe(false);
+    }
+    expect(usernameSchema.safeParse("akuma_3f9c").success).toBe(true);
+  });
+
+  it("rejects an empty name, a long bio, and photos the bucket won't take", () => {
+    expect(profileSchema.safeParse({ display_name: " ", username: "akuma", bio: "" }).success).toBe(false);
+    expect(profileSchema.safeParse({ display_name: "A", username: "akuma", bio: "x".repeat(161) }).success).toBe(false);
+    expect(avatarFileSchema.safeParse({ type: "image/webp", size: 48_000 }).success).toBe(true);
+    expect(avatarFileSchema.safeParse({ type: "image/gif", size: 48_000 }).success).toBe(false);
+    expect(avatarFileSchema.safeParse({ type: "image/png", size: 3 * 1024 * 1024 }).success).toBe(false);
   });
 });

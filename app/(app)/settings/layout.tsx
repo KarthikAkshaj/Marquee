@@ -21,6 +21,8 @@ export default async function SettingsLayout({ children }: LayoutProps<"/setting
       <div className="mt-6 flex flex-col gap-6 md:mt-7.5 md:flex-row md:gap-8.5">
         <SettingsTabs
           tabs={[
+            // No count on Profile (SPEC §8.10 design overrides).
+            { href: "/settings/profile", label: "Profile" },
             { href: "/settings/categories", label: "Categories", meta: String(categories.length).padStart(2, "0") },
           ]}
         />

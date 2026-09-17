@@ -16,6 +16,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     displayName: viewer.profile?.display_name ?? viewer.profile?.username ?? viewer.email ?? "You",
     username: viewer.profile?.username ?? null,
     email: viewer.email,
+    avatarUrl: viewer.profile?.avatar_url ?? null,
   };
   // Nothing tracked anywhere yet: the marquee's lights are down.
   const dim = categories.every((category) => category.itemCount === 0);

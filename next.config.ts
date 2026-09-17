@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "s4.anilist.co" },
       { protocol: "https", hostname: "images.igdb.com", pathname: "/igdb/image/upload/**" },
       { protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/**" },
+      // Google sign-in fills avatar_url with the account photo until one is uploaded.
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
 };

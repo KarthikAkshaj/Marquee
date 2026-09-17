@@ -163,6 +163,7 @@ export type Database = {
     }
     Functions: {
       delete_account: { Args: never; Returns: undefined }
+      is_username_available: { Args: { candidate: string }; Returns: boolean }
     }
     Enums: {
       category_kind: "anime" | "movie" | "series" | "game" | "custom"

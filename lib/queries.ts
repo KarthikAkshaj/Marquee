@@ -70,3 +70,35 @@ export const getCategoryItems = cache(async (categoryId: string) => {
 });
 
 export type Category = Awaited<ReturnType<typeof getCategoryBySlug>>;
+
+/** Everything Settings → Profile edits, plus the small stats card (SPEC §8.10). */
+export const getProfile = cache(async () => {
+  const viewer = await getViewer();
+  const supabase = await createClient();
+  const yearStart = `${new Date().getFullYear()}-01-01`;
+
+  const [profile, titles, finished] = await Promise.all([
+    supabase.from("profiles").select("username, display_name, avatar_url, bio, created_at").eq("id", viewer.id).single(),
+    supabase.from("items").select("id", { count: "exact", head: true }),
+    supabase
+      .from("items")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "completed")
+      .gte("finished_at", yearStart),
+  ]);
+
+  if (profile.error) throw new Error(`Couldn't load your profile: ${profile.error.message}`);
+  if (titles.error || finished.error) throw new Error("Couldn't count your titles.");
+
+  return {
+    ...profile.data,
+    email: viewer.email,
+    stats: {
+      memberSince: profile.data.created_at.slice(0, 7),
+      totalTitles: titles.count ?? 0,
+      completedThisYear: finished.count ?? 0,
+    },
+  };
+});
+
+export type Profile = Awaited<ReturnType<typeof getProfile>>;

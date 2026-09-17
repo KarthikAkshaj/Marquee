@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_KINDS } from "@/lib/categories";
+import { AVATAR_MAX_BYTES, AVATAR_TYPES, BIO_MAX, DISPLAY_NAME_MAX, USERNAME_PATTERN, type AvatarType } from "@/lib/profile";
 import { ITEM_STATUSES } from "@/lib/status";
 
 /** Every server action input is parsed through zod (SPEC §11). */
@@ -138,6 +139,36 @@ export const reorderCategoriesSchema = z
   .refine((ids) => new Set(ids).size === ids.length, "Each category once.");
 
 export type CategoryInput = z.infer<typeof createCategorySchema>;
+
+/** Same rule as the database check on profiles.username (SPEC §5). */
+export const usernameSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .regex(USERNAME_PATTERN, "3–20 characters: lowercase letters, numbers and _.");
+
+/** Settings → Profile (SPEC §8.10). A blank bio is no bio. */
+export const profileSchema = z.object({
+  display_name: z
+    .string()
+    .trim()
+    .min(1, "Give yourself a name.")
+    .max(DISPLAY_NAME_MAX, `Keep it under ${DISPLAY_NAME_MAX} characters.`),
+  username: usernameSchema,
+  bio: z
+    .string()
+    .trim()
+    .max(BIO_MAX, `Bios top out at ${BIO_MAX} characters.`)
+    .transform((bio) => bio || null),
+});
+
+export type ProfileInput = z.input<typeof profileSchema>;
+
+/** What the browser uploads after cropping: a small square in a format the bucket accepts. */
+export const avatarFileSchema = z.object({
+  type: z.enum(Object.keys(AVATAR_TYPES) as [AvatarType, ...AvatarType[]], "Use a PNG, JPEG or WebP image."),
+  size: z.number().positive("That file is empty.").max(AVATAR_MAX_BYTES, "That photo is over 2 MB."),
+});
 
 /**
  * Only same-origin, path-only redirects survive — an open redirect here would
