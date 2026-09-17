@@ -22,7 +22,7 @@ type PosterCardProps = {
  */
 const lit = {
   frame:
-    "group-hover:-translate-y-1.5 group-hover:scale-[1.03] group-hover:border-(--card-edge) group-hover:shadow-[0_26px_60px_var(--card-glow-lit),var(--card-ring)] group-has-[:focus-visible]:-translate-y-1.5 group-has-[:focus-visible]:border-(--card-edge) group-has-[:focus-visible]:shadow-[0_26px_60px_var(--card-glow-lit),var(--card-ring)] group-has-[[data-state=open]]:-translate-y-1.5 group-has-[[data-state=open]]:border-(--card-edge) group-has-[[data-state=open]]:shadow-[0_26px_60px_var(--card-glow-lit),var(--card-ring)]",
+    "group-hover:-translate-y-1.5 group-hover:scale-[1.03] group-hover:border-(--card-edge) group-hover:shadow-(--card-lit) group-has-[:focus-visible]:-translate-y-1.5 group-has-[:focus-visible]:border-(--card-edge) group-has-[:focus-visible]:shadow-(--card-lit) group-has-[[data-state=open]]:-translate-y-1.5 group-has-[[data-state=open]]:border-(--card-edge) group-has-[[data-state=open]]:shadow-(--card-lit)",
   bar: "group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 group-has-[[data-state=open]]:opacity-100",
   /** Only the buttons take the pointer; the gradient around them still opens the title. */
   buttons:
@@ -46,10 +46,14 @@ export function PosterCard({ item, href, kind, categoryColor, actions }: PosterC
   // Lifted a little toward white so a dark cover still gets an edge you can see.
   const bright = `color-mix(in oklab, ${tint}, white 30%)`;
   const light = {
-    "--card-glow": item.accent_color ? `color-mix(in oklab, ${tint} 26%, transparent)` : cover.glow,
-    "--card-glow-lit": `color-mix(in oklab, ${tint} 38%, transparent)`,
-    "--card-edge": `color-mix(in oklab, ${bright} 55%, transparent)`,
-    "--card-ring": `0 0 0 4px color-mix(in oklab, ${bright} 14%, transparent)`,
+    "--card-glow": `color-mix(in oklab, ${tint} 34%, transparent)`,
+    "--card-edge": `color-mix(in oklab, ${bright} 60%, transparent)`,
+    // Lit: a wide pool of light below, a halo hugging the poster, and a thin ring.
+    "--card-lit": [
+      `0 26px 70px color-mix(in oklab, ${tint} 55%, transparent)`,
+      `0 0 30px color-mix(in oklab, ${tint} 32%, transparent)`,
+      `0 0 0 4px color-mix(in oklab, ${bright} 18%, transparent)`,
+    ].join(", "),
   } as CSSProperties;
   // A plain click opens the sheet in place; ctrl/⌘-click still opens the link in a new tab.
   const open = (event: MouseEvent) => {
@@ -77,7 +81,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions }: PosterC
       <div
         className={cn(
           "relative order-first aspect-2/3 overflow-hidden rounded-card border border-white/7",
-          "shadow-[0_10px_26px_var(--card-glow)] transition-[translate,scale,box-shadow,border-color] duration-200 ease-cinematic",
+          "shadow-[0_12px_32px_var(--card-glow)] transition-[translate,scale,box-shadow,border-color] duration-200 ease-cinematic",
           lit.frame,
         )}
       >
