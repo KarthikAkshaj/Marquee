@@ -30,6 +30,8 @@ function exportItem(item: Row<"items">): ExportItem {
     cover_url: item.cover_url,
     backdrop_url: item.backdrop_url,
     accent_color: item.accent_color,
+    genres: item.genres,
+    community_score: item.community_score,
     source: item.source,
     external_id: item.external_id,
     created_at: item.created_at,

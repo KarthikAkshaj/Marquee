@@ -17,6 +17,8 @@ const base: Item = {
   cover_url: null,
   backdrop_url: null,
   accent_color: null,
+  genres: [],
+  community_score: null,
   year: 2023,
   source: "manual",
   external_id: null,

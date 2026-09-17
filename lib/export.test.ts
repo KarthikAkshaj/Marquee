@@ -30,6 +30,8 @@ const item = (overrides: Partial<Tables["items"]["Row"]>): Tables["items"]["Row"
   cover_url: null,
   backdrop_url: null,
   accent_color: null,
+  genres: [],
+  community_score: null,
   year: 1999,
   source: "manual",
   external_id: null,
@@ -57,6 +59,11 @@ describe("buildExport", () => {
       ["Anime", ["One Piece"]],
       ["Games", ["Hades"]],
     ]);
+  });
+
+  it("keeps the metadata snapshot from search", () => {
+    const result = buildExport(profile, [category({})], [item({ source: "anilist", genres: ["Action"], community_score: 87 })], now);
+    expect(result.categories[0].items[0]).toMatchObject({ source: "anilist", genres: ["Action"], community_score: 87 });
   });
 
   it("leaves out account ids", () => {

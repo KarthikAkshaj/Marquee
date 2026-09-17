@@ -1,0 +1,375 @@
+[
+  {
+    "id": 80529,
+    "cover": {
+      "id": 222627,
+      "image_id": "co4rs3"
+    },
+    "first_release_date": 799286400,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Hades",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      }
+    ],
+    "total_rating": 85,
+    "total_rating_count": 0,
+    "game_type": 0
+  },
+  {
+    "id": 113112,
+    "cover": {
+      "id": 525627,
+      "image_id": "cob9kr"
+    },
+    "first_release_date": 1600300800,
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 25,
+        "name": "Hack and slash/Beat 'em up"
+      },
+      {
+        "id": 31,
+        "name": "Adventure"
+      },
+      {
+        "id": 32,
+        "name": "Indie"
+      }
+    ],
+    "name": "Hades",
+    "platforms": [
+      {
+        "id": 169,
+        "abbreviation": "Series X|S"
+      },
+      {
+        "id": 48,
+        "abbreviation": "PS4"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 39,
+        "abbreviation": "iOS"
+      },
+      {
+        "id": 167,
+        "abbreviation": "PS5"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      },
+      {
+        "id": 49,
+        "abbreviation": "XONE"
+      },
+      {
+        "id": 130,
+        "abbreviation": "Switch"
+      }
+    ],
+    "total_rating": 91.48298938918357,
+    "total_rating_count": 1769,
+    "game_type": 0,
+    "artworks": [
+      {
+        "id": 56837,
+        "image_id": "ar17ut"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 401132,
+        "image_id": "sc8lik"
+      }
+    ]
+  },
+  {
+    "id": 134619,
+    "cover": {
+      "id": 555679,
+      "image_id": "cobwrj"
+    },
+    "first_release_date": 1009756800,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Hades 2",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      }
+    ],
+    "game_type": 0,
+    "artworks": [
+      {
+        "id": 265573,
+        "image_id": "ar5ox1"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 415683,
+        "image_id": "sc8wqr"
+      }
+    ]
+  },
+  {
+    "id": 228525,
+    "cover": {
+      "id": 493341,
+      "image_id": "coaknx"
+    },
+    "first_release_date": 1758758400,
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 25,
+        "name": "Hack and slash/Beat 'em up"
+      },
+      {
+        "id": 31,
+        "name": "Adventure"
+      },
+      {
+        "id": 32,
+        "name": "Indie"
+      }
+    ],
+    "name": "Hades II",
+    "platforms": [
+      {
+        "id": 169,
+        "abbreviation": "Series X|S"
+      },
+      {
+        "id": 508,
+        "abbreviation": "Switch 2"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 167,
+        "abbreviation": "PS5"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      },
+      {
+        "id": 130,
+        "abbreviation": "Switch"
+      }
+    ],
+    "total_rating": 90.96176790052903,
+    "total_rating_count": 167,
+    "game_type": 0,
+    "artworks": [
+      {
+        "id": 192811,
+        "image_id": "ar44rv"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 946346,
+        "image_id": "scka7e"
+      }
+    ]
+  },
+  {
+    "id": 30655,
+    "cover": {
+      "id": 484615,
+      "image_id": "coadxj"
+    },
+    "first_release_date": 1480636800,
+    "genres": [
+      {
+        "id": 9,
+        "name": "Puzzle"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 32,
+        "name": "Indie"
+      }
+    ],
+    "name": "Hade",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      }
+    ],
+    "total_rating": 70,
+    "total_rating_count": 1,
+    "game_type": 0,
+    "screenshots": [
+      {
+        "id": 73105,
+        "image_id": "qllxd6swmgfv2rqstqft"
+      }
+    ]
+  },
+  {
+    "id": 346885,
+    "cover": {
+      "id": 462130,
+      "image_id": "co9wky"
+    },
+    "first_release_date": 1750809600,
+    "genres": [
+      {
+        "id": 31,
+        "name": "Adventure"
+      },
+      {
+        "id": 32,
+        "name": "Indie"
+      }
+    ],
+    "name": "H.A.D.E.S Zero",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      }
+    ],
+    "game_type": 0,
+    "artworks": [
+      {
+        "id": 171003,
+        "image_id": "ar3ny3"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1547779,
+        "image_id": "scx69v"
+      }
+    ]
+  },
+  {
+    "id": 345742,
+    "cover": {
+      "id": 560575,
+      "image_id": "coc0jj"
+    },
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 31,
+        "name": "Adventure"
+      },
+      {
+        "id": 32,
+        "name": "Indie"
+      }
+    ],
+    "name": "Hades-Plan",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      }
+    ],
+    "game_type": 0,
+    "artworks": [
+      {
+        "id": 169007,
+        "image_id": "ar3men"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1552365,
+        "image_id": "scx9t9"
+      }
+    ]
+  },
+  {
+    "id": 56959,
+    "cover": {
+      "id": 566234,
+      "image_id": "coc4wq"
+    },
+    "first_release_date": 1551225600,
+    "genres": [
+      {
+        "id": 13,
+        "name": "Simulator"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "Hades' Star",
+    "platforms": [
+      {
+        "id": 34,
+        "abbreviation": "Android"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 39,
+        "abbreviation": "iOS"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "game_type": 0,
+    "artworks": [
+      {
+        "id": 277846,
+        "image_id": "ar5ydy"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 270377,
+        "image_id": "sc5smh"
+      }
+    ]
+  }
+]

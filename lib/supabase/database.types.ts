@@ -55,10 +55,12 @@ export type Database = {
           accent_color: string | null
           backdrop_url: string | null
           category_id: string
+          community_score: number | null
           cover_url: string | null
           created_at: string
           external_id: string | null
           finished_at: string | null
+          genres: string[]
           id: string
           is_favorite: boolean
           notes: string | null
@@ -77,10 +79,12 @@ export type Database = {
           accent_color?: string | null
           backdrop_url?: string | null
           category_id: string
+          community_score?: number | null
           cover_url?: string | null
           created_at?: string
           external_id?: string | null
           finished_at?: string | null
+          genres?: string[]
           id?: string
           is_favorite?: boolean
           notes?: string | null
@@ -99,10 +103,12 @@ export type Database = {
           accent_color?: string | null
           backdrop_url?: string | null
           category_id?: string
+          community_score?: number | null
           cover_url?: string | null
           created_at?: string
           external_id?: string | null
           finished_at?: string | null
+          genres?: string[]
           id?: string
           is_favorite?: boolean
           notes?: string | null

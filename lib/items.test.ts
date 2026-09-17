@@ -34,6 +34,8 @@ function item(overrides: Partial<Item>): Item {
     cover_url: null,
     backdrop_url: null,
     accent_color: null,
+    genres: [],
+    community_score: null,
     year: null,
     source: "manual",
     external_id: null,

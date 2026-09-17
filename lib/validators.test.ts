@@ -14,6 +14,7 @@ import {
   profileSchema,
   reorderCategoriesSchema,
   safeRedirectPath,
+  searchQuerySchema,
   updateCategorySchema,
   usernameSchema,
 } from "./validators";
@@ -227,5 +228,14 @@ describe("profile schemas", () => {
     expect(avatarFileSchema.safeParse({ type: "image/webp", size: 48_000 }).success).toBe(true);
     expect(avatarFileSchema.safeParse({ type: "image/gif", size: 48_000 }).success).toBe(false);
     expect(avatarFileSchema.safeParse({ type: "image/png", size: 3 * 1024 * 1024 }).success).toBe(false);
+  });
+});
+
+describe("searchQuerySchema", () => {
+  it("takes provider kinds and trimmed queries of 2–100 characters", () => {
+    expect(searchQuerySchema.parse({ kind: "anime", q: "  frieren " })).toEqual({ kind: "anime", q: "frieren" });
+    expect(searchQuerySchema.safeParse({ kind: "custom", q: "frieren" }).success).toBe(false);
+    expect(searchQuerySchema.safeParse({ kind: "movie", q: " a " }).success).toBe(false);
+    expect(searchQuerySchema.safeParse({ kind: "game", q: "x".repeat(101) }).success).toBe(false);
   });
 });

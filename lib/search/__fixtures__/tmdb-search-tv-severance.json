@@ -1,0 +1,20 @@
+{
+  "page": 1,
+  "results": [
+    {
+      "id": 95396,
+      "name": "Severance",
+      "original_name": "Severance",
+      "first_air_date": "2022-02-17",
+      "poster_path": "/pPHpeI2X1qEd1CS1SeyrdhZ4qnT.jpg",
+      "backdrop_path": "/ixgFmf1X59PUZam2qbAfskx2gQr.jpg",
+      "genre_ids": [
+        18,
+        9648,
+        10765
+      ],
+      "vote_average": 8.394,
+      "vote_count": 2954
+    }
+  ]
+}

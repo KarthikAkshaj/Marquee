@@ -1,0 +1,18 @@
+{
+  "id": 1396,
+  "name": "Breaking Bad",
+  "status": "Ended",
+  "in_production": false,
+  "number_of_episodes": 62,
+  "number_of_seasons": 5,
+  "genres": [
+    {
+      "id": 18,
+      "name": "Drama"
+    },
+    {
+      "id": 80,
+      "name": "Crime"
+    }
+  ]
+}

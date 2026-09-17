@@ -1,0 +1,77 @@
+{
+  "page": 1,
+  "results": [
+    {
+      "id": 438631,
+      "title": "Dune",
+      "original_title": "Dune",
+      "release_date": "2021-09-15",
+      "poster_path": "/v1tRXZ4JtD2Iv6fjkPvT4GiwslV.jpg",
+      "backdrop_path": "/zRKQW58MBEY078AxkHxEJzUskCl.jpg",
+      "genre_ids": [
+        878,
+        12
+      ],
+      "vote_average": 7.784,
+      "vote_count": 15527
+    },
+    {
+      "id": 841,
+      "title": "Dune",
+      "original_title": "Dune",
+      "release_date": "1984-12-14",
+      "poster_path": "/4kJmUCE7mkVJjXa7A0g2rY4IGTm.jpg",
+      "backdrop_path": "/5wJ2tckpvwcxGCAgZiccodwEJpf.jpg",
+      "genre_ids": [
+        28,
+        878,
+        12
+      ],
+      "vote_average": 6.197,
+      "vote_count": 3543
+    },
+    {
+      "id": 693134,
+      "title": "Dune: Part Two",
+      "original_title": "Dune: Part Two",
+      "release_date": "2024-02-27",
+      "poster_path": "/6izwz7rsy95ARzTR3poZ8H6c5pp.jpg",
+      "backdrop_path": "/eZ239CUp1d6OryZEBPnO2n87gMG.jpg",
+      "genre_ids": [
+        878,
+        12
+      ],
+      "vote_average": 8.135,
+      "vote_count": 8552
+    },
+    {
+      "id": 1170608,
+      "title": "Dune: Part Three",
+      "original_title": "Dune: Part Three",
+      "release_date": "2026-12-15",
+      "poster_path": "/d43fvHQsIMa4kpyhKXw0haEJIvI.jpg",
+      "backdrop_path": "/i5E9H7Ik0u61ylDDTbmUpTL3Yw.jpg",
+      "genre_ids": [
+        878,
+        12
+      ],
+      "vote_average": 0,
+      "vote_count": 0
+    },
+    {
+      "id": 915935,
+      "title": "Anatomy of a Fall",
+      "original_title": "Anatomie d'une chute",
+      "release_date": "2023-08-23",
+      "poster_path": "/1ho0d4LNZw3Y0voeKmSvPSgJOJ2.jpg",
+      "backdrop_path": "/lDVl2jf6VB8ODl1olZ6FLvOV1gX.jpg",
+      "genre_ids": [
+        53,
+        9648,
+        80
+      ],
+      "vote_average": 7.512,
+      "vote_count": 3473
+    }
+  ]
+}

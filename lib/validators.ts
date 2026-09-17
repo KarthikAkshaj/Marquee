@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_KINDS } from "@/lib/categories";
 import { AVATAR_MAX_BYTES, AVATAR_TYPES, BIO_MAX, DISPLAY_NAME_MAX, USERNAME_PATTERN, type AvatarType } from "@/lib/profile";
+import { SEARCH_KINDS } from "@/lib/search/types";
 import { ITEM_STATUSES } from "@/lib/status";
 
 /** Every server action input is parsed through zod (SPEC §11). */
@@ -168,6 +169,12 @@ export type ProfileInput = z.input<typeof profileSchema>;
 export const avatarFileSchema = z.object({
   type: z.enum(Object.keys(AVATAR_TYPES) as [AvatarType, ...AvatarType[]], "Use a PNG, JPEG or WebP image."),
   size: z.number().positive("That file is empty.").max(AVATAR_MAX_BYTES, "That photo is over 2 MB."),
+});
+
+/** GET /api/search?kind=&q= (SPEC §7). Custom shelves have no provider. */
+export const searchQuerySchema = z.object({
+  kind: z.enum(SEARCH_KINDS),
+  q: z.string().trim().min(2).max(100),
 });
 
 /**

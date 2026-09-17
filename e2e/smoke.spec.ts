@@ -23,6 +23,12 @@ test("signed-out visitors are bounced from the app to login", async ({ page }) =
   await expect(page.getByRole("heading", { name: "Let's get you in." })).toBeVisible();
 });
 
+test("metadata search needs a session", async ({ request }) => {
+  const response = await request.get("/api/search?kind=anime&q=frieren");
+  expect(response.status()).toBe(401);
+  expect(await response.json()).toEqual({ results: [], error: "signed_out" });
+});
+
 test("email code button only wakes up for a valid email", async ({ page }) => {
   await page.goto("/login");
   const send = page.getByRole("button", { name: "Email me a code" });
