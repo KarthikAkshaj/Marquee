@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { GrainOverlay } from "@/components/shell/GrainOverlay";
+import { BRAND } from "@/lib/brand";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -26,16 +27,20 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Marquee",
-    template: "%s · Marquee",
+    default: BRAND.name,
+    template: `%s · ${BRAND.name}`,
   },
-  description:
-    "Everything you've watched, are watching, and swear you'll get to.",
+  description: BRAND.description,
+  applicationName: BRAND.name,
+  // Added to an iPhone home screen, it opens full screen like an app.
+  appleWebApp: { capable: true, title: BRAND.name, statusBarStyle: "black" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#09090B",
+  themeColor: BRAND.ink,
   colorScheme: "dark",
+  // Lets the phone nav reach the bottom edge, padded by the safe-area inset.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

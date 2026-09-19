@@ -46,6 +46,18 @@ test("metadata search and the palette's title list need a session", async ({ req
   expect(await titles.json()).toEqual({ titles: [] });
 });
 
+test("the app can be installed: manifest and icons are public", async ({ request }) => {
+  const manifest = await request.get("/manifest.webmanifest");
+  expect(manifest.status()).toBe(200);
+  const body = await manifest.json();
+  expect(body).toMatchObject({ name: "Marquee", start_url: "/home", display: "standalone", theme_color: "#09090B" });
+  for (const icon of body.icons as { src: string; sizes: string }[]) {
+    const png = await request.get(icon.src);
+    expect(png.status(), icon.src).toBe(200);
+    expect(png.headers()["content-type"]).toBe("image/png");
+  }
+});
+
 test("email code button only wakes up for a valid email", async ({ page }) => {
   await page.goto("/login");
   const send = page.getByRole("button", { name: "Email me a code" });
