@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { GoodbyeToast } from "@/components/marketing/GoodbyeToast";
 import { FooterAttributions } from "@/components/marketing/Attributions";
+import { LegalLinks } from "@/components/marketing/LegalLinks";
 import { FeatureStrip } from "@/components/marketing/FeatureStrip";
 import { HomeMockup } from "@/components/marketing/HomeMockup";
 import { PosterWall } from "@/components/marketing/PosterWall";
@@ -98,9 +99,10 @@ export default function LandingPage() {
         <FeatureStrip />
         <footer className="relative z-8 flex flex-col gap-1.75 bg-sunken px-5 pt-3.5 pb-5.5 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-7 md:border-t md:border-white/6 md:px-15 md:py-4.5">
           <FooterAttributions />
-          <span className="hidden font-mono text-[11px] text-text-muted md:inline">
-            {new Date().getFullYear()}
-          </span>
+          <div className="flex items-center gap-4">
+            <LegalLinks />
+            <span className="hidden font-mono text-[11px] text-text-muted md:inline">{new Date().getFullYear()}</span>
+          </div>
         </footer>
       </div>
     </div>

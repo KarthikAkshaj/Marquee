@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { CenteredAttributions } from "@/components/marketing/Attributions";
+import { LegalLinks } from "@/components/marketing/LegalLinks";
 import { PosterWall } from "@/components/marketing/PosterWall";
 import { BrandMark } from "@/components/shell/BrandMark";
 import { isGoogleSignInEnabled } from "@/lib/auth/providers";
@@ -48,7 +49,10 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         <LoginForm next={next} urlError={error} googleEnabled={googleEnabled} />
       </main>
 
-      <CenteredAttributions className="relative z-7" />
+      <div className="relative z-7 flex flex-col items-center gap-1">
+        <CenteredAttributions />
+        <LegalLinks />
+      </div>
     </div>
   );
 }

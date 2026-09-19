@@ -46,6 +46,15 @@ test("metadata search and the palette's title list need a session", async ({ req
   expect(await titles.json()).toEqual({ titles: [] });
 });
 
+test("terms and privacy are public and linked from the landing page", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("navigation", { name: "Legal" }).getByRole("link", { name: "Privacy" }).click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Your lists are yours." })).toBeVisible();
+  await page.goto("/terms");
+  await expect(page.getByRole("heading", { level: 1, name: "The fine print, in large print." })).toBeVisible();
+});
+
 test("the app can be installed: manifest and icons are public", async ({ request }) => {
   const manifest = await request.get("/manifest.webmanifest");
   expect(manifest.status()).toBe(200);
