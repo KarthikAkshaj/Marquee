@@ -103,7 +103,7 @@ export function Sidebar({ categories, user, dim }: SidebarProps) {
           Settings
         </NavLink>
         <div className="mt-2.5 border-t border-border pt-2.5">
-          <UserMenu user={user} variant="chip" />
+          <UserMenu user={user} />
         </div>
       </div>
     </aside>

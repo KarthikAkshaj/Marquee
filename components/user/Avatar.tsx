@@ -3,6 +3,7 @@ import { initials } from "@/lib/user";
 import { cn } from "@/lib/utils";
 
 const SIZES = {
+  xs: { box: "size-6 text-[10px] shadow-avatar", px: 24 },
   sm: { box: "size-7.5 text-[11.5px] shadow-avatar", px: 30 },
   lg: { box: "size-10.5 text-[15px] shadow-avatar-lg", px: 42 },
   md: { box: "size-11 text-[15px] shadow-avatar", px: 44 },

@@ -1,11 +1,12 @@
 "use client";
 
 import { Dialog } from "radix-ui";
-import { createContext, useCallback, useContext, useEffect, useEffectEvent, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useEffectEvent, useRef, useState, type ReactNode } from "react";
 import { AddItemDialog } from "@/components/category/AddItemDialog";
 import { SurpriseDialog } from "@/components/fun/SurpriseDialog";
 import type { PaletteCategory } from "@/lib/palette";
 import type { ItemStatus } from "@/lib/status";
+import { useReturnFocus } from "@/lib/use-return-focus";
 import { PaletteSearch } from "./PaletteSearch";
 import { usePaletteTitles } from "./usePaletteTitles";
 
@@ -14,6 +15,9 @@ type AppDialogs = {
   open: () => void;
   /** Surprise me (SPEC §10). */
   openSurprise: () => void;
+  /** The phone's + button: the shelf's own add panel when one is on screen, the palette anywhere else. */
+  add: () => void;
+  setAddHandler: (handler: (() => void) | null) => void;
 };
 
 const PaletteContext = createContext<AppDialogs | null>(null);
@@ -23,6 +27,19 @@ export function usePalette() {
   const context = useContext(PaletteContext);
   if (!context) throw new Error("usePalette must be used inside PaletteProvider");
   return context;
+}
+
+/** Lets the page on screen take over the + button: a shelf opens its own add panel. */
+export function useAddHandler(handler: () => void) {
+  const { setAddHandler } = usePalette();
+  const latest = useRef(handler);
+  useEffect(() => {
+    latest.current = handler;
+  });
+  useEffect(() => {
+    setAddHandler(() => latest.current());
+    return () => setAddHandler(null);
+  }, [setAddHandler]);
 }
 
 type ManualAdd = { category: PaletteCategory; title: string; status: ItemStatus };
@@ -37,15 +54,22 @@ function isTyping(target: EventTarget | null) {
  * Both lists of titles come fresh from /api/titles each time they open.
  */
 export function PaletteProvider({ categories, children }: { categories: PaletteCategory[]; children: ReactNode }) {
+  const returnFocus = useReturnFocus();
   const [open, setOpen] = useState(false);
   const [surprise, setSurprise] = useState<"closed" | "loading" | "ready">("closed");
   const [manual, setManual] = useState<ManualAdd | null>(null);
   const { titles, refresh } = usePaletteTitles();
+  const addHandler = useRef<(() => void) | null>(null);
 
   const show = useCallback(() => {
     setOpen(true);
     void refresh();
   }, [refresh]);
+
+  const add = useCallback(() => (addHandler.current ? addHandler.current() : show()), [show]);
+  const setAddHandler = useCallback((handler: (() => void) | null) => {
+    addHandler.current = handler;
+  }, []);
 
   const showSurprise = useCallback(async () => {
     setOpen(false);
@@ -76,13 +100,15 @@ export function PaletteProvider({ categories, children }: { categories: PaletteC
   }, []);
 
   return (
-    <PaletteContext.Provider value={{ open: show, openSurprise: () => void showSurprise() }}>
+    <PaletteContext.Provider value={{ open: show, openSurprise: () => void showSurprise(), add, setAddHandler }}>
       {children}
 
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-scrim/66 backdrop-blur-[4px]" />
           <Dialog.Content
+            onOpenAutoFocus={returnFocus.remember}
+            onCloseAutoFocus={returnFocus.restore}
             aria-describedby={undefined}
             className="fixed top-4 left-1/2 z-50 flex max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-165 -translate-x-1/2 flex-col overflow-hidden rounded-sheet border border-white/10 bg-menu/82 shadow-dialog backdrop-blur-[26px] backdrop-saturate-130 md:top-29.5 md:max-h-[calc(100dvh-150px)]"
           >

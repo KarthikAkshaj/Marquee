@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import type { CategoryActionResult } from "@/lib/actions/categories";
 import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_KINDS, KIND_NAMES, categoryStyle, isCategoryColor, isCategoryIcon } from "@/lib/categories";
 import { statusLabels } from "@/lib/status";
+import { useReturnFocus } from "@/lib/use-return-focus";
 import { cn } from "@/lib/utils";
 import type { CategoryInput } from "@/lib/validators";
 import { SwatchPicker } from "./SwatchPicker";
@@ -26,11 +27,12 @@ const DEFAULTS: CategoryInput = { name: "", kind: "custom", color: "sky", icon: 
 
 /** New category, or name, type, colour and icon for an existing one (SPEC §8.10). */
 export function CategoryDialog({ open, initial, onClose, onSubmit }: CategoryDialogProps) {
+  const returnFocus = useReturnFocus();
   return (
     <Dialog.Root open={open} onOpenChange={(next) => !next && onClose()}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-scrim/72 backdrop-blur-[3px]" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-110 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-tile border border-white/10 bg-sheet shadow-modal">
+        <Dialog.Content onOpenAutoFocus={returnFocus.remember} onCloseAutoFocus={returnFocus.restore} className="fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-110 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-tile border border-white/10 bg-sheet shadow-modal">
           <CategoryForm initial={initial} onClose={onClose} onSubmit={onSubmit} />
         </Dialog.Content>
       </Dialog.Portal>

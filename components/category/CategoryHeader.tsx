@@ -1,9 +1,8 @@
 "use client";
 
-import { ImageUp, Plus } from "lucide-react";
+import { ImageUp } from "lucide-react";
 import Link from "next/link";
 import type { Ref } from "react";
-import { Button } from "@/components/ui/Button";
 import { categoryStyle } from "@/lib/categories";
 import type { CategoryParams } from "@/lib/items";
 import { cn } from "@/lib/utils";
@@ -25,8 +24,9 @@ type CategoryHeaderProps = {
 export function CategoryHeader({ category, count, params, query, onQueryChange, filterRef, onAdd, unmatched }: CategoryHeaderProps) {
   const style = categoryStyle(category.color);
   return (
-    <header className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-6">
-      <div className="flex items-end justify-between gap-3">
+    <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
+      {/* The name keeps its width; the toolbar wraps beside it instead of sliding under it. */}
+      <div className="min-w-0 lg:max-w-1/2 lg:shrink-0">
         <div className="flex min-w-0 items-baseline gap-3 md:gap-4">
           <h1 className="font-display opsz-120 text-[42px] leading-none wrap-break-word md:text-[54px]">
             {category.name}
@@ -35,20 +35,17 @@ export function CategoryHeader({ category, count, params, query, onQueryChange, 
             <span aria-hidden className={cn("size-2 rounded-full", style.dot, style.glow)} />
             {count} {count === 1 ? "title" : "titles"}
           </p>
-          {unmatched > 0 && (
-            <Link
-              href={`/c/${encodeURIComponent(category.slug)}/match`}
-              className="flex min-h-11 shrink-0 items-center gap-1.5 pb-1 text-12 text-accent transition-colors hover:text-accent-bright md:min-h-0 md:pb-2.25 md:text-13"
-            >
-              <ImageUp aria-hidden className="size-3.5" strokeWidth={1.8} />
-              Find covers for {unmatched}
-            </Link>
-          )}
         </div>
-        <Button onClick={onAdd} className="h-11 shrink-0 gap-1.5 px-3.5 text-13 shadow-cta-sm md:hidden">
-          <Plus aria-hidden className="size-4" strokeWidth={2.4} />
-          Add
-        </Button>
+        {/* Its own line, so it never crowds the toolbar. */}
+        {unmatched > 0 && (
+          <Link
+            href={`/c/${encodeURIComponent(category.slug)}/match`}
+            className="-mb-2.5 flex min-h-11 w-fit items-center gap-1.5 text-12 text-accent transition-colors hover:text-accent-bright md:mt-1.5 md:mb-0 md:min-h-0 md:text-13"
+          >
+            <ImageUp aria-hidden className="size-3.5" strokeWidth={1.8} />
+            Find covers for {unmatched}
+          </Link>
+        )}
       </div>
       <CategoryToolbar
         slug={category.slug}

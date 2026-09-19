@@ -3,6 +3,7 @@
 import { AlertDialog } from "radix-ui";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
+import { useReturnFocus } from "@/lib/use-return-focus";
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -17,11 +18,12 @@ type ConfirmDialogProps = {
 
 /** The red-edged confirm every destructive action goes through. */
 export function ConfirmDialog({ open, title, description, cancelLabel, confirmLabel, onCancel, onConfirm }: ConfirmDialogProps) {
+  const returnFocus = useReturnFocus();
   return (
     <AlertDialog.Root open={open} onOpenChange={(next) => !next && onCancel()}>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed inset-0 z-50 bg-scrim/72 backdrop-blur-[3px]" />
-        <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-32px)] max-w-109 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-tile border border-dropped-muted/30 bg-sheet shadow-modal">
+        <AlertDialog.Content onOpenAutoFocus={returnFocus.remember} onCloseAutoFocus={returnFocus.restore} className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-32px)] max-w-109 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-tile border border-dropped-muted/30 bg-sheet shadow-modal">
           <div className="px-5.5 pt-5 pb-5">
             <AlertDialog.Title className="font-display text-28 leading-[1.1] text-balance wrap-break-word">
               {title}

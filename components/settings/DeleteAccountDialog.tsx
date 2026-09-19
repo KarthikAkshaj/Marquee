@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { deleteAccount, exportData } from "@/lib/actions/account";
 import { exportFileName } from "@/lib/export";
+import { useReturnFocus } from "@/lib/use-return-focus";
 import { cn } from "@/lib/utils";
 
 type DeleteAccountDialogProps = {
@@ -21,6 +22,7 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 
 /** The confirm gate for deleting an account (SPEC §8.10, handoff §07). */
 export function DeleteAccountDialog({ open, onOpenChange, username, titleCount, categoryCount }: DeleteAccountDialogProps) {
+  const returnFocus = useReturnFocus();
   const [typed, setTyped] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [deleting, startDeleting] = useTransition();
@@ -70,7 +72,7 @@ export function DeleteAccountDialog({ open, onOpenChange, username, titleCount, 
     >
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed inset-0 z-50 bg-scrim/72 backdrop-blur-[3px]" />
-        <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-109 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-tile border border-dropped-muted/30 bg-sheet shadow-modal">
+        <AlertDialog.Content onOpenAutoFocus={returnFocus.remember} onCloseAutoFocus={returnFocus.restore} className="fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-109 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-tile border border-dropped-muted/30 bg-sheet shadow-modal">
           <div className="px-5.5 pt-5 pb-4">
             <AlertDialog.Title className="font-display text-28 leading-[1.1]">
               Delete your <em className="text-dropped">account?</em>

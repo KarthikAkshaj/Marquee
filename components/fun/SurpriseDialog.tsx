@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Dialog } from "radix-ui";
 import { categorySlugFromPath, type PaletteCategory, type PaletteTitle } from "@/lib/palette";
+import { useReturnFocus } from "@/lib/use-return-focus";
 import { SurpriseContent } from "./SurpriseContent";
 
 type SurpriseDialogProps = {
@@ -17,6 +18,7 @@ type SurpriseDialogProps = {
 
 /** The Surprise me panel (SPEC §10). On a shelf it starts on that shelf; anywhere else, anything goes. */
 export function SurpriseDialog({ open, onOpenChange, categories, titles, onAddTitle }: SurpriseDialogProps) {
+  const returnFocus = useReturnFocus();
   const slug = categorySlugFromPath(usePathname());
   const here = categories.find((category) => category.slug === slug)?.id ?? null;
 
@@ -25,8 +27,10 @@ export function SurpriseDialog({ open, onOpenChange, categories, titles, onAddTi
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-scrim/72 backdrop-blur-[4px]" />
         <Dialog.Content
+          onCloseAutoFocus={returnFocus.restore}
           // Focus the panel, not the close button, so opening with S doesn't light up the X.
           onOpenAutoFocus={(event) => {
+            returnFocus.remember();
             event.preventDefault();
             (event.currentTarget as HTMLElement).focus();
           }}

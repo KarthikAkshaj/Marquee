@@ -10,6 +10,7 @@ import { createItem, type CreateItemState } from "@/lib/actions/items";
 import { progressUnit } from "@/lib/items";
 import type { CategoryKind, ItemStatus } from "@/lib/status";
 import { StatusSegmented } from "@/components/items/StatusSegmented";
+import { useReturnFocus } from "@/lib/use-return-focus";
 
 type AddItemDialogProps = {
   open: boolean;
@@ -22,11 +23,12 @@ type AddItemDialogProps = {
 
 /** Manual add (SPEC §8.7 "Add manually"): custom shelves, and anything search can't find. */
 export function AddItemDialog({ open, onOpenChange, category, defaultStatus, initialTitle = "" }: AddItemDialogProps) {
+  const returnFocus = useReturnFocus();
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-scrim/72 backdrop-blur-[3px]" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-32px)] max-w-110 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-tile border border-white/10 bg-sheet shadow-modal">
+        <Dialog.Content onOpenAutoFocus={returnFocus.remember} onCloseAutoFocus={returnFocus.restore} className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-32px)] max-w-110 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-tile border border-white/10 bg-sheet shadow-modal">
           <AddItemForm
             category={category}
             defaultStatus={defaultStatus}

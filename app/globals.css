@@ -106,6 +106,7 @@
   --shadow-cta:         0 14px 40px rgb(244 182 80 / 0.3);
   --shadow-cta-sm:      0 10px 30px rgb(244 182 80 / 0.25);
   --shadow-cta-md:      0 12px 32px rgb(244 182 80 / 0.28);
+  --shadow-fab:         0 14px 34px rgb(244 182 80 / 0.42), 0 0 0 6px rgb(9 9 11 / 0.85);
   --shadow-avatar:      0 0 14px rgb(244 182 80 / 0.22);
   --shadow-avatar-lg:   0 6px 18px rgb(244 182 80 / 0.28);
   --shadow-bulb:        0 0 14px rgb(244 182 80 / 0.8);

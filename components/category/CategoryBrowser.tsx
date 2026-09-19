@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { AddTitlePanel } from "@/components/add/AddTitlePanel";
+import { useAddHandler } from "@/components/palette/PaletteProvider";
 import { DeleteItemDialog } from "@/components/items/DeleteItemDialog";
 import { ItemSheet } from "@/components/items/ItemSheet";
 import { useItemActions, type ShelfCategory } from "@/components/items/useItemActions";
@@ -43,6 +44,7 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
   const openItem = shelf.items.find((item) => item.id === sheet.itemId) ?? null;
 
   useShelfShortcuts(filterRef, startAdding, !openItem && !adding && !deleting);
+  useAddHandler(startAdding);
 
   const counts = countByStatus(shelf.items);
   const visible = filterByTitle(selectItems(shelf.items, params), query);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { PaletteProvider } from "@/components/palette/PaletteProvider";
+import { MobileBottomNav } from "@/components/shell/MobileBottomNav";
 import { MobileTopBar } from "@/components/shell/MobileTopBar";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { getCategories, getViewer } from "@/lib/queries";
@@ -28,10 +29,12 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       <div className="flex min-h-dvh">
         <Sidebar categories={categories} user={user} dim={dim} />
         <div className="relative z-2 flex min-w-0 flex-1 flex-col">
-          <MobileTopBar user={user} categories={categories} dim={dim} />
-          <main className="flex flex-1 flex-col px-5 pt-6.5 pb-10 md:px-10 md:pt-8.5">
+          <MobileTopBar dim={dim} />
+          {/* On phones the bottom nav covers the last ~100px; keep content clear of it. */}
+          <main className="flex flex-1 flex-col px-5 pt-6.5 pb-[calc(112px+env(safe-area-inset-bottom))] md:px-10 md:pt-8.5 md:pb-10">
             {children}
           </main>
+          <MobileBottomNav categories={categories} user={user} />
         </div>
       </div>
     </PaletteProvider>

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { uploadAvatar } from "@/lib/actions/profile";
 import { cropAvatar } from "@/lib/image/crop-avatar";
+import { useReturnFocus } from "@/lib/use-return-focus";
 
 type AvatarCropDialogProps = {
   /** The picked photo as a data URL; null keeps the dialog closed. */
@@ -17,11 +18,12 @@ type AvatarCropDialogProps = {
 
 /** "Crop your photo" (handoff §07): drag to frame, zoom, then upload a 512px square. */
 export function AvatarCropDialog({ source, onClose }: AvatarCropDialogProps) {
+  const returnFocus = useReturnFocus();
   return (
     <Dialog.Root open={source !== null} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-scrim/72 backdrop-blur-[3px]" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-101 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-tile border border-white/10 bg-sheet shadow-modal">
+        <Dialog.Content onOpenAutoFocus={returnFocus.remember} onCloseAutoFocus={returnFocus.restore} className="fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-101 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-tile border border-white/10 bg-sheet shadow-modal">
           {source && <CropForm source={source} onClose={onClose} />}
         </Dialog.Content>
       </Dialog.Portal>

@@ -93,14 +93,16 @@ export function CategoryToolbar({ slug, params, query, onQueryChange, filterRef,
         type="button"
         aria-pressed={params.fav}
         aria-label="Favourites only"
+        title="Favourites only"
         onClick={() => go({ fav: !params.fav })}
         className={cn(
           control,
-          "w-11 justify-center gap-1.5 text-text-muted md:w-auto md:px-3 transition-colors hover:text-text aria-pressed:border-accent/40 aria-pressed:text-accent",
+          "w-11 justify-center gap-1.5 text-text-muted md:w-8.5 2xl:w-auto 2xl:px-3 transition-colors hover:text-text aria-pressed:border-accent/40 aria-pressed:text-accent",
         )}
       >
         <Star aria-hidden className={cn("size-3.5", params.fav && "fill-accent")} strokeWidth={1.8} />
-        <span className="hidden md:inline">Favourites</span>
+        {/* Icon only until there is room for the whole toolbar on one line. */}
+        <span className="hidden 2xl:inline">Favourites</span>
       </button>
 
       <Button

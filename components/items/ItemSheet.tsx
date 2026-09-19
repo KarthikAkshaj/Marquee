@@ -7,6 +7,7 @@ import { useRef } from "react";
 import type { Item } from "@/lib/items";
 import type { CategoryKind } from "@/lib/status";
 import { useMediaQuery } from "@/lib/use-media-query";
+import { useReturnFocus } from "@/lib/use-return-focus";
 import { ItemSheetActions } from "./ItemSheetActions";
 import { ItemSheetFields } from "./ItemSheetFields";
 import { ItemSheetHeader } from "./ItemSheetHeader";
@@ -30,6 +31,7 @@ const spring = { type: "spring", stiffness: 380, damping: 36 } as const;
  * from the bottom on phones, where the handle drags it closed.
  */
 export function ItemSheet({ item, category, categories, actions, onClose, onDelete }: ItemSheetProps) {
+  const returnFocus = useReturnFocus();
   const desktop = useMediaQuery("(min-width: 768px)");
   const drag = useDragControls();
   const panel = useRef<HTMLDivElement>(null);
@@ -62,9 +64,11 @@ export function ItemSheet({ item, category, categories, actions, onClose, onDele
                 />
               </Dialog.Overlay>
               <Dialog.Content
+                onCloseAutoFocus={returnFocus.restore}
                 asChild
                 forceMount
                 onOpenAutoFocus={(event) => {
+                  returnFocus.remember();
                   event.preventDefault();
                   panel.current?.focus();
                 }}

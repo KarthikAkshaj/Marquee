@@ -52,6 +52,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Toaster
           theme="dark"
           position="bottom-right"
+          // Clear of the phone's bottom nav and its raised + button.
+          mobileOffset={{ bottom: "calc(104px + env(safe-area-inset-bottom))" }}
           toastOptions={{
             classNames: {
               toast:
