@@ -34,7 +34,7 @@ export function MatchBar({ ready, extras, toCheck, notFound, remaining, total, k
             <span className="text-text">{ready} to update</span>
             {extras > 0 && <span className="text-text">+{extras} to add</span>}
             {toCheck > 0 && <span className="text-accent">{toCheck} to check</span>}
-            {notFound > 0 && <span className="text-text-muted">{notFound} not found</span>}
+            {notFound > 0 && <span className="text-dropped">{notFound} not found</span>}
           </>
         )}
       </p>
