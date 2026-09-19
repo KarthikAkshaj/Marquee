@@ -206,6 +206,28 @@ export const itemAccentSchema = z.object({
   color: hexColorSchema,
 });
 
+/**
+ * One batch of an import (SPEC §8.9): up to 100 titles for one shelf, each
+ * with its place in the document so the shelf keeps the document's order.
+ */
+export const importBatchSchema = z.object({
+  categoryId: z.string().uuid(),
+  startedAt: z.iso.datetime(),
+  titles: z
+    .array(
+      z.object({
+        title: titleSchema,
+        status: z.enum(ITEM_STATUSES),
+        year: releasedSchema.nullable(),
+        position: z.number().int().min(0).max(100_000),
+      }),
+    )
+    .min(1)
+    .max(100),
+});
+
+export type ImportBatch = z.input<typeof importBatchSchema>;
+
 /** GET /api/search?kind=&q= (SPEC §7). Custom shelves have no provider. */
 export const searchQuerySchema = z.object({
   kind: z.enum(SEARCH_KINDS),

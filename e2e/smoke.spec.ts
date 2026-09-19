@@ -17,6 +17,11 @@ test("signed-out visitors can't open settings", async ({ page }) => {
   await expect(page).toHaveURL(/\/login\?next=%2Fsettings%2Fcategories/);
 });
 
+test("signed-out visitors can't open import", async ({ page }) => {
+  await page.goto("/import?category=anime");
+  await expect(page).toHaveURL(/\/login\?next=%2Fimport/);
+});
+
 test("signed-out visitors are bounced from the app to login", async ({ page }) => {
   await page.goto("/home");
   await expect(page).toHaveURL(/\/login/);

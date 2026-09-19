@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ContinueRow } from "@/components/home/ContinueRow";
 import { HomeGreeting } from "@/components/home/HomeGreeting";
 import { MarqueeSign } from "@/components/home/MarqueeSign";
@@ -6,6 +7,7 @@ import { RecentlyFinished } from "@/components/home/RecentlyFinished";
 import { StartAdding } from "@/components/home/StartAdding";
 import { StatsStrip } from "@/components/home/StatsStrip";
 import { AmbientBackground } from "@/components/shell/AmbientBackground";
+import { Button } from "@/components/ui/Button";
 import { midFlightLine, statTiles } from "@/lib/home";
 import { getCategories, getHome, getViewer } from "@/lib/queries";
 
@@ -29,7 +31,12 @@ export default async function HomePage() {
             Add the thing you&apos;re three episodes into, or hand over that Word doc
             you&apos;ve been keeping since 2019.
           </p>
-          <StartAdding />
+          <div className="mt-2 flex flex-wrap justify-center gap-2.5">
+            <StartAdding />
+            <Button asChild variant="secondary" className="h-11 px-4.5">
+              <Link href="/import">Import from a doc</Link>
+            </Button>
+          </div>
         </div>
       </div>
     );

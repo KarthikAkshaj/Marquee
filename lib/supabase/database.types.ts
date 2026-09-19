@@ -169,6 +169,10 @@ export type Database = {
     }
     Functions: {
       delete_account: { Args: never; Returns: undefined }
+      import_titles: {
+        Args: { batch_started: string; target_category: string; titles: Json }
+        Returns: number
+      }
       is_username_available: { Args: { candidate: string }; Returns: boolean }
     }
     Enums: {

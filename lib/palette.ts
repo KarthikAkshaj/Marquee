@@ -82,7 +82,7 @@ export type PaletteLink = {
   category?: PaletteCategory;
 };
 
-/** Everywhere "Go to" can take you (SPEC §8.8). Import joins in Phase 4. */
+/** Everywhere "Go to" can take you (SPEC §8.8). */
 export function paletteLinks(categories: readonly PaletteCategory[]): PaletteLink[] {
   return [
     { value: "go:home", label: "Home", href: "/home", keywords: ["continue", "stats"] },
@@ -93,6 +93,7 @@ export function paletteLinks(categories: readonly PaletteCategory[]): PaletteLin
       keywords: [category.kind],
       category,
     })),
+    { value: "go:import", label: "Import a list", href: "/import", keywords: ["word", "docx", "paste", "doc", "bulk"] },
     { value: "go:settings-profile", label: "Settings · Profile", href: "/settings/profile", keywords: ["avatar", "username", "photo"] },
     { value: "go:settings-categories", label: "Settings · Categories", href: "/settings/categories", keywords: ["lists", "shelves", "reorder"] },
     { value: "go:settings-account", label: "Settings · Account", href: "/settings/account", keywords: ["email", "sign out", "delete", "export"] },

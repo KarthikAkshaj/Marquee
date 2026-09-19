@@ -1,7 +1,7 @@
 "use client";
 
 import { Command } from "cmdk";
-import { Home, Settings } from "lucide-react";
+import { FileUp, Home, Settings } from "lucide-react";
 import { GroupHeading } from "@/components/add/GroupHeading";
 import { CategoryIcon } from "@/components/category/CategoryIcon";
 import { categoryStyle } from "@/lib/categories";
@@ -20,7 +20,7 @@ function LinkIcon({ link }: { link: PaletteLink }) {
   if (link.category) {
     return <CategoryIcon name={link.category.icon} className={cn("size-3.75", categoryStyle(link.category.color).text)} />;
   }
-  const Icon = link.href === "/home" ? Home : Settings;
+  const Icon = link.href === "/home" ? Home : link.href === "/import" ? FileUp : Settings;
   return <Icon aria-hidden className="size-3.75" strokeWidth={1.8} />;
 }
 

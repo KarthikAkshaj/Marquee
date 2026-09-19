@@ -66,6 +66,7 @@ describe("palette navigation", () => {
       "/home",
       "/c/anime",
       "/c/books",
+      "/import",
       "/settings/profile",
       "/settings/categories",
       "/settings/account",

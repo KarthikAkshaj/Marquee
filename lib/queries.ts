@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
+import type { Database } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -173,4 +174,26 @@ export const getHome = cache(async () => {
     ),
     finishedThisYear: finishedThisYear.count ?? 0,
   };
+});
+
+const PAGE = 1000;
+
+/**
+ * Every title the viewer has, lightly, in pages: PostgREST returns at most
+ * 1,000 rows per request, and an import needs all of them to spot duplicates.
+ */
+export const getAllTitles = cache(async () => {
+  const supabase = await createClient();
+  const titles: { title: string; status: Database["public"]["Enums"]["item_status"]; category_id: string }[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from("items")
+      .select("title, status, category_id")
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(`Couldn't load your titles: ${error.message}`);
+    titles.push(...data);
+    if (data.length < PAGE) return titles;
+  }
 });

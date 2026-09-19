@@ -19,7 +19,9 @@ function setup() {
 }
 
 describe("DeleteAccountDialog", () => {
-  beforeEach(() => deleteAccount.mockReset());
+  beforeEach(() => {
+    deleteAccount.mockReset();
+  });
   afterEach(cleanup);
 
   it("says what goes, without mentioning shared lists", () => {
