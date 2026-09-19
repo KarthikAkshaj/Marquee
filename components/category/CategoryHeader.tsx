@@ -1,6 +1,7 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { ImageUp, Plus } from "lucide-react";
+import Link from "next/link";
 import type { Ref } from "react";
 import { Button } from "@/components/ui/Button";
 import { categoryStyle } from "@/lib/categories";
@@ -16,10 +17,12 @@ type CategoryHeaderProps = {
   onQueryChange: (query: string) => void;
   filterRef: Ref<HTMLInputElement>;
   onAdd: () => void;
+  /** Hand-added titles that Find covers could match (none on custom shelves). */
+  unmatched: number;
 };
 
 /** Serif name, glowing dot and count, then the toolbar (handoff §02). */
-export function CategoryHeader({ category, count, params, query, onQueryChange, filterRef, onAdd }: CategoryHeaderProps) {
+export function CategoryHeader({ category, count, params, query, onQueryChange, filterRef, onAdd, unmatched }: CategoryHeaderProps) {
   const style = categoryStyle(category.color);
   return (
     <header className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-6">
@@ -32,6 +35,15 @@ export function CategoryHeader({ category, count, params, query, onQueryChange, 
             <span aria-hidden className={cn("size-2 rounded-full", style.dot, style.glow)} />
             {count} {count === 1 ? "title" : "titles"}
           </p>
+          {unmatched > 0 && (
+            <Link
+              href={`/c/${encodeURIComponent(category.slug)}/match`}
+              className="flex min-h-11 shrink-0 items-center gap-1.5 pb-1 text-12 text-accent transition-colors hover:text-accent-bright md:min-h-0 md:pb-2.25 md:text-13"
+            >
+              <ImageUp aria-hidden className="size-3.5" strokeWidth={1.8} />
+              Find covers for {unmatched}
+            </Link>
+          )}
         </div>
         <Button onClick={onAdd} className="h-11 shrink-0 gap-1.5 px-3.5 text-13 shadow-cta-sm md:hidden">
           <Plus aria-hidden className="size-4" strokeWidth={2.4} />

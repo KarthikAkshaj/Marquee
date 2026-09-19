@@ -99,6 +99,7 @@ export function normaliseTmdbMovie(movie: TmdbMovie, genres: GenreNames): Search
     title,
     year: yearFromDate(movie.release_date),
     subtitle: originalTitle(title, movie.original_title),
+    altTitle: originalTitle(title, movie.original_title),
   };
 }
 
@@ -111,6 +112,7 @@ export function normaliseTmdbShow(show: TmdbShow, genres: GenreNames): SearchRes
     title,
     year: yearFromDate(show.first_air_date),
     subtitle: originalTitle(title, show.original_name),
+    altTitle: originalTitle(title, show.original_name),
   };
 }
 

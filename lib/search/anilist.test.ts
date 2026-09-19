@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import frieren from "./__fixtures__/anilist-frieren.json";
 import onePiece from "./__fixtures__/anilist-one-piece.json";
-import { searchAniList } from "./anilist";
+import { searchAniList, searchAniListMany } from "./anilist";
 import { ProviderError } from "./types";
 
 const reply = (body: unknown, status = 200) =>
@@ -18,6 +18,7 @@ describe("searchAniList", () => {
       source: "anilist",
       externalId: "154587",
       title: "Frieren: Beyond Journey’s End",
+      altTitle: "Sousou no Frieren",
       year: 2023,
       coverUrl: expect.stringMatching(/^https:\/\/s4\.anilist\.co\/.+bx154587/),
       backdropUrl: expect.stringMatching(/^https:\/\/s4\.anilist\.co\/.+banner/),
@@ -75,5 +76,28 @@ describe("searchAniList", () => {
       }),
     );
     await expect(searchAniList("frieren")).rejects.toThrow("anilist: network error");
+  });
+});
+
+describe("searchAniListMany", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("sends up to ten searches as one aliased request and splits the answers back out", async () => {
+    const [first, second] = frieren.data.Page.media;
+    const fetch = reply({ data: { q0: { media: [first] }, q1: { media: [] }, q2: { media: [second, first] } } });
+    vi.stubGlobal("fetch", fetch);
+
+    const results = await searchAniListMany(["frieren", "nothing here", "sousou"]);
+    expect(results.map((list) => list.map((result) => result.externalId))).toEqual([["154587"], [], [String(second.id), "154587"]]);
+
+    const body = JSON.parse(String((fetch.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    expect(body.variables).toEqual({ s0: "frieren", s1: "nothing here", s2: "sousou" });
+    expect(body.query).toContain("q2: Page(perPage: 5)");
+    expect(body.query).toContain("isAdult: false");
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses more than ten at once", async () => {
+    await expect(searchAniListMany(Array.from({ length: 11 }, (_, i) => `t${i}`))).rejects.toThrow("too many searches");
   });
 });

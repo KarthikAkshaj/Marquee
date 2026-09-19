@@ -8,9 +8,13 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 const searchMetadata = vi.fn();
-vi.mock("@/lib/search", () => ({ searchMetadata: (...args: unknown[]) => searchMetadata(...args) }));
+const matchMetadata = vi.fn();
+vi.mock("@/lib/search", () => ({
+  searchMetadata: (...args: unknown[]) => searchMetadata(...args),
+  matchMetadata: (...args: unknown[]) => matchMetadata(...args),
+}));
 
-const { GET } = await import("./route");
+const { GET, POST } = await import("./route");
 
 const call = (query: string) => GET(new NextRequest(`http://localhost:3000/api/search?${query}`));
 const signIn = (sub: string) => getClaims.mockResolvedValue({ data: { claims: { sub } } });
@@ -67,5 +71,36 @@ describe("GET /api/search", () => {
 
     signIn("user-patient");
     expect((await call("kind=anime&q=frieren")).status).toBe(200);
+  });
+});
+
+describe("POST /api/search (Find covers)", () => {
+  const post = (body: unknown) =>
+    POST(new NextRequest("http://localhost:3000/api/search", { method: "POST", body: JSON.stringify(body), headers: { "Content-Type": "application/json" } }));
+
+  beforeEach(() => {
+    getClaims.mockReset();
+    matchMetadata.mockReset();
+  });
+
+  it("needs a session and a sensible batch", async () => {
+    getClaims.mockResolvedValue({ data: null });
+    expect((await post({ kind: "anime", queries: ["Naruto"] })).status).toBe(401);
+
+    signIn("user-batch");
+    for (const bad of [{ kind: "anime", queries: [] }, { kind: "custom", queries: ["x"] }, { kind: "anime", queries: Array(11).fill("x") }, "nope"]) {
+      expect((await post(bad)).status).toBe(400);
+    }
+    expect(matchMetadata).not.toHaveBeenCalled();
+  });
+
+  it("returns candidates for each title, never cached", async () => {
+    signIn("user-batch-ok");
+    matchMetadata.mockResolvedValue({ results: [[{ source: "anilist", externalId: "20", title: "Naruto" }], []] });
+    const response = await post({ kind: "anime", queries: [" Naruto ", "Nothing"] });
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+    expect((await response.json()).results[0][0].title).toBe("Naruto");
+    expect(matchMetadata).toHaveBeenCalledWith("anime", ["Naruto", "Nothing"]);
   });
 });

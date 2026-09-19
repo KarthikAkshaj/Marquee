@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
+import { searchKindOf } from "@/lib/add";
 import { importTitles } from "@/lib/actions/import";
 import { parseImport, titleKey } from "@/lib/import/parse";
 import { importBatches, reviewRows, reviewSummary, savedIndex, type ReviewRow, type SavedTitle } from "@/lib/import/review";
@@ -165,7 +166,7 @@ export function ImportFlow({ shelves, saved, initialShelfId }: ImportFlowProps) 
         </>
       )}
 
-      {step === "done" && done && <ImportDone {...done} shelf={shelf} onAgain={startOver} />}
+      {step === "done" && done && <ImportDone {...done} shelf={shelf} canMatch={searchKindOf(shelf.kind) !== null} onAgain={startOver} />}
     </div>
   );
 }

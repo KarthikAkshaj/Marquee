@@ -199,3 +199,31 @@ export const getAllTitles = cache(async () => {
     if (data.length < PAGE) return titles;
   }
 });
+
+/** A shelf's hand-added titles, for Find covers. */
+export const getManualTitles = cache(async (categoryId: string) => {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("items")
+    .select("id, title, year, status")
+    .eq("category_id", categoryId)
+    .eq("source", "manual")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: true });
+  if (error) throw new Error(`Couldn't load these titles: ${error.message}`);
+  return data;
+});
+
+export type ManualTitle = Awaited<ReturnType<typeof getManualTitles>>[number];
+
+/** Search results a shelf already holds ("anilist:21"), so Find covers doesn't pick one twice. */
+export const getShelfMatches = cache(async (categoryId: string) => {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("items")
+    .select("title, source, external_id")
+    .eq("category_id", categoryId)
+    .not("external_id", "is", null);
+  if (error) throw new Error(`Couldn't load these titles: ${error.message}`);
+  return data.map((item) => ({ key: `${item.source}:${item.external_id}`, title: item.title }));
+});

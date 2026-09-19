@@ -12,6 +12,8 @@ export type SearchResult = {
   source: SearchSource;
   externalId: string;
   title: string;
+  /** Another name it goes by (romaji, original title), for matching imported lists. */
+  altTitle?: string;
   /** Release year, not when the user watched it. */
   year?: number;
   coverUrl?: string;

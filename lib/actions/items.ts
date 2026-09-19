@@ -10,6 +10,7 @@ import {
   addFromSearchSchema,
   createItemSchema,
   itemAccentSchema,
+  itemAccentsSchema,
   itemDetailsSchema,
   itemFavoriteSchema,
   itemIdSchema,
@@ -322,6 +323,26 @@ export async function setItemAccent(id: string, color: string): Promise<ItemActi
     .eq("id", parsed.data.id)
     .is("accent_color", null);
   if (error) return NOT_SAVED;
+
+  revalidatePath("/", "layout");
+  return SAVED;
+}
+
+/**
+ * Cover colours for many titles at once (after Find covers), so the shelf
+ * refreshes once rather than once per title. Only fills blanks.
+ */
+export async function setItemAccents(colors: { id: string; color: string }[]): Promise<ItemActionResult> {
+  const parsed = itemAccentsSchema.safeParse(colors);
+  if (!parsed.success) return NOT_SAVED;
+
+  const { supabase, userId } = await requireUserId();
+  if (!userId) return SESSION_ENDED;
+
+  const results = await Promise.all(
+    parsed.data.map(({ id, color }) => supabase.from("items").update({ accent_color: color }).eq("id", id).is("accent_color", null)),
+  );
+  if (results.some((result) => result.error)) return NOT_SAVED;
 
   revalidatePath("/", "layout");
   return SAVED;

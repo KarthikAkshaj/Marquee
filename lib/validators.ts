@@ -201,10 +201,24 @@ export const addFromSearchSchema = z.object({
   result: searchResultSchema,
 });
 
+/** Find covers: hand-added titles on one shelf and the search result each should become. */
+export const saveMatchesSchema = z.object({
+  categoryId: z.string().uuid(),
+  keepTitles: z.boolean(),
+  matches: z
+    .array(z.object({ itemId: z.string().uuid(), result: searchResultSchema }))
+    .min(1)
+    .max(25),
+});
+
+export type SaveMatchesInput = z.input<typeof saveMatchesSchema>;
+
 export const itemAccentSchema = z.object({
   id: z.string().uuid(),
   color: hexColorSchema,
 });
+
+export const itemAccentsSchema = z.array(itemAccentSchema).min(1).max(100);
 
 /**
  * One batch of an import (SPEC §8.9): up to 100 titles for one shelf, each
@@ -227,6 +241,12 @@ export const importBatchSchema = z.object({
 });
 
 export type ImportBatch = z.input<typeof importBatchSchema>;
+
+/** POST /api/search: up to 10 typed titles to find covers for (Find covers, after an import). */
+export const matchQuerySchema = z.object({
+  kind: z.enum(SEARCH_KINDS),
+  queries: z.array(z.string().trim().min(1).max(200)).min(1).max(10),
+});
 
 /** GET /api/search?kind=&q= (SPEC §7). Custom shelves have no provider. */
 export const searchQuerySchema = z.object({

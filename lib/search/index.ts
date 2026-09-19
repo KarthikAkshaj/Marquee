@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { searchAniList } from "./anilist";
+import { searchAniList, searchAniListMany } from "./anilist";
 import { igdbConfigured, searchIgdb } from "./igdb";
 import { getTmdbSeriesDetails, searchTmdbMovies, searchTmdbSeries, tmdbConfigured, type SeriesDetails } from "./tmdb";
 import { ProviderError, type SearchKind, type SearchResponse, type SearchResult } from "./types";
@@ -60,5 +60,61 @@ export async function getSeriesDetails(id: string): Promise<SeriesDetails | null
   } catch (error) {
     console.error("[search] series details", error instanceof ProviderError ? error.message : error);
     return null;
+  }
+}
+
+/**
+ * The commonest miss when matching a typed list is a possessive without its
+ * apostrophe ("Hells Paradise"), which AniList finds nothing for. One retry.
+ */
+export function possessiveVariant(query: string): string | null {
+  const fixed = query.replace(/\b([A-Za-z]*[A-Za-rt-z])s(?=\s)/, "$1's");
+  return fixed === query ? null : fixed;
+}
+
+async function mapLimit<T, R>(items: readonly T[], limit: number, run: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  const worker = async () => {
+    while (next < items.length) {
+      const index = next++;
+      results[index] = await run(items[index]);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
+export type MatchResponse = { results: SearchResult[][]; error?: SearchResponse["error"] };
+
+/**
+ * Candidates for up to 10 typed titles at once, for "Find covers" after an
+ * import. Anime goes to AniList in one batched request (plus one retry batch);
+ * everything else reuses the cached single search, three at a time.
+ */
+export async function matchMetadata(kind: SearchKind, queries: readonly string[]): Promise<MatchResponse> {
+  const empty = queries.map(() => [] as SearchResult[]);
+  if (!PROVIDERS[kind].configured()) return { results: empty, error: "not_configured" };
+
+  try {
+    if (kind !== "anime") {
+      const results = await mapLimit(queries, 3, (query) => cachedSearch(kind, normaliseQuery(query)).catch(() => [] as SearchResult[]));
+      return { results };
+    }
+    const results = await searchAniListMany(queries);
+    const retries = queries.flatMap((query, index) => {
+      const variant = results[index].length === 0 ? possessiveVariant(query) : null;
+      return variant ? [{ index, variant }] : [];
+    });
+    if (retries.length) {
+      const again = await searchAniListMany(retries.map((retry) => retry.variant));
+      retries.forEach((retry, position) => {
+        results[retry.index] = again[position];
+      });
+    }
+    return { results };
+  } catch (error) {
+    console.error("[search] match", kind, error instanceof ProviderError ? error.message : error);
+    return { results: empty, error: "unavailable" };
   }
 }

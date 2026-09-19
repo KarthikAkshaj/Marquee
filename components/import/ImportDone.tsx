@@ -6,11 +6,13 @@ type ImportDoneProps = {
   skippedDuplicates: number;
   leftOut: number;
   shelf: { name: string; slug: string };
+  /** The shelf has a search provider, so Find covers can match what was imported. */
+  canMatch: boolean;
   onAgain: () => void;
 };
 
 /** "Imported 143 · skipped 6 duplicates" (SPEC §8.9), then off to the shelf. */
-export function ImportDone({ added, skippedDuplicates, leftOut, shelf, onAgain }: ImportDoneProps) {
+export function ImportDone({ added, skippedDuplicates, leftOut, shelf, canMatch, onAgain }: ImportDoneProps) {
   const notes = [
     `Imported ${added}`,
     skippedDuplicates > 0 && `skipped ${skippedDuplicates} ${skippedDuplicates === 1 ? "duplicate" : "duplicates"}`,
@@ -24,9 +26,15 @@ export function ImportDone({ added, skippedDuplicates, leftOut, shelf, onAgain }
       </p>
       <p className="max-w-120 text-14 leading-[1.6] text-text-muted">
         They&apos;re on your {shelf.name} shelf with the statuses you picked, in the order they were in your list.
+        {canMatch && " Next, find their covers: we'll look each one up and you confirm the matches."}
       </p>
       <div className="flex flex-wrap gap-2.5">
-        <Button asChild className="h-11 px-5 shadow-cta-sm">
+        {canMatch && (
+          <Button asChild className="h-11 px-5 shadow-cta-sm">
+            <Link href={`/c/${encodeURIComponent(shelf.slug)}/match`}>Find covers</Link>
+          </Button>
+        )}
+        <Button asChild variant={canMatch ? "secondary" : "primary"} className={canMatch ? "h-11 px-4.5" : "h-11 px-5 shadow-cta-sm"}>
           <Link href={`/c/${encodeURIComponent(shelf.slug)}`}>Open {shelf.name}</Link>
         </Button>
         <Button variant="secondary" onClick={onAgain} className="h-11 px-4.5">

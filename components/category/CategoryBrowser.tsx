@@ -58,6 +58,7 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
         onQueryChange={setQuery}
         filterRef={filterRef}
         onAdd={startAdding}
+        unmatched={searchKind ? shelf.items.filter((item) => item.source === "manual").length : 0}
       />
 
       <div className="mt-6.5">

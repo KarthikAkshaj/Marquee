@@ -12,6 +12,11 @@ test("signed-out visitors can't open a category shelf", async ({ page }) => {
   await expect(page).toHaveURL(/\/login\?next=%2Fc%2Fanime/);
 });
 
+test("signed-out visitors can't open Find covers", async ({ page }) => {
+  await page.goto("/c/anime/match");
+  await expect(page).toHaveURL(/\/login\?next=%2Fc%2Fanime%2Fmatch/);
+});
+
 test("signed-out visitors can't open settings", async ({ page }) => {
   await page.goto("/settings/categories?new=1");
   await expect(page).toHaveURL(/\/login\?next=%2Fsettings%2Fcategories/);
@@ -32,6 +37,9 @@ test("metadata search and the palette's title list need a session", async ({ req
   const search = await request.get("/api/search?kind=anime&q=frieren");
   expect(search.status()).toBe(401);
   expect(await search.json()).toEqual({ results: [], error: "signed_out" });
+
+  const batch = await request.post("/api/search", { data: { kind: "anime", queries: ["Frieren"] } });
+  expect(batch.status()).toBe(401);
 
   const titles = await request.get("/api/titles");
   expect(titles.status()).toBe(401);

@@ -5,9 +5,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("next/cache", () => ({ unstable_cache: <T>(fn: T) => fn }));
 
 const searchAniList = vi.fn();
+const searchAniListMany = vi.fn();
 const searchTmdbMovies = vi.fn();
 const getTmdbSeriesDetails = vi.fn();
-vi.mock("./anilist", () => ({ searchAniList: (q: string) => searchAniList(q) }));
+vi.mock("./anilist", () => ({
+  searchAniList: (q: string) => searchAniList(q),
+  searchAniListMany: (queries: string[]) => searchAniListMany(queries),
+}));
 vi.mock("./tmdb", () => ({
   tmdbConfigured: () => Boolean(process.env.TMDB_READ_TOKEN),
   searchTmdbMovies: (q: string) => searchTmdbMovies(q),
@@ -16,7 +20,7 @@ vi.mock("./tmdb", () => ({
 }));
 vi.mock("./igdb", () => ({ igdbConfigured: () => false, searchIgdb: vi.fn() }));
 
-const { getSeriesDetails, normaliseQuery, searchMetadata } = await import("./index");
+const { getSeriesDetails, matchMetadata, normaliseQuery, possessiveVariant, searchMetadata } = await import("./index");
 const { ProviderError } = await import("./types");
 
 describe("searchMetadata", () => {
@@ -63,5 +67,46 @@ describe("searchMetadata", () => {
     expect(await getSeriesDetails("1396")).toBeNull();
     vi.stubEnv("TMDB_READ_TOKEN", "");
     expect(await getSeriesDetails("1396")).toBeNull();
+  });
+});
+
+describe("matchMetadata", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+    searchAniListMany.mockReset();
+    searchTmdbMovies.mockReset();
+  });
+
+  it("finds possessives typed without the apostrophe", () => {
+    expect(possessiveVariant("Hells Paradise")).toBe("Hell's Paradise");
+    expect(possessiveVariant("Dr. Stone")).toBeNull();
+    expect(possessiveVariant("Boss Baby")).toBeNull();
+  });
+
+  it("batches anime and retries the ones AniList found nothing for", async () => {
+    const hit = { source: "anilist", externalId: "1", title: "Naruto" };
+    const retried = { source: "anilist", externalId: "2", title: "Hell's Paradise" };
+    searchAniListMany.mockResolvedValueOnce([[hit], []]).mockResolvedValueOnce([[retried]]);
+    expect(await matchMetadata("anime", ["Naruto", "Hells Paradise"])).toEqual({ results: [[hit], [retried]] });
+    expect(searchAniListMany).toHaveBeenLastCalledWith(["Hell's Paradise"]);
+  });
+
+  it("uses the single search for other kinds, keeping going when one fails", async () => {
+    vi.stubEnv("TMDB_READ_TOKEN", "token");
+    const dune = { source: "tmdb", externalId: "3", title: "Dune" };
+    searchTmdbMovies.mockImplementation(async (query: string) => {
+      if (query === "broken") throw new ProviderError("tmdb", "HTTP 500", 500);
+      return [dune];
+    });
+    expect(await matchMetadata("movie", ["Dune", "broken"])).toEqual({ results: [[dune], []] });
+    vi.unstubAllEnvs();
+  });
+
+  it("flags AniList being down without throwing", async () => {
+    searchAniListMany.mockRejectedValue(new ProviderError("anilist", "HTTP 429", 429));
+    expect(await matchMetadata("anime", ["Naruto"])).toEqual({ results: [[]], error: "unavailable" });
   });
 });
