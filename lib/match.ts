@@ -1,4 +1,5 @@
-import type { SearchResult } from "@/lib/search/types";
+import type { Release, SearchResult } from "@/lib/search/types";
+import type { ItemStatus } from "@/lib/status";
 
 /** Case, accents, punctuation and spacing don't matter: "One-Punch Man" is "one punch man". */
 export function normaliseName(text: string): string {
@@ -79,4 +80,72 @@ export function bestMatch(typed: string, year: number | null, candidates: readon
   if (!best) return null;
   const { index, similarity: name, confident } = best;
   return { index, similarity: name, confident };
+}
+
+/**
+ * The status another season goes in as: the same as the title it came from,
+ * except that nothing unreleased is finished or underway, and a season still
+ * airing can't be finished yet.
+ */
+export function seasonStatus(from: ItemStatus, release: Release): ItemStatus {
+  if (release === "upcoming") return "planned";
+  if (release === "airing" && from === "completed") return "in_progress";
+  return from;
+}
+
+/**
+ * Splits picks into saves of at most `rows` titles and `extras` added seasons
+ * each, keeping their order.
+ */
+export function saveBatches<T extends { extras: readonly unknown[] }>(picks: readonly T[], rows: number, extras: number): T[][] {
+  const batches: T[][] = [];
+  let current: T[] = [];
+  let seasons = 0;
+  for (const pick of picks) {
+    if (current.length > 0 && (current.length === rows || seasons + pick.extras.length > extras)) {
+      batches.push(current);
+      current = [];
+      seasons = 0;
+    }
+    current.push(pick);
+    seasons += pick.extras.length;
+  }
+  if (current.length > 0) batches.push(current);
+  return batches;
+}
+
+type Keyed = Pick<SearchResult, "source" | "externalId">;
+type ClaimRow = { id: string; title: string; include: boolean; pick: Keyed | null; extras: readonly Keyed[] };
+type Holder = { rowId: string | null; title: string };
+
+export const matchKey = (result: Keyed) => `${result.source}:${result.externalId}`;
+
+/**
+ * A search result can sit on a shelf only once. Titles already there hold
+ * theirs; then each ticked row, top to bottom, claims its match and its extra
+ * seasons. A match someone else holds is a conflict, and won't be saved.
+ */
+export function claimMatches(rows: readonly ClaimRow[], taken: readonly { key: string; title: string }[]) {
+  const holders = new Map<string, Holder>(taken.map((entry) => [entry.key, { rowId: null, title: entry.title }]));
+  const conflicts = new Map<string, string>();
+  for (const row of rows) {
+    if (!row.include || !row.pick) continue;
+    const holder = holders.get(matchKey(row.pick));
+    if (holder) {
+      conflicts.set(row.id, holder.rowId ? `Already picked for “${holder.title}”` : `Already on this shelf as “${holder.title}”`);
+      continue;
+    }
+    holders.set(matchKey(row.pick), { rowId: row.id, title: row.title });
+    for (const extra of row.extras) {
+      if (!holders.has(matchKey(extra))) holders.set(matchKey(extra), { rowId: row.id, title: row.title });
+    }
+  }
+  return { holders, conflicts };
+}
+
+/** Why a row can't have this season too, or null when it can. */
+export function blockedReason(holders: ReadonlyMap<string, Holder>, key: string, rowId: string): string | null {
+  const holder = holders.get(key);
+  if (!holder || holder.rowId === rowId) return null;
+  return holder.rowId ? `Picked for “${holder.title}”` : `On your shelf as “${holder.title}”`;
 }

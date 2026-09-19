@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { SearchResult } from "@/lib/search/types";
+import type { SearchResult, SeriesTitle } from "@/lib/search/types";
 import type { SaveMatchesInput } from "@/lib/validators";
 
 const saveMatches = vi.fn();
@@ -32,6 +32,8 @@ const anime = (externalId: string, title: string): SearchResult => ({ source: "a
 const naruto = anime("20", "Naruto");
 const onigiri = anime("99", "Onigiri");
 const hells = anime("128893", "Hell's Paradise");
+const season = (externalId: string, title: string, release: SeriesTitle["release"] = "out"): SeriesTitle => ({ ...anime(externalId, title), release });
+const narutoSeries = [{ ...naruto, release: "out" as const }, season("1735", "Naruto: Shippuden"), season("165523", "Boruto Part 2", "upcoming")];
 
 const fetchMock = vi.fn();
 const reply = (body: unknown) => ({ json: async () => body });
@@ -45,9 +47,10 @@ describe("MatchFlow", () => {
     saveMatches.mockReset();
     setItemAccents.mockReset();
     fetchMock.mockReset();
-    fetchMock.mockImplementation(async (url: string) =>
-      url.startsWith("/api/search?") ? reply({ results: [hells] }) : reply({ results: [[naruto], [onigiri], []] }),
-    );
+    fetchMock.mockImplementation(async (url: string) => {
+      if (url.includes("related=")) return reply({ results: narutoSeries });
+      return url.startsWith("/api/search?") ? reply({ results: [hells] }) : reply({ results: [[naruto], [onigiri], []] });
+    });
     vi.stubGlobal("fetch", fetchMock);
   });
   afterEach(() => {
@@ -80,6 +83,8 @@ describe("MatchFlow", () => {
       saved: input.matches.map((match) => match.itemId),
       taken: [],
       failed: [],
+      added: 0,
+      missed: 0,
     }));
     render(<MatchFlow shelf={shelf} items={items} taken={[]} />);
     await waitFor(() => expect(screen.getByText("1 to update")).toBeInTheDocument());
@@ -88,10 +93,38 @@ describe("MatchFlow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Update 1 title" }));
 
     await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Updated 1 title."));
-    expect(saveMatches).toHaveBeenCalledWith({ categoryId: shelf.id, keepTitles: true, matches: [{ itemId: id(1), result: naruto }] });
+    expect(saveMatches).toHaveBeenCalledWith({ categoryId: shelf.id, keepTitles: true, matches: [{ itemId: id(1), result: naruto, extras: [] }] });
     expect(screen.queryByLabelText("Update Naruto")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Update Demon Slayer")).toBeInTheDocument();
     await waitFor(() => expect(setItemAccents).toHaveBeenCalledWith([{ id: id(1), color: "#aa3344" }]));
+  });
+
+  it("adds other seasons picked from the series, each with its own status", async () => {
+    saveMatches.mockResolvedValue({ ok: true, saved: [id(1)], taken: [], failed: [], added: 1, missed: 0 });
+    render(<MatchFlow shelf={shelf} items={items} taken={[{ key: "anilist:165523", title: "Boruto Part 2" }]} />);
+    await waitFor(() => expect(screen.getByText("1 to update")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole("button", { name: /Change the match for Naruto/ }));
+    const picker = await screen.findByRole("dialog", { name: "Naruto" });
+    await within(picker).findByText("Naruto: Shippuden");
+    expect(fetchMock).toHaveBeenLastCalledWith("/api/search?kind=anime&related=20");
+    expect(within(picker).getByText("Your match")).toBeInTheDocument();
+    expect(within(picker).getByText("On your shelf as “Boruto Part 2”")).toBeInTheDocument();
+
+    fireEvent.click(within(picker).getByLabelText("Add Naruto: Shippuden"));
+    expect(within(picker).getByText("Completed")).toBeInTheDocument();
+    fireEvent.click(within(picker).getByRole("button", { name: "Next status for Naruto: Shippuden" }));
+    expect(within(picker).getByText("Dropped")).toBeInTheDocument();
+    expect(within(picker).getByText("+1 more to add")).toBeInTheDocument();
+    fireEvent.click(within(picker).getByRole("button", { name: "Done" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(within(rowFor("Naruto")).getByText("+1 more from the series")).toBeInTheDocument();
+    expect(screen.getByText("+1 to add")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Update 1 title" }));
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Updated 1 title and added 1 more."));
+    expect(saveMatches.mock.calls[0][0].matches[0].extras).toEqual([{ result: narutoSeries[1], status: "dropped" }]);
   });
 
   it("won't put the same title on the shelf twice", async () => {

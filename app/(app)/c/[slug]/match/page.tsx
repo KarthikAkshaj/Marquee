@@ -46,7 +46,8 @@ export default async function MatchPage({ params }: PageProps<"/c/[slug]/match">
           </h1>
           <p className="mt-2.5 max-w-150 text-[13.5px] text-text-muted md:text-14">
             We looked up each title you added by hand on {source}. Tick the right matches and they get covers, years, episode counts
-            and genres. Your statuses, ratings and notes stay as they are.
+            and genres. Open a match to swap it{kind === "anime" ? " or add the rest of its seasons" : ""}. Your statuses, ratings and
+            notes stay as they are.
           </p>
         </header>
         <MatchFlow

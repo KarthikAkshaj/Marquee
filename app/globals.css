@@ -164,6 +164,17 @@
     0%, 100% { opacity: 0.3; }
     50% { opacity: 1; }
   }
+
+  /* Pickers: a sheet rising on phones, a panel settling in on desktop */
+  --animate-sheet-up: sheet-up 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-pop-in: pop-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(0.97); }
+  }
 }
 
 @layer base {

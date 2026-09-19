@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { matchMetadata, searchMetadata, type MatchResponse, type SearchError, type SearchResponse } from "@/lib/search";
+import { getAnimeSeries, matchMetadata, searchMetadata, type MatchResponse, type SearchError, type SearchResponse } from "@/lib/search";
 import { createRateLimiter } from "@/lib/search/rate-limit";
 import { createClient } from "@/lib/supabase/server";
-import { matchQuerySchema, searchQuerySchema } from "@/lib/validators";
+import { matchQuerySchema, relatedQuerySchema, searchQuerySchema } from "@/lib/validators";
 
 /** A 250ms debounce means ~4 requests a second at most; a burst of 30, then one every 2s. */
 const limiter = createRateLimiter({ capacity: 30, refillPerSecond: 0.5 });
@@ -27,6 +27,16 @@ export async function GET(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const userId = data?.claims?.sub;
   if (!userId) return respond({ results: [], error: "signed_out" });
+
+  if (request.nextUrl.searchParams.has("related")) {
+    const related = relatedQuerySchema.safeParse({
+      kind: request.nextUrl.searchParams.get("kind"),
+      related: request.nextUrl.searchParams.get("related"),
+    });
+    if (!related.success) return respond({ results: [], error: "invalid_query" });
+    if (!limiter.take(userId)) return respond({ results: [], error: "rate_limited" });
+    return respond(await getAnimeSeries(related.data.related));
+  }
 
   const params = searchQuerySchema.safeParse({
     kind: request.nextUrl.searchParams.get("kind"),

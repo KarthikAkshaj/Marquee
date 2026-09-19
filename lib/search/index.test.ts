@@ -6,11 +6,13 @@ vi.mock("next/cache", () => ({ unstable_cache: <T>(fn: T) => fn }));
 
 const searchAniList = vi.fn();
 const searchAniListMany = vi.fn();
+const getAniListSeries = vi.fn();
 const searchTmdbMovies = vi.fn();
 const getTmdbSeriesDetails = vi.fn();
 vi.mock("./anilist", () => ({
   searchAniList: (q: string) => searchAniList(q),
   searchAniListMany: (queries: string[]) => searchAniListMany(queries),
+  getAniListSeries: (id: number) => getAniListSeries(id),
 }));
 vi.mock("./tmdb", () => ({
   tmdbConfigured: () => Boolean(process.env.TMDB_READ_TOKEN),
@@ -20,7 +22,7 @@ vi.mock("./tmdb", () => ({
 }));
 vi.mock("./igdb", () => ({ igdbConfigured: () => false, searchIgdb: vi.fn() }));
 
-const { getSeriesDetails, matchMetadata, normaliseQuery, possessiveVariant, searchMetadata } = await import("./index");
+const { getAnimeSeries, getSeriesDetails, matchMetadata, normaliseQuery, possessiveVariant, searchMetadata } = await import("./index");
 const { ProviderError } = await import("./types");
 
 describe("searchMetadata", () => {
@@ -108,5 +110,20 @@ describe("matchMetadata", () => {
   it("flags AniList being down without throwing", async () => {
     searchAniListMany.mockRejectedValue(new ProviderError("anilist", "HTTP 429", 429));
     expect(await matchMetadata("anime", ["Naruto"])).toEqual({ results: [[]], error: "unavailable" });
+  });
+});
+
+describe("getAnimeSeries", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("passes the series through, or flags AniList being down", async () => {
+    const season = { source: "anilist", externalId: "145064", title: "Jujutsu Kaisen Season 2", release: "out" };
+    getAniListSeries.mockResolvedValueOnce([season]);
+    expect(await getAnimeSeries("113415")).toEqual({ results: [season] });
+    expect(getAniListSeries).toHaveBeenCalledWith(113415);
+
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    getAniListSeries.mockRejectedValueOnce(new ProviderError("anilist", "HTTP 429", 429));
+    expect(await getAnimeSeries("113415")).toEqual({ results: [], error: "unavailable" });
   });
 });

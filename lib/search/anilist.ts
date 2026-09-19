@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { cleanGenres, fetchJson, toScore } from "./http";
-import { ProviderError, RESULT_LIMIT, type SearchResult } from "./types";
+import { ProviderError, RESULT_LIMIT, type Release, type SearchResult, type SeriesTitle } from "./types";
 
 const ENDPOINT = "https://graphql.anilist.co";
 
@@ -89,14 +89,28 @@ export function normaliseAniList(media: AniListMedia): SearchResult | null {
 /** Most searches one AniList request carries when matching a list. */
 export const ANILIST_BATCH = 10;
 
-const MEDIA_FIELDS = "id title { english romaji } format status episodes duration startDate { year } coverImage { extraLarge color } bannerImage genres averageScore";
+const BASE_FIELDS = "id title { english romaji } format status episodes duration coverImage { extraLarge color } bannerImage genres averageScore";
+const MEDIA_FIELDS = `${BASE_FIELDS} startDate { year }`;
+
+/** Promo videos, music videos and recaps: never what someone means by a title they typed. */
+const JUNK_TITLE = /\b(PVs?|CMs?|trailers?|teasers?|recap)\b/i;
+
+export function isJunk(media: Pick<AniListMedia, "format" | "title">): boolean {
+  return media.format === "MUSIC" || JUNK_TITLE.test(`${media.title.english ?? ""} ${media.title.romaji ?? ""}`);
+}
+
+/** Drops the junk, unless that would leave nothing at all. */
+function useful(media: AniListMedia[]): SearchResult[] {
+  const kept = media.filter((entry) => !isJunk(entry));
+  return (kept.length ? kept : media).map(normaliseAniList).filter((result) => result !== null);
+}
 
 /**
  * Up to 10 searches in one request, as aliased GraphQL pages, for matching an
  * imported list: AniList allows about 30 requests a minute, so 67 titles are
  * 7 requests instead of 67.
  */
-export async function searchAniListMany(queries: readonly string[], perPage = 5): Promise<SearchResult[][]> {
+export async function searchAniListMany(queries: readonly string[], perPage = 6): Promise<SearchResult[][]> {
   if (queries.length === 0) return [];
   if (queries.length > ANILIST_BATCH) throw new ProviderError("anilist", "too many searches in one batch");
   const variables = Object.fromEntries(queries.map((query, index) => [`s${index}`, query]));
@@ -110,7 +124,109 @@ ${queries.map((_, index) => `q${index}: Page(perPage: ${perPage}) { media(search
     { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query, variables }) },
     schema,
   );
-  return queries.map((_, index) => (body.data[`q${index}`]?.media ?? []).map(normaliseAniList).filter((result) => result !== null));
+  return queries.map((_, index) => useful(body.data[`q${index}`]?.media ?? []));
+}
+
+const SERIES_FIELDS = `${BASE_FIELDS} type isAdult startDate { year month day }`;
+
+/** Each round brings the asked-for titles, their prequels and sequels, and the ids one step further on. */
+const SERIES_QUERY = `query ($ids: [Int]) {
+  Page(perPage: 50) {
+    media(id_in: $ids, type: ANIME) {
+      ${SERIES_FIELDS}
+      relations { edges { relationType(version: 2) node {
+        ${SERIES_FIELDS}
+        relations { edges { relationType(version: 2) node { id type isAdult } } }
+      } } }
+    }
+  }
+}`;
+
+const linkSchema = z.object({ id: z.number(), type: z.string().nullish(), isAdult: z.boolean().nullish() });
+const seriesMediaSchema = mediaSchema.extend({
+  type: z.string().nullish(),
+  isAdult: z.boolean().nullish(),
+  startDate: z.object({ year: z.number().nullish(), month: z.number().nullish(), day: z.number().nullish() }).nullish(),
+});
+const nextSchema = seriesMediaSchema.extend({
+  relations: z.object({ edges: z.array(z.object({ relationType: z.string().nullish(), node: linkSchema.nullish() })) }).nullish(),
+});
+const roundSchema = z.object({
+  data: z.object({
+    Page: z.object({
+      media: z.array(
+        seriesMediaSchema.extend({
+          relations: z.object({ edges: z.array(z.object({ relationType: z.string().nullish(), node: nextSchema.nullish() })) }).nullish(),
+        }),
+      ),
+    }),
+  }),
+});
+
+type SeriesMedia = z.infer<typeof seriesMediaSchema>;
+type Relations<T> = { edges: { relationType?: string | null; node?: T | null }[] } | null | undefined;
+
+/** Two rounds reach four steps either way; four rounds cover even Gintama. */
+const SERIES_ROUNDS = 4;
+const SERIES_LIMIT = 40;
+
+/** Prequels and sequels only: side stories, spin-offs and the manga aren't seasons. */
+function seasons<T extends { type?: string | null; isAdult?: boolean | null }>(relations: Relations<T>): T[] {
+  return (relations?.edges ?? []).flatMap(({ relationType, node }) =>
+    node && (relationType === "PREQUEL" || relationType === "SEQUEL") && node.type === "ANIME" && !node.isAdult ? [node] : [],
+  );
+}
+
+function release(status: string | null | undefined): Release {
+  if (status === "RELEASING") return "airing";
+  if (status === "NOT_YET_RELEASED") return "upcoming";
+  return "out";
+}
+
+/** Oldest first; titles with no date yet go last. */
+function byRelease(a: SeriesMedia, b: SeriesMedia): number {
+  const date = (media: SeriesMedia) => [media.startDate?.year ?? 9999, media.startDate?.month ?? 13, media.startDate?.day ?? 32];
+  const [left, right] = [date(a), date(b)];
+  return left[0] - right[0] || left[1] - right[1] || left[2] - right[2];
+}
+
+/**
+ * Every season, film and special in an anime's run, by following AniList's
+ * prequel and sequel links out from one title, two steps per request. Jujutsu
+ * Kaisen's seven entries take three requests.
+ */
+export async function getAniListSeries(id: number): Promise<SeriesTitle[]> {
+  const found = new Map<number, SeriesMedia>();
+  const expanded = new Set<number>();
+  let frontier = [id];
+  for (let round = 0; round < SERIES_ROUNDS && frontier.length > 0 && found.size < SERIES_LIMIT; round += 1) {
+    const body = await fetchJson(
+      "anilist",
+      ENDPOINT,
+      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: SERIES_QUERY, variables: { ids: frontier } }) },
+      roundSchema,
+    );
+    frontier.forEach((asked) => expanded.add(asked));
+    const next = new Set<number>();
+    for (const media of body.data.Page.media) {
+      if (media.isAdult) continue;
+      found.set(media.id, media);
+      for (const near of seasons(media.relations)) {
+        found.set(near.id, near);
+        expanded.add(near.id);
+        for (const far of seasons(near.relations)) next.add(far.id);
+      }
+    }
+    frontier = [...next].filter((candidate) => !expanded.has(candidate));
+  }
+  return [...found.values()]
+    .filter((media) => !isJunk(media))
+    .sort(byRelease)
+    .slice(0, SERIES_LIMIT)
+    .flatMap((media) => {
+      const result = normaliseAniList(media);
+      return result ? [{ ...result, release: release(media.status) }] : [];
+    });
 }
 
 export async function searchAniList(query: string): Promise<SearchResult[]> {

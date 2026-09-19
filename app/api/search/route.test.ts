@@ -9,9 +9,11 @@ vi.mock("@/lib/supabase/server", () => ({
 
 const searchMetadata = vi.fn();
 const matchMetadata = vi.fn();
+const getAnimeSeries = vi.fn();
 vi.mock("@/lib/search", () => ({
   searchMetadata: (...args: unknown[]) => searchMetadata(...args),
   matchMetadata: (...args: unknown[]) => matchMetadata(...args),
+  getAnimeSeries: (...args: unknown[]) => getAnimeSeries(...args),
 }));
 
 const { GET, POST } = await import("./route");
@@ -102,5 +104,29 @@ describe("POST /api/search (Find covers)", () => {
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect((await response.json()).results[0][0].title).toBe("Naruto");
     expect(matchMetadata).toHaveBeenCalledWith("anime", ["Naruto", "Nothing"]);
+  });
+});
+
+describe("GET /api/search?related= (the rest of a series)", () => {
+  beforeEach(() => {
+    getClaims.mockReset();
+    getAnimeSeries.mockReset();
+  });
+
+  it("is for anime with an AniList id, signed in", async () => {
+    getClaims.mockResolvedValue({ data: null });
+    expect((await call("kind=anime&related=113415")).status).toBe(401);
+
+    signIn("user-series");
+    for (const query of ["kind=movie&related=113415", "kind=anime&related=abc", "kind=anime&related="]) {
+      expect((await call(query)).status, query).toBe(400);
+    }
+    expect(getAnimeSeries).not.toHaveBeenCalled();
+
+    getAnimeSeries.mockResolvedValue({ results: [{ source: "anilist", externalId: "145064", title: "Jujutsu Kaisen Season 2", release: "out" }] });
+    const response = await call("kind=anime&related=113415");
+    expect(response.status).toBe(200);
+    expect((await response.json()).results[0].title).toBe("Jujutsu Kaisen Season 2");
+    expect(getAnimeSeries).toHaveBeenCalledWith("113415");
   });
 });

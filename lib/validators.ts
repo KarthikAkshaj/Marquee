@@ -201,14 +201,30 @@ export const addFromSearchSchema = z.object({
   result: searchResultSchema,
 });
 
-/** Find covers: hand-added titles on one shelf and the search result each should become. */
+/** Most extra seasons one save carries (they go in through `import_titles`, max 100). */
+export const EXTRAS_PER_SAVE = 50;
+
+/**
+ * Find covers: hand-added titles on one shelf, the search result each should
+ * become, and any other seasons of it to add alongside, each with a status.
+ */
 export const saveMatchesSchema = z.object({
   categoryId: z.string().uuid(),
   keepTitles: z.boolean(),
   matches: z
-    .array(z.object({ itemId: z.string().uuid(), result: searchResultSchema }))
+    .array(
+      z.object({
+        itemId: z.string().uuid(),
+        result: searchResultSchema,
+        extras: z
+          .array(z.object({ result: searchResultSchema, status: z.enum(ITEM_STATUSES) }))
+          .max(EXTRAS_PER_SAVE)
+          .default([]),
+      }),
+    )
     .min(1)
-    .max(25),
+    .max(25)
+    .refine((matches) => matches.reduce((sum, match) => sum + match.extras.length, 0) <= EXTRAS_PER_SAVE, "Too many seasons at once"),
 });
 
 export type SaveMatchesInput = z.input<typeof saveMatchesSchema>;
@@ -246,6 +262,12 @@ export type ImportBatch = z.input<typeof importBatchSchema>;
 export const matchQuerySchema = z.object({
   kind: z.enum(SEARCH_KINDS),
   queries: z.array(z.string().trim().min(1).max(200)).min(1).max(10),
+});
+
+/** GET /api/search?kind=anime&related=<AniList id>: the rest of that anime's series. */
+export const relatedQuerySchema = z.object({
+  kind: z.literal("anime"),
+  related: z.string().regex(/^\d{1,12}$/),
 });
 
 /** GET /api/search?kind=&q= (SPEC §7). Custom shelves have no provider. */

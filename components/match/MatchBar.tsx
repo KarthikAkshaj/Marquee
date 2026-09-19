@@ -6,6 +6,8 @@ import { Checkbox } from "@/components/ui/Checkbox";
 
 type MatchBarProps = {
   ready: number;
+  /** Other seasons that'll be added alongside. */
+  extras: number;
   toCheck: number;
   notFound: number;
   remaining: number;
@@ -17,7 +19,7 @@ type MatchBarProps = {
 };
 
 /** Find covers' sticky bar: how the lookups are going, what'll be saved, and Save. */
-export function MatchBar({ ready, toCheck, notFound, remaining, total, keepTitles, onKeepTitles, onSave, progress }: MatchBarProps) {
+export function MatchBar({ ready, extras, toCheck, notFound, remaining, total, keepTitles, onKeepTitles, onSave, progress }: MatchBarProps) {
   const busy = progress !== null;
   return (
     <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[12px] border border-white/9 bg-menu/92 px-3.5 py-2.5 shadow-menu backdrop-blur-[18px] md:bottom-4 md:gap-x-5 md:px-4.5 md:py-3">
@@ -30,6 +32,7 @@ export function MatchBar({ ready, toCheck, notFound, remaining, total, keepTitle
         ) : (
           <>
             <span className="text-text">{ready} to update</span>
+            {extras > 0 && <span className="text-text">+{extras} to add</span>}
             {toCheck > 0 && <span className="text-accent">{toCheck} to check</span>}
             {notFound > 0 && <span className="text-text-muted">{notFound} not found</span>}
           </>

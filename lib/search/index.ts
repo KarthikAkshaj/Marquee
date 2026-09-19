@@ -1,11 +1,11 @@
 import { unstable_cache } from "next/cache";
-import { searchAniList, searchAniListMany } from "./anilist";
+import { getAniListSeries, searchAniList, searchAniListMany } from "./anilist";
 import { igdbConfigured, searchIgdb } from "./igdb";
 import { getTmdbSeriesDetails, searchTmdbMovies, searchTmdbSeries, tmdbConfigured, type SeriesDetails } from "./tmdb";
-import { ProviderError, type SearchKind, type SearchResponse, type SearchResult } from "./types";
+import { ProviderError, type SearchKind, type SearchResponse, type SearchResult, type SeriesResponse } from "./types";
 
 export { SEARCH_KINDS } from "./types";
-export type { SearchError, SearchKind, SearchResponse, SearchResult } from "./types";
+export type { Release, SearchError, SearchKind, SearchResponse, SearchResult, SeriesResponse, SeriesTitle } from "./types";
 
 const DAY = 60 * 60 * 24;
 
@@ -86,6 +86,21 @@ async function mapLimit<T, R>(items: readonly T[], limit: number, run: (item: T)
 }
 
 export type MatchResponse = { results: SearchResult[][]; error?: SearchResponse["error"] };
+
+const cachedSeries = unstable_cache((id: string) => getAniListSeries(Number(id)), ["anilist-series-v1"], { revalidate: DAY });
+
+/**
+ * An anime's seasons, films and specials in release order, for adding the rest
+ * of a series from Find covers. Cached for a day; failures aren't.
+ */
+export async function getAnimeSeries(id: string): Promise<SeriesResponse> {
+  try {
+    return { results: await cachedSeries(id) };
+  } catch (error) {
+    console.error("[search] series", error instanceof ProviderError ? error.message : error);
+    return { results: [], error: "unavailable" };
+  }
+}
 
 /**
  * Candidates for up to 10 typed titles at once, for "Find covers" after an

@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { bestMatch } from "@/lib/match";
+import { bestMatch, seasonStatus } from "@/lib/match";
 import type { ManualTitle } from "@/lib/queries";
-import type { SearchKind, SearchResponse, SearchResult } from "@/lib/search/types";
+import type { SearchKind, SearchResponse, SearchResult, SeriesTitle } from "@/lib/search/types";
+import { ITEM_STATUSES, type ItemStatus } from "@/lib/status";
+import { useSeries } from "./useSeries";
+
+/** Another season of the match, to add as its own title. */
+export type ExtraPick = { result: SeriesTitle; status: ItemStatus };
 
 export type MatchRowState = {
   item: ManualTitle;
@@ -14,6 +19,7 @@ export type MatchRowState = {
   /** The pick was close enough to tick without asking. */
   sure: boolean;
   include: boolean;
+  extras: ExtraPick[];
 };
 
 type MatchReply = { results: SearchResult[][]; error?: SearchResponse["error"] };
@@ -55,7 +61,7 @@ export function useMatching(kind: SearchKind, items: ManualTitle[]) {
   // The first list is the one being matched; saves refresh `items` underneath.
   const [initial] = useState(items);
   const [rows, setRows] = useState<MatchRowState[]>(() =>
-    initial.map((item) => ({ item, state: "waiting", candidates: [], choice: null, sure: false, include: false })),
+    initial.map((item) => ({ item, state: "waiting", candidates: [], choice: null, sure: false, include: false, extras: [] })),
   );
 
   useEffect(() => {
@@ -80,13 +86,41 @@ export function useMatching(kind: SearchKind, items: ManualTitle[]) {
     };
   }, [kind, initial]);
 
+  const series = useSeries();
+
   const update = (id: string, change: (row: MatchRowState) => MatchRowState) =>
     setRows((current) => current.map((row) => (row.item.id === id ? change(row) : row)));
 
   return {
     rows,
     remaining: rows.filter((row) => row.state === "waiting").length,
-    choose: (id: string, choice: number | null) => update(id, (row) => ({ ...row, choice, include: choice !== null })),
+    seriesFor: series.seriesFor,
+    loadSeries: series.load,
+    /** A new match keeps the seasons you ticked only if it's from the same series. */
+    choose: (id: string, choice: number | null) =>
+      update(id, (row) => {
+        const before = row.choice !== null ? row.candidates[row.choice] : null;
+        const after = choice !== null ? row.candidates[choice] : null;
+        const same = before && after && series.related(before.externalId, after.externalId);
+        const extras = same ? row.extras.filter((extra) => extra.result.externalId !== after.externalId) : [];
+        return { ...row, choice, include: choice !== null, extras };
+      }),
+    toggleExtra: (id: string, title: SeriesTitle, add: boolean) =>
+      update(id, (row) => ({
+        ...row,
+        extras: add
+          ? [...row.extras, { result: title, status: seasonStatus(row.item.status, title.release) }]
+          : row.extras.filter((extra) => extra.result.externalId !== title.externalId),
+      })),
+    stepExtra: (id: string, externalId: string, direction: 1 | -1) =>
+      update(id, (row) => ({
+        ...row,
+        extras: row.extras.map((extra) => {
+          if (extra.result.externalId !== externalId) return extra;
+          const index = ITEM_STATUSES.indexOf(extra.status);
+          return { ...extra, status: ITEM_STATUSES[(index + direction + ITEM_STATUSES.length) % ITEM_STATUSES.length] };
+        }),
+      })),
     toggle: (id: string, include: boolean) => update(id, (row) => ({ ...row, include: include && row.choice !== null })),
     /** Try other words for one title, e.g. its full or original name. */
     async research(id: string, query: string) {
@@ -98,7 +132,7 @@ export function useMatching(kind: SearchKind, items: ManualTitle[]) {
       update(id, (row) => {
         const next = resolved({ ...row, item: { ...row.item, title: query } }, body.results, Boolean(body.error));
         // Matching was scored against the new words, but the row keeps the name you had.
-        return { ...next, item: row.item };
+        return { ...next, item: row.item, extras: [] };
       });
     },
     forget: (ids: string[]) => setRows((current) => current.filter((row) => !ids.includes(row.item.id))),

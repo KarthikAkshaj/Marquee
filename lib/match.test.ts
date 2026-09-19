@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bestMatch, similarity } from "./match";
+import { bestMatch, blockedReason, claimMatches, saveBatches, seasonStatus, similarity } from "./match";
 import type { SearchResult } from "./search/types";
 
 const anime = (title: string, subtitle: string, extra: Partial<SearchResult> = {}): SearchResult => ({
@@ -66,5 +66,53 @@ describe("bestMatch", () => {
     expect(bestMatch("Chainsaw", null, [anime("Chainsaw Man", "TV · 12 eps")])?.confident).toBe(true);
     expect(bestMatch("My Hero", null, [anime("Heroes of the Rising", "Movie · 104 min")])?.confident).toBe(false);
     expect(bestMatch("Anything", null, [])).toBeNull();
+  });
+});
+
+describe("seasonStatus", () => {
+  it("follows the title it came from, within reason", () => {
+    expect(seasonStatus("completed", "out")).toBe("completed");
+    expect(seasonStatus("dropped", "out")).toBe("dropped");
+    expect(seasonStatus("completed", "airing")).toBe("in_progress");
+    expect(seasonStatus("in_progress", "airing")).toBe("in_progress");
+    expect(seasonStatus("completed", "upcoming")).toBe("planned");
+  });
+});
+
+describe("saveBatches", () => {
+  const pick = (seasons: number) => ({ extras: Array.from({ length: seasons }) });
+
+  it("caps titles and added seasons per save, in order", () => {
+    const picks = [pick(0), pick(3), pick(0), pick(4), pick(1)];
+    expect(saveBatches(picks, 2, 10).map((batch) => batch.length)).toEqual([2, 2, 1]);
+    expect(saveBatches(picks, 25, 4).map((batch) => batch.map((entry) => entry.extras.length))).toEqual([[0, 3, 0], [4], [1]]);
+    expect(saveBatches([], 25, 50)).toEqual([]);
+  });
+});
+
+describe("claimMatches", () => {
+  const hit = (externalId: string) => ({ source: "anilist" as const, externalId });
+  const row = (id: string, pick: string | null, extras: string[] = [], include = true) => ({
+    id,
+    title: id,
+    include,
+    pick: pick ? hit(pick) : null,
+    extras: extras.map(hit),
+  });
+
+  it("lets each result onto the shelf once, first come first served", () => {
+    const { conflicts, holders } = claimMatches(
+      [row("Naruto", "20", ["1735"]), row("Shippuden", "1735"), row("Death Note", "1535"), row("Skipped", "5", [], false)],
+      [{ key: "anilist:1535", title: "Death Note (2006)" }],
+    );
+    expect(conflicts.get("Shippuden")).toBe("Already picked for “Naruto”");
+    expect(conflicts.get("Death Note")).toBe("Already on this shelf as “Death Note (2006)”");
+    expect(conflicts.has("Naruto")).toBe(false);
+    expect(holders.has("anilist:5")).toBe(false);
+
+    expect(blockedReason(holders, "anilist:1735", "Naruto")).toBeNull();
+    expect(blockedReason(holders, "anilist:1735", "Other")).toBe("Picked for “Naruto”");
+    expect(blockedReason(holders, "anilist:1535", "Other")).toBe("On your shelf as “Death Note (2006)”");
+    expect(blockedReason(holders, "anilist:999", "Other")).toBeNull();
   });
 });

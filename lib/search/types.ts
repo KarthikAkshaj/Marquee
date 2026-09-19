@@ -29,6 +29,12 @@ export type SearchResult = {
   accentColor?: string;
 };
 
+/** Where a title is in its run: out, still airing, or not out yet. */
+export type Release = "out" | "airing" | "upcoming";
+
+/** One entry of an anime's series (its seasons, films and specials), in release order. */
+export type SeriesTitle = SearchResult & { release: Release };
+
 /**
  * Why a search came back empty-handed. The UI turns every one of these into
  * "Add manually" rather than an error screen.
@@ -36,6 +42,8 @@ export type SearchResult = {
 export type SearchError = "signed_out" | "invalid_query" | "rate_limited" | "not_configured" | "unavailable";
 
 export type SearchResponse = { results: SearchResult[]; error?: SearchError };
+
+export type SeriesResponse = { results: SeriesTitle[]; error?: SearchError };
 
 /** A provider answered badly (non-2xx, timeout, unreadable body). */
 export class ProviderError extends Error {
