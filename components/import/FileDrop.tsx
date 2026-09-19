@@ -76,7 +76,7 @@ export function FileDrop({ onRead }: FileDropProps) {
               </span>
             </>
           )}
-          <span className="mt-3 block font-mono text-[10.5px] text-text-faint">.DOCX · .TXT · UP TO 5 MB</span>
+          <span className="mt-3 block font-mono text-[10.5px] text-text-muted">.DOCX · .TXT · UP TO 5 MB</span>
         </span>
       </button>
       <input

@@ -62,7 +62,7 @@ export function ImportSourceCard({ text, fileName, onText, onFile, onClearFile }
 
         <div aria-hidden className="flex items-center gap-2.5 md:flex-col md:py-4.5">
           <span className="h-px flex-1 bg-linear-to-r from-transparent to-white/12 md:h-auto md:w-px md:bg-linear-to-b" />
-          <span className="font-mono text-[10.5px] tracking-[.1em] text-text-faint">OR</span>
+          <span className="font-mono text-[10.5px] tracking-[.1em] text-text-muted">OR</span>
           <span className="h-px flex-1 bg-linear-to-l from-transparent to-white/12 md:h-auto md:w-px md:bg-linear-to-t" />
         </div>
 

@@ -16,12 +16,12 @@ export function StepDots({ active }: { active: 0 | 1 | 2 }) {
                 "grid size-5.5 place-items-center rounded-full border font-mono text-[10.5px]",
                 on && "border-accent bg-accent text-accent-ink",
                 done && "border-accent/40 bg-accent/16 text-accent",
-                !on && !done && "border-white/14 text-text-faint",
+                !on && !done && "border-white/14 text-text-muted",
               )}
             >
               {String(index + 1).padStart(2, "0")}
             </span>
-            <span className={cn("text-[12.5px]", on ? "font-semibold text-text" : done ? "text-text-muted" : "text-text-faint")}>{name}</span>
+            <span className={cn("text-[12.5px]", on ? "font-semibold text-text" : "text-text-muted")}>{name}</span>
             {index < STEPS.length - 1 && <span aria-hidden className="h-px w-6.5 bg-white/12" />}
           </li>
         );

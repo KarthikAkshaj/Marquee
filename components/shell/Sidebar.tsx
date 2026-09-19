@@ -69,7 +69,7 @@ export function Sidebar({ categories, user, dim }: SidebarProps) {
                   <span
                     className={cn(
                       "font-mono text-[11.5px]",
-                      dim ? "text-text-faint" : "text-text-muted",
+                      "text-text-muted",
                     )}
                   >
                     {dim ? <span aria-label="empty">—</span> : category.itemCount}

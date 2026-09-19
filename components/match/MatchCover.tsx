@@ -10,7 +10,7 @@ type MatchCoverProps = {
 /** A candidate's small 2:3 cover, or a generated one when the service has none. */
 export function MatchCover({ result, categoryColor }: MatchCoverProps) {
   return (
-    <span className="relative h-12.5 w-8.5 shrink-0 overflow-hidden rounded-[5px] border border-white/8">
+    <span data-cover className="relative h-12.5 w-8.5 shrink-0 overflow-hidden rounded-[5px] border border-white/8 transition-opacity">
       {result.coverUrl ? (
         <Image src={result.coverUrl} alt="" fill sizes="34px" className="object-cover" />
       ) : (

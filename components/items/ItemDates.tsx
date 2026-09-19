@@ -72,7 +72,7 @@ function DateField({ label, value, min, max, onChange }: DateFieldProps) {
         aria-label={`${label}: ${value ?? "not set"}. Change date`}
         className={cn(
           "-mx-1 mt-1.5 min-h-11 rounded-[6px] px-1 py-0.5 text-left font-mono text-[12.5px] transition-colors hover:bg-white/5 md:min-h-0 md:text-[13.5px]",
-          !value && "text-text-faint",
+          !value && "text-text-muted",
         )}
       >
         {value ?? "—"}

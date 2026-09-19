@@ -48,7 +48,7 @@ export function CategoryRow({ category, onRename, onKind, onEdit, onDelete }: Ca
         {...attributes}
         {...listeners}
         aria-label={`Move ${category.name}`}
-        className="flex size-11 shrink-0 cursor-grab touch-none items-center justify-center rounded-nav text-text-faint transition-colors hover:text-text-muted active:cursor-grabbing md:size-8"
+        className="flex size-11 shrink-0 cursor-grab touch-none items-center justify-center rounded-nav text-text-muted transition-colors hover:text-text active:cursor-grabbing md:size-8"
       >
         <GripVertical aria-hidden className="size-4" strokeWidth={1.8} />
       </button>

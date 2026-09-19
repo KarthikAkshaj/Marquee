@@ -100,11 +100,12 @@ export function AddSearch({ category, items, defaultStatus, initialQuery = "", o
         status={{ kind: category.kind, value: status, onStep: stepStatus }}
       />
 
+      {/* Outside the list: a listbox may only hold options and groups. */}
+      <p aria-live="polite" className="sr-only">
+        {search.idle ? "" : search.loading ? "Searching" : `${rows.length} results`}
+      </p>
       <Command.List aria-busy={search.loading} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
-        <p aria-live="polite" className="sr-only">
-          {search.idle ? "" : search.loading ? "Searching" : `${rows.length} results`}
-        </p>
-        {notice && <p className="px-3 py-3 text-13 text-text-muted">{notice}</p>}
+        {notice && <div className="px-3 py-3 text-13 text-text-muted">{notice}</div>}
         {search.loading && rows.length === 0 && <ResultSkeleton />}
 
         {rows.length > 0 && (

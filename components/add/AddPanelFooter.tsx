@@ -43,7 +43,7 @@ export function AddPanelFooter({ source, enterLabel = "add to list" }: AddPanelF
         </span>
       </div>
       {source && (
-        <p className="border-white/5 px-5 py-2 font-mono text-[9.5px] leading-[1.45] text-text-faint md:border-t">
+        <p className="border-white/5 px-5 py-2 font-mono text-[9.5px] leading-[1.45] text-text-muted md:border-t">
           {source === "tmdb" ? TMDB_NOTICE : `Data from ${SOURCE_NAMES[source]}.`}
         </p>
       )}

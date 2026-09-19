@@ -46,7 +46,7 @@ export function ReviewRowItem({ row, kind, duplicate, duplicateKind, showYear, o
           aria-label="Title"
           className={cn(
             "-ml-2 h-10 w-full min-w-0 rounded-[7px] border border-transparent bg-transparent px-2 text-14 outline-none transition-colors hover:border-white/12 hover:bg-white/3 focus-visible:border-accent/55 focus-visible:bg-sheet focus-visible:text-text md:h-9",
-            row.include ? "text-text" : "text-text-faint",
+            row.include ? "text-text" : "text-text-muted",
           )}
         />
         {note && <p className="text-[11.5px] text-text-muted">{note}</p>}
@@ -67,7 +67,7 @@ export function ReviewRowItem({ row, kind, duplicate, duplicateKind, showYear, o
           aria-label={`Status for ${row.title || "this line"}`}
           className={cn(
             "h-11 appearance-none rounded-nav border border-white/8 bg-elevated pr-8 pl-7 text-[12.5px] transition-colors hover:border-accent/45 md:h-8.5",
-            row.include ? "text-text" : "text-text-faint",
+            row.include ? "text-text" : "text-text-muted",
           )}
         >
           {ITEM_STATUSES.map((status) => (

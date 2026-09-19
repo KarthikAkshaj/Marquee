@@ -34,7 +34,7 @@ export function PaletteTrigger({ variant, dim = false }: { variant: "sidebar" | 
       className="mb-1.5 flex items-center gap-2 rounded-nav border border-border bg-surface px-2.5 py-2.5 text-left transition-colors hover:border-border-strong"
     >
       <Search aria-hidden className="size-3.25 text-text-muted" strokeWidth={2.2} />
-      <span className={cn("flex-1 text-12", dim ? "text-text-faint" : "text-text-muted")}>Search or add</span>
+      <span className="flex-1 text-12 text-text-muted">Search or add</span>
       <kbd
         className={cn(
           "rounded-[5px] border border-border bg-elevated px-1.5 py-0.5 font-mono text-[11px]",

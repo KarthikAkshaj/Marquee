@@ -34,7 +34,7 @@ export function MatchRow({ row, source, categoryColor, conflict, onToggle, onOpe
     <li
       className={cn(
         "grid grid-cols-[44px_minmax(0,1fr)] gap-x-1 gap-y-2 border-b border-white/5 px-2 py-3 [contain-intrinsic-size:auto_180px] [content-visibility:auto] md:grid-cols-[44px_minmax(0,0.9fr)_20px_minmax(0,1.3fr)_minmax(0,220px)] md:items-center md:gap-x-3 md:px-4 md:[contain-intrinsic-size:auto_76px]",
-        !row.include && "opacity-75",
+        !row.include && "[&_[data-cover]]:opacity-45",
       )}
     >
       <Checkbox checked={row.include} onChange={onToggle} label={`Update ${row.item.title}`} className={cn(!pick && "invisible")} />
