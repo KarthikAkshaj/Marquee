@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/Button";
 import { searchKindOf } from "@/lib/add";
 import { importTitles } from "@/lib/actions/import";
 import { parseImport, titleKey } from "@/lib/import/parse";
+import { defaultList } from "@/lib/import/read-file";
 import { importBatches, reviewRows, reviewSummary, savedIndex, type ReviewRow, type SavedTitle } from "@/lib/import/review";
 import { statusLabel, type ItemStatus } from "@/lib/status";
 import { ImportBar } from "./ImportBar";
 import { ImportDone } from "./ImportDone";
 import { ImportHeader } from "./ImportHeader";
 import { ImportReview } from "./ImportReview";
-import { ImportSourceCard } from "./ImportSourceCard";
+import { ImportSourceCard, type LoadedFile } from "./ImportSourceCard";
 import { ImportTargetCard, type ImportShelf } from "./ImportTargetCard";
 
 type ImportFlowProps = {
@@ -24,12 +25,18 @@ type ImportFlowProps = {
 
 type Done = { added: number; skippedDuplicates: number; leftOut: number };
 
+/** "letterboxd.zip · watched.csv" when the file had several lists. */
+function sourceName(file: LoadedFile | null) {
+  if (!file) return "Pasted list";
+  return file.lists.length > 1 ? `${file.name} · ${file.lists[file.index].name}` : file.name;
+}
+
 /** Import from a doc (SPEC §8.9): shelf + default status, the list, review, then save in batches. */
 export function ImportFlow({ shelves, saved, initialShelfId }: ImportFlowProps) {
   const [shelfId, setShelfId] = useState(initialShelfId ?? shelves[0]?.id ?? null);
   const [defaultStatus, setDefaultStatus] = useState<ItemStatus>("planned");
   const [text, setText] = useState("");
-  const [fileName, setFileName] = useState<string | null>(null);
+  const [file, setFile] = useState<LoadedFile | null>(null);
   const [step, setStep] = useState<"source" | "review" | "done">("source");
   const [rows, setRows] = useState<ReviewRow[]>([]);
   const [skipDuplicates, setSkipDuplicates] = useState(true);
@@ -91,7 +98,7 @@ export function ImportFlow({ shelves, saved, initialShelfId }: ImportFlowProps) 
 
   function startOver() {
     setText("");
-    setFileName(null);
+    setFile(null);
     setRows([]);
     setDone(null);
     setStep("source");
@@ -113,15 +120,21 @@ export function ImportFlow({ shelves, saved, initialShelfId }: ImportFlowProps) 
           />
           <ImportSourceCard
             text={text}
-            fileName={fileName}
+            file={file}
             onText={setText}
-            onFile={(fileText, name) => {
-              setText(fileText);
-              setFileName(name);
+            onFile={(name, lists) => {
+              const index = defaultList(lists, shelf);
+              setFile({ name, lists, index });
+              setText(lists[index].text);
+            }}
+            onPickList={(index) => {
+              if (!file) return;
+              setFile({ ...file, index });
+              setText(file.lists[index].text);
             }}
             onClearFile={() => {
               setText("");
-              setFileName(null);
+              setFile(null);
             }}
           />
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -147,7 +160,7 @@ export function ImportFlow({ shelves, saved, initialShelfId }: ImportFlowProps) 
           <ImportReview
             shelf={shelf}
             shelves={shelves}
-            sourceName={fileName ?? "Pasted list"}
+            sourceName={sourceName(file)}
             rows={rows}
             index={index}
             defaultStatus={defaultStatus}

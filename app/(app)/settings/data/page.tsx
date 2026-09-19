@@ -23,7 +23,7 @@ export default async function DataSettingsPage() {
         <span aria-hidden className="size-2.25 shrink-0 rounded-full bg-accent shadow-mark-xs" />
         <span className="min-w-0 flex-1">
           <span className="block text-[13.5px] font-medium">Coming from somewhere else?</span>
-          <span className="mt-0.75 block text-12 text-text-muted">Bring in a Word doc or a pasted list, checked over before anything is saved.</span>
+          <span className="mt-0.75 block text-12 text-text-muted">Bring in a list from Word, Notion, a spreadsheet, MyAnimeList or a Marquee backup, checked over before anything is saved.</span>
         </span>
         <span className="shrink-0 text-13 text-accent transition-colors group-hover:text-accent-bright">
           Go to Import <span aria-hidden>→</span>

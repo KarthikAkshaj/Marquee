@@ -60,6 +60,35 @@ describe("ImportFlow", () => {
     expect(screen.getByRole("link", { name: "Open Anime" })).toHaveAttribute("href", "/c/anime");
   });
 
+  it("drops a Marquee backup onto its matching shelf and lets you pick another of its lists", async () => {
+    importTitles.mockImplementation(async (batch: ImportBatch) => ({ ok: true, added: batch.titles.length }));
+    setup();
+    const backup = {
+      app: "marquee",
+      version: 1,
+      categories: [
+        { name: "Movies", kind: "movie", items: [{ title: "Dune", status: "completed", year: 2021 }] },
+        { name: "Anime", kind: "anime", items: [{ title: "Pluto", status: "in_progress", year: null }, { title: "Monster", status: "planned", year: 2004 }] },
+      ],
+    };
+    const input = document.querySelector<HTMLInputElement>("input[type=file]");
+    if (!input) throw new Error("no file input");
+    fireEvent.change(input, { target: { files: [new File([JSON.stringify(backup)], "marquee-someone.json")] } });
+
+    const picker = await screen.findByRole("button", { name: "List to import: Anime, 2 titles" });
+    expect(screen.getByLabelText("PASTE")).toHaveValue("Pluto (in progress)\nMonster (2004) (planned)");
+
+    fireEvent.keyDown(picker, { key: "Enter" });
+    fireEvent.click(await screen.findByRole("menuitemradio", { name: /Movies/ }));
+    expect(screen.getByLabelText("PASTE")).toHaveValue("Dune (2021) (completed)");
+
+    fireEvent.click(screen.getByRole("button", { name: /Review 1 title/ }));
+    expect(screen.getByText("marquee-someone.json · Movies")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Import 1 title" }));
+    await waitFor(() => expect(importTitles).toHaveBeenCalledTimes(1));
+    expect((importTitles.mock.calls[0][0] as ImportBatch).titles).toEqual([{ title: "Dune", status: "completed", year: 2021, position: 0 }]);
+  });
+
   it("uses the chosen shelf and default status, and keeps rows when a batch fails", async () => {
     importTitles.mockResolvedValue({ ok: false, message: "Couldn't import those titles. Try again." });
     setup();

@@ -7,7 +7,7 @@ const COPY = {
         Bring the <em className="text-accent">list</em> in.
       </>
     ),
-    line: "Paste it, or drop the Word file. One title per line is all we need.",
+    line: "Paste it, or drop the file: Word, Notion, a spreadsheet, a MyAnimeList export. One title per line is all we need.",
     step: 1,
   },
   review: {

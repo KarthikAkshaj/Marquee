@@ -2,15 +2,15 @@
 
 import { Loader2 } from "lucide-react";
 import { useRef, useState, type DragEvent } from "react";
-import { readImportFile } from "@/lib/import/read-file";
+import { IMPORT_ACCEPT, readImportFile, type ImportList } from "@/lib/import/read-file";
 import { cn } from "@/lib/utils";
 
 type FileDropProps = {
-  /** The file's text and name once it's been read. */
-  onRead: (text: string, name: string) => void;
+  /** The file's name and the lists found in it, once it's been read. */
+  onRead: (name: string, lists: ImportList[]) => void;
 };
 
-/** "Drop .docx here, or browse your files" (handoff §05). Reads in the browser; nothing is uploaded. */
+/** "Drop a file here, or browse your files" (handoff §05). Reads in the browser; nothing is uploaded. */
 export function FileDrop({ onRead }: FileDropProps) {
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
@@ -23,7 +23,7 @@ export function FileDrop({ onRead }: FileDropProps) {
     setError(null);
     const result = await readImportFile(file);
     setReading(false);
-    if (result.ok) onRead(result.text, result.name);
+    if (result.ok) onRead(result.name, result.lists);
     else setError(result.message);
   }
 
@@ -68,21 +68,20 @@ export function FileDrop({ onRead }: FileDropProps) {
             </span>
           ) : (
             <>
-              <span className="block text-14 text-text">
-                Drop <span className="font-mono text-13 text-accent">.docx</span> here
-              </span>
+              <span className="block text-14 text-text">Drop a file here</span>
               <span className="mt-1.5 block text-[12.5px] text-text-muted">
                 or <span className="text-accent">browse your files</span>
               </span>
             </>
           )}
-          <span className="mt-3 block font-mono text-[10.5px] text-text-muted">.DOCX · .TXT · UP TO 5 MB</span>
+          <span className="mt-3 block px-4 font-mono text-[10.5px] text-balance text-text-muted">DOCX · TXT · MD · CSV · XLSX · JSON · ZIP</span>
+          <span className="mt-1.5 block px-4 text-12 text-balance text-text-muted">Exports from Notion, Sheets, Letterboxd and MyAnimeList work too.</span>
         </span>
       </button>
       <input
         ref={input}
         type="file"
-        accept=".docx,.txt,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+        accept={IMPORT_ACCEPT}
         className="sr-only"
         tabIndex={-1}
         aria-hidden

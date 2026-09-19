@@ -1,23 +1,30 @@
 "use client";
 
 import { X } from "lucide-react";
+import type { ImportList } from "@/lib/import/read-file";
 import { FileDrop } from "./FileDrop";
+import { ListMenu } from "./ListMenu";
+
+/** A dropped file and which of its lists is in the paste box. */
+export type LoadedFile = { name: string; lists: ImportList[]; index: number };
 
 type ImportSourceCardProps = {
   text: string;
-  fileName: string | null;
+  file: LoadedFile | null;
   onText: (text: string) => void;
-  onFile: (text: string, name: string) => void;
+  onFile: (name: string, lists: ImportList[]) => void;
+  onPickList: (index: number) => void;
   onClearFile: () => void;
 };
 
 const count = (text: string) => text.split(/\r\n|\r|\n/).filter((line) => line.trim()).length;
 
 /**
- * STEP 02 (handoff §05): paste the list, or drop the Word file. A dropped
- * file's text lands in the paste box, so it can be tidied before review.
+ * STEP 02 (handoff §05): paste the list, or drop a file. A dropped file's
+ * text lands in the paste box, so it can be tidied before review; a file with
+ * several lists (a backup, a zip, a workbook) gets a picker above the box.
  */
-export function ImportSourceCard({ text, fileName, onText, onFile, onClearFile }: ImportSourceCardProps) {
+export function ImportSourceCard({ text, file, onText, onFile, onPickList, onClearFile }: ImportSourceCardProps) {
   const lines = count(text);
   return (
     <section
@@ -39,17 +46,18 @@ export function ImportSourceCard({ text, fileName, onText, onFile, onClearFile }
               PASTE
             </label>
             <span className="flex min-w-0 items-center gap-2 font-mono text-[11px] text-text-muted">
-              {fileName && (
+              {file && (
                 <span className="flex min-w-0 items-center gap-1 rounded-full border border-white/8 bg-elevated py-0.5 pr-1 pl-2 text-text">
-                  <span className="truncate">{fileName}</span>
+                  <span className="truncate">{file.name}</span>
                   <button type="button" aria-label="Clear the file" onClick={onClearFile} className="grid size-5 place-items-center rounded-full text-text-muted hover:text-text">
                     <X aria-hidden className="size-3" strokeWidth={2} />
                   </button>
                 </span>
               )}
-              {lines > 0 && `${lines} ${lines === 1 ? "line" : "lines"}`}
+              {lines > 0 && <span className="shrink-0 whitespace-nowrap">{`${lines} ${lines === 1 ? "line" : "lines"}`}</span>}
             </span>
           </div>
+          {file && file.lists.length > 1 && <ListMenu lists={file.lists} index={file.index} onPick={onPickList} />}
           <textarea
             id="import-paste"
             value={text}
