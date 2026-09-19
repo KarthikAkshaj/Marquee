@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useTransition, type ReactNode } from "react";
+import { LegalLinks } from "@/components/marketing/LegalLinks";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { signOut, switchAccount } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
@@ -29,7 +30,7 @@ function LinkRow({ href, onGo, children }: { href: string; onGo: () => void; chi
   );
 }
 
-/** The account menu as a phone sheet (SPEC §8.3): the same four choices as the sidebar's user chip. */
+/** The account menu as a phone sheet (SPEC §8.3): the same four choices as the sidebar's user chip, then Terms · Privacy. */
 export function AccountSheet({ user, open, onOpenChange }: AccountSheetProps) {
   const [pending, startTransition] = useTransition();
   const close = () => onOpenChange(false);
@@ -61,6 +62,7 @@ export function AccountSheet({ user, open, onOpenChange }: AccountSheetProps) {
           Sign out
         </button>
       </div>
+      <LegalLinks onGo={close} className="mt-2 border-t border-border px-3 pt-1" />
     </BottomSheet>
   );
 }

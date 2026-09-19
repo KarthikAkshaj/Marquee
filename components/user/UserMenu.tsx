@@ -18,7 +18,8 @@ export type MenuUser = {
 
 /**
  * The account menu (SPEC §8.3) from the user chip at the foot of the sidebar:
- * Profile, Settings, Switch account, Sign out. Phones use `AccountSheet`.
+ * Profile, Settings, Switch account, Sign out, with Terms · Privacy at the
+ * foot. Phones use `AccountSheet`.
  */
 export function UserMenu({ user }: { user: MenuUser }) {
   const [pending, startTransition] = useTransition();
@@ -70,6 +71,14 @@ export function UserMenu({ user }: { user: MenuUser }) {
               Sign out
             </MenuItem>
           </div>
+
+          <div className="flex items-center gap-0.5 border-t border-border px-1.5 py-1">
+            <LegalItem href="/terms">Terms</LegalItem>
+            <span aria-hidden className="font-mono text-[11px] text-text-ghost">
+              ·
+            </span>
+            <LegalItem href="/privacy">Privacy</LegalItem>
+          </div>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
@@ -88,6 +97,19 @@ function MenuItem({ children, danger = false, disabled, onSelect }: { children: 
     >
       <span aria-hidden className={cn("size-1.25 rounded-full", danger ? "bg-dropped-muted" : "bg-white/28")} />
       {children}
+    </DropdownMenu.Item>
+  );
+}
+
+function LegalItem({ href, children }: { href: string; children: string }) {
+  return (
+    <DropdownMenu.Item asChild>
+      <Link
+        href={href}
+        className="cursor-pointer rounded-xs px-2 py-1.5 font-mono text-[11px] text-text-muted outline-none select-none data-highlighted:bg-white/5 data-highlighted:text-text"
+      >
+        {children}
+      </Link>
     </DropdownMenu.Item>
   );
 }

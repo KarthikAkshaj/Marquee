@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LegalLinks } from "@/components/marketing/LegalLinks";
 import { SettingsTabs } from "@/components/settings/SettingsTabs";
 import { AmbientBackground } from "@/components/shell/AmbientBackground";
 import { getCategories } from "@/lib/queries";
@@ -28,7 +29,10 @@ export default async function SettingsLayout({ children }: LayoutProps<"/setting
             { href: "/settings/account", label: "Account" },
           ]}
         />
-        <div className="min-w-0 flex-1 pb-10 md:max-w-180">{children}</div>
+        <div className="min-w-0 flex-1 pb-10 md:max-w-180">
+          {children}
+          <LegalLinks className="mt-12 border-t border-border pt-2 md:pt-4" />
+        </div>
       </div>
     </>
   );

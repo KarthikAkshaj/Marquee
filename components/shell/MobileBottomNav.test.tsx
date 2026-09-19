@@ -66,6 +66,9 @@ describe("MobileBottomNav", () => {
     expect(within(sheet).getByText("@void_flux")).toBeInTheDocument();
     for (const name of ["Profile", "Settings"]) expect(within(sheet).getByRole("link", { name })).toBeInTheDocument();
     for (const name of ["Switch account", "Sign out"]) expect(within(sheet).getByRole("button", { name })).toBeInTheDocument();
+    const legal = within(sheet).getByRole("navigation", { name: "Legal" });
+    expect(within(legal).getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/terms");
+    expect(within(legal).getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
   });
 
   it("steps aside on pages with their own bar along the bottom", () => {
