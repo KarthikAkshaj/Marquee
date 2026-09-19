@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { buildExport, type MarqueeExport } from "@/lib/export";
 import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 import { emailSchema } from "@/lib/validators";
@@ -44,22 +43,6 @@ export async function changeEmail(email: string): Promise<AccountActionResult> {
 
   revalidatePath("/settings/account");
   return { ok: true };
-}
-
-/** Profile, categories and titles as one JSON document, for "Export my data first". */
-export async function exportData(): Promise<{ ok: true; data: MarqueeExport } | { ok: false; message: string }> {
-  const { supabase, userId } = await requireUserId();
-  if (!userId) return SESSION_ENDED;
-
-  const [profile, categories, items] = await Promise.all([
-    supabase.from("profiles").select("username, display_name, bio, avatar_url, created_at").eq("id", userId).single(),
-    supabase.from("categories").select("*"),
-    supabase.from("items").select("*").order("created_at"),
-  ]);
-  if (profile.error || categories.error || items.error) {
-    return { ok: false, message: "Couldn't gather your data. Try again." };
-  }
-  return { ok: true, data: buildExport(profile.data, categories.data, items.data) };
 }
 
 /**

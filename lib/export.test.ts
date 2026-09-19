@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Database } from "@/lib/supabase/database.types";
-import { buildExport, exportFileName } from "./export";
+import { buildCategoryCsv, buildExport, csvCell, csvFileName, exportFileName } from "./export";
+import { statusLabels } from "./status";
 
 type Tables = Database["public"]["Tables"];
 
@@ -74,5 +75,33 @@ describe("buildExport", () => {
 
   it("names the file after the user and the day", () => {
     expect(exportFileName("void_flux", now)).toBe("marquee-void_flux-2026-09-17.json");
+  });
+});
+
+describe("buildCategoryCsv", () => {
+  const rows = (csv: string) => csv.slice(1).trimEnd().split("\r\n");
+
+  it("writes one row per title, status in the shelf's own words", () => {
+    const csv = buildCategoryCsv(statusLabels("movie"), [
+      item({ title: "Dune", status: "completed", progress_current: 0, rating: 8, is_favorite: false, year: 2021, notes: null, genres: ["Sci-Fi", "Drama"], source: "tmdb", finished_at: "2026-09-01" }),
+    ]);
+    expect(csv.charCodeAt(0)).toBe(0xfeff);
+    expect(rows(csv)).toEqual([
+      "Title,Status,Progress,Total,Rating,Favourite,Released,Started,Finished,Genres,Community score,Source,Notes,Added,Updated",
+      "Dune,Watched,,,8,,2021,2026-08-02,2026-09-01,Sci-Fi; Drama,,TMDB,,2026-09-16,2026-09-17",
+    ]);
+  });
+
+  it("quotes commas, quotes and line breaks, and keeps formulas as text", () => {
+    expect(csvCell('Say "hi", then go\nhome')).toBe('"Say ""hi"", then go\nhome"');
+    expect(csvCell("=HYPERLINK(\"x\")")).toBe("\"'=HYPERLINK(\"\"x\"\")\"");
+    expect(csvCell("-1 episode left")).toBe("'-1 episode left");
+    expect(csvCell(-1)).toBe("-1");
+    expect(csvCell(true)).toBe("yes");
+    expect(csvCell(null)).toBe("");
+  });
+
+  it("names the file after the shelf and the day", () => {
+    expect(csvFileName("anime", new Date("2026-09-19T10:00:00Z"))).toBe("marquee-anime-2026-09-19.csv");
   });
 });

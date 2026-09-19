@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const deleteAccount = vi.fn();
 vi.mock("@/lib/actions/account", () => ({
   deleteAccount: (...args: unknown[]) => deleteAccount(...args),
-  exportData: vi.fn(),
 }));
+vi.mock("@/lib/actions/data", () => ({ exportData: vi.fn() }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 const { DeleteAccountDialog } = await import("./DeleteAccountDialog");

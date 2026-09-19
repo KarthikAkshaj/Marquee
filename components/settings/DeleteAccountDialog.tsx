@@ -5,8 +5,9 @@ import { AlertDialog } from "radix-ui";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
-import { deleteAccount, exportData } from "@/lib/actions/account";
-import { exportFileName } from "@/lib/export";
+import { deleteAccount } from "@/lib/actions/account";
+import { exportData } from "@/lib/actions/data";
+import { downloadFile } from "@/lib/download";
 import { useReturnFocus } from "@/lib/use-return-focus";
 import { cn } from "@/lib/utils";
 
@@ -40,12 +41,7 @@ export function DeleteAccountDialog({ open, onOpenChange, username, titleCount, 
     startExporting(async () => {
       const result = await exportData();
       if (!result.ok) return void toast.error(result.message);
-      const url = URL.createObjectURL(new Blob([JSON.stringify(result.data, null, 2)], { type: "application/json" }));
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = exportFileName(username);
-      link.click();
-      URL.revokeObjectURL(url);
+      downloadFile(result.fileName, JSON.stringify(result.data, null, 2), "application/json");
       toast.success("Your data's downloading.");
     });
   }
