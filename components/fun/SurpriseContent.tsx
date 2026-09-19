@@ -124,7 +124,7 @@ export function SurpriseContent({ categories, titles, initialCategoryId, onClose
           <p className="font-display text-[30px] leading-[1.1]">
             Nothing in the <em className="text-accent">queue.</em>
           </p>
-          <p className="max-w-80 text-14 text-text-muted">Put a few things in Plan to Watch and I&apos;ll pick one when you can&apos;t.</p>
+          <p className="max-w-80 text-14 text-text-muted">Queue a few titles up and I&apos;ll pick one when you can&apos;t decide.</p>
           <Button onClick={onAddTitle} className="mt-1 h-11 px-5">
             Add a title
           </Button>

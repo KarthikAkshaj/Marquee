@@ -2,6 +2,7 @@ import { ItemRow } from "@/components/items/ItemRow";
 import { PosterCard } from "@/components/items/PosterCard";
 import type { ItemQuickActions } from "@/components/items/QuickActions";
 import { itemHref, type CategoryParams, type Item } from "@/lib/items";
+import { rise } from "@/lib/motion";
 import type { CategoryKind } from "@/lib/status";
 
 type ShelfItemsProps = {
@@ -21,8 +22,8 @@ export function ShelfItems({ category, params, items, actions, stamps, onStamped
   if (params.view === "grid") {
     return (
       <ul className="grid grid-cols-2 gap-x-4 gap-y-4.5 sm:grid-cols-3 md:grid-cols-4 md:gap-5 xl:grid-cols-6">
-        {items.map((item) => (
-          <li key={item.id}>
+        {items.map((item, index) => (
+          <li key={item.id} {...rise(index)}>
             <PosterCard
               item={item}
               href={hrefFor(item)}
@@ -53,8 +54,8 @@ export function ShelfItems({ category, params, items, actions, stamps, onStamped
         <span className="label-mono text-right text-text-muted">Updated</span>
       </div>
       <ul className="divide-y divide-border">
-        {items.map((item) => (
-          <li key={item.id}>
+        {items.map((item, index) => (
+          <li key={item.id} {...rise(index)}>
             <ItemRow
               item={item}
               href={hrefFor(item)}

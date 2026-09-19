@@ -82,8 +82,15 @@ export function EmptyShelf({ kind, slug, params, reason, onAdd, onSearch, onClea
     action = link({ fav: false }, "Show everything");
   } else if (reason.type === "empty") {
     title = <>This shelf is <em className={accent}>empty.</em></>;
-    body = "Add the first title. The rest tends to follow.";
-    action = add("Add a title");
+    body = "Add the first title, or paste in the whole list you've been keeping somewhere.";
+    action = (
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+        {add("Add a title")}
+        <Link href={`/import?category=${encodeURIComponent(slug)}`} className="flex min-h-11 items-center text-13 text-text-muted transition-colors hover:text-text">
+          Import a list
+        </Link>
+      </div>
+    );
   } else {
     accent = STATUS_STYLE[reason.status].text;
     switch (reason.status) {

@@ -176,6 +176,18 @@
   @keyframes pop-in {
     from { opacity: 0; transform: scale(0.97); }
   }
+
+  /* Page changes fade in; grid items rise 8px, staggered (SPEC §9.6). No fill
+     after the end, so nothing keeps a stacking context once it has landed. */
+  --animate-page-in: page-in 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-rise: rise 350ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+
+  @keyframes page-in {
+    from { opacity: 0; }
+  }
+  @keyframes rise {
+    from { opacity: 0; translate: 0 8px; }
+  }
 }
 
 @layer base {
@@ -281,6 +293,7 @@
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;

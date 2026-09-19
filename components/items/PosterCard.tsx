@@ -77,7 +77,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
         {/* 2023 · Watching · 13/24. Narrow cards drop the year to fit the episode. */}
         <p className="mt-1 flex flex-wrap items-center gap-x-2 font-mono text-[11px]">
           {item.year && <span className={cn("text-text-muted", episode && "@max-[160px]:hidden")}>{item.year}</span>}
-          <span className={status.text}>{statusLabel(kind, item.status)}</span>
+          <span className={cn(status.text, "transition-colors duration-200 ease-cinematic")}>{statusLabel(kind, item.status)}</span>
           {episode && <span className="text-text">{episode}</span>}
         </p>
       </div>
@@ -101,7 +101,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
           aria-hidden
           className="pointer-events-none absolute inset-0 -translate-x-full bg-linear-115 from-transparent from-35% via-white/10 to-transparent to-65% group-hover:translate-x-full group-hover:transition-transform group-hover:duration-350 group-hover:ease-cinematic"
         />
-        <span aria-hidden className={cn("pointer-events-none absolute top-2.25 right-2.25 size-1.75 rounded-full", status.fill, status.glow)} />
+        <span aria-hidden className={cn("pointer-events-none absolute top-2.25 right-2.25 size-1.75 rounded-full transition-[background-color,box-shadow] duration-200 ease-cinematic", status.fill, status.glow)} />
         {item.is_favorite && (
           <Star
             aria-label="Favourite"
@@ -123,7 +123,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
 
         {percent !== null && (
           <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-0.75 bg-white/8">
-            <div className="h-full bg-accent shadow-progress" style={{ width: `${percent}%` }} />
+            <div className="h-full bg-accent shadow-progress transition-[width] duration-300 ease-cinematic" style={{ width: `${percent}%` }} />
           </div>
         )}
       </div>

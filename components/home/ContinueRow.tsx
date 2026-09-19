@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useItemActions } from "@/components/items/useItemActions";
 import type { Item } from "@/lib/items";
+import { rise } from "@/lib/motion";
 import type { PaletteCategory } from "@/lib/palette";
 import { cn } from "@/lib/utils";
 import { ContinueCard } from "./ContinueCard";
@@ -50,7 +51,11 @@ export function ContinueRow({ items, shelves }: ContinueRowProps) {
       ) : (
         <ul className="grid gap-2.5 md:grid-cols-2 md:gap-4.5 xl:grid-cols-3">
           {cards.map(({ item, shelf }, index) => (
-            <li key={item.id} className={cn(!expanded && index >= 2 && "hidden", !expanded && index === 2 && "xl:block")}>
+            <li
+              key={item.id}
+              style={rise(index).style}
+              className={cn(rise(index).className, !expanded && index >= 2 && "hidden", !expanded && index === 2 && "xl:block")}
+            >
               <ContinueCard
                 item={item}
                 shelf={shelf}

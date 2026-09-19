@@ -17,7 +17,7 @@ type ProgressStepperProps = {
 
 const pad = (n: number) => String(n).padStart(2, "0");
 const stepButton =
-  "flex size-11 shrink-0 items-center justify-center rounded-[11px] border transition-colors md:size-7 md:rounded-[7px] disabled:cursor-not-allowed disabled:opacity-40";
+  "flex size-11 shrink-0 items-center justify-center rounded-[11px] border transition-[color,background-color,border-color,scale] duration-150 ease-cinematic active:scale-90 md:size-7 md:rounded-[7px] disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100";
 
 /** `−  07 / 24  +` (SPEC §9.5). Either number can be typed, so 800 episodes in isn't 800 taps. */
 export function ProgressStepper({ item, unit, onIncrement, onChange }: ProgressStepperProps) {

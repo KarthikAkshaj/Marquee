@@ -2,8 +2,10 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { ItemCover } from "@/components/items/ItemCover";
 import type { Item } from "@/lib/items";
+import { rise } from "@/lib/motion";
 import { titleHref, type PaletteCategory } from "@/lib/palette";
 import { generatedCover } from "@/lib/poster-art";
+import { cn } from "@/lib/utils";
 import { SectionHeader } from "./SectionHeader";
 
 type PosterRowProps = {
@@ -36,12 +38,12 @@ export function PosterRow({ id, title, note, empty, items, shelves, className }:
         <p className="text-13 text-text-muted">{empty}</p>
       ) : (
         <ul className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] md:mx-0 md:gap-4 md:px-0">
-          {posters.map(({ item, shelf }) => {
+          {posters.map(({ item, shelf }, index) => {
             const glow = item.accent_color
               ? `color-mix(in oklab, ${item.accent_color} 34%, transparent)`
               : generatedCover(item.id, shelf.color).glow;
             return (
-              <li key={item.id} className="w-24 shrink-0 md:w-29.5">
+              <li key={item.id} style={rise(index).style} className={cn("w-24 shrink-0 md:w-29.5", rise(index).className)}>
                 <Link href={titleHref(shelf, item.id)} className="group flex flex-col gap-2 rounded-card md:gap-2.25">
                   <div
                     className="relative h-36 overflow-hidden rounded-[9px] border border-white/7 shadow-[0_10px_26px_var(--glow)] transition-transform duration-200 ease-cinematic group-hover:-translate-y-1 md:h-44.25"
