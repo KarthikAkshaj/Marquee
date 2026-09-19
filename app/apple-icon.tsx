@@ -6,5 +6,5 @@ export const contentType = "image/png";
 
 /** The iPhone home-screen icon. iOS rounds the corners itself. */
 export default function AppleIcon() {
-  return new ImageResponse(iconArt({ size: 180, bulb: 0.46 }), size);
+  return new ImageResponse(iconArt({ size: 180, mark: 0.46, radius: 0 }), size);
 }

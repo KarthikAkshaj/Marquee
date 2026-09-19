@@ -2,11 +2,11 @@ import { ImageResponse } from "next/og";
 import { iconArt } from "@/lib/brand";
 
 /** The web app manifest's icons, drawn once at build time (SPEC §11 PWA). */
-const FILES: Record<string, { size: number; bulb: number }> = {
-  "icon-192.png": { size: 192, bulb: 0.46 },
-  "icon-512.png": { size: 512, bulb: 0.46 },
-  // Launchers crop maskable icons to a circle or squircle; the bulb stays well inside.
-  "icon-maskable-512.png": { size: 512, bulb: 0.38 },
+const FILES: Record<string, { size: number; mark: number; radius: number }> = {
+  "icon-192.png": { size: 192, mark: 0.46, radius: 0.23 },
+  "icon-512.png": { size: 512, mark: 0.46, radius: 0.23 },
+  // Launchers crop maskable icons to a circle or squircle: square corners, and the M stays well inside.
+  "icon-maskable-512.png": { size: 512, mark: 0.4, radius: 0 },
 };
 
 export const dynamic = "force-static";
