@@ -3,6 +3,7 @@ import {
   DEFAULT_CATEGORY_PARAMS,
   applyItemChange,
   categoryHref,
+  completesTitle,
   itemHref,
   countByStatus,
   filterByTitle,
@@ -336,5 +337,19 @@ describe("applyItemChange", () => {
     const added = applyItemChange(shelf, "c", { type: "add", item: frieren }, now);
     expect(titles(added)).toEqual(["Frieren", "Alpha", "Beta"]);
     expect(titles(applyItemChange(added, "c", { type: "add", item: frieren }, now))).toEqual(["Frieren", "Alpha", "Beta"]);
+  });
+});
+
+describe("completesTitle", () => {
+  const watching = item({ id: "w", status: "in_progress", progress_current: 27, progress_total: 28 });
+
+  it("is true only for the change that finishes a title", () => {
+    expect(completesTitle(watching, { type: "increment" })).toBe(true);
+    expect(completesTitle(watching, { type: "status", status: "completed" })).toBe(true);
+    expect(completesTitle(watching, { type: "progress", current: 28, total: 28 })).toBe(true);
+    expect(completesTitle(watching, { type: "progress", current: 20, total: 28 })).toBe(false);
+    expect(completesTitle(item({ status: "completed" }), { type: "status", status: "completed" })).toBe(false);
+    expect(completesTitle(item({ status: "in_progress", progress_current: 3 }), { type: "increment" })).toBe(false);
+    expect(completesTitle(watching, { type: "remove" })).toBe(false);
   });
 });

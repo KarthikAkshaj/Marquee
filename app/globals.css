@@ -156,6 +156,14 @@
     from { transform: translate3d(-1%, 2%, 0); }
     to   { transform: translate3d(3%, -1%, 0); }
   }
+
+  /* Surprise me: marquee bulbs chasing while the reel spins */
+  --animate-bulb: bulb 900ms ease-in-out infinite;
+
+  @keyframes bulb {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
 }
 
 @layer base {

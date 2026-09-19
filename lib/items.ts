@@ -255,6 +255,12 @@ export function stampStatusDates(item: Item, today: string): Item {
   return next;
 }
 
+/** Whether a change finishes this title, which earns it the ADMIT ONE stamp (SPEC §9.6). */
+export function completesTitle(item: Item, change: ItemChange): boolean {
+  if (item.status === "completed" || change.type === "remove" || change.type === "add") return false;
+  return applyItemChange([item], item.id, change)[0]?.status === "completed";
+}
+
 /** One change applied to a shelf ahead of the save. Unknown ids leave it untouched. */
 export function applyItemChange(items: Item[], id: string, change: ItemChange, now = new Date()): Item[] {
   if (change.type === "remove") return items.filter((item) => item.id !== id);

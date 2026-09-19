@@ -24,7 +24,9 @@ export function ContinueRow({ items, shelves }: ContinueRowProps) {
   const byId = new Map(shelves.map((shelf) => [shelf.id, shelf]));
   const cards = actions.items.flatMap((item) => {
     const shelf = byId.get(item.category_id);
-    return item.status === "in_progress" && shelf ? [{ item, shelf }] : [];
+    // A title finished here stays until its ADMIT ONE stamp has played.
+    const showing = item.status === "in_progress" || actions.stamps.has(item.id);
+    return showing && shelf ? [{ item, shelf }] : [];
   });
   const count = cards.length;
 
@@ -49,7 +51,13 @@ export function ContinueRow({ items, shelves }: ContinueRowProps) {
         <ul className="grid gap-2.5 md:grid-cols-2 md:gap-4.5 xl:grid-cols-3">
           {cards.map(({ item, shelf }, index) => (
             <li key={item.id} className={cn(!expanded && index >= 2 && "hidden", !expanded && index === 2 && "xl:block")}>
-              <ContinueCard item={item} shelf={shelf} onIncrement={() => actions.increment(item)} />
+              <ContinueCard
+                item={item}
+                shelf={shelf}
+                onIncrement={() => actions.increment(item)}
+                stamped={actions.stamps.has(item.id)}
+                onStamped={() => actions.endStamp(item.id)}
+              />
             </li>
           ))}
         </ul>

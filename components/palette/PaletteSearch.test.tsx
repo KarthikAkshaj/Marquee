@@ -12,6 +12,9 @@ vi.mock("next/navigation", () => ({
 }));
 vi.mock("next/image", () => ({ default: () => null }));
 
+const openSurprise = vi.fn();
+vi.mock("./PaletteProvider", () => ({ usePalette: () => ({ open: vi.fn(), openSurprise }) }));
+
 const addTitle = vi.fn();
 vi.mock("@/components/add/useAddTitle", () => ({ useAddTitle: () => addTitle }));
 
@@ -160,5 +163,25 @@ describe("PaletteSearch", () => {
     expect(options()).toEqual([expect.stringContaining("Add “verm” to Books manually")]);
     key("Enter");
     expect(onManual).toHaveBeenCalledWith(books, "verm", "planned");
+  });
+});
+
+describe("PaletteSearch actions", () => {
+  beforeAll(() => {
+    globalThis.ResizeObserver ??= class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+    Element.prototype.scrollIntoView ??= () => {};
+  });
+  afterEach(cleanup);
+
+  it("spins Surprise me from the palette", () => {
+    const { type, key, onClose } = setup();
+    type("surprise");
+    key("Enter");
+    expect(onClose).toHaveBeenCalled();
+    expect(openSurprise).toHaveBeenCalled();
   });
 });

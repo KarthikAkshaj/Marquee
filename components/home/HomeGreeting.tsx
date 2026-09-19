@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
 import { dateLine, greetingFor } from "@/lib/home";
 import { cn } from "@/lib/utils";
 
@@ -15,20 +15,21 @@ function readClock() {
   return `${dateLine(now)}|${greetingFor(now.getHours())}`;
 }
 
-type HomeGreetingProps = { name: string; line: string };
+type HomeGreetingProps = { name: string; line: string; action?: ReactNode };
 
 /**
  * "TUE 16 SEP · 21:40 / Evening, Flux." (SPEC §8.4, handoff §01). The server
  * doesn't know the viewer's time zone, so the date and greeting fade in once
  * the browser has read its own clock.
  */
-export function HomeGreeting({ name, line }: HomeGreetingProps) {
+export function HomeGreeting({ name, line, action }: HomeGreetingProps) {
   const clock = useSyncExternalStore(subscribe, readClock, () => null);
   const [date, greeting] = clock ? clock.split("|") : ["", "Evening"];
   const fade = cn("transition-opacity duration-300 ease-cinematic motion-reduce:transition-none", !clock && "opacity-0");
 
   return (
-    <header>
+    <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-6">
+      <div className="min-w-0">
       <p className={cn("min-h-3.75 font-mono text-[10px] tracking-[.14em] text-text-muted md:min-h-4 md:text-[11px]", fade)}>{date}</p>
       <h1
         className={cn(
@@ -39,6 +40,8 @@ export function HomeGreeting({ name, line }: HomeGreetingProps) {
         {greeting}, <em className="text-accent">{name}.</em>
       </h1>
       <p className="mt-2.25 text-[13.5px] text-text-muted md:mt-3 md:text-[14.5px]">{line}</p>
+      </div>
+      {action && <div className="shrink-0 md:pb-1.5">{action}</div>}
     </header>
   );
 }

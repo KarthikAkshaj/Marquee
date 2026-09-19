@@ -6,14 +6,23 @@ import { titleHref, type PaletteCategory } from "@/lib/palette";
 import { generatedCover } from "@/lib/poster-art";
 import { SectionHeader } from "./SectionHeader";
 
-type RecentlyFinishedProps = {
+type PosterRowProps = {
+  id: string;
+  title: string;
+  /** A quiet note on the right, e.g. "Nice run." */
+  note: string;
+  /** What to say when the row is empty. */
+  empty: string;
   items: Item[];
   shelves: PaletteCategory[];
   className?: string;
 };
 
-/** The last eight finished, with your rating on the poster (SPEC §8.4, handoff §01). */
-export function RecentlyFinished({ items, shelves, className }: RecentlyFinishedProps) {
+/**
+ * A row of posters with your rating on each (handoff §01): Recently finished
+ * and Favourites on Home (SPEC §8.4, §10). Each opens its title.
+ */
+export function PosterRow({ id, title, note, empty, items, shelves, className }: PosterRowProps) {
   const byId = new Map(shelves.map((shelf) => [shelf.id, shelf]));
   const posters = items.flatMap((item) => {
     const shelf = byId.get(item.category_id);
@@ -21,14 +30,10 @@ export function RecentlyFinished({ items, shelves, className }: RecentlyFinished
   });
 
   return (
-    <section aria-labelledby="finished-heading" className={className}>
-      <SectionHeader
-        id="finished-heading"
-        title="Recently finished"
-        aside={posters.length > 0 && <span className="text-12 text-text-muted md:text-[12.5px]">Nice run.</span>}
-      />
+    <section aria-labelledby={id} className={className}>
+      <SectionHeader id={id} title={title} aside={posters.length > 0 && <span className="text-12 text-text-muted md:text-[12.5px]">{note}</span>} />
       {posters.length === 0 ? (
-        <p className="text-13 text-text-muted">Nothing finished yet. No rush.</p>
+        <p className="text-13 text-text-muted">{empty}</p>
       ) : (
         <ul className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] md:mx-0 md:gap-4 md:px-0">
           {posters.map(({ item, shelf }) => {

@@ -87,6 +87,8 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
               onToggleFavorite: shelf.toggleFavorite,
               onDelete: setDeleting,
             }}
+            stamps={shelf.stamps}
+            onStamped={shelf.endStamp}
           />
         )}
       </section>

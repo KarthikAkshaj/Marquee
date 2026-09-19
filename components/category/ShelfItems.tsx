@@ -9,10 +9,13 @@ type ShelfItemsProps = {
   params: CategoryParams;
   items: Item[];
   actions: ItemQuickActions;
+  /** Titles showing their ADMIT ONE stamp right now. */
+  stamps: ReadonlySet<string>;
+  onStamped: (id: string) => void;
 };
 
 /** The titles on a shelf, as posters or dense rows (SPEC §8.5). */
-export function ShelfItems({ category, params, items, actions }: ShelfItemsProps) {
+export function ShelfItems({ category, params, items, actions, stamps, onStamped }: ShelfItemsProps) {
   const hrefFor = (item: Item) => itemHref(category.slug, params, item.id);
 
   if (params.view === "grid") {
@@ -26,6 +29,8 @@ export function ShelfItems({ category, params, items, actions }: ShelfItemsProps
               kind={category.kind}
               categoryColor={category.color}
               actions={actions}
+              stamped={stamps.has(item.id)}
+              onStamped={() => onStamped(item.id)}
             />
           </li>
         ))}

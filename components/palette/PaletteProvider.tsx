@@ -3,14 +3,22 @@
 import { Dialog } from "radix-ui";
 import { createContext, useCallback, useContext, useEffect, useEffectEvent, useState, type ReactNode } from "react";
 import { AddItemDialog } from "@/components/category/AddItemDialog";
+import { SurpriseDialog } from "@/components/fun/SurpriseDialog";
 import type { PaletteCategory } from "@/lib/palette";
 import type { ItemStatus } from "@/lib/status";
 import { PaletteSearch } from "./PaletteSearch";
 import { usePaletteTitles } from "./usePaletteTitles";
 
-const PaletteContext = createContext<{ open: () => void } | null>(null);
+type AppDialogs = {
+  /** The ⌘K palette. */
+  open: () => void;
+  /** Surprise me (SPEC §10). */
+  openSurprise: () => void;
+};
 
-/** Opens the palette from a trigger anywhere in the app shell. */
+const PaletteContext = createContext<AppDialogs | null>(null);
+
+/** Opens the palette or Surprise me from a trigger anywhere in the app shell. */
 export function usePalette() {
   const context = useContext(PaletteContext);
   if (!context) throw new Error("usePalette must be used inside PaletteProvider");
@@ -19,13 +27,18 @@ export function usePalette() {
 
 type ManualAdd = { category: PaletteCategory; title: string; status: ItemStatus };
 
+function isTyping(target: EventTarget | null) {
+  return target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+}
+
 /**
- * The ⌘K palette for the whole signed-in app (SPEC §8.8): Ctrl/⌘+K anywhere
- * toggles it, the sidebar and phone header open it, and "Add manually" hands
- * over to the manual add dialog for the chosen shelf.
+ * The app-wide dialogs (SPEC §8.7b, §8.8, §10): Ctrl/⌘+K toggles the palette,
+ * S spins Surprise me, and "Add manually" hands over to the manual add dialog.
+ * Both lists of titles come fresh from /api/titles each time they open.
  */
 export function PaletteProvider({ categories, children }: { categories: PaletteCategory[]; children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [surprise, setSurprise] = useState<"closed" | "loading" | "ready">("closed");
   const [manual, setManual] = useState<ManualAdd | null>(null);
   const { titles, refresh } = usePaletteTitles();
 
@@ -34,11 +47,27 @@ export function PaletteProvider({ categories, children }: { categories: PaletteC
     void refresh();
   }, [refresh]);
 
+  const showSurprise = useCallback(async () => {
+    setOpen(false);
+    setSurprise("loading");
+    await refresh();
+    setSurprise((state) => (state === "loading" ? "ready" : state));
+  }, [refresh]);
+
   const onKeyDown = useEffectEvent((event: KeyboardEvent) => {
-    if (event.key.toLowerCase() !== "k" || !(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey) return;
-    event.preventDefault();
-    if (open) setOpen(false);
-    else show();
+    const key = event.key.toLowerCase();
+    if (key === "k" && (event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey) {
+      event.preventDefault();
+      if (open) setOpen(false);
+      else show();
+      return;
+    }
+    const plain = !event.metaKey && !event.ctrlKey && !event.altKey;
+    const dialogOpen = document.querySelector('[role="dialog"], [role="alertdialog"]');
+    if (key === "s" && plain && !isTyping(event.target) && !dialogOpen) {
+      event.preventDefault();
+      void showSurprise();
+    }
   });
 
   useEffect(() => {
@@ -47,7 +76,7 @@ export function PaletteProvider({ categories, children }: { categories: PaletteC
   }, []);
 
   return (
-    <PaletteContext.Provider value={{ open: show }}>
+    <PaletteContext.Provider value={{ open: show, openSurprise: () => void showSurprise() }}>
       {children}
 
       <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -67,6 +96,17 @@ export function PaletteProvider({ categories, children }: { categories: PaletteC
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+
+      <SurpriseDialog
+        open={surprise !== "closed"}
+        onOpenChange={(next) => !next && setSurprise("closed")}
+        categories={categories}
+        titles={surprise === "ready" ? titles : null}
+        onAddTitle={() => {
+          setSurprise("closed");
+          show();
+        }}
+      />
 
       {manual && (
         <AddItemDialog

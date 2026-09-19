@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties, MouseEvent } from "react";
+import { TicketStamp } from "@/components/fun/TicketStamp";
 import { progressPercent, progressShort, type Item } from "@/lib/items";
 import { generatedCover } from "@/lib/poster-art";
 import { STATUS_STYLE, statusLabel, type CategoryKind } from "@/lib/status";
@@ -14,6 +15,9 @@ type PosterCardProps = {
   kind: CategoryKind;
   categoryColor: string;
   actions: ItemQuickActions;
+  /** Just finished: show the ADMIT ONE stamp, then call onStamped. */
+  stamped?: boolean;
+  onStamped?: () => void;
 };
 
 /**
@@ -36,7 +40,7 @@ const lit = {
  * `hover:` only applies on devices that can hover, so phones never tap an
  * invisible button.
  */
-export function PosterCard({ item, href, kind, categoryColor, actions }: PosterCardProps) {
+export function PosterCard({ item, href, kind, categoryColor, actions, stamped = false, onStamped }: PosterCardProps) {
   const status = STATUS_STYLE[item.status];
   const watching = item.status === "in_progress";
   const percent = watching ? progressPercent(item) : null;
@@ -114,6 +118,8 @@ export function PosterCard({ item, href, kind, categoryColor, actions }: PosterC
         >
           <QuickActions item={item} kind={kind} actions={actions} className={lit.buttons} />
         </div>
+
+        {stamped && onStamped && <TicketStamp onDone={onStamped} />}
 
         {percent !== null && (
           <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-0.75 bg-white/8">

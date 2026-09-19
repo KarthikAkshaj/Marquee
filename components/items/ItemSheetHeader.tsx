@@ -10,6 +10,7 @@ import { progressUnit, type Item, type ItemDetails } from "@/lib/items";
 import { generatedCover } from "@/lib/poster-art";
 import type { CategoryKind } from "@/lib/status";
 import { cn } from "@/lib/utils";
+import { TicketStamp } from "@/components/fun/TicketStamp";
 import { ItemCover } from "./ItemCover";
 
 type ItemSheetHeaderProps = {
@@ -17,6 +18,9 @@ type ItemSheetHeaderProps = {
   category: { name: string; kind: CategoryKind; color: string };
   onDetails: (details: ItemDetails) => void;
   onToggleFavorite: () => void;
+  /** Just finished from the sheet: stamp the poster. */
+  stamped: boolean;
+  onStamped: () => void;
 };
 
 /** "One *Piece*": the last word in amber italic, as the handoff sets titles. */
@@ -35,7 +39,7 @@ function Headline({ title }: { title: string }) {
  * Blurred backdrop in the title's own colour, the poster overlapping it, and
  * the title and release year editable in place (SPEC §8.6, handoff §03).
  */
-export function ItemSheetHeader({ item, category, onDetails, onToggleFavorite }: ItemSheetHeaderProps) {
+export function ItemSheetHeader({ item, category, onDetails, onToggleFavorite, stamped, onStamped }: ItemSheetHeaderProps) {
   const cover = generatedCover(item.id, category.color);
   const glow = item.accent_color ? `color-mix(in oklab, ${item.accent_color} 32%, transparent)` : cover.glow;
   const wash = item.accent_color
@@ -73,6 +77,7 @@ export function ItemSheetHeader({ item, category, onDetails, onToggleFavorite }:
       <div className="relative flex items-end gap-4 px-5 pt-3.5 md:gap-5 md:px-7 md:pt-28">
         <div className="relative h-39 w-26 shrink-0 overflow-hidden rounded-card shadow-poster md:h-53.25 md:w-35.5">
           <ItemCover item={item} categoryColor={category.color} sizes="142px" />
+          {stamped && <TicketStamp size="sm" onDone={onStamped} />}
         </div>
 
         <div className="min-w-0 flex-1 pb-0.5 md:pb-1">

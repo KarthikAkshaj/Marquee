@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useOptimistic, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { announceAdded } from "@/components/add/announceAdded";
 import { itemFromResult, newItemId } from "@/lib/add";
@@ -16,7 +16,7 @@ import {
   updateItemDetails,
   type ItemActionResult,
 } from "@/lib/actions/items";
-import { applyItemChange, type Item, type ItemChange, type ItemDetails } from "@/lib/items";
+import { applyItemChange, completesTitle, type Item, type ItemChange, type ItemDetails } from "@/lib/items";
 import type { SearchResult } from "@/lib/search/types";
 import type { ItemStatus } from "@/lib/status";
 
@@ -36,8 +36,15 @@ export function useItemActions(items: Item[]) {
     (state: Item[], { id, change }: PendingChange) => applyItemChange(state, id, change),
   );
   const [, startTransition] = useTransition();
+  // Titles finished just now, still showing their ADMIT ONE stamp (SPEC §9.6).
+  const [stamps, setStamps] = useState<ReadonlySet<string>>(() => new Set());
 
   function run(id: string, change: ItemChange, save: () => Promise<ItemActionResult>, onSaved?: () => void) {
+    const current = optimisticItems.find((item) => item.id === id);
+    if (current && completesTitle(current, change)) {
+      setStamps((shown) => new Set(shown).add(id));
+      navigator.vibrate?.(10);
+    }
     startTransition(async () => {
       addOptimistic({ id, change });
       const result = await save();
@@ -52,6 +59,14 @@ export function useItemActions(items: Item[]) {
 
   return {
     items: optimisticItems,
+    stamps,
+    endStamp(id: string) {
+      setStamps((shown) => {
+        const next = new Set(shown);
+        next.delete(id);
+        return next;
+      });
+    },
     /**
      * A search result onto this shelf (SPEC §8.7): shown at once, with Undo once
      * it's saved. Covers without a provider colour get one worked out afterwards.

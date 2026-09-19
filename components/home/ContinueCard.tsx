@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { TicketStamp } from "@/components/fun/TicketStamp";
 import { ItemCover } from "@/components/items/ItemCover";
 import { categoryStyle } from "@/lib/categories";
 import { continueSubtitle } from "@/lib/home";
@@ -15,6 +16,8 @@ type ContinueCardProps = {
   item: Item;
   shelf: PaletteCategory;
   onIncrement: () => void;
+  stamped: boolean;
+  onStamped: () => void;
 };
 
 /**
@@ -22,7 +25,7 @@ type ContinueCardProps = {
  * where you're up to and a +1. Finishing the last episode completes it, and it
  * leaves the row.
  */
-export function ContinueCard({ item, shelf, onIncrement }: ContinueCardProps) {
+export function ContinueCard({ item, shelf, onIncrement, stamped, onStamped }: ContinueCardProps) {
   const cover = generatedCover(item.id, shelf.color);
   const glow = item.accent_color ? `color-mix(in oklab, ${item.accent_color} 34%, transparent)` : cover.glow;
   const unit = progressUnit(shelf.kind);
@@ -81,6 +84,8 @@ export function ContinueCard({ item, shelf, onIncrement }: ContinueCardProps) {
           )}
         </div>
       </div>
+
+      {stamped && <TicketStamp onDone={onStamped} />}
     </article>
   );
 }

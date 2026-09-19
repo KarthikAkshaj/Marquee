@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SurpriseButton } from "@/components/fun/SurpriseButton";
 import { ContinueRow } from "@/components/home/ContinueRow";
 import { HomeGreeting } from "@/components/home/HomeGreeting";
 import { MarqueeSign } from "@/components/home/MarqueeSign";
-import { RecentlyFinished } from "@/components/home/RecentlyFinished";
+import { PosterRow } from "@/components/home/PosterRow";
 import { StartAdding } from "@/components/home/StartAdding";
 import { StatsStrip } from "@/components/home/StatsStrip";
 import { AmbientBackground } from "@/components/shell/AmbientBackground";
@@ -62,12 +63,29 @@ export default async function HomePage() {
   return (
     <>
       <AmbientBackground variant="app" />
-      <HomeGreeting name={name} line={midFlightLine(inProgress)} />
+      <HomeGreeting name={name} line={midFlightLine(inProgress)} action={<SurpriseButton />} />
       <div className="mt-5.5 md:mt-8.5">
         <ContinueRow items={home.continuing} shelves={shelves} />
       </div>
       <StatsStrip tiles={tiles} className="mt-4 md:mt-6.5" />
-      <RecentlyFinished items={home.finished} shelves={shelves} className="mt-4.5 md:mt-7" />
+      <PosterRow
+        id="finished-heading"
+        title="Recently finished"
+        note="Nice run."
+        empty="Nothing finished yet. No rush."
+        items={home.finished}
+        shelves={shelves}
+        className="mt-4.5 md:mt-7"
+      />
+      <PosterRow
+        id="favourites-heading"
+        title="Favourites"
+        note="The ones you'd rewatch."
+        empty="Star a title from its card or sheet and it lands here."
+        items={home.favourites}
+        shelves={shelves}
+        className="mt-4.5 md:mt-7"
+      />
     </>
   );
 }

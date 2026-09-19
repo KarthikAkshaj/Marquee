@@ -6,7 +6,7 @@ import type { PaletteCategory } from "@/lib/palette";
 
 const increment = vi.fn();
 vi.mock("@/components/items/useItemActions", () => ({
-  useItemActions: (items: Item[]) => ({ items, increment }),
+  useItemActions: (items: Item[]) => ({ items, increment, stamps: new Set<string>(), endStamp: vi.fn() }),
 }));
 vi.mock("next/link", () => ({
   default: ({ href, children, ...props }: { href: string; children?: ReactNode }) => (

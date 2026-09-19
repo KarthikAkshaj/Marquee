@@ -121,6 +121,8 @@ export function ItemSheet({ item, category, categories, actions, onClose, onDele
                       category={category}
                       onDetails={(details) => actions.updateDetails(item, details)}
                       onToggleFavorite={() => actions.toggleFavorite(item)}
+                      stamped={actions.stamps.has(item.id)}
+                      onStamped={() => actions.endStamp(item.id)}
                     />
                     <ItemSheetFields item={item} kind={category.kind} actions={actions} />
                     <ItemSheetActions variant="footer" {...moveAndDelete(item)} />

@@ -134,14 +134,14 @@ export type Account = Awaited<ReturnType<typeof getAccount>>;
 
 /**
  * Everything Home shows (SPEC §8.4): what's in progress everywhere, the last
- * eight finished, and per-shelf counts. The counts are filtered embeds, so
+ * eight finished, your favourites (§10), and per-shelf counts. The counts are filtered embeds, so
  * they stay right past PostgREST's 1,000-row page.
  */
 export const getHome = cache(async () => {
   const supabase = await createClient();
   const yearStart = `${new Date().getFullYear()}-01-01`;
 
-  const [continuing, finished, shelves, finishedThisYear] = await Promise.all([
+  const [continuing, finished, favourites, shelves, finishedThisYear] = await Promise.all([
     supabase.from("items").select("*").eq("status", "in_progress").order("updated_at", { ascending: false }).limit(24),
     supabase
       .from("items")
@@ -150,6 +150,7 @@ export const getHome = cache(async () => {
       .order("finished_at", { ascending: false, nullsFirst: false })
       .order("updated_at", { ascending: false })
       .limit(8),
+    supabase.from("items").select("*").eq("is_favorite", true).order("updated_at", { ascending: false }).limit(12),
     supabase
       .from("categories")
       .select("id, watching:items(count), planned:items(count)")
@@ -162,13 +163,14 @@ export const getHome = cache(async () => {
       .gte("finished_at", yearStart),
   ]);
 
-  if (continuing.error || finished.error || shelves.error || finishedThisYear.error) {
+  if (continuing.error || finished.error || favourites.error || shelves.error || finishedThisYear.error) {
     throw new Error("Couldn't load your home screen.");
   }
 
   return {
     continuing: continuing.data,
     finished: finished.data,
+    favourites: favourites.data,
     counts: new Map(
       shelves.data.map((shelf) => [shelf.id, { inProgress: shelf.watching[0]?.count ?? 0, planned: shelf.planned[0]?.count ?? 0 }]),
     ),

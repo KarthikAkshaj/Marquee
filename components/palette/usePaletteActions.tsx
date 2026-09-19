@@ -1,10 +1,11 @@
 "use client";
 
-import { LayoutGrid, List, Plus } from "lucide-react";
+import { Dices, LayoutGrid, List, Plus } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 import { categoryHref, parseCategoryParams } from "@/lib/items";
 import { categorySlugFromPath } from "@/lib/palette";
+import { usePalette } from "./PaletteProvider";
 
 export type PaletteAction = {
   value: string;
@@ -16,17 +17,22 @@ export type PaletteAction = {
 
 const icon = "size-3.75";
 
-/**
- * "Actions" (SPEC §8.8). Grid/list only makes sense on a shelf; Surprise me
- * joins in Phase 4.
- */
+/** "Actions" (SPEC §8.8). Grid/list only makes sense on a shelf. */
 export function usePaletteActions(): PaletteAction[] {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const slug = categorySlugFromPath(pathname);
+  const { openSurprise } = usePalette();
 
   const actions: PaletteAction[] = [
+    {
+      value: "action:surprise",
+      label: "Surprise me",
+      keywords: "random pick spin roulette decide",
+      icon: <Dices aria-hidden className={icon} strokeWidth={1.8} />,
+      run: openSurprise,
+    },
     {
       value: "action:new-category",
       label: "New category",
