@@ -1,3 +1,4 @@
+import { MARK } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 /** Sizes lifted from each place the handoff draws the logo. */
@@ -20,15 +21,19 @@ type BrandMarkProps = {
   className?: string;
 };
 
-/** The amber bulb and the wordmark. */
+/** The app icon's mark (the M on the amber tile, `lib/brand.tsx`) and the wordmark. */
 export function BrandMark({ variant, dim = false, className }: BrandMarkProps) {
   const size = VARIANTS[variant];
   return (
     <span className={cn("flex items-center", size.gap, className)}>
       <span
         aria-hidden
-        className={cn("shrink-0", size.mark, dim ? "bg-accent/35 shadow-mark-dim" : "bg-accent")}
-      />
+        className={cn("grid shrink-0 place-items-center text-bg", size.mark, dim ? "bg-accent/35 shadow-mark-dim" : "bg-accent")}
+      >
+        <svg viewBox={`0 0 ${MARK.width} ${MARK.height}`} className="h-1/2 w-auto" fill="currentColor">
+          <path d={MARK.path} />
+        </svg>
+      </span>
       <span className={cn("font-display leading-none", size.word, dim && "text-text-muted")}>
         Marquee
       </span>
