@@ -42,12 +42,17 @@ export async function signInWithEmail(
     email: parsed.data.email,
     options: {
       shouldCreateUser: true,
+      // Supabase verifies this with hCaptcha before it sends anything (SPEC §6).
+      captchaToken: formData.get("captchaToken")?.toString() || undefined,
       emailRedirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
 
   if (error) {
-    return { status: "error", message: error.message };
+    // Supabase phrases a failed captcha for developers ("request disallowed
+    // (not-using-dummy-secret)"), which means nothing to whoever is signing in.
+    const captcha = /captcha/i.test(error.message);
+    return { status: "error", message: captcha ? "The robot check didn't pass. Refresh the page and try again." : error.message };
   }
 
   // Server clock, echoed back on verify, so "expired" is judged on one clock.

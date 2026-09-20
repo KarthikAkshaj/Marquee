@@ -65,6 +65,10 @@ export default function PrivacyPage() {
             <strong>Google</strong> signs you in if you choose &ldquo;Continue with Google&rdquo;, and Gmail delivers the sign-in codes.
           </li>
           <li>
+            <strong>hCaptcha</strong> checks that a person, not a bot, is asking for a sign-in code. It sees your IP address and some
+            details about your browser, and nothing about your lists.
+          </li>
+          <li>
             <strong>TMDB, AniList and IGDB</strong> answer title searches. When you search, the words you type are sent to them from
             Marquee&apos;s server; your account details never are. Covers you see are loaded from their image servers.
           </li>

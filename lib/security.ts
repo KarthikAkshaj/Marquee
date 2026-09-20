@@ -8,6 +8,11 @@
  * hold no account data, and both versions still refuse scripts from anywhere
  * but this origin.
  */
+import { CAPTCHA_HOSTS } from "@/lib/captcha";
+
+// hCaptcha runs on the login page: its script, its challenge frame and its own calls.
+const captcha = CAPTCHA_HOSTS.join(" ");
+
 const COMMON = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -19,8 +24,9 @@ const COMMON = [
   "style-src 'self' 'unsafe-inline'",
   // Cover art hosts (SPEC §7), avatars in Supabase Storage, the Google account photo,
   // plus blob:/data: for the avatar crop preview and generated covers.
-  "img-src 'self' data: blob: https://image.tmdb.org https://s4.anilist.co https://images.igdb.com https://*.supabase.co https://lh3.googleusercontent.com",
+  `img-src 'self' data: blob: ${captcha} https://image.tmdb.org https://s4.anilist.co https://images.igdb.com https://*.supabase.co https://lh3.googleusercontent.com`,
   "font-src 'self' data:",
+  `frame-src ${captcha}`,
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   "media-src 'none'",
@@ -28,7 +34,7 @@ const COMMON = [
 
 // `next dev` needs eval and a websocket for hot reload; a blocked dev overlay helps nobody.
 const development = () => process.env.NODE_ENV !== "production";
-const connect = () => `connect-src 'self' https://*.supabase.co${development() ? " ws: http://localhost:*" : ""}`;
+const connect = () => `connect-src 'self' https://*.supabase.co ${captcha}${development() ? " ws: http://localhost:*" : ""}`;
 // Any stray http:// subresource gets fetched over https instead. Left out locally,
 // where the site is plain http and the upgrade would break every prefetch.
 const upgrade = () => (development() ? [] : ["upgrade-insecure-requests"]);

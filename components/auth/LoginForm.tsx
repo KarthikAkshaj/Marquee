@@ -2,14 +2,17 @@
 
 import { Loader2 } from "lucide-react";
 import { useActionState, useState } from "react";
+import { captchaEnabled } from "@/lib/captcha";
 import { BrandMark } from "@/components/shell/BrandMark";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { signInWithEmail, type AuthActionState } from "@/lib/actions/auth";
 import { emailSchema } from "@/lib/validators";
 import { AuthCard } from "./AuthCard";
+import { CaptchaNotice } from "./CaptchaNotice";
 import { CheckInbox } from "./CheckInbox";
 import { GoogleButton } from "./GoogleButton";
+import { useCaptcha } from "./useCaptcha";
 
 const initialState: AuthActionState = { status: "idle" };
 
@@ -24,6 +27,21 @@ type LoginFormProps = {
 export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
   const [state, formAction, pending] = useActionState(signInWithEmail, initialState);
   const [email, setEmail] = useState("");
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const { mount: captchaMount, getToken: getCaptchaToken } = useCaptcha();
+
+  /** Every send goes through here, including the resend on the next screen. */
+  async function sendCode(formData: FormData) {
+    setCaptchaError(null);
+    try {
+      const token = await getCaptchaToken();
+      if (token) formData.set("captchaToken", token);
+    } catch {
+      setCaptchaError("The robot check didn't load. Refresh the page and try again.");
+      return;
+    }
+    formAction(formData);
+  }
   // "Different email" hides the inbox view without losing what was typed.
   const [dismissedAt, setDismissedAt] = useState<number | null>(null);
 
@@ -37,7 +55,7 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
         email={state.email}
         next={next}
         sentAt={state.sentAt}
-        formAction={formAction}
+        formAction={sendCode}
         pending={pending}
         onDifferentEmail={() => setDismissedAt(state.sentAt)}
       />
@@ -75,7 +93,7 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
         </>
       )}
 
-      <form action={formAction} className={googleEnabled ? undefined : "mt-6"} noValidate>
+      <form action={sendCode} className={googleEnabled ? undefined : "mt-6"} noValidate>
         <input type="hidden" name="next" value={next} />
         <label htmlFor="email" className="label-mono mb-2 block tracking-[.12em] text-text-muted">
           Email
@@ -90,12 +108,12 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           aria-invalid={state.status === "error"}
-          aria-describedby={state.status === "error" ? "email-error" : "email-hint"}
+          aria-describedby={state.status === "error" || captchaError ? "email-error" : "email-hint"}
           required
         />
-        {state.status === "error" && (
+        {(state.status === "error" || captchaError) && (
           <p id="email-error" role="alert" className="mt-2 text-13 text-dropped">
-            {state.message}
+            {captchaError ?? (state.status === "error" ? state.message : null)}
           </p>
         )}
         <Button
@@ -112,7 +130,9 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
             Enter an email and this wakes up.
           </p>
         )}
+        <div ref={captchaMount} />
       </form>
+      {captchaEnabled() && <CaptchaNotice />}
     </AuthCard>
   );
 }
