@@ -1,23 +1,23 @@
 /**
- * hCaptcha, which Supabase checks on its side before it will send a sign-in
- * code (SPEC §6). Invisible: it runs when the form is submitted and only shows
- * a challenge when it doesn't like the look of the request.
+ * Cloudflare Turnstile, which Supabase checks on its side before it will send a
+ * sign-in code (SPEC §6). It runs when the form is submitted, and shows the
+ * visitor something only when it wants them to prove they are a person.
  *
  * With no site key set (local work, the tests) there is no widget and no
  * token, which matches a Supabase project that has captcha switched off.
  */
-export const CAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY?.trim() ?? "";
+export const CAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ?? "";
 
 export const captchaEnabled = () => CAPTCHA_SITE_KEY.length > 0;
 
 /**
- * hCaptcha's hosts, for the content security policy. Both of these, as their
- * docs ask: which subdomain serves the challenge changes by region and over
- * time, and some of it comes from the bare domain.
+ * Turnstile's one host, for the content security policy: the script, and the
+ * frame it puts the challenge in. Everything else it needs it loads itself,
+ * from the same place.
  */
-export const CAPTCHA_HOSTS = ["https://hcaptcha.com", "https://*.hcaptcha.com"];
+export const CAPTCHA_HOSTS = ["https://challenges.cloudflare.com"];
 
 export const CAPTCHA_LINKS = {
-  privacy: "https://www.hcaptcha.com/privacy",
-  terms: "https://www.hcaptcha.com/terms",
+  privacy: "https://www.cloudflare.com/privacypolicy/",
+  terms: "https://www.cloudflare.com/website-terms/",
 };

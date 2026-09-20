@@ -8,14 +8,20 @@ vi.mock("@/lib/actions/auth", () => ({
   verifyEmailCode: vi.fn(async () => ({ status: "idle" as const })),
 }));
 
+type Options = Record<string, (token?: string) => void> & { sitekey?: string };
+/** What the widget was rendered with, so a test can call Turnstile's callbacks back. */
+let options: Options = {};
 const execute = vi.fn();
-const render_ = vi.fn<(container: HTMLElement, options: Record<string, unknown>) => string>(() => "widget-1");
+const render_ = vi.fn<(container: HTMLElement, options: Options) => string>((_container, opts) => {
+  options = opts;
+  return "widget-1";
+});
 const reset = vi.fn();
 
 // Both have to be in place before the component is imported: the site key is read
-// once at module load, and the hook looks for the script's `window.hcaptcha`.
-process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY = "site-key-123";
-Object.defineProperty(window, "hcaptcha", { writable: true, value: { render: render_, execute, reset } });
+// once at module load, and the hook looks for the script's `window.turnstile`.
+process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "site-key-123";
+Object.defineProperty(window, "turnstile", { writable: true, value: { render: render_, execute, reset } });
 
 const { LoginForm } = await import("./LoginForm");
 
@@ -36,11 +42,15 @@ describe("LoginForm with captcha", () => {
   });
 
   it("sends the captcha token along with the email", async () => {
-    execute.mockResolvedValue({ response: "token-abc" });
+    execute.mockImplementation(() => options.callback("token-abc"));
     signInWithEmail.mockResolvedValue({ status: "sent", email: "someone@example.com", sentAt: 1 });
     setup();
     await waitFor(() => expect(render_).toHaveBeenCalled());
-    expect(render_.mock.calls[0][1]).toMatchObject({ sitekey: "site-key-123", size: "invisible" });
+    expect(render_.mock.calls[0][1]).toMatchObject({
+      sitekey: "site-key-123",
+      execution: "execute",
+      appearance: "interaction-only",
+    });
 
     await submitEmail();
     await waitFor(() => expect(signInWithEmail).toHaveBeenCalled());
@@ -50,7 +60,7 @@ describe("LoginForm with captcha", () => {
   });
 
   it("says so, and sends nothing, when the robot check won't run", async () => {
-    execute.mockRejectedValue(new Error("challenge closed"));
+    execute.mockImplementation(() => options["error-callback"]());
     setup();
     await waitFor(() => expect(render_).toHaveBeenCalled());
 
@@ -59,10 +69,10 @@ describe("LoginForm with captcha", () => {
     expect(signInWithEmail).not.toHaveBeenCalled();
   });
 
-  it("tells people hCaptcha is running, as hCaptcha asks", async () => {
+  it("tells people Turnstile is running, as an honest page should", async () => {
     setup();
-    const notice = screen.getByText(/Protected by hCaptcha/);
+    const notice = screen.getByText(/Protected by Cloudflare Turnstile/);
     expect(notice).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "https://www.hcaptcha.com/privacy");
+    expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "https://www.cloudflare.com/privacypolicy/");
   });
 });

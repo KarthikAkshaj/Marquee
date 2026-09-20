@@ -1,11 +1,11 @@
 import { CAPTCHA_LINKS } from "@/lib/captcha";
 
-/** hCaptcha asks that any page running it says so, since it reads the visitor's IP and browser. */
+/** Said out loud because the check reads the visitor's IP and browser, quietly. */
 export function CaptchaNotice() {
   const link = "underline underline-offset-2 transition-colors hover:text-text";
   return (
     <p className="mt-4 text-center text-[11px] leading-relaxed text-text-muted">
-      Protected by hCaptcha.{" "}
+      Protected by Cloudflare Turnstile.{" "}
       <a href={CAPTCHA_LINKS.privacy} target="_blank" rel="noreferrer noopener" className={link}>
         Privacy
       </a>{" "}

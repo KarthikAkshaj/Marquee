@@ -65,7 +65,7 @@ export default function PrivacyPage() {
             <strong>Google</strong> signs you in if you choose &ldquo;Continue with Google&rdquo;, and Gmail delivers the sign-in codes.
           </li>
           <li>
-            <strong>hCaptcha</strong> checks that a person, not a bot, is asking for a sign-in code. It sees your IP address and some
+            <strong>Cloudflare Turnstile</strong> checks that a person, not a bot, is asking for a sign-in code. It sees your IP address and some
             details about your browser, and nothing about your lists.
           </li>
           <li>

@@ -42,7 +42,7 @@ export async function signInWithEmail(
     email: parsed.data.email,
     options: {
       shouldCreateUser: true,
-      // Supabase verifies this with hCaptcha before it sends anything (SPEC §6).
+      // Supabase verifies this with Turnstile before it sends anything (SPEC §6).
       captchaToken: formData.get("captchaToken")?.toString() || undefined,
       emailRedirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
     },

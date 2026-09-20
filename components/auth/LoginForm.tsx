@@ -25,43 +25,38 @@ type LoginFormProps = {
 };
 
 export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
-  const [state, formAction, pending] = useActionState(signInWithEmail, initialState);
   const [email, setEmail] = useState("");
-  const [captchaError, setCaptchaError] = useState<string | null>(null);
-  /** True while the robot check runs, before the action itself starts. */
-  const [checking, setChecking] = useState(false);
+  // "Different email" hides the inbox view without losing what was typed.
+  const [dismissedAt, setDismissedAt] = useState<number | null>(null);
   const { mount: captchaMount, getToken: getCaptchaToken } = useCaptcha();
 
-  /** Every send goes through here, including the resend on the next screen. */
-  async function sendCode(formData: FormData) {
-    setCaptchaError(null);
-    // The robot check takes a second or two of its own before the action starts,
-    // and a button that looks idle through it invites a second click.
-    setChecking(true);
+  /**
+   * Every send goes through here, including the resend on the next screen. The
+   * robot check runs inside the action rather than ahead of it: React treats one
+   * submission as a single transition, so waiting here is what keeps the button
+   * busy for the second or two Cloudflare takes, and stops a second click.
+   */
+  async function sendCode(previous: AuthActionState, formData: FormData): Promise<AuthActionState> {
     try {
       const token = await getCaptchaToken();
       if (token) formData.set("captchaToken", token);
     } catch (error) {
       // The message stays vague for the visitor; the reason is for whoever is fixing it.
       if (process.env.NODE_ENV !== "production") console.error("[captcha]", error);
-      setCaptchaError("The robot check didn't load. Refresh the page and try again.");
-      return;
-    } finally {
-      setChecking(false);
+      return { status: "error", message: "The robot check didn't load. Refresh the page and try again." };
     }
-    formAction(formData);
+    return signInWithEmail(previous, formData);
   }
-  // "Different email" hides the inbox view without losing what was typed.
-  const [dismissedAt, setDismissedAt] = useState<number | null>(null);
+
+  const [state, formAction, pending] = useActionState(sendCode, initialState);
 
   const isValid = emailSchema.safeParse(email).success;
   const showInbox = state.status === "sent" && state.sentAt !== dismissedAt;
-  const busy = checking || pending;
 
   // The captcha div sits below whichever screen is showing, never inside one, so
   // that moving to the code screen doesn't pull the widget out of the page and
   // leave the resend with nothing to run.
-  const captcha = <div ref={captchaMount} />;
+  const captcha = <div ref={captchaMount} className="flex justify-center" />;
 
   if (showInbox) {
     return (
@@ -71,8 +66,8 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
           email={state.email}
           next={next}
           sentAt={state.sentAt}
-          formAction={sendCode}
-          pending={busy}
+          formAction={formAction}
+          pending={pending}
           onDifferentEmail={() => setDismissedAt(state.sentAt)}
         />
         {captcha}
@@ -112,7 +107,7 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
           </>
         )}
 
-        <form action={sendCode} className={googleEnabled ? undefined : "mt-6"} noValidate>
+        <form action={formAction} className={googleEnabled ? undefined : "mt-6"} noValidate>
           <input type="hidden" name="next" value={next} />
           <label htmlFor="email" className="label-mono mb-2 block tracking-[.12em] text-text-muted">
             Email
@@ -127,22 +122,22 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             aria-invalid={state.status === "error"}
-            aria-describedby={state.status === "error" || captchaError ? "email-error" : "email-hint"}
+            aria-describedby={state.status === "error" ? "email-error" : "email-hint"}
             required
           />
-          {(state.status === "error" || captchaError) && (
+          {state.status === "error" && (
             <p id="email-error" role="alert" className="mt-2 text-13 text-dropped">
-              {captchaError ?? (state.status === "error" ? state.message : null)}
+              {state.message}
             </p>
           )}
           <Button
             type="submit"
-            disabled={!isValid || busy}
-            aria-busy={busy}
+            disabled={!isValid || pending}
+            aria-busy={pending}
             className="mt-2.5 h-auto w-full py-3.25 text-14 shadow-cta-sm"
           >
-            {busy && <Loader2 aria-hidden className="size-4 animate-spin" strokeWidth={1.5} />}
-            {busy ? "Sending…" : "Email me a code"}
+            {pending && <Loader2 aria-hidden className="size-4 animate-spin" strokeWidth={1.5} />}
+            {pending ? "Sending…" : "Email me a code"}
           </Button>
           {!isValid && (
             <p id="email-hint" className="mt-2.25 text-center text-[11px] text-text-muted">

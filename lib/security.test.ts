@@ -40,8 +40,11 @@ describe("content security policy", () => {
     for (const host of ["https://image.tmdb.org", "https://s4.anilist.co", "https://images.igdb.com", "https://*.supabase.co", "https://lh3.googleusercontent.com"]) {
       expect(directive(policy, "img-src")).toContain(host);
     }
-    expect(directive(policy, "frame-src")).toBe("frame-src https://hcaptcha.com https://*.hcaptcha.com");
-    expect(directive(policy, "connect-src")).toBe("connect-src 'self' https://*.supabase.co https://hcaptcha.com https://*.hcaptcha.com");
+    expect(directive(policy, "frame-src")).toBe("frame-src https://challenges.cloudflare.com");
+    expect(directive(policy, "connect-src")).toBe("connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com");
+    // The captcha keeps to its own frame, so it has no business in these two.
+    expect(directive(policy, "img-src")).not.toContain("cloudflare");
+    expect(directive(policy, "style-src")).toBe("style-src 'self' 'unsafe-inline'");
   });
 
   it("loosens up for the dev server's hot reload, and only there", () => {
