@@ -31,7 +31,7 @@ export function ManualAddRow({ value, title, shelfName, divided, onSelect }: Man
         </span>
         <span className="min-w-0 flex-1 text-14 text-text">
           Add “{title}” {shelfName ? `to ${shelfName} ` : ""}manually{" "}
-          <span className="text-text-muted">— nobody&apos;s heard of it, that&apos;s fine</span>
+          <span className="text-text-muted">nobody&apos;s heard of it, that&apos;s fine</span>
         </span>
       </Command.Item>
     </div>

@@ -286,3 +286,6 @@ export function applyItemChange(items: Item[], id: string, change: ItemChange, n
     }
   });
 }
+
+/** Shown where a title has no year, rating or progress yet. */
+export const EMPTY = "·";

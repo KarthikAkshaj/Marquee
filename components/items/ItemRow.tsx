@@ -1,7 +1,7 @@
 import { Star } from "lucide-react";
 import Link from "next/link";
 import type { MouseEvent } from "react";
-import { progressLabel, type Item } from "@/lib/items";
+import { EMPTY, progressLabel, type Item } from "@/lib/items";
 import type { CategoryKind } from "@/lib/status";
 import { isPlainClick } from "@/lib/utils";
 import { ItemCover } from "./ItemCover";
@@ -18,8 +18,8 @@ type ItemRowProps = {
 
 /** Dense list row (SPEC §8.5): 40×60 thumb, title, year, status, progress, rating, updated. */
 export function ItemRow({ item, href, kind, categoryColor, onOpen }: ItemRowProps) {
-  const progress = item.progress_total || item.progress_current ? progressLabel(item) : "—";
-  const rating = item.rating ? `${item.rating} / 10` : "—";
+  const progress = item.progress_total || item.progress_current ? progressLabel(item) : EMPTY;
+  const rating = item.rating ? `${item.rating} / 10` : EMPTY;
 
   return (
     <Link
@@ -44,9 +44,9 @@ export function ItemRow({ item, href, kind, categoryColor, onOpen }: ItemRowProp
           )}
         </p>
         <p className="mt-0.5 font-mono text-[11px] text-text-muted">
-          {item.year ?? "—"}
+          {item.year ?? EMPTY}
           <span className="md:hidden">
-            {progress !== "—" && ` · ${progress}`}
+            {progress !== EMPTY && ` · ${progress}`}
             {item.rating && ` · ${rating}`}
           </span>
         </p>

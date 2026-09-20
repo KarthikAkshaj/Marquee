@@ -76,7 +76,7 @@ export default function LandingPage() {
           and swear you&apos;ll get to.
         </p>
         <p className="mt-3 text-[13.5px] leading-normal text-text-muted md:mt-3.5 md:max-w-110 md:text-[15px] md:leading-[1.55]">
-          Anime, films, series, games — plus any list you{" "}
+          Anime, films, series, games, plus any list you{" "}
           <span className="md:hidden">invent.</span>
           <span className="hidden md:inline">
             feel like inventing. Your Word doc is safe now.
@@ -85,7 +85,7 @@ export default function LandingPage() {
 
         <div className="mt-6.5 flex flex-col gap-3 md:mt-9.5 md:flex-row md:items-center md:gap-4.5">
           <Button asChild size="lg" className="shadow-cta max-md:rounded-[11px] max-md:py-3.75">
-            <Link href="/login">Get started — it&apos;s free</Link>
+            <Link href="/login">Get started, it&apos;s free</Link>
           </Button>
           <p className="text-center text-[12.5px] text-text-muted md:text-13">
             One email code, ten seconds, done.

@@ -25,7 +25,7 @@ export const reviewGrid = (showYear: boolean) =>
  */
 export function ReviewRowItem({ row, kind, duplicate, duplicateKind, showYear, onChange }: ReviewRowItemProps) {
   const labels = statusLabels(kind);
-  const note = duplicate && duplicateKind ? `Already in ${duplicate.shelf} — ${statusLabel(duplicateKind, duplicate.status)}` : null;
+  const note = duplicate && duplicateKind ? `Already in ${duplicate.shelf} · ${statusLabel(duplicateKind, duplicate.status)}` : null;
 
   return (
     <li
@@ -53,7 +53,7 @@ export function ReviewRowItem({ row, kind, duplicate, duplicateKind, showYear, o
       </div>
 
       {showYear && (
-        <p className={cn("hidden font-mono text-[12.5px] md:block", row.year ? "text-text-muted" : "text-text-ghost")}>{row.year ?? "—"}</p>
+        <p className={cn("hidden font-mono text-[12.5px] md:block", row.year ? "text-text-muted" : "text-text-ghost")}>{row.year ?? "·"}</p>
       )}
 
       <div className="relative col-start-2 mt-1 w-fit md:col-auto md:mt-0">

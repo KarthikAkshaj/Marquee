@@ -24,7 +24,7 @@ function Icon({ children }: { children: ReactNode }) {
 const FEATURES: Feature[] = [
   {
     title: "Track everything",
-    body: "Anime, films, series and games — every status, every category.",
+    body: "Anime, films, series and games. Every status, every category.",
     short: "Every status, every category.",
     icon: (
       <Icon>

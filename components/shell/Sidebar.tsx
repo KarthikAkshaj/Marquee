@@ -72,7 +72,7 @@ export function Sidebar({ categories, user, dim }: SidebarProps) {
                       "text-text-muted",
                     )}
                   >
-                    {dim ? <span aria-label="empty">—</span> : category.itemCount}
+                    {dim ? <span aria-label="empty">·</span> : category.itemCount}
                   </span>
                 </NavLink>
               </li>

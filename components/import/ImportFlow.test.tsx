@@ -46,7 +46,7 @@ describe("ImportFlow", () => {
     fireEvent.click(screen.getByRole("button", { name: /Review 3 titles/ }));
 
     expect(screen.getByRole("heading", { name: "Check the marquee." })).toBeInTheDocument();
-    expect(screen.getByText("Already in Anime — Completed")).toBeInTheDocument();
+    expect(screen.getByText("Already in Anime · Completed")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Import 2 titles" }));
 
     await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Imported 2 · skipped 1 duplicate"));

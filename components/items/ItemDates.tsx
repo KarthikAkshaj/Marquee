@@ -4,6 +4,7 @@ import { useRef } from "react";
 import type { Item } from "@/lib/items";
 import { localToday, timeAgo } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import { EMPTY } from "@/lib/items";
 
 type ItemDatesProps = {
   item: Pick<Item, "started_at" | "finished_at" | "updated_at">;
@@ -75,7 +76,7 @@ function DateField({ label, value, min, max, onChange }: DateFieldProps) {
           !value && "text-text-muted",
         )}
       >
-        {value ?? "—"}
+        {value ?? EMPTY}
       </button>
       <input
         ref={input}

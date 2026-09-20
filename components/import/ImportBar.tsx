@@ -38,7 +38,7 @@ export function ImportBar({ ready, duplicates, skipDuplicates, onSkipDuplicates,
           <span aria-hidden className="text-13 text-text">
             Skip duplicates
           </span>
-          <span className="ml-2 hidden text-[12.5px] text-text-muted 2xl:inline">They&apos;re already on your marquee — nothing gets overwritten.</span>
+          <span className="ml-2 hidden text-[12.5px] text-text-muted 2xl:inline">They&apos;re already on your marquee. Nothing gets overwritten.</span>
         </div>
       )}
 

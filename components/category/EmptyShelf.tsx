@@ -113,7 +113,7 @@ export function EmptyShelf({ kind, slug, params, reason, onAdd, onSearch, onClea
       case "dropped":
         illustration = "dropped";
         title = <>No regrets. <em className={accent}>Yet.</em></>;
-        body = "Whatever you give up on lands here — quietly, and without a word from us.";
+        body = "Whatever you give up on lands here, quietly and without a word from us.";
         action = link({ status: "in_progress" }, `Back to ${labels.in_progress}`);
         break;
     }
