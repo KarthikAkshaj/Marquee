@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const signInWithEmail = vi.fn();
 vi.mock("@/lib/actions/auth", () => ({
   signInWithEmail: (state: unknown, formData: FormData) => signInWithEmail(state, formData),
+  // The code entry form renders once a code is sent, and reaches for this.
+  verifyEmailCode: vi.fn(async () => ({ status: "idle" as const })),
 }));
 
 const execute = vi.fn();

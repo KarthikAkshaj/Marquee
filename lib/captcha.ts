@@ -10,8 +10,12 @@ export const CAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY?.trim(
 
 export const captchaEnabled = () => CAPTCHA_SITE_KEY.length > 0;
 
-/** hCaptcha's hosts, for the content security policy. */
-export const CAPTCHA_HOSTS = ["https://js.hcaptcha.com", "https://*.hcaptcha.com"];
+/**
+ * hCaptcha's hosts, for the content security policy. Both of these, as their
+ * docs ask: which subdomain serves the challenge changes by region and over
+ * time, and some of it comes from the bare domain.
+ */
+export const CAPTCHA_HOSTS = ["https://hcaptcha.com", "https://*.hcaptcha.com"];
 
 export const CAPTCHA_LINKS = {
   privacy: "https://www.hcaptcha.com/privacy",

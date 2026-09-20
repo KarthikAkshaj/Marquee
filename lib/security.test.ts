@@ -40,8 +40,8 @@ describe("content security policy", () => {
     for (const host of ["https://image.tmdb.org", "https://s4.anilist.co", "https://images.igdb.com", "https://*.supabase.co", "https://lh3.googleusercontent.com"]) {
       expect(directive(policy, "img-src")).toContain(host);
     }
-    expect(directive(policy, "frame-src")).toBe("frame-src https://js.hcaptcha.com https://*.hcaptcha.com");
-    expect(directive(policy, "connect-src")).toBe("connect-src 'self' https://*.supabase.co https://js.hcaptcha.com https://*.hcaptcha.com");
+    expect(directive(policy, "frame-src")).toBe("frame-src https://hcaptcha.com https://*.hcaptcha.com");
+    expect(directive(policy, "connect-src")).toBe("connect-src 'self' https://*.supabase.co https://hcaptcha.com https://*.hcaptcha.com");
   });
 
   it("loosens up for the dev server's hot reload, and only there", () => {

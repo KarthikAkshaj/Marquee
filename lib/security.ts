@@ -21,7 +21,7 @@ const COMMON = [
   "frame-ancestors 'none'",
   "form-action 'self'",
   // Inline styles: the accent colour of a cover, and what Next injects.
-  "style-src 'self' 'unsafe-inline'",
+  `style-src 'self' 'unsafe-inline' ${captcha}`,
   // Cover art hosts (SPEC §7), avatars in Supabase Storage, the Google account photo,
   // plus blob:/data: for the avatar crop preview and generated covers.
   `img-src 'self' data: blob: ${captcha} https://image.tmdb.org https://s4.anilist.co https://images.igdb.com https://*.supabase.co https://lh3.googleusercontent.com`,

@@ -12,25 +12,39 @@ type Widget = {
 declare global {
   interface Window {
     hcaptcha?: Widget;
+    onHcaptchaReady?: () => void;
   }
 }
 
-const SCRIPT = "https://js.hcaptcha.com/1/api.js?render=explicit";
+// hCaptcha calls `onload` itself once its API can take a render(). The script
+// tag's own load event fires before that, and rendering there earns a warning.
+const SCRIPT = "https://js.hcaptcha.com/1/api.js?render=explicit&onload=onHcaptchaReady";
+// A script that loads but never calls back would otherwise hang the submit.
+const GIVE_UP_AFTER = 10_000;
 let loading: Promise<Widget> | null = null;
 
 /** One script for the page, however many forms ask for it. */
 function loadHcaptcha(): Promise<Widget> {
   if (window.hcaptcha) return Promise.resolve(window.hcaptcha);
   loading ??= new Promise<Widget>((resolve, reject) => {
+    const fail = (message: string) => {
+      clearTimeout(timer);
+      loading = null;
+      reject(new Error(message));
+    };
+    const timer = setTimeout(() => fail("hcaptcha did not start"), GIVE_UP_AFTER);
+
+    window.onHcaptchaReady = () => {
+      clearTimeout(timer);
+      if (window.hcaptcha) resolve(window.hcaptcha);
+      else fail("hcaptcha did not start");
+    };
+
     const script = document.createElement("script");
     script.src = SCRIPT;
     script.async = true;
     script.defer = true;
-    script.onload = () => (window.hcaptcha ? resolve(window.hcaptcha) : reject(new Error("hcaptcha did not start")));
-    script.onerror = () => {
-      loading = null;
-      reject(new Error("hcaptcha could not be reached"));
-    };
+    script.onerror = () => fail("hcaptcha could not be reached");
     document.head.append(script);
   });
   return loading;
