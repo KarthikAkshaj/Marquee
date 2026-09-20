@@ -3,6 +3,7 @@ import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { GrainOverlay } from "@/components/shell/GrainOverlay";
 import { BRAND } from "@/lib/brand";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -26,6 +27,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Links shared from the site resolve against the deployed origin, not the page's own path.
+  metadataBase: new URL(siteUrl()),
   title: {
     default: BRAND.name,
     template: `%s · ${BRAND.name}`,

@@ -67,6 +67,20 @@ test("the app can be installed: manifest and icons are public", async ({ request
   }
 });
 
+test("search engines get the public pages and are kept out of the app", async ({ request }) => {
+  const robots = await request.get("/robots.txt");
+  expect(robots.status()).toBe(200);
+  const rules = await robots.text();
+  for (const path of ["/home", "/c/", "/import", "/settings", "/auth/", "/api/"]) expect(rules).toContain(`Disallow: ${path}`);
+  expect(rules).toMatch(/Sitemap: https?:\/\/[^\s]+\/sitemap\.xml/);
+
+  const sitemap = await request.get("/sitemap.xml");
+  expect(sitemap.status()).toBe(200);
+  const urls = await sitemap.text();
+  for (const path of ["/terms", "/privacy"]) expect(urls).toContain(path);
+  expect(urls).not.toContain("/settings");
+});
+
 test("email code button only wakes up for a valid email", async ({ page }) => {
   await page.goto("/login");
   const send = page.getByRole("button", { name: "Email me a code" });
