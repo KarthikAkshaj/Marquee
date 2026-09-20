@@ -8,6 +8,7 @@ type Turnstile = {
   render: (container: HTMLElement, options: Options) => string;
   execute: (container: HTMLElement, options?: Options) => void;
   reset: (id: string) => void;
+  remove: (id: string) => void;
 };
 
 declare global {
@@ -20,6 +21,8 @@ declare global {
 // Turnstile calls `onload` itself once its API can take a render(). The script
 // tag's own load event fires before that.
 const SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileReady";
+/** The script never arrived, which is a blocker or a filtered network, not a flaky challenge. */
+export const CAPTCHA_UNREACHABLE = "captcha unreachable";
 // A script that loads but never calls back would otherwise hang the submit.
 const GIVE_UP_AFTER = 10_000;
 let loading: Promise<Turnstile> | null = null;
@@ -33,19 +36,19 @@ function loadTurnstile(): Promise<Turnstile> {
       loading = null;
       reject(new Error(message));
     };
-    const timer = setTimeout(() => fail("turnstile did not start"), GIVE_UP_AFTER);
+    const timer = setTimeout(() => fail(CAPTCHA_UNREACHABLE), GIVE_UP_AFTER);
 
     window.onTurnstileReady = () => {
       clearTimeout(timer);
       if (window.turnstile) resolve(window.turnstile);
-      else fail("turnstile did not start");
+      else fail(CAPTCHA_UNREACHABLE);
     };
 
     const script = document.createElement("script");
     script.src = SCRIPT;
     script.async = true;
     script.defer = true;
-    script.onerror = () => fail("turnstile could not be reached");
+    script.onerror = () => fail(CAPTCHA_UNREACHABLE);
     document.head.append(script);
   });
   return loading;
@@ -106,6 +109,12 @@ export function useCaptcha() {
       .catch(() => setReady(true));
     return () => {
       cancelled = true;
+      // Turnstile keeps its own register of widgets and complains if the page
+      // takes a live one away without saying so, which is what leaving for
+      // /home after a successful sign-in does.
+      const id = widget.current;
+      widget.current = null;
+      if (id !== null) window.turnstile?.remove(id);
     };
   }, [place]);
 

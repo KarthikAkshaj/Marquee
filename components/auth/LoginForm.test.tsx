@@ -17,11 +17,12 @@ const render_ = vi.fn<(container: HTMLElement, options: Options) => string>((_co
   return "widget-1";
 });
 const reset = vi.fn();
+const remove = vi.fn();
 
 // Both have to be in place before the component is imported: the site key is read
 // once at module load, and the hook looks for the script's `window.turnstile`.
 process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = "site-key-123";
-Object.defineProperty(window, "turnstile", { writable: true, value: { render: render_, execute, reset } });
+Object.defineProperty(window, "turnstile", { writable: true, value: { render: render_, execute, reset, remove } });
 
 const { LoginForm } = await import("./LoginForm");
 

@@ -12,7 +12,7 @@ import { AuthCard } from "./AuthCard";
 import { CaptchaNotice } from "./CaptchaNotice";
 import { CheckInbox } from "./CheckInbox";
 import { GoogleButton } from "./GoogleButton";
-import { useCaptcha } from "./useCaptcha";
+import { CAPTCHA_UNREACHABLE, useCaptcha } from "./useCaptcha";
 
 const initialState: AuthActionState = { status: "idle" };
 
@@ -41,9 +41,17 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
       const token = await getCaptchaToken();
       if (token) formData.set("captchaToken", token);
     } catch (error) {
-      // The message stays vague for the visitor; the reason is for whoever is fixing it.
+      // The reason is for whoever is fixing it; the visitor gets the one thing
+      // they can act on, and a blocked script is worth naming because a reload
+      // will never fix it.
       if (process.env.NODE_ENV !== "production") console.error("[captcha]", error);
-      return { status: "error", message: "The robot check didn't load. Refresh the page and try again." };
+      const blocked = error instanceof Error && error.message === CAPTCHA_UNREACHABLE;
+      return {
+        status: "error",
+        message: blocked
+          ? "Something is blocking the robot check, usually an ad blocker. Allow challenges.cloudflare.com and try again."
+          : "The robot check didn't load. Refresh the page and try again.",
+      };
     }
     return signInWithEmail(previous, formData);
   }
