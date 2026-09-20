@@ -33,18 +33,20 @@ export function MatchRow({ row, source, categoryColor, conflict, onToggle, onOpe
   return (
     <li
       className={cn(
-        "grid grid-cols-[44px_minmax(0,1fr)] gap-x-1 gap-y-2 border-b border-white/5 px-2 py-3 [contain-intrinsic-size:auto_180px] [content-visibility:auto] md:grid-cols-[44px_minmax(0,0.9fr)_20px_minmax(0,1.3fr)_minmax(0,220px)] md:items-center md:gap-x-3 md:px-4 md:[contain-intrinsic-size:auto_76px]",
+        "grid grid-cols-[44px_minmax(0,1fr)] gap-x-1 gap-y-2 border-b border-white/5 px-2 py-3 [contain-intrinsic-size:auto_180px] [content-visibility:auto] md:grid-cols-[44px_minmax(0,0.9fr)_minmax(0,1.3fr)_minmax(0,210px)] md:items-center md:gap-x-3 md:px-4 md:[contain-intrinsic-size:auto_76px]",
         !row.include && "[&_[data-cover]]:opacity-45",
       )}
     >
       <Checkbox checked={row.include} onChange={onToggle} label={`Update ${row.item.title}`} className={cn(!pick && "invisible")} />
 
-      <div className="min-w-0 self-center">
-        <p className="truncate text-14 text-text">{row.item.title}</p>
-        <p className="font-mono text-[11px] text-text-muted">{row.item.year ?? "as typed"}</p>
+      {/* The arrow follows the title rather than the column, so there's no gap to cross. */}
+      <div className="flex min-w-0 items-center gap-2.5 self-center">
+        <div className="min-w-0">
+          <p className="truncate text-14 text-text">{row.item.title}</p>
+          <p className="font-mono text-[11px] text-text-muted">{row.item.year ?? "as typed"}</p>
+        </div>
+        <ArrowRight aria-hidden className="hidden size-3.5 shrink-0 text-text-faint md:block" strokeWidth={2} />
       </div>
-
-      <ArrowRight aria-hidden className="hidden size-3.5 text-text-faint md:block" strokeWidth={2} />
 
       <div className="col-start-2 flex min-w-0 items-center gap-3 md:col-auto">
         {row.state === "waiting" ? (
@@ -67,7 +69,13 @@ export function MatchRow({ row, source, categoryColor, conflict, onToggle, onOpe
           </>
         ) : (
           <span className="text-13 text-text-muted">
-            {row.state === "failed" ? `${sourceName} didn't answer.` : row.candidates.length ? "Left as it is." : `Nothing on ${sourceName} by that name.`}
+            {row.state === "failed"
+              ? `${sourceName} didn't answer.`
+              : row.candidates.length
+                ? "Left as it is."
+                : row.elsewhere
+                  ? `${sourceName} only has this as a ${row.elsewhere.form}, not an anime.`
+                  : `Nothing on ${sourceName} by that name.`}
           </span>
         )}
       </div>

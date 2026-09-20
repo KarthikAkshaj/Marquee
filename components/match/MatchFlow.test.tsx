@@ -69,12 +69,26 @@ describe("MatchFlow", () => {
     expect(screen.getByLabelText("Update Demon Slayer")).not.toBeChecked();
     expect(within(rowFor("Demon Slayer")).getByText("CHECK THIS")).toBeInTheDocument();
     expect(within(rowFor("Hells Paradise")).getByText("Nothing on AniList by that name.")).toBeInTheDocument();
+    expect(within(rowFor("Hells Paradise")).getByRole("textbox")).toBeInTheDocument();
 
     fireEvent.change(within(rowFor("Hells Paradise")).getByRole("textbox"), { target: { value: "Hell's Paradise" } });
     fireEvent.click(within(rowFor("Hells Paradise")).getByRole("button", { name: "Search" }));
     await waitFor(() => expect(screen.getByLabelText("Update Hells Paradise")).toBeChecked());
     expect(fetchMock).toHaveBeenLastCalledWith("/api/search?kind=anime&q=Hell%27s+Paradise");
     expect(screen.getByRole("button", { name: "Update 2 titles" })).toBeEnabled();
+  });
+
+  it("says when AniList only has the story as a comic", async () => {
+    fetchMock.mockImplementation(async (url: string) =>
+      url.startsWith("/api/search?")
+        ? reply({ results: [] })
+        : reply({ results: [[naruto], [onigiri], []], elsewhere: [null, null, { form: "manhwa", title: "Hell's Paradise" }] }),
+    );
+    render(<MatchFlow shelf={shelf} items={items} taken={[]} />);
+
+    await waitFor(() => expect(screen.getByText("1 not found")).toBeInTheDocument());
+    expect(within(rowFor("Hells Paradise")).getByText("AniList only has this as a manhwa, not an anime.")).toBeInTheDocument();
+    expect(within(rowFor("Naruto")).queryByText(/only has this as/)).not.toBeInTheDocument();
   });
 
   it("saves the ticked matches and keeps the rest on screen", async () => {

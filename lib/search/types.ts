@@ -32,6 +32,12 @@ export type SearchResult = {
 /** Where a title is in its run: out, still airing, or not out yet. */
 export type Release = "out" | "airing" | "upcoming";
 
+/** What AniList has when a title isn't an anime at all: the comic or novel it comes from. */
+export type OtherForm = "manga" | "manhwa" | "manhua" | "light novel" | "novel";
+
+/** Why a title wasn't found: AniList knows it, but not as an anime. */
+export type Elsewhere = { form: OtherForm; title: string };
+
 /** One entry of an anime's series (its seasons, films and specials), in release order. */
 export type SeriesTitle = SearchResult & { release: Release };
 

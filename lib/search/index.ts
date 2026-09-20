@@ -1,11 +1,11 @@
 import { unstable_cache } from "next/cache";
-import { getAniListSeries, searchAniList, searchAniListMany } from "./anilist";
+import { getAniListSeries, searchAniList, searchAniListMany, searchAniListOther } from "./anilist";
 import { igdbConfigured, searchIgdb } from "./igdb";
 import { getTmdbSeriesDetails, searchTmdbMovies, searchTmdbSeries, tmdbConfigured, type SeriesDetails } from "./tmdb";
-import { ProviderError, type SearchKind, type SearchResponse, type SearchResult, type SeriesResponse } from "./types";
+import { ProviderError, type Elsewhere, type SearchKind, type SearchResponse, type SearchResult, type SeriesResponse } from "./types";
 
 export { SEARCH_KINDS } from "./types";
-export type { Release, SearchError, SearchKind, SearchResponse, SearchResult, SeriesResponse, SeriesTitle } from "./types";
+export type { Elsewhere, OtherForm, Release, SearchError, SearchKind, SearchResponse, SearchResult, SeriesResponse, SeriesTitle } from "./types";
 
 const DAY = 60 * 60 * 24;
 
@@ -85,7 +85,12 @@ async function mapLimit<T, R>(items: readonly T[], limit: number, run: (item: T)
   return results;
 }
 
-export type MatchResponse = { results: SearchResult[][]; error?: SearchResponse["error"] };
+export type MatchResponse = {
+  results: SearchResult[][];
+  /** For anime with no hits: what AniList has instead, to say why (null where there's nothing to say). */
+  elsewhere?: (Elsewhere | null)[];
+  error?: SearchResponse["error"];
+};
 
 const cachedSeries = unstable_cache((id: string) => getAniListSeries(Number(id)), ["anilist-series-v1"], { revalidate: DAY });
 
@@ -99,6 +104,27 @@ export async function getAnimeSeries(id: string): Promise<SeriesResponse> {
   } catch (error) {
     console.error("[search] series", error instanceof ProviderError ? error.message : error);
     return { results: [], error: "unavailable" };
+  }
+}
+
+/**
+ * Why the titles with no anime came back empty: usually AniList only has the
+ * manga or manhwa. One more request, and never at the cost of the matches
+ * themselves, so a failure here just leaves the rows unexplained.
+ */
+async function explainMisses(queries: readonly string[], results: readonly SearchResult[][]): Promise<(Elsewhere | null)[] | undefined> {
+  const missed = queries.flatMap((query, index) => (results[index].length === 0 ? [{ index, query }] : []));
+  if (missed.length === 0) return undefined;
+  try {
+    const found = await searchAniListOther(missed.map((miss) => miss.query));
+    const elsewhere: (Elsewhere | null)[] = queries.map(() => null);
+    missed.forEach((miss, position) => {
+      elsewhere[miss.index] = found[position] ?? null;
+    });
+    return elsewhere;
+  } catch (error) {
+    console.error("[search] elsewhere", error instanceof ProviderError ? error.message : error);
+    return undefined;
   }
 }
 
@@ -127,7 +153,7 @@ export async function matchMetadata(kind: SearchKind, queries: readonly string[]
         results[retry.index] = again[position];
       });
     }
-    return { results };
+    return { results, elsewhere: await explainMisses(queries, results) };
   } catch (error) {
     console.error("[search] match", kind, error instanceof ProviderError ? error.message : error);
     return { results: empty, error: "unavailable" };

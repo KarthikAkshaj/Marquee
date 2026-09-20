@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { CONFIDENT, similarity } from "@/lib/match";
 import { cleanGenres, fetchJson, toScore } from "./http";
-import { ProviderError, RESULT_LIMIT, type Release, type SearchResult, type SeriesTitle } from "./types";
+import { ProviderError, RESULT_LIMIT, type Elsewhere, type OtherForm, type Release, type SearchResult, type SeriesTitle } from "./types";
 
 const ENDPOINT = "https://graphql.anilist.co";
 
@@ -125,6 +126,51 @@ ${queries.map((_, index) => `q${index}: Page(perPage: ${perPage}) { media(search
     schema,
   );
   return queries.map((_, index) => useful(body.data[`q${index}`]?.media ?? []));
+}
+
+const OTHER_FIELDS = "title { english romaji } format countryOfOrigin";
+
+const otherSchema = z.object({
+  title: z.object({ english: z.string().nullish(), romaji: z.string().nullish() }),
+  format: z.string().nullish(),
+  countryOfOrigin: z.string().nullish(),
+});
+
+/** AniList tags comics by where they came from, not by what they're called. */
+function otherForm(media: z.infer<typeof otherSchema>): OtherForm {
+  if (media.format === "NOVEL") return media.countryOfOrigin === "JP" ? "light novel" : "novel";
+  if (media.countryOfOrigin === "KR") return "manhwa";
+  if (media.countryOfOrigin === "CN" || media.countryOfOrigin === "TW") return "manhua";
+  return "manga";
+}
+
+/**
+ * For titles with no anime on AniList, what AniList does have instead, so the
+ * row can say why it found nothing. One request for up to 10 names; a name has
+ * to match closely, or an unrelated comic would "explain" the miss.
+ */
+export async function searchAniListOther(queries: readonly string[]): Promise<(Elsewhere | null)[]> {
+  if (queries.length === 0) return [];
+  if (queries.length > ANILIST_BATCH) throw new ProviderError("anilist", "too many searches in one batch");
+  const variables = Object.fromEntries(queries.map((query, index) => [`s${index}`, query]));
+  const query = `query (${queries.map((_, index) => `$s${index}: String`).join(", ")}) {
+${queries.map((_, index) => `q${index}: Page(perPage: 3) { media(search: $s${index}, type: MANGA, isAdult: false, sort: SEARCH_MATCH) { ${OTHER_FIELDS} } }`).join("\n")}
+}`;
+  const schema = z.object({ data: z.record(z.string(), z.object({ media: z.array(otherSchema) })) });
+  const body = await fetchJson(
+    "anilist",
+    ENDPOINT,
+    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query, variables }) },
+    schema,
+  );
+  return queries.map((typed, index) => {
+    for (const media of body.data[`q${index}`]?.media ?? []) {
+      const names = [media.title.english, media.title.romaji].filter((name) => typeof name === "string");
+      const title = names[0]?.trim();
+      if (title && names.some((name) => similarity(typed, name) >= CONFIDENT)) return { form: otherForm(media), title };
+    }
+    return null;
+  });
 }
 
 const SERIES_FIELDS = `${BASE_FIELDS} type isAdult startDate { year month day }`;

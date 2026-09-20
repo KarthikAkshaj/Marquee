@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import frieren from "./__fixtures__/anilist-frieren.json";
 import onePiece from "./__fixtures__/anilist-one-piece.json";
-import { getAniListSeries, searchAniList, searchAniListMany } from "./anilist";
+import { getAniListSeries, searchAniList, searchAniListMany, searchAniListOther } from "./anilist";
 import { ProviderError } from "./types";
 
 const reply = (body: unknown, status = 200) =>
@@ -99,6 +99,50 @@ describe("searchAniListMany", () => {
 
   it("refuses more than ten at once", async () => {
     await expect(searchAniListMany(Array.from({ length: 11 }, (_, i) => `t${i}`))).rejects.toThrow("too many searches");
+  });
+});
+
+describe("searchAniListOther", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  const comic = (english: string | null, country: string, format = "MANGA", romaji = english) => ({
+    title: { english, romaji },
+    format,
+    countryOfOrigin: country,
+  });
+
+  it("names what AniList has instead, by where the comic is from", async () => {
+    const fetch = reply({
+      data: {
+        q0: { media: [comic("The Greatest Estate Developer", "KR")] },
+        q1: { media: [comic("Berserk", "JP")] },
+        q2: { media: [comic("Tales of Demons and Gods", "CN")] },
+        q3: { media: [comic("Overlord", "JP", "NOVEL")] },
+      },
+    });
+    vi.stubGlobal("fetch", fetch);
+
+    expect(await searchAniListOther(["The Greatest Estate Developer", "Berserk", "Tales of Demons and Gods", "Overlord"])).toEqual([
+      { form: "manhwa", title: "The Greatest Estate Developer" },
+      { form: "manga", title: "Berserk" },
+      { form: "manhua", title: "Tales of Demons and Gods" },
+      { form: "light novel", title: "Overlord" },
+    ]);
+
+    const body = JSON.parse(String((fetch.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    expect(body.query).toContain("type: MANGA");
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("explains nothing when the comic found isn't the title asked about", async () => {
+    vi.stubGlobal("fetch", reply({ data: { q0: { media: [comic("Something Else Entirely", "JP")] }, q1: { media: [] } } }));
+    expect(await searchAniListOther(["The Greatest Estate Developer", "Nothing At All"])).toEqual([null, null]);
+  });
+
+  it("matches on the romaji name too, and refuses more than ten at once", async () => {
+    vi.stubGlobal("fetch", reply({ data: { q0: { media: [comic(null, "JP", "MANGA", "Sousou no Frieren")] } } }));
+    expect(await searchAniListOther(["Sousou no Frieren"])).toEqual([{ form: "manga", title: "Sousou no Frieren" }]);
+    await expect(searchAniListOther(Array.from({ length: 11 }, (_, i) => `t${i}`))).rejects.toThrow("too many searches");
   });
 });
 

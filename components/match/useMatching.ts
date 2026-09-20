@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { bestMatch, seasonStatus } from "@/lib/match";
 import type { ManualTitle } from "@/lib/queries";
-import type { SearchKind, SearchResponse, SearchResult, SeriesTitle } from "@/lib/search/types";
+import type { Elsewhere, SearchKind, SearchResponse, SearchResult, SeriesTitle } from "@/lib/search/types";
 import { ITEM_STATUSES, type ItemStatus } from "@/lib/status";
 import { useSeries } from "./useSeries";
 
@@ -20,9 +20,11 @@ export type MatchRowState = {
   sure: boolean;
   include: boolean;
   extras: ExtraPick[];
+  /** Nothing found, but AniList has the story as a manga or manhwa. */
+  elsewhere: Elsewhere | null;
 };
 
-type MatchReply = { results: SearchResult[][]; error?: SearchResponse["error"] };
+type MatchReply = { results: SearchResult[][]; elsewhere?: (Elsewhere | null)[]; error?: SearchResponse["error"] };
 
 const BATCH = 10;
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -40,7 +42,7 @@ async function post(kind: SearchKind, queries: string[]): Promise<MatchReply> {
   }
 }
 
-function resolved(row: MatchRowState, candidates: SearchResult[], failed: boolean): MatchRowState {
+function resolved(row: MatchRowState, candidates: SearchResult[], failed: boolean, elsewhere: Elsewhere | null = null): MatchRowState {
   const match = bestMatch(row.item.title, row.item.year, candidates);
   return {
     ...row,
@@ -49,6 +51,7 @@ function resolved(row: MatchRowState, candidates: SearchResult[], failed: boolea
     choice: match?.index ?? null,
     sure: match?.confident ?? false,
     include: match?.confident ?? false,
+    elsewhere,
   };
 }
 
@@ -61,7 +64,7 @@ export function useMatching(kind: SearchKind, items: ManualTitle[]) {
   // The first list is the one being matched; saves refresh `items` underneath.
   const [initial] = useState(items);
   const [rows, setRows] = useState<MatchRowState[]>(() =>
-    initial.map((item) => ({ item, state: "waiting", candidates: [], choice: null, sure: false, include: false, extras: [] })),
+    initial.map((item) => ({ item, state: "waiting", candidates: [], choice: null, sure: false, include: false, extras: [], elsewhere: null })),
   );
 
   useEffect(() => {
@@ -75,9 +78,13 @@ export function useMatching(kind: SearchKind, items: ManualTitle[]) {
           reply = await post(kind, batch.map((item) => item.title));
         }
         if (cancelled) return;
-        const byId = new Map(batch.map((item, index) => [item.id, reply.results[index] ?? []]));
+        const answer = reply;
+        const byId = new Map(batch.map((item, index) => [item.id, { candidates: answer.results[index] ?? [], elsewhere: answer.elsewhere?.[index] ?? null }]));
         setRows((current) =>
-          current.map((row) => (byId.has(row.item.id) ? resolved(row, byId.get(row.item.id) ?? [], Boolean(reply.error)) : row)),
+          current.map((row) => {
+            const found = byId.get(row.item.id);
+            return found ? resolved(row, found.candidates, Boolean(answer.error), found.elsewhere) : row;
+          }),
         );
       }
     })();
