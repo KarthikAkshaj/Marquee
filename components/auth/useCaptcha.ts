@@ -59,13 +59,21 @@ export function useCaptcha() {
   const widget = useRef<string | null>(null);
   const [ready, setReady] = useState(!captchaEnabled());
 
+  /** The one widget, put up on first need and kept for the rest of the visit. */
+  const place = useCallback((hcaptcha: Widget) => {
+    if (widget.current !== null) return widget.current;
+    if (!mount.current) throw new Error("captcha has nowhere to go");
+    widget.current = hcaptcha.render(mount.current, { sitekey: CAPTCHA_SITE_KEY, size: "invisible", theme: "dark" });
+    return widget.current;
+  }, []);
+
   useEffect(() => {
     if (!captchaEnabled()) return;
     let cancelled = false;
     void loadHcaptcha()
       .then((hcaptcha) => {
-        if (cancelled || !mount.current || widget.current !== null) return;
-        widget.current = hcaptcha.render(mount.current, { sitekey: CAPTCHA_SITE_KEY, size: "invisible", theme: "dark" });
+        if (cancelled) return;
+        place(hcaptcha);
         setReady(true);
       })
       // A blocked script shouldn't disable the button: the submit says what went wrong.
@@ -73,17 +81,20 @@ export function useCaptcha() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [place]);
 
   const getToken = useCallback(async () => {
     if (!captchaEnabled()) return null;
     const hcaptcha = await loadHcaptcha();
-    const id = widget.current;
-    if (id === null) throw new Error("captcha not ready");
-    hcaptcha.reset(id);
-    const { response } = await hcaptcha.execute(id, { async: true });
-    return response;
-  }, []);
+    const id = place(hcaptcha);
+    try {
+      return (await hcaptcha.execute(id, { async: true })).response;
+    } finally {
+      // Clearing the used token happens after, never before: a widget reset on
+      // its way into execute() has nothing left to answer the challenge with.
+      hcaptcha.reset(id);
+    }
+  }, [place]);
 
   return { mount, getToken, ready };
 }
