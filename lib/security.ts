@@ -46,11 +46,11 @@ export function noncePolicy(nonce: string): string {
     ...upgrade(),
     connect(),
     // 'strict-dynamic': scripts the nonced bootstrap loads are trusted too.
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${development() ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${captcha}${development() ? " 'unsafe-eval'" : ""}`,
   ].join("; ");
 }
 
 /** For a prerendered page: scripts from this origin only, inline included. */
 export function staticPolicy(): string {
-  return [...COMMON, ...upgrade(), connect(), `script-src 'self' 'unsafe-inline'${development() ? " 'unsafe-eval'" : ""}`].join("; ");
+  return [...COMMON, ...upgrade(), connect(), `script-src 'self' 'unsafe-inline' ${captcha}${development() ? " 'unsafe-eval'" : ""}`].join("; ");
 }

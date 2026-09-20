@@ -13,13 +13,13 @@ describe("content security policy", () => {
   it("lets only Next's own nonced scripts run on a page rendered per request", () => {
     vi.stubEnv("NODE_ENV", "production");
     const policy = noncePolicy("abc123");
-    expect(directive(policy, "script-src")).toBe("script-src 'self' 'nonce-abc123' 'strict-dynamic'");
+    expect(directive(policy, "script-src")).toBe("script-src 'self' 'nonce-abc123' 'strict-dynamic' https://challenges.cloudflare.com");
     expect(policy).not.toContain("unsafe-eval");
   });
 
   it("falls back to inline scripts from this origin on a prerendered page", () => {
     vi.stubEnv("NODE_ENV", "production");
-    expect(directive(staticPolicy(), "script-src")).toBe("script-src 'self' 'unsafe-inline'");
+    expect(directive(staticPolicy(), "script-src")).toBe("script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com");
   });
 
   it("refuses framing, other origins and stray plugins either way", () => {
