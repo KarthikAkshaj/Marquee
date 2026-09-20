@@ -67,6 +67,25 @@ test("the app can be installed: manifest and icons are public", async ({ request
   }
 });
 
+test("every response carries the security headers", async ({ request }) => {
+  for (const path of ["/", "/login"]) {
+    const response = await request.get(path);
+    const headers = response.headers();
+    expect(headers["strict-transport-security"], path).toContain("max-age=");
+    expect(headers["x-content-type-options"], path).toBe("nosniff");
+    expect(headers["x-frame-options"], path).toBe("DENY");
+    expect(headers["referrer-policy"], path).toBe("strict-origin-when-cross-origin");
+    expect(headers["permissions-policy"], path).toContain("camera=()");
+    const policy = headers["content-security-policy"] ?? "";
+    expect(policy, path).toContain("frame-ancestors 'none'");
+    expect(policy, path).toContain("default-src 'self'");
+    expect(policy, path).toContain("object-src 'none'");
+  }
+  // The page rendered per request gets the stricter, nonce-based script rule.
+  const login = await request.get("/login");
+  expect(login.headers()["content-security-policy"]).toMatch(/script-src 'self' 'nonce-[a-f0-9]+' 'strict-dynamic'/);
+});
+
 test("search engines get the public pages and are kept out of the app", async ({ request }) => {
   const robots = await request.get("/robots.txt");
   expect(robots.status()).toBe(200);

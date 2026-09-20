@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { noncePolicy, staticPolicy } from "@/lib/security";
 import type { Database } from "./database.types";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./env";
 
@@ -13,13 +14,38 @@ function isProtected(pathname: string) {
 }
 
 /**
+ * Which pages Next renders on the spot, and so can be handed a nonce. The rest
+ * (landing, legal, 404) are prerendered at build time. Keep this in step with
+ * the build's list of dynamic routes.
+ */
+function rendersPerRequest(pathname: string) {
+  return isProtected(pathname) || pathname === "/login" || pathname.startsWith("/auth/callback") || pathname.startsWith("/api/");
+}
+
+/**
  * Refreshes the Supabase session cookie on every request and guards routes
  * (SPEC §6). This is a convenience, not the security boundary — RLS is.
  * Server Actions are POSTs to their own route and can slip past a matcher,
  * so actions re-check auth themselves.
  */
 export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  // A fresh nonce per request; Next reads it back out of the policy and puts it on its scripts.
+  // Only for pages rendered per request: a prerendered page was built without one.
+  const nonce = crypto.randomUUID().replaceAll("-", "");
+  const perRequest = rendersPerRequest(request.nextUrl.pathname);
+  const policy = perRequest ? noncePolicy(nonce) : staticPolicy();
+  const requestHeaders = new Headers(request.headers);
+  if (perRequest) {
+    requestHeaders.set("x-nonce", nonce);
+    requestHeaders.set("content-security-policy", policy);
+  }
+  const next = () => {
+    const created = NextResponse.next({ request: { headers: requestHeaders } });
+    created.headers.set("content-security-policy", policy);
+    return created;
+  };
+
+  let response = next();
 
   const supabase = createServerClient<Database>(
     SUPABASE_URL,
@@ -33,7 +59,7 @@ export async function updateSession(request: NextRequest) {
           for (const { name, value } of cookiesToSet) {
             request.cookies.set(name, value);
           }
-          response = NextResponse.next({ request });
+          response = next();
           for (const { name, value, options } of cookiesToSet) {
             response.cookies.set(name, value, options);
           }
@@ -86,5 +112,7 @@ function redirectPreservingSession(
     redirect.cookies.set(cookie);
   }
   redirect.headers.set("Cache-Control", "private, no-store");
+  const policy = response.headers.get("content-security-policy");
+  if (policy) redirect.headers.set("content-security-policy", policy);
   return redirect;
 }
