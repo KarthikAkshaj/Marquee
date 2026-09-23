@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CategoryKind } from "@/lib/status";
-import { ENOUGH_TITLES, summarise, type WrappedItem } from "@/lib/wrapped";
+import { ENOUGH_TITLES, summarise, wrappedInSeason, wrappedYear, type WrappedItem } from "@/lib/wrapped";
 
 function item(overrides: Partial<WrappedItem> = {}): WrappedItem {
   return {
@@ -124,5 +124,22 @@ describe("summarise", () => {
     const wrapped = summarise([], 2026);
     expect(wrapped).toMatchObject({ added: 0, finished: 0, episodes: 0, hours: 0, top: null, accent: null, enough: false });
     expect(wrapped.genres).toEqual([]);
+  });
+});
+
+describe("wrappedYear", () => {
+  it("looks back at last year through January, and at this one after that", () => {
+    expect(wrappedYear(new Date("2027-01-05T12:00:00"))).toBe(2026);
+    expect(wrappedYear(new Date("2026-02-01T12:00:00"))).toBe(2026);
+    expect(wrappedYear(new Date("2026-12-24T12:00:00"))).toBe(2026);
+  });
+});
+
+describe("wrappedInSeason", () => {
+  it("is December and January, and nothing else", () => {
+    expect(wrappedInSeason(new Date("2026-12-01T12:00:00"))).toBe(true);
+    expect(wrappedInSeason(new Date("2027-01-31T12:00:00"))).toBe(true);
+    expect(wrappedInSeason(new Date("2026-11-30T12:00:00"))).toBe(false);
+    expect(wrappedInSeason(new Date("2026-02-01T12:00:00"))).toBe(false);
   });
 });

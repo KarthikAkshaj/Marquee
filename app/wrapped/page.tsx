@@ -4,7 +4,7 @@ import { BrandMark } from "@/components/shell/BrandMark";
 import { Button } from "@/components/ui/Button";
 import { WrappedReel } from "@/components/wrapped/WrappedReel";
 import { getWrappedItems } from "@/lib/queries";
-import { ENOUGH_TITLES, summarise } from "@/lib/wrapped";
+import { ENOUGH_TITLES, summarise, wrappedYear } from "@/lib/wrapped";
 
 export const metadata: Metadata = {
   title: "Your year",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function WrappedPage() {
-  const year = new Date().getFullYear();
+  const year = wrappedYear();
   const wrapped = summarise(await getWrappedItems(year), year);
 
   if (!wrapped.enough) {

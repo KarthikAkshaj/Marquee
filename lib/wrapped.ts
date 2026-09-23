@@ -18,6 +18,20 @@ export type WrappedItem = Pick<
   "title" | "status" | "rating" | "genres" | "progress_current" | "created_at" | "finished_at" | "cover_url" | "accent_color"
 > & { kind: CategoryKind; categoryName: string };
 
+/**
+ * The year /wrapped looks back on. In January that is still the year just gone:
+ * nobody wants a review of the five days they have had so far.
+ */
+export function wrappedYear(now = new Date()): number {
+  return now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+}
+
+/** December and January, the stretch where a look back earns a spot on Home. */
+export function wrappedInSeason(now = new Date()): boolean {
+  const month = now.getMonth();
+  return month === 11 || month === 0;
+}
+
 /** Under this, there isn't a year to look back on yet. */
 export const ENOUGH_TITLES = 5;
 

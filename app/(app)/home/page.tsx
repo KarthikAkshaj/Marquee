@@ -7,9 +7,11 @@ import { MarqueeSign } from "@/components/home/MarqueeSign";
 import { PosterRow } from "@/components/home/PosterRow";
 import { StartAdding } from "@/components/home/StartAdding";
 import { StatsStrip } from "@/components/home/StatsStrip";
+import { WrappedCard } from "@/components/home/WrappedCard";
 import { AmbientBackground } from "@/components/shell/AmbientBackground";
 import { Button } from "@/components/ui/Button";
 import { midFlightLine, statTiles } from "@/lib/home";
+import { ENOUGH_TITLES, wrappedInSeason, wrappedYear } from "@/lib/wrapped";
 import { getCategories, getHome, getViewer } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Home" };
@@ -64,6 +66,13 @@ export default async function HomePage() {
     <>
       <AmbientBackground variant="app" />
       <HomeGreeting name={name} line={midFlightLine(inProgress)} action={<SurpriseButton />} />
+      {/* A shelf this thin has no year worth reviewing, and /wrapped would only
+          say so. Its own threshold counts this year's arrivals, which Home
+          doesn't have to hand, so a whole library standing still all year can
+          still land on that screen. */}
+      {wrappedInSeason() && totalItems >= ENOUGH_TITLES && (
+        <WrappedCard year={wrappedYear()} className="mt-5 md:mt-7" />
+      )}
       <div className="mt-5.5 md:mt-8.5">
         <ContinueRow items={home.continuing} shelves={shelves} />
       </div>
