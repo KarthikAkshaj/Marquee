@@ -5,7 +5,7 @@ import type { Database } from "./database.types";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./env";
 
 /** Everything under the (app) route group needs a session. */
-const PROTECTED_PREFIXES = ["/home", "/c", "/import", "/settings"];
+const PROTECTED_PREFIXES = ["/home", "/c", "/import", "/settings", "/wrapped"];
 
 function isProtected(pathname: string) {
   return PROTECTED_PREFIXES.some(

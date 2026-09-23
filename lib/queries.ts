@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import type { Database } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
+import type { WrappedItem } from "@/lib/wrapped";
 
 /**
  * Per-request cached reads shared by the app shell and pages, so the sidebar
@@ -226,4 +227,27 @@ export const getShelfMatches = cache(async (categoryId: string) => {
     .not("external_id", "is", null);
   if (error) throw new Error(`Couldn't load these titles: ${error.message}`);
   return data.map((item) => ({ key: `${item.source}:${item.external_id}`, title: item.title }));
+});
+
+/**
+ * Everything /wrapped counts: what arrived this year, plus every completion
+ * whenever it happened, since the ones with no date are a line of their own.
+ * lib/wrapped does the arithmetic.
+ */
+export const getWrappedItems = cache(async (year: number): Promise<WrappedItem[]> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("items")
+    .select(
+      "title, status, rating, genres, progress_current, created_at, finished_at, cover_url, accent_color, categories(name, kind)",
+    )
+    .or(`created_at.gte.${year}-01-01,status.eq.completed`);
+
+  if (error) throw new Error(`Couldn't load your year: ${error.message}`);
+
+  return data.map(({ categories, ...item }) => ({
+    ...item,
+    kind: categories.kind,
+    categoryName: categories.name,
+  }));
 });
