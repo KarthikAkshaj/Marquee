@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   agentRules: false,
   // Dev-only badge; bottom-left sits on top of the sidebar's Sign out button.
   devIndicators: { position: "bottom-right" },
+  // The ticket's font is read from disk at request time, so it has to be
+  // traced into the serverless bundle: nothing imports it for the bundler to see.
+  outputFileTracingIncludes: { "/wrapped/ticket": ["./app/wrapped/ticket/GeistMono.ttf"] },
   images: {
     // Cover art hosts (SPEC §7) and Supabase Storage for avatars (SPEC §5).
     remotePatterns: [

@@ -81,9 +81,18 @@ export function WrappedReel({ wrapped }: { wrapped: Wrapped }) {
 
       <Frame index={6} label="THAT'S THE YEAR">
         <WrappedTicket wrapped={wrapped} />
-        <Button asChild variant="secondary" className="mt-9">
-          <Link href="/home">Back to your shelves</Link>
-        </Button>
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-2.5">
+          {/* A plain anchor: the route answers with the PNG as an attachment,
+              and /wrapped is no use to anyone else, so the image is what travels. */}
+          <Button asChild variant="secondary">
+            <a href="/wrapped/ticket" download>
+              Save your ticket
+            </a>
+          </Button>
+          <Button asChild variant="ghost" className="min-h-11 px-4">
+            <Link href="/home">Back to your shelves</Link>
+          </Button>
+        </div>
       </Frame>
     </main>
   );
