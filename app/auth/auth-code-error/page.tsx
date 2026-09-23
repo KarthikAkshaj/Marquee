@@ -25,7 +25,8 @@ export default function AuthCodeErrorPage() {
           asked from. The 6-digit code in the same email works on any device.
         </p>
         <Button asChild className="mt-6">
-          <Link href="/login">Get a new code</Link>
+          {/* Plain anchor: a fresh document for /login, so it gets its own nonce (SPEC §13). */}
+          <a href="/login">Get a new code</a>
         </Button>
       </main>
     </div>

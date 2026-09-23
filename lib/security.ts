@@ -45,12 +45,20 @@ export function noncePolicy(nonce: string): string {
     ...COMMON,
     ...upgrade(),
     connect(),
-    // 'strict-dynamic': scripts the nonced bootstrap loads are trusted too.
+    // 'strict-dynamic': scripts the nonced bootstrap loads are trusted too. It
+    // also makes the host below moot, except to a browser too old to know it.
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${captcha}${development() ? " 'unsafe-eval'" : ""}`,
   ].join("; ");
 }
 
-/** For a prerendered page: scripts from this origin only, inline included. */
+/**
+ * For a prerendered page: scripts from this origin only, inline included.
+ *
+ * A policy belongs to the document, not the route, so this one rides a soft
+ * navigation into pages that asked for the nonce. The links into sign-in are
+ * plain anchors to stop that, but proxy.ts can still bounce a stale signed-out
+ * tab to /login without a reload, so the captcha host has to be here as well.
+ */
 export function staticPolicy(): string {
   return [...COMMON, ...upgrade(), connect(), `script-src 'self' 'unsafe-inline' ${captcha}${development() ? " 'unsafe-eval'" : ""}`].join("; ");
 }

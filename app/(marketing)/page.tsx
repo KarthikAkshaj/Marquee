@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { GoodbyeToast } from "@/components/marketing/GoodbyeToast";
 import { FooterAttributions } from "@/components/marketing/Attributions";
@@ -50,12 +49,15 @@ export default function LandingPage() {
           <a href="#features" className="hidden text-[13.5px] text-text-muted hover:text-text md:inline">
             What is it?
           </a>
-          <Link
+          {/* Plain anchors, not <Link>, for both routes into sign-in: a soft
+              navigation keeps this prerendered page's policy, and the sign-in
+              form wants its own nonce instead (SPEC §13). */}
+          <a
             href="/login"
             className="-mr-2 inline-flex min-h-11 items-center px-2 text-13 text-text-muted hover:text-accent md:mr-0 md:min-h-0 md:px-0 md:text-[13.5px] md:text-text"
           >
             Sign in
-          </Link>
+          </a>
         </nav>
       </header>
 
@@ -85,7 +87,7 @@ export default function LandingPage() {
 
         <div className="mt-6.5 flex flex-col gap-3 md:mt-9.5 md:flex-row md:items-center md:gap-4.5">
           <Button asChild size="lg" className="shadow-cta max-md:rounded-[11px] max-md:py-3.75">
-            <Link href="/login">Get started, it&apos;s free</Link>
+            <a href="/login">Get started, it&apos;s free</a>
           </Button>
           <p className="text-center text-[12.5px] text-text-muted md:text-13">
             One email code, ten seconds, done.
