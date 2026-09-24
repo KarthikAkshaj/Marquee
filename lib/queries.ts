@@ -234,6 +234,25 @@ export const getShelfMatches = cache(async (categoryId: string) => {
  * whenever it happened, since the ones with no date are a line of their own.
  * lib/wrapped does the arithmetic.
  */
+/**
+ * Titles that came from a provider but carry nothing a provider could tell us
+ * about how long they run, so Settings can offer to fill them in and hide the
+ * offer once there is nothing left. A row that came back with either column
+ * filled has been asked about and is done, whatever the answer was.
+ */
+export const countRuntimeGaps = cache(async (): Promise<number> => {
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("items")
+    .select("id", { count: "exact", head: true })
+    .is("format", null)
+    .is("runtime_minutes", null)
+    .not("external_id", "is", null)
+    .in("source", ["anilist", "tmdb"]);
+  // Never the reason a settings page fails to load.
+  return error ? 0 : (count ?? 0);
+});
+
 export const getWrappedItems = cache(async (year: number): Promise<WrappedItem[]> => {
   const supabase = await createClient();
   const { data, error } = await supabase

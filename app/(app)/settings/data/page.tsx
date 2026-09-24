@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DataExport } from "@/components/settings/DataExport";
-import { getCategories } from "@/lib/queries";
+import { RuntimeBackfill } from "@/components/settings/RuntimeBackfill";
+import { countRuntimeGaps, getCategories } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Data" };
 
 /** Your data out (JSON, or one shelf as CSV) and the way in (Import) (SPEC §8.10). */
 export default async function DataSettingsPage() {
-  const categories = await getCategories();
+  const [categories, runtimeGaps] = await Promise.all([getCategories(), countRuntimeGaps()]);
   const titleCount = categories.reduce((sum, category) => sum + category.itemCount, 0);
 
   return (
@@ -16,6 +17,7 @@ export default async function DataSettingsPage() {
         shelves={categories.map(({ id, name, color, itemCount }) => ({ id, name, color, itemCount }))}
         titleCount={titleCount}
       />
+      {runtimeGaps > 0 && <RuntimeBackfill pending={runtimeGaps} />}
       <Link
         href="/import"
         className="group flex items-center gap-3.5 rounded-[11px] border border-border bg-white/2 px-4.5 py-4 transition-colors hover:border-accent/35"

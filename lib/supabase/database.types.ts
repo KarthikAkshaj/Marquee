@@ -175,6 +175,7 @@ export type Database = {
     }
     Functions: {
       delete_account: { Args: never; Returns: undefined }
+      fill_item_runtimes: { Args: { rows: Json }; Returns: number }
       import_titles: {
         Args: { batch_started: string; target_category: string; titles: Json }
         Returns: number
