@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DataExport } from "@/components/settings/DataExport";
+import { RestoreBackup } from "@/components/settings/RestoreBackup";
 import { RuntimeBackfill } from "@/components/settings/RuntimeBackfill";
 import { countRuntimeGaps, getCategories } from "@/lib/queries";
 
@@ -17,6 +18,7 @@ export default async function DataSettingsPage() {
         shelves={categories.map(({ id, name, color, itemCount }) => ({ id, name, color, itemCount }))}
         titleCount={titleCount}
       />
+      <RestoreBackup />
       {runtimeGaps > 0 && <RuntimeBackfill pending={runtimeGaps} />}
       <Link
         href="/import"

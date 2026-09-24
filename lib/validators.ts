@@ -172,7 +172,7 @@ export const avatarFileSchema = z.object({
 });
 
 /** Cover art only from the hosts next.config.ts allows, so a crafted URL can't reach next/image. */
-const PROVIDER_IMAGE = /^https:\/\/(image\.tmdb\.org\/t\/p\/|s4\.anilist\.co\/|images\.igdb\.com\/igdb\/image\/upload\/)[\w\-./%]+$/;
+export const PROVIDER_IMAGE = /^https:\/\/(image\.tmdb\.org\/t\/p\/|s4\.anilist\.co\/|images\.igdb\.com\/igdb\/image\/upload\/)[\w\-./%]+$/;
 
 export const hexColorSchema = z.string().regex(/^#[0-9a-f]{6}$/i).toLowerCase();
 

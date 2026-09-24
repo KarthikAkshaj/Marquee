@@ -181,6 +181,11 @@ export type Database = {
         Returns: number
       }
       is_username_available: { Args: { candidate: string }; Returns: boolean }
+      restore_shelves: { Args: { shelves: Json }; Returns: Json }
+      restore_titles: {
+        Args: { rows: Json; target_category: string }
+        Returns: Json
+      }
     }
     Enums: {
       category_kind: "anime" | "movie" | "series" | "game" | "custom"
