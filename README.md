@@ -10,6 +10,20 @@ Built with Next.js 16, React 19 Server Components and Server Actions, Tailwind C
 
 ---
 
+**Landing.** The public face, and the only screen you see before signing in.
+
+![Marquee's landing page. The wordmark set large in a display serif, half of it in amber, over a dark backdrop, with a tilted preview of the app to one side](docs/landing.png)
+
+**Home.** What you are partway through, what each shelf holds, and what you finished lately.
+
+![Marquee's home screen. A greeting in a display serif, three cards for titles in progress with cover art and episode counts, a row of per shelf statistics, and a strip of recently finished covers](docs/home.png)
+
+**A shelf.** Status tabs with counts, filter and sort, and a wall of 2:3 poster art.
+
+![An anime shelf in Marquee. Tabs across the top reading All, Plan to Watch, Watching, Completed and Dropped with counts beside each, above a grid of cover art with status labels under every title](docs/shelf.png)
+
+---
+
 ## Contents
 
 - [Features](#features)
