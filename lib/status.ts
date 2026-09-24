@@ -2,6 +2,8 @@ import type { Database } from "@/lib/supabase/database.types";
 
 export type CategoryKind = Database["public"]["Enums"]["category_kind"];
 export type ItemStatus = Database["public"]["Enums"]["item_status"];
+/** What shape a title is, when a provider says so. Manual adds leave it empty. */
+export type ItemFormat = Database["public"]["Enums"]["item_format"];
 
 export const ITEM_STATUSES = [
   "planned",
@@ -9,6 +11,15 @@ export const ITEM_STATUSES = [
   "completed",
   "dropped",
 ] as const satisfies readonly ItemStatus[];
+
+export const ITEM_FORMATS = [
+  "movie",
+  "tv",
+  "tv_short",
+  "ova",
+  "ona",
+  "special",
+] as const satisfies readonly ItemFormat[];
 
 /**
  * The only place status wording lives (SPEC §2).

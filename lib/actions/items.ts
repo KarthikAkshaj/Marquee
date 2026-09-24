@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { SOURCE_FOR_KIND, searchKindOf, type AddFromSearchInput } from "@/lib/add";
 import { incrementPatch, progressPatch, statusPatch, type ItemDetails } from "@/lib/items";
-import { getSeriesDetails } from "@/lib/search";
+import { getAddDetails } from "@/lib/search";
 import type { ItemStatus } from "@/lib/status";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -277,9 +277,10 @@ export async function addFromSearch(input: AddFromSearchInput): Promise<ItemActi
   const kind = searchKindOf(category.kind);
   if (!kind || SOURCE_FOR_KIND[kind] !== result.source) return NOT_ADDED;
 
-  // Search results don't carry a series' episode count; look it up now, once.
-  const series = kind === "series" ? await getSeriesDetails(result.externalId) : null;
-  const progressTotal = series ? series.progressTotal : result.progressTotal;
+  // Search results carry neither a show's episode count nor a film's running
+  // time. AniList answers both in the search itself, so anime needs no lookup.
+  const details = await getAddDetails(kind, result.externalId);
+  const progressTotal = details ? details.progressTotal : result.progressTotal;
 
   const { error } = await supabase.from("items").insert({
     id,
@@ -295,8 +296,10 @@ export async function addFromSearch(input: AddFromSearchInput): Promise<ItemActi
     accent_color: result.accentColor ?? null,
     source: result.source,
     external_id: result.externalId,
-    genres: series?.genres ?? result.genres ?? [],
+    genres: details?.genres ?? result.genres ?? [],
     community_score: result.communityScore ?? null,
+    runtime_minutes: details?.runtimeMinutes ?? result.runtimeMinutes ?? null,
+    format: result.format ?? null,
   });
   // 23505: the same search result is already on this shelf.
   if (error?.code === "23505") return { ok: false, message: "That's already on this shelf." };

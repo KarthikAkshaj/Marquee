@@ -1,7 +1,15 @@
 import { unstable_cache } from "next/cache";
 import { getAniListSeries, searchAniList, searchAniListMany, searchAniListOther } from "./anilist";
 import { igdbConfigured, searchIgdb } from "./igdb";
-import { getTmdbSeriesDetails, searchTmdbMovies, searchTmdbSeries, tmdbConfigured, type SeriesDetails } from "./tmdb";
+import {
+  getTmdbMovieDetails,
+  getTmdbSeriesDetails,
+  searchTmdbMovies,
+  searchTmdbSeries,
+  tmdbConfigured,
+  type MovieDetails,
+  type SeriesDetails,
+} from "./tmdb";
 import { ProviderError, type Elsewhere, type SearchKind, type SearchResponse, type SearchResult, type SeriesResponse } from "./types";
 
 export { SEARCH_KINDS } from "./types";
@@ -61,6 +69,38 @@ export async function getSeriesDetails(id: string): Promise<SeriesDetails | null
     console.error("[search] series details", error instanceof ProviderError ? error.message : error);
     return null;
   }
+}
+
+const cachedMovieDetails = unstable_cache((id: string) => getTmdbMovieDetails(id), ["tmdb-movie-details-v1"], {
+  revalidate: DAY,
+});
+
+/**
+ * A film's running time, which search results don't carry. Null when TMDB
+ * can't answer; the title is still added, just without a runtime.
+ */
+export async function getMovieDetails(id: string): Promise<MovieDetails | null> {
+  if (!tmdbConfigured()) return null;
+  try {
+    return await cachedMovieDetails(id);
+  } catch (error) {
+    console.error("[search] movie details", error instanceof ProviderError ? error.message : error);
+    return null;
+  }
+}
+
+/**
+ * What a search result doesn't carry and is worth one lookup when a title is
+ * added: a show's episode count and full genres, a film's running time. Anime
+ * needs none, AniList answers it all in the search itself, and games have no
+ * clock to look up.
+ */
+export type AddDetails = Pick<SearchResult, "progressTotal" | "genres" | "runtimeMinutes">;
+
+export function getAddDetails(kind: SearchKind, id: string): Promise<AddDetails | null> {
+  if (kind === "series") return getSeriesDetails(id);
+  if (kind === "movie") return getMovieDetails(id);
+  return Promise.resolve(null);
 }
 
 /**

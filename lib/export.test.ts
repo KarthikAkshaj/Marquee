@@ -33,6 +33,8 @@ const item = (overrides: Partial<Tables["items"]["Row"]>): Tables["items"]["Row"
   accent_color: null,
   genres: [],
   community_score: null,
+  runtime_minutes: null,
+  format: null,
   year: 1999,
   source: "manual",
   external_id: null,

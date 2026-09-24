@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import frieren from "./__fixtures__/anilist-frieren.json";
 import onePiece from "./__fixtures__/anilist-one-piece.json";
-import { getAniListSeries, searchAniList, searchAniListMany, searchAniListOther } from "./anilist";
+import { getAniListSeries, normaliseAniList, searchAniList, searchAniListMany, searchAniListOther } from "./anilist";
 import { ProviderError } from "./types";
 
 const reply = (body: unknown, status = 200) =>
@@ -10,6 +10,33 @@ const reply = (body: unknown, status = 200) =>
 
 describe("searchAniList", () => {
   afterEach(() => vi.unstubAllGlobals());
+
+  it("keeps the shape and the running time AniList already tells it", () => {
+    const media = {
+      id: 21519,
+      title: { english: "Your Name.", romaji: "Kimi no Na wa." },
+      status: "FINISHED",
+      episodes: 1,
+      startDate: { year: 2016 },
+      coverImage: null,
+      bannerImage: null,
+      genres: ["Drama", "Romance"],
+      averageScore: 85,
+    };
+    // A film: one "episode" of 107 minutes, not one episode of 24.
+    expect(normaliseAniList({ ...media, format: "MOVIE", duration: 107 })).toMatchObject({
+      format: "movie",
+      runtimeMinutes: 107,
+      progressTotal: 1,
+    });
+    // An OVA looks identical on the row without this, and runs a quarter as long.
+    expect(normaliseAniList({ ...media, format: "OVA", duration: 27 })).toMatchObject({
+      format: "ova",
+      runtimeMinutes: 27,
+    });
+    // A shape we have no word for is left empty rather than guessed at.
+    expect(normaliseAniList({ ...media, format: "MUSIC", duration: 5 })?.format).toBeUndefined();
+  });
 
   it("normalises a finished show with everything the add flow needs", async () => {
     vi.stubGlobal("fetch", reply(frieren));
@@ -27,6 +54,8 @@ describe("searchAniList", () => {
       genres: ["Adventure", "Drama", "Fantasy"],
       communityScore: 91,
       accentColor: "#bbf1a1",
+      runtimeMinutes: 24,
+      format: "tv",
     });
   });
 

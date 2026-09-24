@@ -7,7 +7,15 @@ import dune from "./__fixtures__/tmdb-search-movie-dune.json";
 import severanceSearch from "./__fixtures__/tmdb-search-tv-severance.json";
 import severance from "./__fixtures__/tmdb-tv-severance.json";
 import unauthorized from "./__fixtures__/tmdb-unauthorized.json";
-import { getTmdbSeriesDetails, resetTmdbGenres, searchTmdbMovies, searchTmdbSeries, tmdbConfigured } from "./tmdb";
+import {
+  getTmdbSeriesDetails,
+  normaliseMovieDetails,
+  normaliseShowDetails,
+  resetTmdbGenres,
+  searchTmdbMovies,
+  searchTmdbSeries,
+  tmdbConfigured,
+} from "./tmdb";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -36,6 +44,17 @@ describe("TMDB", () => {
     expect(tmdbConfigured()).toBe(false);
   });
 
+  it("reads how long a film runs and how long a show's episodes run", () => {
+    expect(normaliseMovieDetails({ id: 1, runtime: 155 }).runtimeMinutes).toBe(155);
+    // Nothing usable rather than a zero: TMDB leaves it empty on unreleased films.
+    expect(normaliseMovieDetails({ id: 1, runtime: 0 }).runtimeMinutes).toBeUndefined();
+    expect(normaliseMovieDetails({ id: 1, runtime: null }).runtimeMinutes).toBeUndefined();
+    expect(normaliseMovieDetails({ id: 1, runtime: 99999 }).runtimeMinutes).toBeUndefined();
+
+    expect(normaliseShowDetails({ id: 1, number_of_episodes: 62, episode_run_time: [47, 22] }).runtimeMinutes).toBe(47);
+    expect(normaliseShowDetails({ id: 1, number_of_episodes: 62, episode_run_time: [] }).runtimeMinutes).toBeUndefined();
+  });
+
   it("normalises movies with genre names, posters and a score out of 100", async () => {
     const fetch = tmdb({ "/search/movie": dune, "/genre/movie/list": movieGenres });
     vi.stubGlobal("fetch", fetch);
@@ -50,6 +69,7 @@ describe("TMDB", () => {
       backdropUrl: "https://image.tmdb.org/t/p/w1280/zRKQW58MBEY078AxkHxEJzUskCl.jpg",
       genres: ["Science Fiction", "Adventure"],
       communityScore: 78,
+      format: "movie",
     });
     const [url, init] = fetch.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toContain("include_adult=false");

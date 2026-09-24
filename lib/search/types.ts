@@ -1,5 +1,5 @@
 import type { Database } from "@/lib/supabase/database.types";
-import type { CategoryKind } from "@/lib/status";
+import type { CategoryKind, ItemFormat } from "@/lib/status";
 
 /** Category kinds that have a metadata provider. Custom shelves are manual only. */
 export const SEARCH_KINDS = ["anime", "movie", "series", "game"] as const satisfies readonly CategoryKind[];
@@ -27,7 +27,14 @@ export type SearchResult = {
   communityScore?: number;
   /** Dominant cover colour when the provider supplies one (AniList). */
   accentColor?: string;
+  /** Minutes per episode, or the whole picture for a film. */
+  runtimeMinutes?: number;
+  /** A film, a TV run, an OVA. What tells a 90 minute feature from a 24 minute one-off. */
+  format?: ItemFormat;
 };
+
+/** How long a title runs and what shape it is: what a backfill goes to fetch. */
+export type TitleShape = Pick<SearchResult, "runtimeMinutes" | "format">;
 
 /** Where a title is in its run: out, still airing, or not out yet. */
 export type Release = "out" | "airing" | "upcoming";

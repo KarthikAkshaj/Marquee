@@ -89,6 +89,8 @@ export function itemFromResult({ id, categoryId, status, result }: AddFromSearch
     external_id: result.externalId,
     genres: result.genres ?? [],
     community_score: result.communityScore ?? null,
+    runtime_minutes: result.runtimeMinutes ?? null,
+    format: result.format ?? null,
     is_favorite: false,
     started_at: null,
     finished_at: null,

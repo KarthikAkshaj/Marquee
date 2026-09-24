@@ -1,7 +1,17 @@
 import { z } from "zod";
 import { CONFIDENT, similarity } from "@/lib/match";
+import type { ItemFormat } from "@/lib/status";
 import { cleanGenres, fetchJson, toScore } from "./http";
-import { ProviderError, RESULT_LIMIT, type Elsewhere, type OtherForm, type Release, type SearchResult, type SeriesTitle } from "./types";
+import {
+  ProviderError,
+  RESULT_LIMIT,
+  type Elsewhere,
+  type OtherForm,
+  type Release,
+  type SearchResult,
+  type SeriesTitle,
+  type TitleShape,
+} from "./types";
 
 const ENDPOINT = "https://graphql.anilist.co";
 
@@ -53,6 +63,16 @@ const FORMATS: Record<string, string> = {
   MUSIC: "Music",
 };
 
+/** AniList's shapes in our own words. MUSIC is junk and never gets this far. */
+const ITEM_FORMAT_OF: Record<string, ItemFormat> = {
+  TV: "tv",
+  TV_SHORT: "tv_short",
+  MOVIE: "movie",
+  SPECIAL: "special",
+  OVA: "ova",
+  ONA: "ona",
+};
+
 /** Still coming out, so the episode count isn't final. */
 const UNFINISHED = new Set(["RELEASING", "NOT_YET_RELEASED"]);
 
@@ -84,6 +104,9 @@ export function normaliseAniList(media: AniListMedia): SearchResult | null {
     genres: cleanGenres(media.genres ?? []),
     communityScore: toScore(media.averageScore),
     accentColor: color && /^#[0-9a-f]{6}$/i.test(color) ? color.toLowerCase() : undefined,
+    // For a film this is the whole thing; for a run it is one episode.
+    runtimeMinutes: media.duration && media.duration > 0 ? media.duration : undefined,
+    format: media.format ? ITEM_FORMAT_OF[media.format] : undefined,
   };
 }
 
@@ -126,6 +149,49 @@ ${queries.map((_, index) => `q${index}: Page(perPage: ${perPage}) { media(search
     schema,
   );
   return queries.map((_, index) => useful(body.data[`q${index}`]?.media ?? []));
+}
+
+/** Most ids one request will answer for. AniList's own page limit is 50. */
+export const ANILIST_SHAPE_BATCH = 50;
+
+const SHAPE_QUERY = `query ($ids: [Int]) {
+  Page(perPage: ${ANILIST_SHAPE_BATCH}) {
+    media(id_in: $ids, type: ANIME) { id format duration }
+  }
+}`;
+
+const shapeSchema = z.object({ id: z.number(), format: z.string().nullish(), duration: z.number().nullish() });
+
+function shapeOf(media: z.infer<typeof shapeSchema>): TitleShape {
+  return {
+    runtimeMinutes: media.duration && media.duration > 0 ? media.duration : undefined,
+    format: media.format ? ITEM_FORMAT_OF[media.format] : undefined,
+  };
+}
+
+/**
+ * How long each of these anime runs and what shape they are, by AniList id, for
+ * filling in titles added before any of that was kept. Fifty in one request,
+ * because a shelf of anime is otherwise fifty requests against a 30 a minute
+ * limit. Ids AniList no longer knows are simply absent from the answer.
+ */
+export async function getAniListShapes(ids: readonly string[]): Promise<Map<string, TitleShape>> {
+  const numeric = [...new Set(ids.map(Number).filter((id) => Number.isInteger(id) && id > 0))];
+  if (numeric.length === 0) return new Map();
+  if (numeric.length > ANILIST_SHAPE_BATCH) throw new ProviderError("anilist", "too many ids in one batch");
+
+  const schema = z.object({ data: z.object({ Page: z.object({ media: z.array(shapeSchema) }) }) });
+  const body = await fetchJson(
+    "anilist",
+    ENDPOINT,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: SHAPE_QUERY, variables: { ids: numeric } }),
+    },
+    schema,
+  );
+  return new Map(body.data.Page.media.map((media) => [String(media.id), shapeOf(media)]));
 }
 
 const OTHER_FIELDS = "title { english romaji } format countryOfOrigin";

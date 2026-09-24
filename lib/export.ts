@@ -32,6 +32,8 @@ function exportItem(item: Row<"items">): ExportItem {
     accent_color: item.accent_color,
     genres: item.genres,
     community_score: item.community_score,
+    runtime_minutes: item.runtime_minutes,
+    format: item.format,
     source: item.source,
     external_id: item.external_id,
     created_at: item.created_at,

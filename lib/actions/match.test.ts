@@ -46,8 +46,8 @@ function query(table: keyof typeof db) {
 }
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
-const getSeriesDetails = vi.fn();
-vi.mock("@/lib/search", () => ({ getSeriesDetails: (id: string) => getSeriesDetails(id) }));
+const getAddDetails = vi.fn();
+vi.mock("@/lib/search", () => ({ getAddDetails: (kind: string, id: string) => getAddDetails(kind, id) }));
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
     auth: { getClaims: async () => ({ data: { claims: { sub: "user-1" } } }) },
@@ -98,7 +98,7 @@ describe("saveMatches", () => {
     db.items = [item(1, { title: "naruto" })];
     failing.clear();
     rpc.mockReset();
-    getSeriesDetails.mockReset();
+    getAddDetails.mockReset();
   });
 
   it("turns a hand-added title into the match, with its details", async () => {
@@ -140,7 +140,7 @@ describe("saveMatches", () => {
   it("looks a series' episode count up, and reports titles already taken on the shelf", async () => {
     db.categories = [{ id: CATEGORY, kind: "series" }];
     db.items = [item(1), item(2)];
-    getSeriesDetails.mockResolvedValue({ progressTotal: 62, genres: ["Drama", "Crime"] });
+    getAddDetails.mockResolvedValue({ progressTotal: 62, genres: ["Drama", "Crime"] });
     failing.add(id(2));
     const bb = { source: "tmdb" as const, externalId: "1396", title: "Breaking Bad" };
     const result = await saveMatches(input({ matches: [{ itemId: id(1), result: bb }, { itemId: id(2), result: bb }] }));

@@ -98,6 +98,7 @@ export function normaliseTmdbMovie(movie: TmdbMovie, genres: GenreNames): Search
     ...shared(movie, genres),
     title,
     year: yearFromDate(movie.release_date),
+    format: "movie",
     subtitle: originalTitle(title, movie.original_title),
     altTitle: originalTitle(title, movie.original_title),
   };
@@ -111,6 +112,7 @@ export function normaliseTmdbShow(show: TmdbShow, genres: GenreNames): SearchRes
     ...shared(show, genres),
     title,
     year: yearFromDate(show.first_air_date),
+    format: "tv",
     subtitle: originalTitle(title, show.original_name),
     altTitle: originalTitle(title, show.original_name),
   };
@@ -141,18 +143,42 @@ const showDetailsSchema = z.object({
   id: z.number(),
   in_production: z.boolean().nullish(),
   number_of_episodes: z.number().nullish(),
+  episode_run_time: z.array(z.number()).nullish(),
   genres: z.array(z.object({ name: z.string() })).nullish(),
 });
 
-export type SeriesDetails = Pick<SearchResult, "progressTotal" | "genres">;
+export type SeriesDetails = Pick<SearchResult, "progressTotal" | "genres" | "runtimeMinutes">;
 
 export function normaliseShowDetails(details: z.infer<typeof showDetailsSchema>): SeriesDetails {
   const episodes = details.number_of_episodes ?? 0;
   return {
     // A show still in production gets no total, so +1 never "finishes" it early.
     progressTotal: details.in_production || episodes <= 0 ? undefined : episodes,
+    // TMDB lists every run time a show has used; the first is the usual one.
+    runtimeMinutes: runtime(details.episode_run_time?.[0]),
     genres: cleanGenres((details.genres ?? []).map((genre) => genre.name)),
   };
+}
+
+const movieDetailsSchema = z.object({ id: z.number(), runtime: z.number().nullish() });
+
+export type MovieDetails = Pick<SearchResult, "runtimeMinutes">;
+
+/** Longest film ever released runs under 15 hours; anything past this is bad data. */
+const MAX_RUNTIME = 2000;
+
+function runtime(minutes: number | null | undefined): number | undefined {
+  return minutes && minutes > 0 && minutes <= MAX_RUNTIME ? Math.round(minutes) : undefined;
+}
+
+export function normaliseMovieDetails(details: z.infer<typeof movieDetailsSchema>): MovieDetails {
+  return { runtimeMinutes: runtime(details.runtime) };
+}
+
+/** A film's length, which search results don't carry. Looked up on add. */
+export async function getTmdbMovieDetails(id: string): Promise<MovieDetails> {
+  if (!/^\d+$/.test(id)) throw new ProviderError("tmdb", "invalid movie id");
+  return normaliseMovieDetails(await request(`/movie/${id}?language=en-US`, movieDetailsSchema));
 }
 
 export async function getTmdbSeriesDetails(id: string): Promise<SeriesDetails> {

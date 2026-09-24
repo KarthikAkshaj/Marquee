@@ -21,6 +21,8 @@ export type WrappedItem = Pick<
   | "genres"
   | "progress_current"
   | "progress_total"
+  | "runtime_minutes"
+  | "format"
   | "created_at"
   | "finished_at"
   | "cover_url"
@@ -48,22 +50,23 @@ export const ENOUGH_TITLES = 5;
 const GENRE_SLICES = 5;
 
 /**
- * No runtime is stored on an item, so hours are an estimate and the copy says
- * so out loud: a TV anime episode runs about 24 minutes, an hour-long series
- * episode about 45, a live action feature about 115.
+ * The fallback when a row has no stored runtime: everything added before
+ * runtimes were kept, and everything added by hand. A TV anime episode runs
+ * about 24 minutes, an hour-long series episode about 45, a live action
+ * feature about 115, an anime film about 90. The copy says "roughly".
  */
 const MINUTES = { anime: 24, series: 45, movie: 115 } as const;
-
-/**
- * An anime film sits on an anime shelf with a single "episode", and priced as
- * an episode it would be 24 minutes of a feature. A one-off OVA looks exactly
- * the same from here and gets charged the same: nothing on the row says which
- * it is, and the frame only ever promises a rough number.
- */
 const ANIME_FILM_MINUTES = 90;
 
-function isAnimeFilm(item: WrappedItem): boolean {
-  return item.kind === "anime" && item.progress_total === 1;
+/**
+ * One sitting, where the runtime is the whole picture rather than a figure per
+ * episode. Anything added since runtimes were stored says so outright. Older
+ * rows fall back to the shape of the shelf, and to the guess that an anime
+ * with exactly one episode is probably a film and might be an OVA.
+ */
+function isFeature(item: WrappedItem): boolean {
+  if (item.format) return item.format === "movie";
+  return item.kind === "movie" || (item.kind === "anime" && item.progress_total === 1);
 }
 
 export type GenreSlice = { name: string; count: number; share: number };
@@ -167,14 +170,12 @@ function watchTime(finished: WrappedItem[]) {
   let minutes = 0;
 
   for (const item of finished) {
-    if (isAnimeFilm(item)) {
-      // A feature, not an episode: it counts towards the hours and nothing else.
-      minutes += ANIME_FILM_MINUTES;
+    if (isFeature(item)) {
+      // Counts towards the hours and nothing else: a film is not an episode.
+      minutes += item.runtime_minutes ?? (item.kind === "movie" ? MINUTES.movie : ANIME_FILM_MINUTES);
     } else if (item.kind === "anime" || item.kind === "series") {
       episodes += item.progress_current;
-      minutes += item.progress_current * MINUTES[item.kind];
-    } else if (item.kind === "movie") {
-      minutes += MINUTES.movie;
+      minutes += item.progress_current * (item.runtime_minutes ?? MINUTES[item.kind]);
     }
     // Games and custom shelves count no progress, so they can't be timed.
   }

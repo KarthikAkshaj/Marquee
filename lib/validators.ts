@@ -2,7 +2,7 @@ import { z } from "zod";
 import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_KINDS } from "@/lib/categories";
 import { AVATAR_MAX_BYTES, AVATAR_TYPES, BIO_MAX, DISPLAY_NAME_MAX, USERNAME_PATTERN, type AvatarType } from "@/lib/profile";
 import { SEARCH_KINDS } from "@/lib/search/types";
-import { ITEM_STATUSES } from "@/lib/status";
+import { ITEM_FORMATS, ITEM_STATUSES } from "@/lib/status";
 
 /** Every server action input is parsed through zod (SPEC §11). */
 export const emailSchema = z
@@ -192,6 +192,8 @@ const searchResultSchema = z.object({
   genres: z.array(z.string().trim().min(1).max(40)).max(12).optional().catch(undefined),
   communityScore: z.number().int().min(0).max(100).optional().catch(undefined),
   accentColor: hexColorSchema.optional().catch(undefined),
+  runtimeMinutes: z.number().int().min(1).max(2000).optional().catch(undefined),
+  format: z.enum(ITEM_FORMATS).optional().catch(undefined),
 });
 
 export const addFromSearchSchema = z.object({

@@ -60,6 +60,7 @@ export type Database = {
           created_at: string
           external_id: string | null
           finished_at: string | null
+          format: Database["public"]["Enums"]["item_format"] | null
           genres: string[]
           id: string
           is_favorite: boolean
@@ -67,6 +68,7 @@ export type Database = {
           progress_current: number
           progress_total: number | null
           rating: number | null
+          runtime_minutes: number | null
           source: Database["public"]["Enums"]["meta_source"]
           started_at: string | null
           status: Database["public"]["Enums"]["item_status"]
@@ -84,6 +86,7 @@ export type Database = {
           created_at?: string
           external_id?: string | null
           finished_at?: string | null
+          format?: Database["public"]["Enums"]["item_format"] | null
           genres?: string[]
           id?: string
           is_favorite?: boolean
@@ -91,6 +94,7 @@ export type Database = {
           progress_current?: number
           progress_total?: number | null
           rating?: number | null
+          runtime_minutes?: number | null
           source?: Database["public"]["Enums"]["meta_source"]
           started_at?: string | null
           status?: Database["public"]["Enums"]["item_status"]
@@ -108,6 +112,7 @@ export type Database = {
           created_at?: string
           external_id?: string | null
           finished_at?: string | null
+          format?: Database["public"]["Enums"]["item_format"] | null
           genres?: string[]
           id?: string
           is_favorite?: boolean
@@ -115,6 +120,7 @@ export type Database = {
           progress_current?: number
           progress_total?: number | null
           rating?: number | null
+          runtime_minutes?: number | null
           source?: Database["public"]["Enums"]["meta_source"]
           started_at?: string | null
           status?: Database["public"]["Enums"]["item_status"]
@@ -177,6 +183,7 @@ export type Database = {
     }
     Enums: {
       category_kind: "anime" | "movie" | "series" | "game" | "custom"
+      item_format: "movie" | "tv" | "tv_short" | "ova" | "ona" | "special"
       item_status: "planned" | "in_progress" | "completed" | "dropped"
       meta_source: "tmdb" | "anilist" | "igdb" | "manual"
     }
@@ -307,6 +314,7 @@ export const Constants = {
   public: {
     Enums: {
       category_kind: ["anime", "movie", "series", "game", "custom"],
+      item_format: ["movie", "tv", "tv_short", "ova", "ona", "special"],
       item_status: ["planned", "in_progress", "completed", "dropped"],
       meta_source: ["tmdb", "anilist", "igdb", "manual"],
     },

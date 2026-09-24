@@ -39,8 +39,8 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
-const getSeriesDetails = vi.fn();
-vi.mock("@/lib/search", () => ({ getSeriesDetails: (id: string) => getSeriesDetails(id) }));
+const getAddDetails = vi.fn();
+vi.mock("@/lib/search", () => ({ getAddDetails: (kind: string, id: string) => getAddDetails(kind, id) }));
 
 const { addFromSearch, setItemAccent } = await import("./items");
 
@@ -70,7 +70,7 @@ describe("addFromSearch", () => {
     categoryKind = "anime";
     insertError = null;
     inserted.length = 0;
-    getSeriesDetails.mockReset();
+    getAddDetails.mockReset();
   });
 
   it("saves the title with its metadata snapshot under the browser's id", async () => {
@@ -94,16 +94,16 @@ describe("addFromSearch", () => {
 
   it("looks up a series' episode total when it's added", async () => {
     categoryKind = "series";
-    getSeriesDetails.mockResolvedValue({ progressTotal: 62, genres: ["Drama", "Crime"] });
+    getAddDetails.mockResolvedValue({ progressTotal: 62, genres: ["Drama", "Crime"] });
     const breakingBad = { source: "tmdb" as const, externalId: "1396", title: "Breaking Bad", genres: ["Drama"] };
     expect(await addFromSearch(input({ result: breakingBad }))).toEqual({ ok: true });
-    expect(getSeriesDetails).toHaveBeenCalledWith("1396");
+    expect(getAddDetails).toHaveBeenCalledWith("series", "1396");
     expect(inserted[0]).toMatchObject({ progress_total: 62, genres: ["Drama", "Crime"] });
   });
 
   it("still adds a series when TMDB can't give details, just without a total", async () => {
     categoryKind = "series";
-    getSeriesDetails.mockResolvedValue(null);
+    getAddDetails.mockResolvedValue(null);
     await addFromSearch(input({ result: { source: "tmdb", externalId: "95396", title: "Severance", genres: ["Drama"] } }));
     expect(inserted[0]).toMatchObject({ progress_total: null, genres: ["Drama"] });
   });

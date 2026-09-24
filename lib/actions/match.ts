@@ -3,8 +3,7 @@
 import { revalidatePath } from "next/cache";
 import type { z } from "zod";
 import { SOURCE_FOR_KIND, searchKindOf } from "@/lib/add";
-import { getSeriesDetails } from "@/lib/search";
-import type { SeriesDetails } from "@/lib/search/tmdb";
+import { getAddDetails, type AddDetails } from "@/lib/search";
 import type { ItemStatus } from "@/lib/status";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
@@ -25,8 +24,8 @@ export type SaveMatchesResult =
  * What a hand-added title becomes: the result's details, and a total only where
  * there wasn't one and it isn't below your progress. Finished titles fill up to it.
  */
-function matchPatch(item: ShelfRow, result: Result, title: string, series: SeriesDetails | null): ItemUpdate {
-  const total = series ? series.progressTotal : result.progressTotal;
+function matchPatch(item: ShelfRow, result: Result, title: string, details: AddDetails | null): ItemUpdate {
+  const total = details ? details.progressTotal : result.progressTotal;
   const patch: ItemUpdate = {
     title,
     year: result.year ?? null,
@@ -35,8 +34,10 @@ function matchPatch(item: ShelfRow, result: Result, title: string, series: Serie
     accent_color: result.accentColor ?? null,
     source: result.source,
     external_id: result.externalId,
-    genres: series?.genres ?? result.genres ?? [],
+    genres: details?.genres ?? result.genres ?? [],
     community_score: result.communityScore ?? null,
+    runtime_minutes: details?.runtimeMinutes ?? result.runtimeMinutes ?? null,
+    format: result.format ?? null,
   };
   if (total && item.progress_total === null && total >= item.progress_current) {
     patch.progress_total = total;
@@ -148,8 +149,8 @@ export async function saveMatches(input: SaveMatchesInput): Promise<SaveMatchesR
       failed.push(itemId);
       continue;
     }
-    const series = kind === "series" ? await getSeriesDetails(result.externalId) : null;
-    const patch = matchPatch(item, result, keepTitles ? item.title : result.title, series);
+    const details = await getAddDetails(kind, result.externalId);
+    const patch = matchPatch(item, result, keepTitles ? item.title : result.title, details);
     const { error: updateError } = await supabase.from("items").update(patch).eq("id", itemId).eq("source", "manual");
     // 23505: another title on this shelf is already that search result.
     if (updateError?.code === "23505") taken.push(itemId);

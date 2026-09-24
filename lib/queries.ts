@@ -239,7 +239,7 @@ export const getWrappedItems = cache(async (year: number): Promise<WrappedItem[]
   const { data, error } = await supabase
     .from("items")
     .select(
-      "title, status, rating, genres, progress_current, progress_total, created_at, finished_at, cover_url, accent_color, categories(name, kind)",
+      "title, status, rating, genres, progress_current, progress_total, runtime_minutes, format, created_at, finished_at, cover_url, accent_color, categories(name, kind)",
     )
     .or(`created_at.gte.${year}-01-01,status.eq.completed`);
 

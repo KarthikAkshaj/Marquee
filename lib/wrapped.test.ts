@@ -10,6 +10,8 @@ function item(overrides: Partial<WrappedItem> = {}): WrappedItem {
     genres: [],
     progress_current: 0,
     progress_total: null,
+    runtime_minutes: null,
+    format: null,
     created_at: "2026-06-01T10:00:00Z",
     finished_at: null,
     cover_url: null,
@@ -92,6 +94,36 @@ describe("summarise", () => {
       2026,
     );
     expect(wrapped.episodes).toBe(0);
+    expect(wrapped.hours).toBe(2);
+  });
+
+  it("trusts a stored runtime over the estimate", () => {
+    const wrapped = summarise(
+      [
+        ...padding(),
+        // 12 episodes at 47 minutes, not the 24 an anime episode is assumed to run.
+        item({ kind: "anime", format: "tv", runtime_minutes: 47, progress_current: 12, progress_total: 12, finished_at: "2026-03-01T00:00:00Z" }),
+        // A 106 minute picture, not the 90 a formatless anime film is guessed at.
+        item({ kind: "anime", format: "movie", runtime_minutes: 106, progress_current: 1, progress_total: 1, finished_at: "2026-03-01T00:00:00Z" }),
+      ],
+      2026,
+    );
+    expect(wrapped.episodes).toBe(12);
+    // 12 * 47 + 106 = 670 minutes.
+    expect(wrapped.hours).toBe(11);
+  });
+
+  it("counts a stored OVA as an episode and a stored film as neither", () => {
+    const wrapped = summarise(
+      [
+        ...padding(),
+        item({ kind: "anime", format: "ova", runtime_minutes: 30, progress_current: 1, progress_total: 1, finished_at: "2026-03-01T00:00:00Z" }),
+        item({ kind: "anime", format: "movie", runtime_minutes: 90, progress_current: 1, progress_total: 1, finished_at: "2026-03-01T00:00:00Z" }),
+      ],
+      2026,
+    );
+    expect(wrapped.episodes).toBe(1);
+    // 30 + 90. Without the format both would have been charged 90 and neither counted.
     expect(wrapped.hours).toBe(2);
   });
 

@@ -37,6 +37,8 @@ function item(overrides: Partial<Item>): Item {
     accent_color: null,
     genres: [],
     community_score: null,
+    runtime_minutes: null,
+    format: null,
     year: null,
     source: "manual",
     external_id: null,
