@@ -1,76 +1,134 @@
 # Marquee
 
-> A cinematic tracker for everything you watch and play: anime, movies, series, games, or any custom shelf you create.
+A cinematic media tracker for anime, films, series, games, and any shelf you want to define.
 
-Marquee replaces scattered notes apps, spreadsheets, and Word documents with one fast, personal, multi-user media library. Sign up, curate your shelves, track progress, and enjoy a rich, movie-theater-inspired dark interface designed for enthusiasts.
+**[getmarquee.vercel.app](https://getmarquee.vercel.app)**
 
----
+Marquee replaces the notes app, the spreadsheet and the half finished Word document with a single library that looks like it was designed on purpose. It is multi user and private by default: every row is protected by Postgres row level security, so no account can read another account's library.
 
-## Highlights
-
-- **Cinematic Dark Design**: Movie-theater ambiance featuring warm amber accents, subtle film grain, ambient backdrop glows, and 2:3 poster art with automated dominant-color extraction.
-- **Smart Metadata Integration**: Search-as-you-add with live covers, release years, episode counts, genres, and community ratings powered by **TMDB** (movies & series), **AniList** (anime), and **IGDB** (games), with a clean manual entry fallback and procedural cover generation.
-- **Universal Importer**: Migrate existing watchlists in seconds. Paste raw text or drop `.docx`, `.md`, `.csv`, `.tsv`, `.xlsx`, `.json`, `.html`, or MyAnimeList `.xml` files. Includes inline review, fuzzy duplicate detection, and batch insertion.
-- **"Find Covers" Batch Matcher**: Turn plain imported titles into rich media cards with automated fuzzy title matching, similarity scoring, season expansion, and franchise traversal.
-- **Command Palette (`Ctrl+K` / `⌘K`)**: Instant search across your entire collection, fast navigation between shelves, quick-add shortcuts, and global actions.
-- **Interactive Tracking**: Quick "+1" progress step right from Home, 10-point ratings, status steppers, personal notes, favorite toggles, and automatic start/finish timestamps.
-- **Surprise Me Reel**: Cannot decide what to watch next? Spin the marquee slot machine to pick a random planned title from your backlog.
-- **Ticket Stamp Animation**: Celebrate completions with an animated "ADMIT ONE" ticket-stamp celebration and mobile haptic feedback.
-- **Privacy & Portability First**: Multi-user architecture with Row-Level Security (RLS) ensuring your library remains strictly private. Export your data anytime to JSON or RFC-4180 CSV.
-- **Installable PWA**: Responsive from 360px to 4K displays with dedicated mobile bottom sheets, native-like gesture navigation, and standalone PWA installation.
-- **Accessibility**: Audited for WCAG 2.2 AA compliance with 100/100 Lighthouse accessibility scores across every screen.
+Built with Next.js 16, React 19 Server Components and Server Actions, Tailwind CSS v4 and Supabase. TypeScript throughout, strict, with no `any`.
 
 ---
 
-## Tech Stack
+## Contents
 
-| Layer | Technology |
-|---|---|
-| **Framework** | Next.js 16 (App Router, Turbopack, React 19 Server Components & Actions) |
-| **Styling** | Tailwind CSS v4 (`@theme` CSS tokens in `globals.css`) |
-| **Components** | Radix UI primitives & custom styled components (`cmdk`, `sonner`) |
-| **Motion** | Motion (`motion/react`) with reduced-motion support |
-| **Icons** | Lucide React |
-| **Database & Auth** | Supabase (PostgreSQL, Row-Level Security, Auth, Storage, SSR) |
-| **Metadata APIs** | TMDB API, AniList GraphQL, IGDB API (via Twitch OAuth) |
-| **Validation** | Zod (for server actions and API inputs) |
-| **File Parsing** | Mammoth (`.docx`), JSZip (`.xlsx`, `.zip`) |
-| **Testing** | Vitest (unit & integration tests), Playwright (E2E testing) |
-| **Bot Protection** | Cloudflare Turnstile (invisible captcha) |
+- [Features](#features)
+- [Architecture](#architecture)
+- [Tech stack](#tech-stack)
+- [Getting started](#getting-started)
+- [Scripts](#scripts)
+- [Project structure](#project-structure)
+- [Design system](#design-system)
+- [Keyboard shortcuts](#keyboard-shortcuts)
+- [Security and privacy](#security-and-privacy)
+- [Testing and accessibility](#testing-and-accessibility)
+- [Attribution](#attribution)
+- [License](#license)
 
 ---
 
-## Architecture Overview
+## Features
+
+### Library
+
+Shelves are typed. An anime shelf says "Plan to Watch" and counts episodes, a games shelf says "Backlog" and says "Playing", a films shelf says "Watchlist" and "Watched". Status wording lives in one module, never hard coded in a component, so a new shelf kind is a data change rather than a search and replace.
+
+Progress steps from the shelf or from Home without opening anything. Ratings are out of 10, notes are freeform, favourites are one tap, and start and finish dates are stamped by a database trigger rather than by the client.
+
+### Metadata
+
+Titles are searched as you type against TMDB for films and series, AniList for anime, and IGDB for games. A match brings back the cover, release year, episode count, genres, community score, runtime and format, plus the dominant colour of the artwork, which becomes that title's accent throughout the interface.
+
+Provider keys never reach the browser. All three are called from a single server route. If a key is absent the search returns empty and the interface offers manual entry instead of failing.
+
+### Import and matching
+
+Existing lists come in from pasted text or from `.docx`, `.md`, `.csv`, `.tsv`, `.xlsx`, `.json`, `.html` and MyAnimeList `.xml`. Everything is parsed, deduplicated against what is already on the shelf and shown for review before a single row is written.
+
+Imported titles arrive as plain text. **Find covers** then matches them in bulk: fuzzy title scoring, a candidate picker for anything ambiguous, and franchise traversal that offers the rest of a series when it finds one season.
+
+### Year in review
+
+`/wrapped` is a scroll snapped reel of six frames covering what arrived, what was finished, screen time, genre shares and the year's best rated title, with the whole reel tinted by that title's cover. It exports as a shareable PNG rendered server side with Satori.
+
+It is careful about what it claims. Two clocks are kept apart: `created_at` is true for everyone, while `finished_at` only exists for titles completed inside the app, so an imported library's undated completions get a line of their own rather than being counted as this year's. Screen time uses real runtimes where a provider supplied one and falls back to documented per format estimates where it did not.
+
+### Interface
+
+A command palette on `Ctrl+K` searches every title, jumps between shelves and runs global actions. **Surprise me** spins a marquee reel and picks a random planned title. Completing something stamps an ADMIT ONE ticket, with haptics on phones that support it.
+
+The layout is responsive from 360px upward, with bottom sheets and a bottom navigation bar on phones, and it installs as a PWA.
+
+### Portability
+
+Export the whole library as JSON or a single shelf as RFC 4180 CSV, at any time, from Settings. Deleting an account purges the profile, the uploaded avatar, every category and every item through a cascading database function, not through a best effort client loop.
+
+---
+
+## Architecture
 
 ```
-Browser (React Server Components + Interactive Client Islands)
-   │
-   ├── Server Components ── Direct DB reads via Supabase Server Client (RLS protected)
-   ├── Server Actions ───── Type-safe mutations (Zod validated) + optimistic updates
-   └── Route Handlers
-         ├── /api/search ── Proxied search to TMDB, AniList & IGDB (server-cached)
-         └── /api/titles ── Lightweight title indexing for the ⌘K command palette
+Browser
+  React Server Components, with client islands only where there is interaction
+      |
+      |-- Server Components ....... direct Postgres reads through the Supabase server client,
+      |                             scoped by row level security
+      |-- Server Actions .......... mutations validated with Zod, then revalidatePath,
+      |                             with useOptimistic for status, progress and favourites
+      |-- Route Handlers
+      |     /api/search ........... proxied search to TMDB, AniList and IGDB, server cached
+      |     /api/titles ........... lightweight title index for the command palette
+      |-- /wrapped/ticket ......... year in review PNG, rendered with next/og and Satori
 
 Supabase
-   ├── Auth (Google OAuth + 6-digit email one-time code)
-   ├── Postgres Tables (profiles, categories, items) guarded by RLS policies
-   ├── Storage Buckets (avatars with client-side WebP cropping)
-   └── Triggers (seed default shelves on signup, auto-timestamp completion dates)
+  Auth ........................... Google OAuth and six digit email codes, with an
+                                   invisible Cloudflare Turnstile check on the form
+  Postgres ....................... profiles, categories, items, every table behind RLS
+  Storage ........................ avatars, cropped and converted to WebP in the browser
+  Triggers and functions ......... default shelves on signup, status date stamping,
+                                   batch import, account deletion, runtime backfill
 
-proxy.ts ── Session refresh, route protection, and Content-Security-Policy headers
+proxy.ts
+  Session refresh, route guarding, and a per request Content Security Policy nonce
 ```
+
+Reads happen in Server Components. Writes happen in Server Actions under `lib/actions`, each one validating its input with Zod and re-checking the session, because the proxy is a convenience and not the security boundary. The service role key is never used in application code.
+
+URL is state. The active shelf tab, view mode, sort order and open item all live in search params, so every view is linkable and the back button behaves.
 
 ---
 
-## Getting Started
+## Tech stack
+
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 16.3.5, App Router, Turbopack, React 19.2.8 |
+| Language | TypeScript, strict |
+| Styling | Tailwind CSS v4, design tokens declared with `@theme` in `globals.css` |
+| Components | Radix UI primitives, `cmdk`, `sonner`, custom primitives in `components/ui` |
+| Motion | Motion for React, with `prefers-reduced-motion` respected throughout |
+| Icons | Lucide |
+| Database, auth, storage | Supabase, Postgres with row level security, `@supabase/ssr` |
+| Metadata | TMDB REST, AniList GraphQL, IGDB via Twitch OAuth |
+| Validation | Zod v4 |
+| Drag and drop | dnd kit, for reordering shelves |
+| File parsing | Mammoth for `.docx`, JSZip for `.xlsx` and `.zip` |
+| Image generation | `next/og` and Satori |
+| Bot protection | Cloudflare Turnstile, invisible mode |
+| Testing | Vitest, Testing Library, Playwright |
+| Hosting | Vercel |
+
+---
+
+## Getting started
 
 ### Prerequisites
 
-- **Node.js**: 20.x or higher
-- **Package Manager**: `pnpm` (version 9 or higher recommended)
-- **Supabase Account**: A Supabase project for Auth, Postgres, and Storage
+- Node.js 20 or newer
+- pnpm 12 or newer
+- A Supabase project, for Postgres, Auth and Storage
 
-### 1. Clone & Install
+### 1. Install
 
 ```bash
 git clone https://github.com/KarthikAkshaj/Marquee.git
@@ -78,164 +136,191 @@ cd Marquee
 pnpm install
 ```
 
-### 2. Configure Environment Variables
-
-Copy the example environment file:
+### 2. Configure
 
 ```bash
 cp .env.example .env.local
 ```
 
-Fill in your configuration settings:
+| Variable | Required | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes | Publishable (anon) key |
+| `NEXT_PUBLIC_SITE_URL` | Yes | Origin used to build auth redirects |
+| `SUPABASE_PROJECT_ID` | For `db:types` | Project ref, used to generate database types |
+| `TMDB_READ_TOKEN` | For films and series | TMDB read access token |
+| `TWITCH_CLIENT_ID` | For games | IGDB is authenticated through Twitch |
+| `TWITCH_CLIENT_SECRET` | For games | As above |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Optional | Enables the sign-in captcha. The secret goes in the Supabase dashboard, not here |
 
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://<your-project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<your-supabase-anon-or-publishable-key>
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+Missing provider keys are handled rather than fatal. A provider without a key returns no results and the interface offers manual entry. Without a Turnstile site key there is no widget and no token, which is how local development and the test suite run.
 
-# Supabase CLI (for generating TypeScript types)
-SUPABASE_PROJECT_ID=<your-project-ref>
+### 3. Set up the database
 
-# Metadata Providers (Optional for initial boot, required for poster lookups)
-TMDB_READ_TOKEN=<your-tmdb-api-read-access-token>
-TWITCH_CLIENT_ID=<your-twitch-client-id-for-igdb>
-TWITCH_CLIENT_SECRET=<your-twitch-client-secret-for-igdb>
+Run the files in `supabase/migrations/` against your project, in order:
 
-# Bot Protection (Optional)
-NEXT_PUBLIC_TURNSTILE_SITE_KEY=<your-cloudflare-turnstile-site-key>
-```
+| File | Contents |
+|---|---|
+| `0001_init.sql` | Enums, profiles, categories, items, triggers, RLS policies |
+| `0002_avatars.sql` | Avatar storage bucket and its policies |
+| `0003_username_available.sql` | Username availability function |
+| `0004_item_metadata.sql` | Genres and community score |
+| `0005_import_titles.sql` | Batch import, with status date stamping suppressed |
+| `0006_item_runtime.sql` | Runtime and format columns |
+| `0007_fill_item_runtimes.sql` | Runtime backfill, with the updated_at trigger suppressed |
 
-> **Note**: Marquee gracefully handles missing provider keys. If IGDB or TMDB tokens are not supplied, searches will return empty results and allow manual entry without crashing.
-
-### 3. Initialize Database & Storage
-
-Apply the SQL migration scripts located in `supabase/migrations/` to your Supabase project in numerical order:
-
-1. `0001_init.sql`: Core schema (enums, profiles, categories, items, triggers, RLS policies).
-2. `0002_avatars.sql`: Storage bucket setup and storage policies for user avatars.
-3. `0003_username_available.sql`: Unique username availability checking RPC.
-4. `0004_item_metadata.sql`: Genres and community score tracking.
-5. `0005_import_titles.sql`: Batch import transaction procedure.
-
-Generate TypeScript types from your schema at any time:
+Then generate types from the live schema:
 
 ```bash
 pnpm db:types
 ```
 
-### 4. Run Development Server
+`lib/supabase/database.types.ts` is generated. It is never edited by hand.
+
+### 4. Run
 
 ```bash
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
+The app is at http://localhost:3000.
 
 ---
 
-## Available Scripts
+## Scripts
 
 | Command | Description |
 |---|---|
-| `pnpm dev` | Starts the local development server with Turbopack |
-| `pnpm build` | Builds the production bundle |
-| `pnpm start` | Runs the built production server |
-| `pnpm lint` | Checks source code using ESLint |
-| `pnpm typecheck` | Validates Next.js type generation and TypeScript types |
-| `pnpm test` | Runs unit and integration test suites using Vitest |
-| `pnpm test:watch` | Runs Vitest in interactive watch mode |
-| `pnpm test:e2e` | Runs end-to-end browser tests via Playwright |
-| `pnpm db:types` | Generates TypeScript database types from Supabase |
+| `pnpm dev` | Development server with Turbopack |
+| `pnpm build` | Production build |
+| `pnpm start` | Serve the production build |
+| `pnpm lint` | ESLint |
+| `pnpm typecheck` | Next.js type generation, then `tsc --noEmit` |
+| `pnpm test` | Vitest, single run |
+| `pnpm test:watch` | Vitest, watch mode |
+| `pnpm test:e2e` | Playwright, desktop and mobile projects |
+| `pnpm db:types` | Regenerate database types from Supabase |
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
-├── app/
-│   ├── (app)/               # Authenticated app shell
-│   │   ├── c/[slug]/        # Category shelf views (grid, list, match)
-│   │   ├── home/            # Personal dashboard (continue, stats, recent)
-│   │   ├── import/          # Bulk import wizard
-│   │   └── settings/        # Profile, categories, data export & account
-│   ├── (marketing)/         # Public landing, privacy policy, and terms
-│   ├── api/                 # Route handlers (/api/search, /api/titles)
-│   ├── auth/callback/       # OAuth and OTP authentication callback
-│   ├── login/               # Sign-in screen (Google OAuth & Email OTP)
-│   ├── globals.css          # Design tokens, themes, grain, and keyframes
-│   ├── manifest.ts          # Web app manifest for PWA installation
-│   └── layout.tsx           # Root HTML layout and font declarations
-├── components/
-│   ├── add/                 # Add dialogs, search inputs, and manual entry forms
-│   ├── auth/                # Sign-in cards, OTP inputs, and Turnstile captcha
-│   ├── category/            # Shelf headers, filter toolbars, grid & list layouts
-│   ├── fun/                 # Surprise Me slot reel, Ticket Stamp animations
-│   ├── home/                # Continue carousel, category stat cards, recents
-│   ├── import/              # Format converter, file dropzone, preview table
-│   ├── items/               # PosterCard, ItemSheet, StatusPill, RatingBar
-│   ├── match/               # Batch cover matcher, candidate picker, season list
-│   ├── palette/             # Global Ctrl+K command palette
-│   ├── settings/            # Avatar cropper, category manager, export actions
-│   ├── shell/               # Desktop sidebar, mobile navigation, ambient glows
-│   └── ui/                  # Reusable UI primitives (dialogs, tooltips, buttons)
-├── lib/
-│   ├── actions/             # Server actions (items, categories, profile, data)
-│   ├── import/              # Document parsers (.docx, .csv, .xlsx, .md, .xml)
-│   ├── search/              # API clients for TMDB, AniList, and IGDB
-│   ├── supabase/            # Client, server, and proxy Supabase factories
-│   ├── status.ts            # Dynamic status labels mapped per category kind
-│   ├── palette.ts           # Fuzzy matching algorithm for titles and actions
-│   └── security.ts          # Content-Security-Policy and header generators
-├── supabase/
-│   └── migrations/          # PostgreSQL schemas, RLS policies, and triggers
-└── proxy.ts                 # Route guarding, session renewal, and security headers
+app/
+  (app)/                  Authenticated shell
+    c/[slug]/             Shelf views: grid, list, find covers
+    home/                 Continue watching, shelf stats, recents
+    import/               Import wizard
+    settings/             Profile, categories, data, account
+  (marketing)/            Landing page, privacy, terms
+  api/
+    search/               The only place provider APIs are called
+    titles/               Title index for the command palette
+  auth/callback/          OAuth and email code callback
+  login/                  Sign in
+  wrapped/                Year in review, and its PNG route
+  globals.css             Design tokens, grain, keyframes
+  manifest.ts             PWA manifest
+  error.tsx               Boundary above the app layout
+
+components/
+  add/ auth/ category/ fun/ home/ import/ items/ marketing/
+  match/ palette/ settings/ shell/ ui/ user/ wrapped/
+
+lib/
+  actions/                Server actions, one module per concern
+  import/                 Parsers for each supported file type
+  search/                 TMDB, AniList and IGDB clients, and their normalisers
+  supabase/               Browser, server and proxy client factories
+  items.ts                Progress and status transitions, kept pure
+  status.ts               Status wording per shelf kind. The only source
+  wrapped.ts              Year in review aggregation, kept pure
+  security.ts             Content Security Policy construction
+  validators.ts           Zod schemas for every action and route
+
+supabase/migrations/      Schema, RLS policies, triggers, functions
+e2e/                      Playwright specs
+proxy.ts                  Session refresh, route guarding, security headers
 ```
 
----
-
-## Design System
-
-Marquee is built around the **Cinematic Dark** visual language:
-
-- **Palette**: Pitch-black foundation (`#09090B`) paired with warm slate surfaces (`#111114`, `#18181C`), ivory text (`#EDE9E3`), and incandescent marquee amber (`#F4B650`).
-- **Category Colors**: Curated accents for each shelf type (Crimson for Anime, Amber for Movies, Violet for Series, Teal for Games, Sky, Rose, Lime, Sand).
-- **Typography**: 
-  - **Fraunces** (display serif) for headers, title cards, and branding.
-  - **Geist** (sans-serif) for functional interface elements and labels.
-  - **Geist Mono** for progress counts, ratings, dates, and keyboard shortcuts.
-- **Physicality**: Tactile depth with 1px inner highlights, soft colored glows, and an inline SVG turbulence grain overlay.
+Two rules keep this navigable. Anything with interesting logic is pulled into `lib` as a pure function so it can be tested without a browser or a database. Components stay under roughly 150 lines and are extracted when they grow past it.
 
 ---
 
-## Keyboard Shortcuts
+## Design system
 
-| Shortcut | Action |
+The visual language is Cinematic Dark. Tokens are declared once in `app/globals.css` and referenced by name. No raw hex in components, and no default framework greys.
+
+**Surfaces**
+
+| Token | Value | Use |
+|---|---|---|
+| `bg` | `#09090B` | Page background |
+| `surface` | `#111114` | Cards and panels |
+| `elevated` | `#18181C` | Raised layers, sheets |
+| `text` | `#EDE9E3` | Primary text |
+| `accent` | `#F4B650` | Marquee amber, the single accent |
+
+Shelf kinds carry their own accents: crimson for anime, amber for films, violet for series, teal for games, plus sky, rose, lime and sand for custom shelves. Individual titles override the accent with the dominant colour extracted from their cover art, so a shelf takes on the colour of what is actually on it.
+
+**Type**
+
+Fraunces for display, at 28px and above only. Geist for interface text. Geist Mono for anything numeric: progress, ratings, dates, counts and keyboard hints.
+
+**Detail**
+
+A film grain overlay generated from inline SVG turbulence, ambient glows behind the fold, a one pixel inner highlight on raised surfaces, and 2:3 posters at a 10px radius. Titles without artwork get a generated cover rather than a broken image. Motion runs on a single easing curve between 150 and 350ms, and every animation has a reduced motion path.
+
+---
+
+## Keyboard shortcuts
+
+| Keys | Action |
 |---|---|
-| `Ctrl + K` or `⌘K` | Open command palette (search titles, jump to shelves, add) |
-| `N` | Quick add new title to current shelf |
-| `S` | Trigger "Surprise Me" title picker |
-| `/` | Focus filter input on shelf view |
-| `Esc` | Close active sheet, modal, or palette |
+| `Ctrl+K` or `Cmd+K` | Command palette: search titles, jump to shelves, add |
+| `S` | Surprise me, pick a random planned title |
+| `N` | Add a title to the current shelf |
+| `/` | Focus the filter on a shelf |
+| `Esc` | Close the active sheet, dialog or palette |
+
+Single key shortcuts are suppressed while a dialog is open or while typing into a field.
 
 ---
 
-## Data Portability & Privacy
+## Security and privacy
 
-- **Your Data Stays Yours**: Your account and library belong to you. Marquee uses strict PostgreSQL Row-Level Security (RLS) so no user can access another user's rows.
-- **Full Export**: Export your entire library to JSON or export individual shelves to CSV from **Settings → Data**.
-- **Complete Deletion**: Deleting your account completely purges all profile records, uploaded avatars, categories, and item records permanently via a cascading database RPC.
+**Row level security on every table.** Policies are written alongside the schema in the same migration. The Supabase service role key is never used in application code, so there is no path that bypasses those policies. Every server action re-checks the session rather than trusting the proxy.
+
+**Content Security Policy per request.** `lib/security.ts` builds the policy and `proxy.ts` applies it. Pages rendered per request receive a fresh nonce and `script-src 'self' 'nonce-...' 'strict-dynamic'`. Prerendered pages have no nonce to receive and fall back to a stricter host allowlist. Both refuse framing, foreign origins, plugins and a rewritten base URI. Entry into the authenticated area goes through a full document load so the nonce policy actually applies rather than being inherited from a prerendered page.
+
+**Transport and headers.** HSTS for two years including subdomains, `nosniff`, `X-Frame-Options: DENY`, a strict origin referrer policy, and a Permissions Policy that disables camera, microphone, geolocation, payment and USB. `upgrade-insecure-requests` is production only.
+
+**Sign in.** Google OAuth, or a six digit code by email. The form carries an invisible Cloudflare Turnstile token, verified by Supabase rather than by application code. A fresh token is issued for every send, including resends.
+
+**Provider keys stay server side.** TMDB, AniList and IGDB are reached only from `app/api/search`. No provider credential is ever included in a client bundle.
 
 ---
 
-## Third-Party Attributions
+## Testing and accessibility
 
-- Movie and television metadata and poster imagery provided by [The Movie Database (TMDB)](https://www.themoviedb.org/). This product uses the TMDB API but is not endorsed or certified by TMDB.
-- Anime metadata provided by [AniList](https://anilist.co/).
-- Video game metadata provided by [IGDB](https://www.igdb.com/).
+Unit and integration tests run under Vitest, covering the pure modules directly: status and progress transitions, import parsers for every supported format, fuzzy matching, the year in review aggregation, export shaping, and the server actions against a mocked Supabase client. Component tests use Testing Library. Playwright covers end to end journeys against a production build, on desktop and mobile viewports, including the security headers themselves.
+
+Accessibility is audited rather than assumed. As of the 2026-09-19 audit, Lighthouse 13.5 scored **100 for accessibility on all 13 screens**, mobile and desktop, against a production build. axe 4.13 was **clean for WCAG 2.2 AA** with dialogs open, covering the title sheet, add panel, command palette, Surprise me, the match picker, the category dialog and account deletion.
+
+The standing rules behind those numbers: everything reachable by keyboard, a visible focus ring, labelled icon buttons, AA contrast, and status never communicated by colour alone.
+
+---
+
+## Attribution
+
+- Film and television metadata and artwork from [The Movie Database](https://www.themoviedb.org/). This product uses the TMDB API but is not endorsed or certified by TMDB.
+- Anime metadata from [AniList](https://anilist.co/).
+- Game metadata from [IGDB](https://www.igdb.com/).
+- Geist and Geist Mono by Vercel, under the SIL Open Font License.
+- Fraunces by Undercase Type, under the SIL Open Font License.
 
 ---
 
 ## License
 
-This project is private and intended for personal use. All rights reserved.
+All rights reserved. This repository is public for reference and is not licensed for reuse or redistribution.
