@@ -9,6 +9,7 @@ function item(overrides: Partial<WrappedItem> = {}): WrappedItem {
     rating: null,
     genres: [],
     progress_current: 0,
+    progress_total: null,
     created_at: "2026-06-01T10:00:00Z",
     finished_at: null,
     cover_url: null,
@@ -53,6 +54,19 @@ describe("summarise", () => {
     expect(wrapped.alreadyWatched).toBe(2);
   });
 
+  it("only counts the already watched ones that arrived this year", () => {
+    const wrapped = summarise(
+      [
+        ...padding(),
+        item({ status: "completed", finished_at: null }),
+        // Imported last year: undated forever, but not this year's story.
+        item({ status: "completed", finished_at: null, created_at: "2025-08-01T00:00:00Z" }),
+      ],
+      2026,
+    );
+    expect(wrapped.alreadyWatched).toBe(1);
+  });
+
   it("counts episodes and rough hours from the titles finished this year", () => {
     const wrapped = summarise(
       [
@@ -67,8 +81,18 @@ describe("summarise", () => {
       2026,
     );
     expect(wrapped.episodes).toBe(22);
-    // 12 * 24 + 10 * 42 + 115 = 823 minutes.
+    // 12 * 24 + 10 * 45 + 115 = 853 minutes.
     expect(wrapped.hours).toBe(14);
+  });
+
+  it("prices a single episode anime as a feature, and not as an episode", () => {
+    const film = { kind: "anime" as CategoryKind, progress_current: 1, progress_total: 1 };
+    const wrapped = summarise(
+      [...padding(), item({ ...film, finished_at: "2026-03-01T00:00:00Z" })],
+      2026,
+    );
+    expect(wrapped.episodes).toBe(0);
+    expect(wrapped.hours).toBe(2);
   });
 
   it("ranks genres by count and keeps the top five", () => {

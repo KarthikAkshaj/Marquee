@@ -62,6 +62,7 @@ export function WrappedReel({ wrapped }: { wrapped: Wrapped }) {
           <h2 className="font-display opsz-120 text-[30px] leading-[1.1] text-balance md:text-[40px]">
             What you were <em className="text-accent">in the mood for.</em>
           </h2>
+          <p className={UNDER}>Across every shelf, counted from everything that arrived this year.</p>
           <GenreBars genres={wrapped.genres} />
         </Frame>
       )}

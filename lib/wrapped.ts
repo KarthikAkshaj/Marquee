@@ -15,7 +15,16 @@ import type { CategoryKind } from "@/lib/status";
 /** An item plus the shelf it sits on, which is where its kind comes from. */
 export type WrappedItem = Pick<
   Item,
-  "title" | "status" | "rating" | "genres" | "progress_current" | "created_at" | "finished_at" | "cover_url" | "accent_color"
+  | "title"
+  | "status"
+  | "rating"
+  | "genres"
+  | "progress_current"
+  | "progress_total"
+  | "created_at"
+  | "finished_at"
+  | "cover_url"
+  | "accent_color"
 > & { kind: CategoryKind; categoryName: string };
 
 /**
@@ -41,9 +50,21 @@ const GENRE_SLICES = 5;
 /**
  * No runtime is stored on an item, so hours are an estimate and the copy says
  * so out loud: a TV anime episode runs about 24 minutes, an hour-long series
- * episode about 42, a feature about 115.
+ * episode about 45, a live action feature about 115.
  */
-const MINUTES = { anime: 24, series: 42, movie: 115 } as const;
+const MINUTES = { anime: 24, series: 45, movie: 115 } as const;
+
+/**
+ * An anime film sits on an anime shelf with a single "episode", and priced as
+ * an episode it would be 24 minutes of a feature. A one-off OVA looks exactly
+ * the same from here and gets charged the same: nothing on the row says which
+ * it is, and the frame only ever promises a rough number.
+ */
+const ANIME_FILM_MINUTES = 90;
+
+function isAnimeFilm(item: WrappedItem): boolean {
+  return item.kind === "anime" && item.progress_total === 1;
+}
 
 export type GenreSlice = { name: string; count: number; share: number };
 
@@ -61,7 +82,7 @@ export type Wrapped = {
   added: number;
   /** Finished inside the app this year, so carrying a date. */
   finished: number;
-  /** Completed, but from before Marquee: no date to place them in a year. */
+  /** Arrived this year already finished, from before Marquee kept count. */
   alreadyWatched: number;
   /** Episodes inside the titles finished this year. Progress keeps no history. */
   episodes: number;
@@ -128,7 +149,10 @@ function watchTime(finished: WrappedItem[]) {
   let minutes = 0;
 
   for (const item of finished) {
-    if (item.kind === "anime" || item.kind === "series") {
+    if (isAnimeFilm(item)) {
+      // A feature, not an episode: it counts towards the hours and nothing else.
+      minutes += ANIME_FILM_MINUTES;
+    } else if (item.kind === "anime" || item.kind === "series") {
       episodes += item.progress_current;
       minutes += item.progress_current * MINUTES[item.kind];
     } else if (item.kind === "movie") {
@@ -152,7 +176,9 @@ export function summarise(items: WrappedItem[], year: number): Wrapped {
     year,
     added: arrived.length,
     finished: finished.length,
-    alreadyWatched: completed.filter((item) => item.finished_at === null).length,
+    // Of this year's arrivals, not the whole shelf: next year these same rows
+    // are still undated, and they were last year's story, not that one's.
+    alreadyWatched: arrived.filter((item) => item.status === "completed" && item.finished_at === null).length,
     episodes,
     hours,
     genres: countGenres(arrived),
