@@ -127,7 +127,33 @@ describe("summarise", () => {
     expect(wrapped.accent).toBe("#8c3a5f");
   });
 
-  it("breaks a tied rating on the later finish, never at random", () => {
+  it("gives a tie to the title you saw through, not the one you're partway into", () => {
+    const wrapped = summarise(
+      [
+        ...padding(),
+        item({ title: "Still watching", rating: 10, status: "in_progress", finished_at: null }),
+        item({ title: "Saw it through", rating: 10, status: "completed", finished_at: "2026-02-01T00:00:00Z" }),
+      ],
+      2026,
+    );
+    expect(wrapped.top?.title).toBe("Saw it through");
+    expect(wrapped.top?.finished).toBe(true);
+    expect(wrapped.top?.tiedWith).toBe(1);
+  });
+
+  it("counts how many tied, and admits when none of them are finished", () => {
+    const alone = summarise([...padding(), item({ title: "Alone", rating: 9 })], 2026);
+    expect(alone.top?.tiedWith).toBe(0);
+
+    const crowd = summarise(
+      [...padding(), ...Array.from({ length: 3 }, (_, i) => item({ title: `Ten ${i}`, rating: 10, status: "in_progress" }))],
+      2026,
+    );
+    expect(crowd.top?.tiedWith).toBe(2);
+    expect(crowd.top?.finished).toBe(false);
+  });
+
+  it("breaks a tie between two finished titles on the later finish, never at random", () => {
     const wrapped = summarise(
       [
         ...padding(),

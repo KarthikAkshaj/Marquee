@@ -77,6 +77,15 @@ export function WrappedReel({ wrapped }: { wrapped: Wrapped }) {
             Your highest score of the year:{" "}
             <span className="font-mono tabular-nums text-accent">{wrapped.top.rating}/10</span>
           </p>
+          {/* Said quietly, not shown off: without it a tie looks like a mistake. */}
+          {wrapped.top.tiedWith > 0 && (
+            <p className="mt-2.5 text-13 leading-[1.5] text-text-faint">
+              {wrapped.top.tiedWith === 1 ? "One other title" : `${wrapped.top.tiedWith} other titles`} scored the same.{" "}
+              {wrapped.top.finished
+                ? "A tie goes to the one you finished."
+                : "None of them are finished yet, so this one takes it for now."}
+            </p>
+          )}
         </Frame>
       )}
 

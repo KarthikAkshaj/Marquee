@@ -74,6 +74,10 @@ export type TopTitle = {
   categoryName: string;
   cover_url: string | null;
   accent_color: string | null;
+  /** How many other titles of the year scored exactly the same. */
+  tiedWith: number;
+  /** Whether the one that took the billing is one you actually finished. */
+  finished: boolean;
 };
 
 export type Wrapped = {
@@ -122,17 +126,29 @@ function countGenres(items: WrappedItem[]): GenreSlice[] {
     .map(([name, count]) => ({ name, count, share: count / total }));
 }
 
+/**
+ * Which of two rated titles takes the billing. A 10 on something you saw all
+ * the way through is worth more than a 10 on something you are three episodes
+ * into and might yet come off, so a finished title wins a tie outright. Below
+ * that: the later finish, then alphabetical, so the answer never flickers.
+ */
+function better(item: WrappedItem, winner: WrappedItem): boolean {
+  if (item.rating !== winner.rating) return item.rating! > winner.rating!;
+
+  const done = (entry: WrappedItem) => entry.status === "completed";
+  if (done(item) !== done(winner)) return done(item);
+
+  const byDate = (item.finished_at ?? "").localeCompare(winner.finished_at ?? "");
+  if (byDate !== 0) return byDate > 0;
+  return item.title.localeCompare(winner.title) < 0;
+}
+
 /** The best-rated of the year's titles. Unrated titles can't win. */
 function pickTop(items: WrappedItem[]): TopTitle | null {
   const rated = items.filter((item) => item.rating !== null);
   if (rated.length === 0) return null;
 
-  const best = rated.reduce((winner, item) => {
-    if (item.rating! !== winner.rating!) return item.rating! > winner.rating! ? item : winner;
-    // Same score: the one finished later, then alphabetical, so it never flickers.
-    const byDate = (item.finished_at ?? "").localeCompare(winner.finished_at ?? "");
-    return byDate !== 0 ? (byDate > 0 ? item : winner) : item.title.localeCompare(winner.title) < 0 ? item : winner;
-  });
+  const best = rated.reduce((winner, item) => (better(item, winner) ? item : winner));
 
   return {
     title: best.title,
@@ -140,6 +156,8 @@ function pickTop(items: WrappedItem[]): TopTitle | null {
     categoryName: best.categoryName,
     cover_url: best.cover_url,
     accent_color: best.accent_color,
+    tiedWith: rated.filter((item) => item.rating === best.rating).length - 1,
+    finished: best.status === "completed",
   };
 }
 
