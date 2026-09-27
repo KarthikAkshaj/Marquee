@@ -6,7 +6,7 @@ import Image from "next/image";
 import { paletteRow } from "@/components/add/SearchResultRow";
 import { categoryStyle } from "@/lib/categories";
 import type { PaletteCategory, PaletteTitle } from "@/lib/palette";
-import { STATUS_STYLE, statusLabel } from "@/lib/status";
+import { STATUS_STYLE, labelKind, readingLabel, statusLabel } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
 type TitleRowProps = {
@@ -17,8 +17,9 @@ type TitleRowProps = {
   onSelect: () => void;
 };
 
-/** One of your titles: small cover, name, and "● Anime · Watching · 2023". Enter opens its sheet. */
+/** One of your titles: small cover, name, and "● Anime · Watching · 2023" (a comic: "● Anime · Manhwa · Reading"). Enter opens its sheet. */
 export function TitleRow({ value, title, category, selected, onSelect }: TitleRowProps) {
+  const tag = readingLabel(title.format);
   return (
     <Command.Item value={value} onSelect={onSelect} className={paletteRow}>
       <div className="relative h-9 w-6 shrink-0 overflow-hidden rounded-[4px] border border-white/7">
@@ -33,8 +34,14 @@ export function TitleRow({ value, title, category, selected, onSelect }: TitleRo
         <p className="mt-0.5 flex items-center gap-1.5 truncate font-mono text-[11px] text-text-muted">
           <span aria-hidden className={cn("size-1.25 shrink-0 rounded-full", categoryStyle(category.color).dot)} />
           {category.name}
+          {tag && (
+            <>
+              <span aria-hidden>·</span>
+              {tag}
+            </>
+          )}
           <span aria-hidden>·</span>
-          <span className={STATUS_STYLE[title.status].text}>{statusLabel(category.kind, title.status)}</span>
+          <span className={STATUS_STYLE[title.status].text}>{statusLabel(labelKind(category.kind, title.format), title.status)}</span>
           {title.year && (
             <>
               <span aria-hidden>·</span>

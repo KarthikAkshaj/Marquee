@@ -41,12 +41,13 @@ export async function GET(request: NextRequest) {
   const params = searchQuerySchema.safeParse({
     kind: request.nextUrl.searchParams.get("kind"),
     q: request.nextUrl.searchParams.get("q") ?? "",
+    type: request.nextUrl.searchParams.get("type") ?? undefined,
   });
   if (!params.success) return respond({ results: [], error: "invalid_query" });
 
   if (!limiter.take(userId)) return respond({ results: [], error: "rate_limited" });
 
-  return respond(await searchMetadata(params.data.kind, params.data.q));
+  return respond(await searchMetadata(params.data.kind, params.data.q, params.data.type));
 }
 
 /**

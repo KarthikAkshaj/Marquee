@@ -1,5 +1,5 @@
 import type { Database } from "@/lib/supabase/database.types";
-import { ITEM_STATUSES, type CategoryKind, type ItemStatus } from "@/lib/status";
+import { ITEM_STATUSES, type ItemStatus, type LabelKind } from "@/lib/status";
 
 export type Item = Database["public"]["Tables"]["items"]["Row"];
 
@@ -164,10 +164,28 @@ export function progressLabel(item: Pick<Item, "progress_current" | "progress_to
     : pad(item.progress_current);
 }
 
-/** What a shelf counts, if anything. Movies and games don't get a +1. */
-export function progressUnit(kind: CategoryKind): "Episodes" | "Total" | null {
+export type ProgressUnit = "Episodes" | "Chapters" | "Total";
+
+/**
+ * What a title counts, if anything: episodes, chapters for a comic or novel
+ * (pass `labelKind`), or a plain total on a custom shelf. Movies and games
+ * don't get a +1.
+ */
+export function progressUnit(kind: LabelKind): ProgressUnit | null {
+  if (kind === "reading") return "Chapters";
   if (kind === "anime" || kind === "series") return "Episodes";
   return kind === "custom" ? "Total" : null;
+}
+
+const UNIT_WORDS: Record<ProgressUnit, { short: string; total: string }> = {
+  Episodes: { short: "Ep", total: "eps" },
+  Chapters: { short: "Ch", total: "ch" },
+  Total: { short: "", total: "total" },
+};
+
+/** "28 eps", "222 ch", "12 total". */
+export function totalCount(total: number, unit: ProgressUnit): string {
+  return `${total} ${UNIT_WORDS[unit].total}`;
 }
 
 type ProgressFields = Pick<Item, "status" | "progress_current" | "progress_total">;
@@ -221,13 +239,14 @@ export function decrementPatch(item: ProgressFields) {
   return progressPatch(item, item.progress_current - 1, item.progress_total);
 }
 
-/** On the card under a title you're watching: "13/24", or "Ep 13" while it's still airing. */
-export function progressShort(item: Pick<Item, "progress_current" | "progress_total">, kind: CategoryKind) {
+/** On the card under a title you're watching: "13/24", or "Ep 13" (a comic: "Ch 45") while it's still coming out. */
+export function progressShort(item: Pick<Item, "progress_current" | "progress_total">, kind: LabelKind) {
   const unit = progressUnit(kind);
   if (!unit) return null;
   if (item.progress_total !== null) return `${item.progress_current}/${item.progress_total}`;
   if (item.progress_current === 0) return null;
-  return unit === "Episodes" ? `Ep ${item.progress_current}` : String(item.progress_current);
+  const { short } = UNIT_WORDS[unit];
+  return short ? `${short} ${item.progress_current}` : String(item.progress_current);
 }
 
 /** Fields the item sheet edits directly (SPEC §8.6). */

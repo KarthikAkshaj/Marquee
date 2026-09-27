@@ -1,0 +1,153 @@
+{
+  "data": {
+    "Page": {
+      "media": [
+        {
+          "id": 165131,
+          "title": {
+            "english": "Mushoku Tensei: Redundant Reincarnation",
+            "romaji": "Mushoku Tensei: Dasoku-hen"
+          },
+          "format": "NOVEL",
+          "status": "RELEASING",
+          "episodes": null,
+          "duration": null,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx165131-R4pedWdbZiAW.jpg",
+            "color": "#e4ae43"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/165131-QUl0YCFUrbwG.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Ecchi",
+            "Fantasy"
+          ],
+          "averageScore": 84,
+          "startDate": {
+            "year": 2023
+          },
+          "chapters": null,
+          "volumes": 4,
+          "countryOfOrigin": "JP"
+        },
+        {
+          "id": 85564,
+          "title": {
+            "english": "Mushoku Tensei: Jobless Reincarnation",
+            "romaji": "Mushoku Tensei: Isekai Ittara Honki Dasu"
+          },
+          "format": "MANGA",
+          "status": "RELEASING",
+          "episodes": null,
+          "duration": null,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx85564-egXRASF0x9B9.jpg",
+            "color": "#e4ae0d"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/85564-Wy8IQU3Km61c.jpg",
+          "genres": [
+            "Adventure",
+            "Drama",
+            "Ecchi",
+            "Fantasy"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 2014
+          },
+          "chapters": null,
+          "volumes": null,
+          "countryOfOrigin": "JP"
+        },
+        {
+          "id": 142989,
+          "title": {
+            "english": null,
+            "romaji": "Mushoku Tensei: Isekai Ittara Honki Dasu - Shitsui no Majutsushi-hen"
+          },
+          "format": "MANGA",
+          "status": "RELEASING",
+          "episodes": null,
+          "duration": null,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx142989-jYDNHLwdER70.png",
+            "color": "#e4bb28"
+          },
+          "bannerImage": null,
+          "genres": [
+            "Adventure",
+            "Drama",
+            "Ecchi",
+            "Fantasy"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 2021
+          },
+          "chapters": null,
+          "volumes": null,
+          "countryOfOrigin": "JP"
+        },
+        {
+          "id": 85470,
+          "title": {
+            "english": "Mushoku Tensei: Jobless Reincarnation",
+            "romaji": "Mushoku Tensei: Isekai Ittara Honki Dasu"
+          },
+          "format": "NOVEL",
+          "status": "FINISHED",
+          "episodes": null,
+          "duration": null,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/nx85470-jt6BF9tDWB2X.jpg",
+            "color": "#f1bb1a"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/manga/banner/85470-akkFSKH9aacB.jpg",
+          "genres": [
+            "Adventure",
+            "Drama",
+            "Ecchi",
+            "Fantasy"
+          ],
+          "averageScore": 85,
+          "startDate": {
+            "year": 2014
+          },
+          "chapters": 334,
+          "volumes": 26,
+          "countryOfOrigin": "JP"
+        },
+        {
+          "id": 104724,
+          "title": {
+            "english": "Mushoku Tensei: Roxy Gets Serious",
+            "romaji": "Mushoku Tensei: Roxy datte Honki desu"
+          },
+          "format": "MANGA",
+          "status": "FINISHED",
+          "episodes": null,
+          "duration": null,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx104724-xu0uAAE02Yta.jpg",
+            "color": "#fec90d"
+          },
+          "bannerImage": null,
+          "genres": [
+            "Adventure",
+            "Comedy",
+            "Drama",
+            "Fantasy"
+          ],
+          "averageScore": 73,
+          "startDate": {
+            "year": 2017
+          },
+          "chapters": 64,
+          "volumes": 12,
+          "countryOfOrigin": "JP"
+        }
+      ]
+    }
+  }
+}

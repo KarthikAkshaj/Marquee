@@ -6,7 +6,7 @@ import { findDuplicate } from "@/lib/add";
 import type { Item } from "@/lib/items";
 import type { ExtraPick } from "@/lib/match";
 import { isRelatedKind, type SearchKind, type SearchResult } from "@/lib/search/types";
-import type { ItemStatus } from "@/lib/status";
+import { isReading, type ItemStatus } from "@/lib/status";
 import { useReturnFocus } from "@/lib/use-return-focus";
 import { AddSearch } from "./AddSearch";
 import { AddTheRest } from "./AddTheRest";
@@ -56,8 +56,9 @@ function AddFlow({ onAdd, onAddMore, onClose, ...search }: FlowProps) {
       {...search}
       onAdd={(result, status, openAfter) => {
         onAdd(result, status, openAfter);
-        // Alt+Enter asked to open the title, so that's where to go next.
-        if (openAfter || !isRelatedKind(kind)) onClose();
+        // Alt+Enter asked to open the title, so that's where to go next. A comic
+        // has no seasons to add: the run lookup follows anime links only.
+        if (openAfter || !isRelatedKind(kind) || isReading(result.format)) onClose();
         else setAdded({ result, status });
       }}
     />

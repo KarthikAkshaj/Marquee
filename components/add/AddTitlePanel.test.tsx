@@ -4,13 +4,21 @@ import type { Item } from "@/lib/items";
 import type { SearchResponse, SeriesResponse } from "@/lib/search/types";
 
 let response: SearchResponse | undefined;
+/** What the switch asked the search for: anime unless Manga is picked. */
+let searched: string | undefined;
+const comics: SearchResponse = {
+  results: [{ source: "anilist", externalId: "118586", title: "Frieren", year: 2020, subtitle: "Manga · Releasing", format: "manga" }],
+};
 vi.mock("./useMetadataSearch", () => ({
   MIN_QUERY: 2,
-  useMetadataSearch: (_kind: string, query: string) => ({
-    response: query.trim().length >= 2 ? response : undefined,
-    loading: false,
-    idle: query.trim().length < 2,
-  }),
+  useMetadataSearch: (_kind: string, query: string, type = "anime") => {
+    searched = type;
+    return {
+      response: query.trim().length >= 2 ? (type === "manga" ? comics : response) : undefined,
+      loading: false,
+      idle: query.trim().length < 2,
+    };
+  },
 }));
 vi.mock("next/image", () => ({ default: () => null }));
 
@@ -99,6 +107,37 @@ describe("AddTitlePanel", () => {
     expect(screen.getByText("Watching")).toBeInTheDocument();
     key("Enter");
     expect(onAdd).toHaveBeenCalledWith(onePiece, "in_progress", false);
+  });
+
+  it("searches AniList's comics on the Manga side of the switch, in reading words", () => {
+    const { type, key, onAdd, onOpenChange } = setup();
+    type("frieren");
+    expect(searched).toBe("anime");
+    expect(screen.getByRole("radio", { name: "Anime" })).toHaveAttribute("aria-checked", "true");
+
+    fireEvent.click(screen.getByRole("radio", { name: "Manga" }));
+    expect(searched).toBe("manga");
+    expect(screen.getByRole("combobox")).toHaveAttribute("placeholder", "Search AniList for manga…");
+    expect(screen.getByText("Plan to Read")).toBeInTheDocument();
+    expect(screen.getAllByRole("option")[0]).toHaveTextContent("Frieren2020 · Manga · Releasing");
+
+    key("Enter");
+    expect(onAdd).toHaveBeenCalledWith(comics.results[0], "planned", false);
+    // A comic has no seasons to offer, so the panel closes as it always did.
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(fetchRelated).not.toHaveBeenCalled();
+  });
+
+  it("flips the switch with arrow keys without moving through the results", () => {
+    const { type } = setup();
+    type("frieren");
+    const anime = screen.getByRole("radio", { name: "Anime" });
+    anime.focus();
+    fireEvent.keyDown(anime, { key: "ArrowRight" });
+    expect(screen.getByRole("radio", { name: "Manga" })).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByRole("radio", { name: "Manga" })).toHaveFocus();
+    // The status stepper didn't move with it.
+    expect(screen.getByText("Plan to Read")).toBeInTheDocument();
   });
 
   it("adds and opens with Alt+Enter, skipping the rest of the series", () => {

@@ -11,8 +11,8 @@ import { ManualAddRow } from "@/components/add/ManualAddRow";
 import { useAddTitle, useAddTitles } from "@/components/add/useAddTitle";
 import { findDuplicate } from "@/lib/add";
 import { defaultAddTarget, titleHref, type PaletteCategory, type PaletteTitle } from "@/lib/palette";
-import { isRelatedKind, type SearchResult } from "@/lib/search/types";
-import { stepStatus as nextStatus, type ItemStatus } from "@/lib/status";
+import { isRelatedKind, type SearchResult, type SearchType } from "@/lib/search/types";
+import { isReading, stepStatus as nextStatus, type ItemStatus, type LabelKind } from "@/lib/status";
 import { AddResultsGroup } from "./AddResultsGroup";
 import { GoToGroup } from "./GoToGroup";
 import { LinkRow } from "./LinkRow";
@@ -47,9 +47,13 @@ export function PaletteSearch({ categories, titles, onClose, onManual }: Palette
   const [status, setStatus] = useState<ItemStatus>("planned");
   const [navigating, setNavigating] = useState(false);
   const [selected, setSelected] = useState("");
+  // An anime target shelf can search AniList's comics and novels instead (U5).
+  const [type, setType] = useState<SearchType>("anime");
   // Just added an anime or a film: the rest of its run comes next.
   const [added, setAdded] = useState<{ result: SearchResult; status: ItemStatus; shelf: PaletteCategory } | null>(null);
-  const rows = usePaletteRows({ query, categories, titles, actions, target });
+  const rows = usePaletteRows({ query, categories, titles, actions, target, type });
+  const comics = target?.kind === "anime" && type === "manga";
+  const words: LabelKind | null = target ? (comics ? "reading" : target.kind) : null;
   const active = rows.values.includes(selected) ? selected : (rows.values[0] ?? "");
 
   function go(href: string) {
@@ -70,7 +74,7 @@ export function PaletteSearch({ categories, titles, onClose, onManual }: Palette
     }
     if (!target) return;
     if (add?.duplicate) return go(titleHref(target, add.duplicate.id));
-    if (add && !openAfter && isRelatedKind(target.kind)) {
+    if (add && !openAfter && isRelatedKind(target.kind) && !isReading(add.result.format)) {
       void addTitle(target, add.result, status, false);
       return setAdded({ result: add.result, status, shelf: target });
     }
@@ -133,7 +137,18 @@ export function PaletteSearch({ categories, titles, onClose, onManual }: Palette
         loading={rows.search.loading}
         inputRef={inputRef}
         target={target && <TargetMenu categories={categories} target={target} onChange={setTarget} onDone={() => inputRef.current?.focus()} />}
-        status={target && { kind: target.kind, value: status, onStep: stepStatus }}
+        status={words && { kind: words, value: status, onStep: stepStatus }}
+        searchType={
+          target?.kind === "anime"
+            ? {
+                value: type,
+                onChange: (next) => {
+                  setType(next);
+                  setNavigating(false);
+                },
+              }
+            : null
+        }
       />
 
       <Command.List aria-busy={rows.search.loading} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
@@ -156,7 +171,7 @@ export function PaletteSearch({ categories, titles, onClose, onManual }: Palette
         )}
 
         {target && rows.source && rows.typed.length >= 2 && (
-          <AddResultsGroup target={target} rows={rows.addRows} notice={rows.notice} loading={rows.search.loading} active={active} onChoose={choose} />
+          <AddResultsGroup target={target} words={words ?? target.kind} rows={rows.addRows} notice={rows.notice} loading={rows.search.loading} active={active} onChoose={choose} />
         )}
 
         {rows.typed && target && (

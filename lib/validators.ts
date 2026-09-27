@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_KINDS } from "@/lib/categories";
 import { AVATAR_MAX_BYTES, AVATAR_TYPES, BIO_MAX, DISPLAY_NAME_MAX, USERNAME_PATTERN, type AvatarType } from "@/lib/profile";
-import { RELATED_KINDS, SEARCH_KINDS } from "@/lib/search/types";
+import { RELATED_KINDS, SEARCH_KINDS, SEARCH_TYPES } from "@/lib/search/types";
 import { ITEM_FORMATS, ITEM_STATUSES } from "@/lib/status";
 
 /** Every server action input is parsed through zod (SPEC §11). */
@@ -294,10 +294,14 @@ export const relatedQuerySchema = z.object({
 });
 
 /** GET /api/search?kind=&q= (SPEC §7). Custom shelves have no provider. */
-export const searchQuerySchema = z.object({
-  kind: z.enum(SEARCH_KINDS),
-  q: z.string().trim().min(2).max(100),
-});
+export const searchQuerySchema = z
+  .object({
+    kind: z.enum(SEARCH_KINDS),
+    q: z.string().trim().min(2).max(100),
+    /** Anime shelves only: the anime, or AniList's comics and novels (U5). */
+    type: z.enum(SEARCH_TYPES).default("anime"),
+  })
+  .refine((params) => params.type === "anime" || params.kind === "anime", "Only anime shelves search comics");
 
 /**
  * Only same-origin, path-only redirects survive — an open redirect here would

@@ -3,6 +3,7 @@
 import { Command } from "cmdk";
 import { useState, type KeyboardEvent } from "react";
 import { SOURCE_FOR_KIND, SOURCE_NAMES, findDuplicate, searchNotice } from "@/lib/add";
+import type { SearchType } from "@/lib/search/types";
 import { ITEM_STATUSES } from "@/lib/status";
 import { AddPanelFooter } from "./AddPanelFooter";
 import { AddSearchHeader } from "./AddSearchHeader";
@@ -28,8 +29,12 @@ export function AddSearch({ category, items, defaultStatus, initialQuery = "", o
   const [status, setStatus] = useState(defaultStatus);
   const [navigating, setNavigating] = useState(false);
   const [selected, setSelected] = useState("");
-  const search = useMetadataSearch(category.kind, query);
+  // An anime shelf can search AniList's comics and novels instead (U5).
+  const [type, setType] = useState<SearchType>("anime");
+  const comics = category.kind === "anime" && type === "manga";
+  const search = useMetadataSearch(category.kind, query, comics ? "manga" : "anime");
   const source = SOURCE_FOR_KIND[category.kind];
+  const words = comics ? "reading" : category.kind;
   const typed = query.trim();
 
   const rows = (search.response?.results ?? []).map((result) => ({
@@ -94,10 +99,21 @@ export function AddSearch({ category, items, defaultStatus, initialQuery = "", o
           setQuery(next);
           setNavigating(false);
         }}
-        placeholder={`Search ${SOURCE_NAMES[source]}…`}
+        placeholder={comics ? `Search ${SOURCE_NAMES[source]} for manga…` : `Search ${SOURCE_NAMES[source]}…`}
         loading={search.loading}
         target={<ShelfChip name={category.name} color={category.color} />}
-        status={{ kind: category.kind, value: status, onStep: stepStatus }}
+        status={{ kind: words, value: status, onStep: stepStatus }}
+        searchType={
+          category.kind === "anime"
+            ? {
+                value: type,
+                onChange: (next) => {
+                  setType(next);
+                  setNavigating(false);
+                },
+              }
+            : null
+        }
       />
 
       {/* Outside the list: a listbox may only hold options and groups. */}
@@ -115,7 +131,7 @@ export function AddSearch({ category, items, defaultStatus, initialQuery = "", o
                 key={row.value}
                 value={row.value}
                 result={row.result}
-                kind={category.kind}
+                kind={words}
                 categoryColor={category.color}
                 onShelf={row.duplicate?.status ?? null}
                 selected={row.value === active}

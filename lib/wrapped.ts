@@ -10,7 +10,7 @@
  * undated ones to a line of their own.
  */
 import type { Item } from "@/lib/items";
-import type { CategoryKind } from "@/lib/status";
+import { isReading, type CategoryKind } from "@/lib/status";
 
 /** An item plus the shelf it sits on, which is where its kind comes from. */
 export type WrappedItem = Pick<
@@ -95,6 +95,12 @@ export type Wrapped = {
   episodes: number;
   /** Rounded, and only ever watching: games count no progress at all. */
   hours: number;
+  /**
+   * Comics and novels on anime shelves (U5), which no clock can time: chapters
+   * in the ones finished this year, and in the ones still being read that
+   * arrived this year, since every chapter of those was read this year.
+   */
+  chapters: number;
   genres: GenreSlice[];
   top: TopTitle | null;
   /** The colour of the year, taken from the cover of its best title. */
@@ -170,6 +176,8 @@ function watchTime(finished: WrappedItem[]) {
   let minutes = 0;
 
   for (const item of finished) {
+    // Read, not watched: chapters are counted on their own.
+    if (isReading(item.format)) continue;
     if (isFeature(item)) {
       // Counts towards the hours and nothing else: a film is not an episode.
       minutes += item.runtime_minutes ?? (item.kind === "movie" ? MINUTES.movie : ANIME_FILM_MINUTES);
@@ -190,6 +198,7 @@ export function summarise(items: WrappedItem[], year: number): Wrapped {
   const finished = completed.filter((item) => yearOf(item.finished_at) === year);
   const { episodes, hours } = watchTime(finished);
   const top = pickTop(arrived);
+  const reading = [...finished, ...arrived.filter((item) => item.status === "in_progress")].filter((item) => isReading(item.format));
 
   return {
     year,
@@ -200,6 +209,7 @@ export function summarise(items: WrappedItem[], year: number): Wrapped {
     alreadyWatched: arrived.filter((item) => item.status === "completed" && item.finished_at === null).length,
     episodes,
     hours,
+    chapters: reading.reduce((sum, item) => sum + item.progress_current, 0),
     genres: countGenres(arrived),
     top,
     accent: top?.accent_color ?? null,

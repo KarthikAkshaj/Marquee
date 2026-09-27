@@ -3,6 +3,7 @@
 import { useMetadataSearch } from "@/components/add/useMetadataSearch";
 import { SOURCE_FOR_KIND, findDuplicate, searchKindOf, searchNotice } from "@/lib/add";
 import { paletteLinks, rankMatches, type PaletteCategory, type PaletteTitle } from "@/lib/palette";
+import type { SearchType } from "@/lib/search/types";
 import type { PaletteAction } from "./usePaletteActions";
 
 export const MANUAL = "manual";
@@ -13,6 +14,8 @@ type Input = {
   titles: PaletteTitle[] | null;
   actions: PaletteAction[];
   target: PaletteCategory | null;
+  /** Anime or Manga, for an anime target shelf (U5). */
+  type: SearchType;
 };
 
 /**
@@ -20,7 +23,7 @@ type Input = {
  * then search results for the target shelf and the manual row. With nothing
  * typed it shows recent titles and every place instead.
  */
-export function usePaletteRows({ query, categories, titles, actions, target }: Input) {
+export function usePaletteRows({ query, categories, titles, actions, target, type }: Input) {
   const typed = query.trim();
   const shelves = new Map(categories.map((category) => [category.id, category]));
   const known = (titles ?? []).filter((title) => shelves.has(title.category_id));
@@ -36,7 +39,7 @@ export function usePaletteRows({ query, categories, titles, actions, target }: I
   const actionRows = typed ? rankMatches(typed, actions, (action) => `${action.label} ${action.keywords}`, 3) : actions;
 
   const searchKind = target && typed ? searchKindOf(target.kind) : null;
-  const search = useMetadataSearch(searchKind, query);
+  const search = useMetadataSearch(searchKind, query, searchKind === "anime" ? type : "anime");
   const onTarget = target ? known.filter((title) => title.category_id === target.id) : [];
   const addRows = (search.response?.results ?? []).map((result) => ({
     value: `add:${result.source}:${result.externalId}`,

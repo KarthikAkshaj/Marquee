@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { getAniListSeries, searchAniList, searchAniListMany, searchAniListOther } from "./anilist";
+import { getAniListSeries, searchAniList, searchAniListMany, searchAniListReading, searchAniListReadingMany } from "./anilist";
 import { igdbConfigured, searchIgdb } from "./igdb";
 import {
   getTmdbCollection,
@@ -13,24 +13,23 @@ import {
 } from "./tmdb";
 import {
   ProviderError,
-  type Elsewhere,
   type RelatedKind,
   type SearchKind,
   type SearchResponse,
   type SearchResult,
+  type SearchType,
   type SeriesResponse,
 } from "./types";
 
-export { RELATED_KINDS, SEARCH_KINDS, isRelatedKind } from "./types";
+export { RELATED_KINDS, SEARCH_KINDS, SEARCH_TYPES, isRelatedKind } from "./types";
 export type {
-  Elsewhere,
-  OtherForm,
   RelatedKind,
   Release,
   SearchError,
   SearchKind,
   SearchResponse,
   SearchResult,
+  SearchType,
   SeriesResponse,
   SeriesTitle,
 } from "./types";
@@ -59,11 +58,20 @@ const cachedSearch = unstable_cache(
   { revalidate: DAY },
 );
 
-export async function searchMetadata(kind: SearchKind, query: string): Promise<SearchResponse> {
+const cachedReading = unstable_cache((query: string) => searchAniListReading(query), ["anilist-reading-search-v1"], {
+  revalidate: DAY,
+});
+
+/**
+ * One search (SPEC §7). On an anime shelf, `type: "manga"` looks through
+ * AniList's comics and novels instead (U5); every other kind ignores it.
+ */
+export async function searchMetadata(kind: SearchKind, query: string, type: SearchType = "anime"): Promise<SearchResponse> {
   const provider = PROVIDERS[kind];
   if (!provider.configured()) return { results: [], error: "not_configured" };
 
   try {
+    if (kind === "anime" && type === "manga") return { results: await cachedReading(normaliseQuery(query)) };
     return { results: await cachedSearch(kind, normaliseQuery(query)) };
   } catch (error) {
     // Keys and user input never appear in these messages.
@@ -148,8 +156,6 @@ async function mapLimit<T, R>(items: readonly T[], limit: number, run: (item: T)
 
 export type MatchResponse = {
   results: SearchResult[][];
-  /** For anime with no hits: what AniList has instead, to say why (null where there's nothing to say). */
-  elsewhere?: (Elsewhere | null)[];
   error?: SearchResponse["error"];
 };
 
@@ -194,23 +200,22 @@ export function getRelated(kind: RelatedKind, id: string): Promise<SeriesRespons
 }
 
 /**
- * Why the titles with no anime came back empty: usually AniList only has the
- * manga or manhwa. One more request, and never at the cost of the matches
- * themselves, so a failure here just leaves the rows unexplained.
+ * Titles with no anime are often a comic AniList has instead (The Greatest
+ * Estate Developer is only a manhwa), so those misses get the comics and
+ * novels by that name as their candidates (U5). An anime is never passed over
+ * for one: only empty rows are filled. One more request, and never at the cost
+ * of the matches themselves, so a failure just leaves those rows empty.
  */
-async function explainMisses(queries: readonly string[], results: readonly SearchResult[][]): Promise<(Elsewhere | null)[] | undefined> {
+async function fillWithReading(queries: readonly string[], results: SearchResult[][]): Promise<void> {
   const missed = queries.flatMap((query, index) => (results[index].length === 0 ? [{ index, query }] : []));
-  if (missed.length === 0) return undefined;
+  if (missed.length === 0) return;
   try {
-    const found = await searchAniListOther(missed.map((miss) => miss.query));
-    const elsewhere: (Elsewhere | null)[] = queries.map(() => null);
+    const found = await searchAniListReadingMany(missed.map((miss) => miss.query));
     missed.forEach((miss, position) => {
-      elsewhere[miss.index] = found[position] ?? null;
+      results[miss.index] = found[position] ?? [];
     });
-    return elsewhere;
   } catch (error) {
-    console.error("[search] elsewhere", error instanceof ProviderError ? error.message : error);
-    return undefined;
+    console.error("[search] reading", error instanceof ProviderError ? error.message : error);
   }
 }
 
@@ -239,7 +244,8 @@ export async function matchMetadata(kind: SearchKind, queries: readonly string[]
         results[retry.index] = again[position];
       });
     }
-    return { results, elsewhere: await explainMisses(queries, results) };
+    await fillWithReading(queries, results);
+    return { results };
   } catch (error) {
     console.error("[search] match", kind, error instanceof ProviderError ? error.message : error);
     return { results: empty, error: "unavailable" };

@@ -1,4 +1,4 @@
-import { STATUS_STYLE, statusLabel, type CategoryKind, type ItemStatus } from "@/lib/status";
+import { STATUS_STYLE, statusLabel, type ItemStatus, type LabelKind } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
 /** Dot + label on a 12% tint (SPEC §9.5). The label means colour is never the only signal. */
@@ -7,7 +7,7 @@ export function StatusPill({
   status,
   className,
 }: {
-  kind: CategoryKind;
+  kind: LabelKind;
   status: ItemStatus;
   className?: string;
 }) {

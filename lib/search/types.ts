@@ -50,11 +50,12 @@ export type TitleShape = Pick<SearchResult, "runtimeMinutes" | "format">;
 /** Where a title is in its run: out, still airing, or not out yet. */
 export type Release = "out" | "airing" | "upcoming";
 
-/** What AniList has when a title isn't an anime at all: the comic or novel it comes from. */
-export type OtherForm = "manga" | "manhwa" | "manhua" | "light novel" | "novel";
-
-/** Why a title wasn't found: AniList knows it, but not as an anime. */
-export type Elsewhere = { form: OtherForm; title: string };
+/**
+ * What an anime shelf's search looks for: the anime, or AniList's comics and
+ * novels (U5). Every other kind has one thing to search.
+ */
+export const SEARCH_TYPES = ["anime", "manga"] as const;
+export type SearchType = (typeof SEARCH_TYPES)[number];
 
 /** One entry of a run: an anime's seasons, films and specials, or a film collection. In release order. */
 export type SeriesTitle = SearchResult & { release: Release };

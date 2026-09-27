@@ -3,7 +3,7 @@
 import { Check, Ellipsis, Pencil, Star, Trash2 } from "lucide-react";
 import { DropdownMenu } from "radix-ui";
 import { incrementPatch, progressUnit, type Item } from "@/lib/items";
-import { ITEM_STATUSES, STATUS_STYLE, statusLabels, type CategoryKind, type ItemStatus } from "@/lib/status";
+import { ITEM_STATUSES, STATUS_STYLE, labelKind, statusLabels, type CategoryKind, type ItemStatus } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
 export type ItemQuickActions = {
@@ -38,8 +38,9 @@ const menuItem =
 
 /** Status · +1 · favourite · more, along the foot of a poster (handoff §02). */
 export function QuickActions({ item, kind, actions, className }: QuickActionsProps) {
-  const labels = statusLabels(kind);
-  const counts = progressUnit(kind) !== null;
+  const words = labelKind(kind, item.format);
+  const labels = statusLabels(words);
+  const counts = progressUnit(words) !== null;
 
   return (
     <div role="group" aria-label={`${item.title} actions`} className={cn(row, className)}>

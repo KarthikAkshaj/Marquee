@@ -9,7 +9,7 @@ import { continueSubtitle } from "@/lib/home";
 import { progressLabel, progressPercent, progressShort, progressUnit, type Item } from "@/lib/items";
 import { titleHref, type PaletteCategory } from "@/lib/palette";
 import { generatedCover } from "@/lib/poster-art";
-import { statusLabel } from "@/lib/status";
+import { labelKind, readingLabel, statusLabel } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
 type ContinueCardProps = {
@@ -30,9 +30,12 @@ type ContinueCardProps = {
 export function ContinueCard({ item, shelf, onIncrement, stamped, onStamped, eager = false }: ContinueCardProps) {
   const cover = generatedCover(item.id, shelf.color);
   const glow = item.accent_color ? `color-mix(in oklab, ${item.accent_color} 34%, transparent)` : cover.glow;
-  const unit = progressUnit(shelf.kind);
+  // A comic on an anime shelf reads: Reading, chapters, and a Manhwa tag by the shelf's name.
+  const words = labelKind(shelf.kind, item.format);
+  const tag = readingLabel(item.format);
+  const unit = progressUnit(words);
   const percent = progressPercent(item);
-  const label = !unit ? statusLabel(shelf.kind, item.status) : item.progress_total ? progressLabel(item) : (progressShort(item, shelf.kind) ?? "Not started");
+  const label = !unit ? statusLabel(words, item.status) : item.progress_total ? progressLabel(item) : (progressShort(item, words) ?? "Not started");
   const subtitle = continueSubtitle(item, shelf.kind);
   const href = titleHref(shelf, item.id);
 
@@ -52,7 +55,10 @@ export function ContinueCard({ item, shelf, onIncrement, stamped, onStamped, eag
       <div className="pointer-events-none relative z-2 flex min-w-0 flex-1 flex-col">
         <p className="flex items-center gap-1.5 md:gap-1.75">
           <span aria-hidden className={cn("size-1.25 shrink-0 rounded-full md:size-1.5", categoryStyle(shelf.color).dot)} />
-          <span className="truncate font-mono text-[9.5px] tracking-[.12em] text-text-muted uppercase md:text-[10px]">{shelf.name}</span>
+          <span className="truncate font-mono text-[9.5px] tracking-[.12em] text-text-muted uppercase md:text-[10px]">
+            {shelf.name}
+            {tag && ` · ${tag}`}
+          </span>
         </p>
         <h3 className="mt-0.75 line-clamp-2 text-[14.5px] leading-[1.25] font-medium text-pretty md:mt-1 md:text-[15.5px]">
           <Link href={href} className="pointer-events-auto rounded-xs">

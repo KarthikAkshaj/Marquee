@@ -75,6 +75,15 @@ describe("ContinueRow", () => {
     expect(within(second).queryByRole("button")).toBeNull();
   });
 
+  it("tags a comic on an anime shelf and counts it in chapters", () => {
+    const estate = item({ id: "e", title: "The Greatest Estate Developer", format: "manhwa", progress_current: 45, year: 2021 });
+    render(<ContinueRow items={[estate]} shelves={[anime]} />);
+    const [card] = screen.getAllByRole("article");
+    expect(card).toHaveTextContent("Anime · Manhwa");
+    expect(card).toHaveTextContent("Ch 45");
+    expect(card).not.toHaveTextContent(/Ep /);
+  });
+
   it("keeps extra cards behind See all", () => {
     const items = ["One", "Two", "Three", "Four"].map((title, index) => item({ id: String(index), title }));
     render(<ContinueRow items={items} shelves={[anime]} />);

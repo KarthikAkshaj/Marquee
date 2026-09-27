@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef, type KeyboardEvent } from "react";
-import { ITEM_STATUSES, STATUS_STYLE, statusLabels, type CategoryKind, type ItemStatus } from "@/lib/status";
+import { ITEM_STATUSES, STATUS_STYLE, statusLabels, type ItemStatus, type LabelKind } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
 type StatusSegmentedProps = {
-  kind: CategoryKind;
+  kind: LabelKind;
   value: ItemStatus;
   onChange: (status: ItemStatus) => void;
   /** id of the visible label. */

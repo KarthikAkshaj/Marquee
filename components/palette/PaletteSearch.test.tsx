@@ -56,6 +56,7 @@ const title = (id: string, name: string, category: PaletteCategory, extra: Parti
   accent_color: null,
   source: "manual",
   external_id: null,
+  format: null,
   category_id: category.id,
   ...extra,
 });

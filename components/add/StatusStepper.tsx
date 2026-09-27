@@ -1,11 +1,11 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { STATUS_STYLE, statusLabel, type CategoryKind, type ItemStatus } from "@/lib/status";
+import { STATUS_STYLE, statusLabel, type ItemStatus, type LabelKind } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
 type StatusStepperProps = {
-  kind: CategoryKind;
+  kind: LabelKind;
   value: ItemStatus;
   onStep: (direction: 1 | -1) => void;
   /** Which title it's for, where several steppers share a list. */

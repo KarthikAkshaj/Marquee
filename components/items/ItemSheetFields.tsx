@@ -3,7 +3,7 @@
 import { useId } from "react";
 import { SOURCE_NAMES } from "@/lib/add";
 import { progressUnit, type Item } from "@/lib/items";
-import type { CategoryKind } from "@/lib/status";
+import { labelKind, type CategoryKind } from "@/lib/status";
 import { ItemDates } from "./ItemDates";
 import { NotesField } from "./NotesField";
 import { ProgressStepper } from "./ProgressStepper";
@@ -20,7 +20,9 @@ type ItemSheetFieldsProps = {
 /** Status, progress, rating, dates and notes (SPEC §8.6). Everything saves as it changes. */
 export function ItemSheetFields({ item, kind, actions }: ItemSheetFieldsProps) {
   const statusLabel = useId();
-  const unit = progressUnit(kind);
+  // A comic on an anime shelf reads: Reading, chapters.
+  const words = labelKind(kind, item.format);
+  const unit = progressUnit(words);
   const community =
     item.community_score !== null && item.source !== "manual"
       ? { source: SOURCE_NAMES[item.source], score: item.community_score }
@@ -34,7 +36,7 @@ export function ItemSheetFields({ item, kind, actions }: ItemSheetFieldsProps) {
           Status
         </p>
         <StatusSegmented
-          kind={kind}
+          kind={words}
           value={item.status}
           labelledBy={statusLabel}
           onChange={(status) => actions.setStatus(item, status)}

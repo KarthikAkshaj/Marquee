@@ -4,8 +4,10 @@ import { Command } from "cmdk";
 import { Loader2, Search, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import type { ReactNode, Ref } from "react";
-import type { CategoryKind, ItemStatus } from "@/lib/status";
+import type { SearchType } from "@/lib/search/types";
+import type { ItemStatus, LabelKind } from "@/lib/status";
 import { cn } from "@/lib/utils";
+import { SearchTypeSwitch } from "./SearchTypeSwitch";
 import { StatusStepper } from "./StatusStepper";
 
 type AddSearchHeaderProps = {
@@ -18,11 +20,13 @@ type AddSearchHeaderProps = {
   /** Which shelf adds land on: a fixed chip, or the palette's shelf menu. */
   target: ReactNode;
   /** The status stepper, when there's somewhere to add to. */
-  status: { kind: CategoryKind; value: ItemStatus; onStep: (direction: 1 | -1) => void } | null;
+  status: { kind: LabelKind; value: ItemStatus; onStep: (direction: 1 | -1) => void } | null;
+  /** Anime or Manga, when the shelf is an anime one (U5). */
+  searchType?: { value: SearchType; onChange: (type: SearchType) => void } | null;
 };
 
 /** The query, which shelf it lands on, and the status it goes in as. */
-export function AddSearchHeader({ query, onQueryChange, placeholder, label, loading, inputRef, target, status }: AddSearchHeaderProps) {
+export function AddSearchHeader({ query, onQueryChange, placeholder, label, loading, inputRef, target, status, searchType }: AddSearchHeaderProps) {
   const Icon = loading ? Loader2 : Search;
   return (
     <div className="border-b border-white/7 px-4 pt-2 pb-3 md:flex md:items-center md:gap-3 md:px-5 md:py-4.5">
@@ -50,8 +54,9 @@ export function AddSearchHeader({ query, onQueryChange, placeholder, label, load
       </div>
 
       {(target || status) && (
-        <div className="mt-1 flex items-center gap-2 md:mt-0">
+        <div className="mt-1 flex flex-wrap items-center gap-2 md:mt-0 md:flex-nowrap">
           {target}
+          {searchType && <SearchTypeSwitch value={searchType.value} onChange={searchType.onChange} />}
           {status && <StatusStepper kind={status.kind} value={status.value} onStep={status.onStep} />}
         </div>
       )}

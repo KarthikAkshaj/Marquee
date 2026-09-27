@@ -63,7 +63,9 @@ export function MatchRow({ row, source, categoryColor, conflict, onToggle, onOpe
                 {[resultMeta(pick), pick.communityScore && `${sourceName} ${pick.communityScore}`].filter(Boolean).join(" · ")}
               </span>
               {row.extras.length > 0 && (
-                <span className="block font-mono text-[11px] text-accent">+{row.extras.length} more from the series</span>
+                <span className="block font-mono text-[11px] text-accent">
+                  +{row.extras.length} more from the {source === "tmdb" ? "collection" : "series"}
+                </span>
               )}
             </span>
           </>
@@ -73,9 +75,7 @@ export function MatchRow({ row, source, categoryColor, conflict, onToggle, onOpe
               ? `${sourceName} didn't answer.`
               : row.candidates.length
                 ? "Left as it is."
-                : row.elsewhere
-                  ? `${sourceName} only has this as a ${row.elsewhere.form}, not an anime.`
-                  : `Nothing on ${sourceName} by that name.`}
+                : `Nothing on ${sourceName} by that name.`}
           </span>
         )}
       </div>

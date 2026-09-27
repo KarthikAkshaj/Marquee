@@ -6,10 +6,12 @@ import { ResultSkeleton } from "@/components/add/ResultSkeleton";
 import { SearchResultRow } from "@/components/add/SearchResultRow";
 import type { PaletteCategory } from "@/lib/palette";
 import type { SearchResult } from "@/lib/search/types";
-import type { ItemStatus } from "@/lib/status";
+import type { ItemStatus, LabelKind } from "@/lib/status";
 
 type AddResultsGroupProps = {
   target: PaletteCategory;
+  /** Whose words the rows use: reading ones on a Manga search. */
+  words: LabelKind;
   rows: { value: string; result: SearchResult; duplicate: { status: ItemStatus } | null }[];
   notice: string | null;
   loading: boolean;
@@ -18,7 +20,7 @@ type AddResultsGroupProps = {
 };
 
 /** "Add to Anime": provider results for the target shelf, or why there aren't any. */
-export function AddResultsGroup({ target, rows, notice, loading, active, onChoose }: AddResultsGroupProps) {
+export function AddResultsGroup({ target, words, rows, notice, loading, active, onChoose }: AddResultsGroupProps) {
   const heading = <GroupHeading>Add to {target.name}</GroupHeading>;
 
   if (rows.length === 0) {
@@ -39,7 +41,7 @@ export function AddResultsGroup({ target, rows, notice, loading, active, onChoos
           key={row.value}
           value={row.value}
           result={row.result}
-          kind={target.kind}
+          kind={words}
           categoryColor={target.color}
           onShelf={row.duplicate?.status ?? null}
           selected={row.value === active}

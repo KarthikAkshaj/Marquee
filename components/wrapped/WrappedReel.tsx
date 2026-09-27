@@ -55,6 +55,12 @@ export function WrappedReel({ wrapped }: { wrapped: Wrapped }) {
           Roughly <span className="font-mono tabular-nums text-text">{wrapped.hours.toLocaleString()}</span> hours of
           watching, give or take. Games keep no clock, so they sat this one out.
         </p>
+        {wrapped.chapters > 0 && (
+          <p className={UNDER}>
+            Plus <span className="font-mono tabular-nums text-text">{wrapped.chapters.toLocaleString()}</span>{" "}
+            {wrapped.chapters === 1 ? "chapter" : "chapters"} read, which no clock can time.
+          </p>
+        )}
       </Frame>
 
       {wrapped.genres.length > 0 && (

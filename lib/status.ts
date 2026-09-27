@@ -25,13 +25,51 @@ export const ITEM_FORMATS = [
   "ova",
   "ona",
   "special",
+  "manga",
+  "manhwa",
+  "manhua",
+  "light_novel",
+  "novel",
 ] as const satisfies readonly ItemFormat[];
+
+/** Comics and novels: what an anime shelf can hold that you read rather than watch (U5). */
+export const READING_FORMATS = ["manga", "manhwa", "manhua", "light_novel", "novel"] as const satisfies readonly ItemFormat[];
+export type ReadingFormat = (typeof READING_FORMATS)[number];
+
+export function isReading(format: ItemFormat | null | undefined): format is ReadingFormat {
+  return (READING_FORMATS as readonly string[]).includes(format ?? "");
+}
+
+/** What a comic or novel is called on its tag and in search results. */
+export const READING_LABELS: Record<ReadingFormat, string> = {
+  manga: "Manga",
+  manhwa: "Manhwa",
+  manhua: "Manhua",
+  light_novel: "Light novel",
+  novel: "Novel",
+};
+
+/** The tag a title carries on its shelf: only comics and novels get one. */
+export function readingLabel(format: ItemFormat | null | undefined): string | null {
+  return isReading(format) ? READING_LABELS[format] : null;
+}
+
+/**
+ * Whose words a title uses: its shelf's, or reading words for a comic or novel
+ * on an anime shelf. Anything about the whole shelf (its tabs, its counts)
+ * keeps the shelf's words.
+ */
+export type LabelKind = CategoryKind | "reading";
+
+export function labelKind(kind: CategoryKind, format: ItemFormat | null | undefined): LabelKind {
+  return isReading(format) ? "reading" : kind;
+}
 
 /**
  * The only place status wording lives (SPEC §2).
  * Components must never hard-code "Watching" and friends.
  */
-const LABELS: Record<CategoryKind, Record<ItemStatus, string>> = {
+const LABELS: Record<LabelKind, Record<ItemStatus, string>> = {
   anime: {
     planned: "Plan to Watch",
     in_progress: "Watching",
@@ -62,13 +100,19 @@ const LABELS: Record<CategoryKind, Record<ItemStatus, string>> = {
     completed: "Done",
     dropped: "Dropped",
   },
+  reading: {
+    planned: "Plan to Read",
+    in_progress: "Reading",
+    completed: "Completed",
+    dropped: "Dropped",
+  },
 };
 
-export function statusLabel(kind: CategoryKind, status: ItemStatus): string {
+export function statusLabel(kind: LabelKind, status: ItemStatus): string {
   return LABELS[kind][status];
 }
 
-export function statusLabels(kind: CategoryKind): Record<ItemStatus, string> {
+export function statusLabels(kind: LabelKind): Record<ItemStatus, string> {
   return LABELS[kind];
 }
 

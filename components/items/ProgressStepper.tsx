@@ -3,12 +3,12 @@
 import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
 import { InlineEdit } from "@/components/ui/InlineEdit";
-import { decrementPatch, incrementPatch, progressPercent, type Item } from "@/lib/items";
+import { decrementPatch, incrementPatch, progressPercent, type Item, type ProgressUnit } from "@/lib/items";
 import { cn } from "@/lib/utils";
 
 type ProgressStepperProps = {
   item: Pick<Item, "status" | "progress_current" | "progress_total">;
-  unit: "Episodes" | "Total";
+  unit: ProgressUnit;
   /** +: you watched one more (may start, resume or finish the title). */
   onIncrement: () => void;
   /** −, a typed count, or a new total (null while it's still airing). */
@@ -16,6 +16,30 @@ type ProgressStepperProps = {
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
+
+const WORDS: Record<ProgressUnit, { heading: string; noun: string; current: string; total: string; open: string }> = {
+  Episodes: {
+    heading: "Episodes",
+    noun: "episode",
+    current: "Episode you're on",
+    total: "Total episodes (blank while it's airing)",
+    open: "Still airing? Leave the total as ? and count as you go.",
+  },
+  Chapters: {
+    heading: "Chapters",
+    noun: "chapter",
+    current: "Chapter you're on",
+    total: "Total chapters (blank while it's coming out)",
+    open: "Still coming out? Leave the total as ? and count as you go.",
+  },
+  Total: {
+    heading: "Progress",
+    noun: "count",
+    current: "Done so far",
+    total: "Total (blank if unknown)",
+    open: "Don't know the total? Leave it as ? and count as you go.",
+  },
+};
 const stepButton =
   "flex size-11 shrink-0 items-center justify-center rounded-[11px] border transition-[color,background-color,border-color,scale] duration-150 ease-cinematic active:scale-90 md:size-7 md:rounded-[7px] disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100";
 
@@ -25,7 +49,8 @@ export function ProgressStepper({ item, unit, onIncrement, onChange }: ProgressS
   const current = item.progress_current;
   const total = item.progress_total;
   const percent = progressPercent(item);
-  const noun = unit === "Episodes" ? "episode" : "count";
+  const words = WORDS[unit];
+  const noun = words.noun;
 
   function save(nextCurrent: number, nextTotal: number | null) {
     setError(null);
@@ -50,7 +75,7 @@ export function ProgressStepper({ item, unit, onIncrement, onChange }: ProgressS
 
   return (
     <div className="flex-1 rounded-card border border-border bg-surface px-4 py-3.5 surface-highlight">
-      <p className="label-mono tracking-[.12em] text-text-muted">{unit === "Episodes" ? "Episodes" : "Progress"}</p>
+      <p className="label-mono tracking-[.12em] text-text-muted">{words.heading}</p>
       <div className="mt-2.5 flex items-center gap-3.5">
         <button
           type="button"
@@ -64,7 +89,7 @@ export function ProgressStepper({ item, unit, onIncrement, onChange }: ProgressS
 
         <div className="flex flex-1 items-center justify-center gap-1 font-mono text-[24px] tracking-[.02em] md:text-[22px]">
           <InlineEdit
-            label={unit === "Episodes" ? "Episode you're on" : "Done so far"}
+            label={words.current}
             value={String(current)}
             inputMode="numeric"
             maxLength={6}
@@ -76,7 +101,7 @@ export function ProgressStepper({ item, unit, onIncrement, onChange }: ProgressS
           </InlineEdit>
           <span aria-hidden className="text-text-faint">/</span>
           <InlineEdit
-            label={unit === "Episodes" ? "Total episodes (blank while it's airing)" : "Total (blank if unknown)"}
+            label={words.total}
             value={total === null ? "" : String(total)}
             inputMode="numeric"
             maxLength={6}
@@ -104,7 +129,7 @@ export function ProgressStepper({ item, unit, onIncrement, onChange }: ProgressS
       </div>
 
       {percent === null ? (
-        <p className="mt-3 text-12 text-text-muted">Still airing? Leave the total as ? and count as you go.</p>
+        <p className="mt-3 text-12 text-text-muted">{words.open}</p>
       ) : (
         <div aria-hidden className="mt-3 h-0.75 overflow-hidden rounded-xs bg-white/9">
           <div

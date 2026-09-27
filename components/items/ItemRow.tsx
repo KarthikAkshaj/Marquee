@@ -2,7 +2,7 @@ import { Star } from "lucide-react";
 import Link from "next/link";
 import type { MouseEvent } from "react";
 import { EMPTY, progressLabel, type Item } from "@/lib/items";
-import type { CategoryKind } from "@/lib/status";
+import { labelKind, readingLabel, type CategoryKind } from "@/lib/status";
 import { isPlainClick } from "@/lib/utils";
 import { ItemCover } from "./ItemCover";
 import { StatusPill } from "./StatusPill";
@@ -20,6 +20,8 @@ type ItemRowProps = {
 export function ItemRow({ item, href, kind, categoryColor, onOpen }: ItemRowProps) {
   const progress = item.progress_total || item.progress_current ? progressLabel(item) : EMPTY;
   const rating = item.rating ? `${item.rating} / 10` : EMPTY;
+  // A comic or novel on an anime shelf says which.
+  const tag = readingLabel(item.format);
 
   return (
     <Link
@@ -45,6 +47,7 @@ export function ItemRow({ item, href, kind, categoryColor, onOpen }: ItemRowProp
         </p>
         <p className="mt-0.5 font-mono text-[11px] text-text-muted">
           {item.year ?? EMPTY}
+          {tag && ` · ${tag}`}
           <span className="md:hidden">
             {progress !== EMPTY && ` · ${progress}`}
             {item.rating && ` · ${rating}`}
@@ -52,7 +55,7 @@ export function ItemRow({ item, href, kind, categoryColor, onOpen }: ItemRowProp
         </p>
       </div>
 
-      <StatusPill kind={kind} status={item.status} className="justify-self-end md:justify-self-start" />
+      <StatusPill kind={labelKind(kind, item.format)} status={item.status} className="justify-self-end md:justify-self-start" />
       <span className="hidden font-mono text-13 text-text-muted md:block">{progress}</span>
       <span className="hidden font-mono text-13 md:block">{rating}</span>
       <span className="hidden text-right font-mono text-12 text-text-muted md:block">

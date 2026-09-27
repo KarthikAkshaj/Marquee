@@ -6,13 +6,14 @@ import type { CSSProperties } from "react";
 import { resultMeta } from "@/lib/add";
 import { generatedCover } from "@/lib/poster-art";
 import type { SearchResult } from "@/lib/search/types";
-import { STATUS_STYLE, statusLabel, type CategoryKind, type ItemStatus } from "@/lib/status";
+import { STATUS_STYLE, statusLabel, type ItemStatus, type LabelKind } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
 type SearchResultRowProps = {
   value: string;
   result: SearchResult;
-  kind: CategoryKind;
+  /** Whose words the "Already on your list" note uses: reading ones on a Manga search. */
+  kind: LabelKind;
   categoryColor: string;
   /** Status of the copy already on the shelf, if there is one. */
   onShelf: ItemStatus | null;

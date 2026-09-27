@@ -51,7 +51,15 @@ describe("GET /api/search", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("private, max-age=300");
     expect((await response.json()).results[0].title).toBe("Frieren");
-    expect(searchMetadata).toHaveBeenCalledWith("anime", "frieren");
+    expect(searchMetadata).toHaveBeenCalledWith("anime", "frieren", "anime");
+  });
+
+  it("searches an anime shelf's comics when asked, and only an anime shelf's", async () => {
+    signIn("user-manga");
+    searchMetadata.mockResolvedValue({ results: [] });
+    expect((await call("kind=anime&q=frieren&type=manga")).status).toBe(200);
+    expect(searchMetadata).toHaveBeenLastCalledWith("anime", "frieren", "manga");
+    expect((await call("kind=movie&q=dune&type=manga")).status).toBe(400);
   });
 
   it("passes provider trouble through as a 200 with a flag that isn't cached", async () => {

@@ -13,7 +13,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("items")
-    .select("id, title, status, year, cover_url, accent_color, source, external_id, category_id")
+    .select("id, title, status, year, cover_url, accent_color, source, external_id, category_id, format")
     .order("updated_at", { ascending: false });
   if (error) return NextResponse.json({ titles: [] }, { status: 500 });
 

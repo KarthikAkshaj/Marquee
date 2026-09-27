@@ -4,7 +4,7 @@ import type { CSSProperties, MouseEvent } from "react";
 import { TicketStamp } from "@/components/fun/TicketStamp";
 import { progressPercent, progressShort, type Item } from "@/lib/items";
 import { generatedCover } from "@/lib/poster-art";
-import { STATUS_STYLE, statusLabel, type CategoryKind } from "@/lib/status";
+import { STATUS_STYLE, labelKind, readingLabel, statusLabel, type CategoryKind } from "@/lib/status";
 import { cn, isPlainClick } from "@/lib/utils";
 import { ItemCover } from "./ItemCover";
 import { QuickActions, type ItemQuickActions } from "./QuickActions";
@@ -46,7 +46,10 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
   const status = STATUS_STYLE[item.status];
   const watching = item.status === "in_progress";
   const percent = watching ? progressPercent(item) : null;
-  const episode = watching ? progressShort(item, kind) : null;
+  // A comic on an anime shelf reads: Reading, "Ch 45", and a Manhwa tag.
+  const words = labelKind(kind, item.format);
+  const tag = readingLabel(item.format);
+  const episode = watching ? progressShort(item, words) : null;
   const cover = generatedCover(item.id, categoryColor);
   const tint = item.accent_color ?? cover.tint;
   // Lifted a little toward white so a dark cover still gets an edge you can see.
@@ -76,10 +79,11 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
             {item.title}
           </Link>
         </p>
-        {/* 2023 · Watching · 13/24. Narrow cards drop the year to fit the episode. */}
+        {/* 2023 · Watching · 13/24, or 2021 · Manhwa · Reading · Ch 45. Narrow cards drop the year to fit. */}
         <p className="mt-1 flex flex-wrap items-center gap-x-2 font-mono text-[11px]">
-          {item.year && <span className={cn("text-text-muted", episode && "@max-[160px]:hidden")}>{item.year}</span>}
-          <span className={cn(status.text, "transition-colors duration-200 ease-cinematic")}>{statusLabel(kind, item.status)}</span>
+          {item.year && <span className={cn("text-text-muted", (episode || tag) && "@max-[160px]:hidden")}>{item.year}</span>}
+          {tag && <span className="text-text-muted">{tag}</span>}
+          <span className={cn(status.text, "transition-colors duration-200 ease-cinematic")}>{statusLabel(words, item.status)}</span>
           {episode && <span className="text-text">{episode}</span>}
         </p>
       </div>

@@ -1,5 +1,5 @@
-import { progressUnit, type Item } from "@/lib/items";
-import { statusLabel, type CategoryKind } from "@/lib/status";
+import { progressUnit, totalCount, type Item } from "@/lib/items";
+import { labelKind, statusLabel, type CategoryKind } from "@/lib/status";
 
 /** "Evening", by the viewer's own clock (SPEC §8.4). */
 export function greetingFor(hour: number): string {
@@ -51,10 +51,9 @@ export function statTiles(shelves: readonly ShelfStats[], finishedThisYear: numb
   ];
 }
 
-/** "2023 · 28 eps" or "1999 · Action": the second line on a Continue card. */
-export function continueSubtitle(item: Pick<Item, "year" | "progress_total" | "genres">, kind: CategoryKind): string {
-  const unit = progressUnit(kind);
-  const detail =
-    item.progress_total && unit ? `${item.progress_total} ${unit === "Episodes" ? "eps" : "total"}` : item.genres[0];
+/** "2023 · 28 eps", "2021 · 222 ch" for a comic, or "1999 · Action": the second line on a Continue card. */
+export function continueSubtitle(item: Pick<Item, "year" | "progress_total" | "genres" | "format">, kind: CategoryKind): string {
+  const unit = progressUnit(labelKind(kind, item.format));
+  const detail = item.progress_total && unit ? totalCount(item.progress_total, unit) : item.genres[0];
   return [item.year, detail].filter(Boolean).join(" · ");
 }

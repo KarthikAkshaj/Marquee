@@ -15,7 +15,7 @@ const frieren: SearchResult = {
   accentColor: "#bbf1a1",
 };
 
-const shelved = (overrides: { id: string; title: string; source?: "manual" | "anilist"; external_id?: string | null }) => ({
+const shelved = (overrides: { id: string; title: string; source?: "manual" | "anilist" | "tmdb"; external_id?: string | null }) => ({
   status: "completed" as const,
   source: "manual" as const,
   external_id: null,
@@ -40,6 +40,15 @@ describe("add helpers", () => {
     expect(findDuplicate(frieren, [byTitle, byId])?.id).toBe("1");
     expect(findDuplicate(frieren, [byTitle])?.id).toBe("2");
     expect(findDuplicate(frieren, [shelved({ id: "3", title: "Frieren" })])).toBeNull();
+  });
+
+  it("doesn't mistake a linked namesake for the same title: the anime isn't the manga", () => {
+    const anime = shelved({ id: "4", title: "Frieren: Beyond Journey’s End", source: "anilist", external_id: "154587" });
+    const manga = { ...frieren, externalId: "118586" };
+    expect(findDuplicate(manga, [anime])).toBeNull();
+    // Dune (2021) on the shelf doesn't hide Dune (1984).
+    const dune = shelved({ id: "5", title: "Dune", source: "tmdb", external_id: "438631" });
+    expect(findDuplicate({ source: "tmdb", externalId: "841", title: "Dune" }, [dune])).toBeNull();
   });
 
   it("builds the row the add will save, stamped like the database", () => {

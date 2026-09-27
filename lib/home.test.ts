@@ -46,8 +46,12 @@ describe("statTiles", () => {
 
 describe("continueSubtitle", () => {
   it("prefers the episode count, then a genre", () => {
-    expect(continueSubtitle({ year: 2023, progress_total: 28, genres: ["Adventure"] }, "anime")).toBe("2023 · 28 eps");
-    expect(continueSubtitle({ year: 1999, progress_total: null, genres: ["Action", "Comedy"] }, "anime")).toBe("1999 · Action");
-    expect(continueSubtitle({ year: null, progress_total: null, genres: [] }, "movie")).toBe("");
+    expect(continueSubtitle({ year: 2023, progress_total: 28, genres: ["Adventure"], format: "tv" }, "anime")).toBe("2023 · 28 eps");
+    expect(continueSubtitle({ year: 1999, progress_total: null, genres: ["Action", "Comedy"], format: null }, "anime")).toBe("1999 · Action");
+    expect(continueSubtitle({ year: null, progress_total: null, genres: [], format: null }, "movie")).toBe("");
+  });
+
+  it("counts a comic on an anime shelf in chapters", () => {
+    expect(continueSubtitle({ year: 2021, progress_total: 222, genres: ["Fantasy"], format: "manhwa" }, "anime")).toBe("2021 · 222 ch");
   });
 });

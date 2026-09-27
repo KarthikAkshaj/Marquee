@@ -34,8 +34,10 @@ type ShelfTitle = Pick<Item, "id" | "title" | "status" | "source" | "external_id
 
 /**
  * The title already on this shelf, if any (SPEC §8.7): the same provider id,
- * or failing that the same title ignoring case, so a hand-added "frieren"
- * still counts.
+ * or failing that a hand-added title of the same name ignoring case, so a
+ * typed "frieren" still counts. A title that came from search has its id to
+ * go by, so a namesake isn't it: the Frieren anime isn't the Frieren manga,
+ * and Dune (2021) isn't Dune (1984).
  */
 export function findDuplicate<T extends ShelfTitle>(
   result: Pick<SearchResult, "source" | "externalId" | "title">,
@@ -44,7 +46,7 @@ export function findDuplicate<T extends ShelfTitle>(
   const sameId = items.find((item) => item.source === result.source && item.external_id === result.externalId);
   if (sameId) return sameId;
   const key = titleKey(result.title);
-  return items.find((item) => titleKey(item.title) === key) ?? null;
+  return items.find((item) => item.source === "manual" && titleKey(item.title) === key) ?? null;
 }
 
 /**

@@ -235,10 +235,16 @@ describe("profile schemas", () => {
 
 describe("searchQuerySchema", () => {
   it("takes provider kinds and trimmed queries of 2–100 characters", () => {
-    expect(searchQuerySchema.parse({ kind: "anime", q: "  frieren " })).toEqual({ kind: "anime", q: "frieren" });
+    expect(searchQuerySchema.parse({ kind: "anime", q: "  frieren " })).toEqual({ kind: "anime", q: "frieren", type: "anime" });
     expect(searchQuerySchema.safeParse({ kind: "custom", q: "frieren" }).success).toBe(false);
     expect(searchQuerySchema.safeParse({ kind: "movie", q: " a " }).success).toBe(false);
     expect(searchQuerySchema.safeParse({ kind: "game", q: "x".repeat(101) }).success).toBe(false);
+  });
+
+  it("searches comics only for an anime shelf", () => {
+    expect(searchQuerySchema.parse({ kind: "anime", q: "frieren", type: "manga" }).type).toBe("manga");
+    expect(searchQuerySchema.safeParse({ kind: "movie", q: "dune", type: "manga" }).success).toBe(false);
+    expect(searchQuerySchema.safeParse({ kind: "anime", q: "frieren", type: "novel" }).success).toBe(false);
   });
 });
 

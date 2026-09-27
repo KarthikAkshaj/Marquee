@@ -2,7 +2,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import frieren from "./__fixtures__/anilist-frieren.json";
 import onePiece from "./__fixtures__/anilist-one-piece.json";
-import { getAniListSeries, normaliseAniList, searchAniList, searchAniListMany, searchAniListOther } from "./anilist";
+import mushoku from "./__fixtures__/anilist-reading-mushoku-tensei.json";
+import {
+  getAniListSeries,
+  normaliseAniList,
+  normaliseAniListReading,
+  readingFormat,
+  searchAniList,
+  searchAniListMany,
+  searchAniListReading,
+  searchAniListReadingMany,
+} from "./anilist";
 import { ProviderError } from "./types";
 
 const reply = (body: unknown, status = 200) =>
@@ -131,47 +141,91 @@ describe("searchAniListMany", () => {
   });
 });
 
-describe("searchAniListOther", () => {
+describe("comics and novels (U5)", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  const comic = (english: string | null, country: string, format = "MANGA", romaji = english) => ({
-    title: { english, romaji },
+  const comic = (english: string | null, country: string, format = "MANGA", extra: Record<string, unknown> = {}) => ({
+    id: 140407,
+    title: { english, romaji: english },
     format,
+    status: "FINISHED",
     countryOfOrigin: country,
+    chapters: 222,
+    volumes: null,
+    startDate: { year: 2021 },
+    coverImage: { extraLarge: "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx140407.jpg", color: "#e4a15d" },
+    bannerImage: null,
+    genres: ["Comedy", "Fantasy"],
+    averageScore: 90,
+    ...extra,
   });
 
-  it("names what AniList has instead, by where the comic is from", async () => {
+  it("names a comic by where it's from, and a novel by whether it's Japanese", () => {
+    expect(readingFormat({ format: "MANGA", countryOfOrigin: "KR" })).toBe("manhwa");
+    expect(readingFormat({ format: "MANGA", countryOfOrigin: "CN" })).toBe("manhua");
+    expect(readingFormat({ format: "MANGA", countryOfOrigin: "TW" })).toBe("manhua");
+    expect(readingFormat({ format: "MANGA", countryOfOrigin: "JP" })).toBe("manga");
+    expect(readingFormat({ format: "ONE_SHOT", countryOfOrigin: "JP" })).toBe("manga");
+    expect(readingFormat({ format: "NOVEL", countryOfOrigin: "JP" })).toBe("light_novel");
+    expect(readingFormat({ format: "NOVEL", countryOfOrigin: "KR" })).toBe("novel");
+  });
+
+  it("says what it is on the result line, and counts chapters where episodes would go", () => {
+    expect(normaliseAniListReading(comic("The Greatest Estate Developer", "KR"))).toMatchObject({
+      source: "anilist",
+      externalId: "140407",
+      title: "The Greatest Estate Developer",
+      format: "manhwa",
+      subtitle: "Manhwa · 222 ch",
+      progressTotal: 222,
+      communityScore: 90,
+      accentColor: "#e4a15d",
+    });
+    // Still coming out, or paused: the chapter count isn't final, so there's no total to finish at.
+    expect(normaliseAniListReading(comic("Frieren", "JP", "MANGA", { status: "RELEASING", chapters: null }))).toMatchObject({
+      subtitle: "Manga · Releasing",
+      progressTotal: undefined,
+    });
+    expect(normaliseAniListReading(comic("Berserk", "JP", "MANGA", { status: "HIATUS", chapters: 380 }))).toMatchObject({
+      subtitle: "Manga · On hiatus",
+      progressTotal: undefined,
+    });
+    // A novel counted in volumes only.
+    expect(normaliseAniListReading(comic("Overlord", "JP", "NOVEL", { chapters: null, volumes: 16 }))?.subtitle).toBe("Light novel · 16 vols");
+    // A comic never has a running time.
+    expect(normaliseAniListReading(comic("Solo Leveling", "KR", "MANGA", { duration: 24 }))?.runtimeMinutes).toBeUndefined();
+  });
+
+  it("searches AniList's comics, and tells two with the same name apart", async () => {
+    const fetch = reply(mushoku);
+    vi.stubGlobal("fetch", fetch);
+    const results = await searchAniListReading("mushoku tensei");
+
+    const body = JSON.parse(String((fetch.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    expect(body.query).toContain("type: MANGA");
+    expect(body.query).toContain("chapters");
+    const jobless = results.filter((result) => result.title === "Mushoku Tensei: Jobless Reincarnation");
+    expect(jobless.map((result) => result.subtitle)).toEqual(["Manga · Releasing", "Light novel · 334 ch"]);
+    expect(jobless[1]).toMatchObject({ format: "light_novel", progressTotal: 334 });
+  });
+
+  it("offers the comics a missed title really is, and nothing that only looks like it", async () => {
     const fetch = reply({
       data: {
-        q0: { media: [comic("The Greatest Estate Developer", "KR")] },
-        q1: { media: [comic("Berserk", "JP")] },
-        q2: { media: [comic("Tales of Demons and Gods", "CN")] },
-        q3: { media: [comic("Overlord", "JP", "NOVEL")] },
+        q0: { media: [comic("The Greatest Estate Developer", "KR"), comic("Something Else Entirely", "KR", "MANGA", { id: 9 })] },
+        q1: { media: [comic("Something Else Entirely", "JP")] },
+        q2: { media: [comic(null, "JP", "MANGA", { id: 118586, title: { english: null, romaji: "Sousou no Frieren" } })] },
       },
     });
     vi.stubGlobal("fetch", fetch);
 
-    expect(await searchAniListOther(["The Greatest Estate Developer", "Berserk", "Tales of Demons and Gods", "Overlord"])).toEqual([
-      { form: "manhwa", title: "The Greatest Estate Developer" },
-      { form: "manga", title: "Berserk" },
-      { form: "manhua", title: "Tales of Demons and Gods" },
-      { form: "light novel", title: "Overlord" },
-    ]);
-
-    const body = JSON.parse(String((fetch.mock.calls[0] as unknown as [string, RequestInit])[1].body));
-    expect(body.query).toContain("type: MANGA");
+    const [estate, nothing, frierenManga] = await searchAniListReadingMany(["The Greatest Estate Developer", "Nothing At All", "Sousou no Frieren"]);
+    expect(estate.map((result) => [result.title, result.format])).toEqual([["The Greatest Estate Developer", "manhwa"]]);
+    expect(nothing).toEqual([]);
+    // Matched on the romaji name when there's no English one.
+    expect(frierenManga[0]).toMatchObject({ externalId: "118586", format: "manga" });
     expect(fetch).toHaveBeenCalledTimes(1);
-  });
-
-  it("explains nothing when the comic found isn't the title asked about", async () => {
-    vi.stubGlobal("fetch", reply({ data: { q0: { media: [comic("Something Else Entirely", "JP")] }, q1: { media: [] } } }));
-    expect(await searchAniListOther(["The Greatest Estate Developer", "Nothing At All"])).toEqual([null, null]);
-  });
-
-  it("matches on the romaji name too, and refuses more than ten at once", async () => {
-    vi.stubGlobal("fetch", reply({ data: { q0: { media: [comic(null, "JP", "MANGA", "Sousou no Frieren")] } } }));
-    expect(await searchAniListOther(["Sousou no Frieren"])).toEqual([{ form: "manga", title: "Sousou no Frieren" }]);
-    await expect(searchAniListOther(Array.from({ length: 11 }, (_, i) => `t${i}`))).rejects.toThrow("too many searches");
+    await expect(searchAniListReadingMany(Array.from({ length: 11 }, (_, i) => `t${i}`))).rejects.toThrow("too many searches");
   });
 });
 

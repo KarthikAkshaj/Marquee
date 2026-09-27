@@ -12,6 +12,7 @@ const title = (id: string, extra: Partial<PaletteTitle> = {}): PaletteTitle => (
   source: "manual",
   external_id: null,
   category_id: "anime",
+  format: null,
   ...extra,
 });
 

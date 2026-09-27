@@ -7,7 +7,7 @@ export type PaletteCategory = { id: string; name: string; slug: string; color: s
 /** One of the viewer's titles, light enough to load them all (GET /api/titles). */
 export type PaletteTitle = Pick<
   Item,
-  "id" | "title" | "status" | "year" | "cover_url" | "accent_color" | "source" | "external_id" | "category_id"
+  "id" | "title" | "status" | "year" | "cover_url" | "accent_color" | "source" | "external_id" | "category_id" | "format"
 >;
 
 /** Case, accents, curly quotes and extra spaces don't matter when matching. */

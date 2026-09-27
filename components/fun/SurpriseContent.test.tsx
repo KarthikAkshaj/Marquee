@@ -34,6 +34,7 @@ const title = (id: string, category: string, status: PaletteTitle["status"] = "p
   source: "manual",
   external_id: null,
   category_id: category,
+  format: null,
 });
 
 function setup(titles: PaletteTitle[], initialCategoryId: string | null = null) {

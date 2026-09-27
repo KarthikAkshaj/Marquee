@@ -87,6 +87,30 @@ describe("summarise", () => {
     expect(wrapped.hours).toBe(14);
   });
 
+  it("keeps reading out of the watching, and counts its chapters on their own", () => {
+    const wrapped = summarise(
+      [
+        ...padding(),
+        item({ kind: "anime", progress_current: 12, finished_at: "2026-03-01T00:00:00Z" }),
+        // Finished this year: its chapters count, and none of it is watching time.
+        item({ kind: "anime", format: "manhwa", progress_current: 222, progress_total: 222, finished_at: "2026-04-01T00:00:00Z" }),
+        // Still reading, and it arrived this year, so every chapter was this year's.
+        item({ kind: "anime", format: "manga", status: "in_progress", progress_current: 40, created_at: "2026-05-01T00:00:00Z" }),
+        // Still reading, but it arrived last year: no telling which chapters were this year's.
+        item({ kind: "anime", format: "light_novel", status: "in_progress", progress_current: 90, created_at: "2025-05-01T00:00:00Z" }),
+      ],
+      2026,
+    );
+    expect(wrapped.episodes).toBe(12);
+    // 12 * 24 = 288 minutes; the 222 chapters would have made it 90-odd hours.
+    expect(wrapped.hours).toBe(5);
+    expect(wrapped.chapters).toBe(262);
+  });
+
+  it("has no chapters to show for a year with no reading", () => {
+    expect(summarise(padding(), 2026).chapters).toBe(0);
+  });
+
   it("prices a single episode anime as a feature, and not as an episode", () => {
     const film = { kind: "anime" as CategoryKind, progress_current: 1, progress_total: 1 };
     const wrapped = summarise(

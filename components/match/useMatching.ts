@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { bestMatch, stepExtra, toggleExtra, type ExtraPick } from "@/lib/match";
 import type { ManualTitle } from "@/lib/queries";
 import { useSeries } from "@/components/add/useSeries";
-import { isRelatedKind, type Elsewhere, type SearchKind, type SearchResponse, type SearchResult, type SeriesTitle } from "@/lib/search/types";
+import { isRelatedKind, type SearchKind, type SearchResponse, type SearchResult, type SeriesTitle } from "@/lib/search/types";
 
 export type MatchRowState = {
   item: ManualTitle;
@@ -16,11 +16,10 @@ export type MatchRowState = {
   sure: boolean;
   include: boolean;
   extras: ExtraPick[];
-  /** Nothing found, but AniList has the story as a manga or manhwa. */
-  elsewhere: Elsewhere | null;
 };
 
-type MatchReply = { results: SearchResult[][]; elsewhere?: (Elsewhere | null)[]; error?: SearchResponse["error"] };
+/** For anime, a title with no anime comes back with AniList's comics by that name instead (U5). */
+type MatchReply = { results: SearchResult[][]; error?: SearchResponse["error"] };
 
 const BATCH = 10;
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -38,7 +37,7 @@ async function post(kind: SearchKind, queries: string[]): Promise<MatchReply> {
   }
 }
 
-function resolved(row: MatchRowState, candidates: SearchResult[], failed: boolean, elsewhere: Elsewhere | null = null): MatchRowState {
+function resolved(row: MatchRowState, candidates: SearchResult[], failed: boolean): MatchRowState {
   const match = bestMatch(row.item.title, row.item.year, candidates);
   return {
     ...row,
@@ -47,7 +46,6 @@ function resolved(row: MatchRowState, candidates: SearchResult[], failed: boolea
     choice: match?.index ?? null,
     sure: match?.confident ?? false,
     include: match?.confident ?? false,
-    elsewhere,
   };
 }
 
@@ -60,7 +58,7 @@ export function useMatching(kind: SearchKind, items: ManualTitle[]) {
   // The first list is the one being matched; saves refresh `items` underneath.
   const [initial] = useState(items);
   const [rows, setRows] = useState<MatchRowState[]>(() =>
-    initial.map((item) => ({ item, state: "waiting", candidates: [], choice: null, sure: false, include: false, extras: [], elsewhere: null })),
+    initial.map((item) => ({ item, state: "waiting", candidates: [], choice: null, sure: false, include: false, extras: [] })),
   );
 
   useEffect(() => {
@@ -75,11 +73,11 @@ export function useMatching(kind: SearchKind, items: ManualTitle[]) {
         }
         if (cancelled) return;
         const answer = reply;
-        const byId = new Map(batch.map((item, index) => [item.id, { candidates: answer.results[index] ?? [], elsewhere: answer.elsewhere?.[index] ?? null }]));
+        const byId = new Map(batch.map((item, index) => [item.id, answer.results[index] ?? []]));
         setRows((current) =>
           current.map((row) => {
             const found = byId.get(row.item.id);
-            return found ? resolved(row, found.candidates, Boolean(answer.error), found.elsewhere) : row;
+            return found ? resolved(row, found, Boolean(answer.error)) : row;
           }),
         );
       }
@@ -113,15 +111,15 @@ export function useMatching(kind: SearchKind, items: ManualTitle[]) {
     stepExtra: (id: string, externalId: string, direction: 1 | -1) =>
       update(id, (row) => ({ ...row, extras: stepExtra(row.extras, externalId, direction) })),
     toggle: (id: string, include: boolean) => update(id, (row) => ({ ...row, include: include && row.choice !== null })),
-    /** Try other words for one title, e.g. its full or original name. */
+    /**
+     * Try other words for one title, e.g. its full or original name. Asked like
+     * the first round, so an anime with no match still turns up its comic.
+     */
     async research(id: string, query: string) {
       update(id, (row) => ({ ...row, state: "waiting" }));
-      const params = new URLSearchParams({ kind, q: query });
-      const body = (await fetch(`/api/search?${params}`)
-        .then((response) => response.json())
-        .catch(() => ({ results: [], error: "unavailable" }))) as SearchResponse;
+      const body = await post(kind, [query]);
       update(id, (row) => {
-        const next = resolved({ ...row, item: { ...row.item, title: query } }, body.results, Boolean(body.error));
+        const next = resolved({ ...row, item: { ...row.item, title: query } }, body.results[0] ?? [], Boolean(body.error));
         // Matching was scored against the new words, but the row keeps the name you had.
         return { ...next, item: row.item, extras: [] };
       });

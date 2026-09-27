@@ -6,7 +6,8 @@ vi.mock("next/cache", () => ({ unstable_cache: <T>(fn: T) => fn }));
 
 const searchAniList = vi.fn();
 const searchAniListMany = vi.fn();
-const searchAniListOther = vi.fn();
+const searchAniListReading = vi.fn();
+const searchAniListReadingMany = vi.fn();
 const getAniListSeries = vi.fn();
 const searchTmdbMovies = vi.fn();
 const getTmdbSeriesDetails = vi.fn();
@@ -15,7 +16,8 @@ const getTmdbCollection = vi.fn();
 vi.mock("./anilist", () => ({
   searchAniList: (q: string) => searchAniList(q),
   searchAniListMany: (queries: string[]) => searchAniListMany(queries),
-  searchAniListOther: (queries: string[]) => searchAniListOther(queries),
+  searchAniListReading: (q: string) => searchAniListReading(q),
+  searchAniListReadingMany: (queries: string[]) => searchAniListReadingMany(queries),
   getAniListSeries: (id: number) => getAniListSeries(id),
 }));
 vi.mock("./tmdb", () => ({
@@ -55,6 +57,19 @@ describe("searchMetadata", () => {
     expect(searchAniList).toHaveBeenCalledWith("frieren");
   });
 
+  it("looks through AniList's comics on an anime shelf's Manga search, and only there", async () => {
+    const manga = { source: "anilist", externalId: "118586", title: "Frieren", format: "manga" };
+    searchAniListReading.mockResolvedValueOnce([manga]);
+    expect(await searchMetadata("anime", "  Frieren ", "manga")).toEqual({ results: [manga] });
+    expect(searchAniListReading).toHaveBeenCalledWith("frieren");
+    expect(searchAniList).not.toHaveBeenCalled();
+
+    searchTmdbMovies.mockResolvedValueOnce([]);
+    await searchMetadata("movie", "dune", "manga");
+    expect(searchTmdbMovies).toHaveBeenCalledWith("dune");
+    expect(searchAniListReading).toHaveBeenCalledTimes(1);
+  });
+
   it("says a provider isn't set up instead of calling it", async () => {
     expect(await searchMetadata("game", "hades")).toEqual({ results: [], error: "not_configured" });
     vi.stubEnv("TMDB_READ_TOKEN", "");
@@ -85,7 +100,7 @@ describe("matchMetadata", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     searchAniListMany.mockReset();
-    searchAniListOther.mockReset();
+    searchAniListReadingMany.mockReset();
     searchTmdbMovies.mockReset();
   });
 
@@ -103,29 +118,27 @@ describe("matchMetadata", () => {
     expect(searchAniListMany).toHaveBeenLastCalledWith(["Hell's Paradise"]);
   });
 
-  it("says what AniList has instead when a title isn't an anime there", async () => {
+  it("offers the comic when a title has no anime, and never in place of one", async () => {
     const hit = { source: "anilist", externalId: "1", title: "Naruto" };
-    const manhwa = { form: "manhwa", title: "The Greatest Estate Developer" };
+    const manhwa = { source: "anilist", externalId: "140407", title: "The Greatest Estate Developer", format: "manhwa", subtitle: "Manhwa · 222 ch" };
     searchAniListMany.mockResolvedValue([[hit], []]);
-    searchAniListOther.mockResolvedValue([manhwa]);
-    expect(await matchMetadata("anime", ["Naruto", "The Greatest Estate Developer"])).toEqual({
-      results: [[hit], []],
-      elsewhere: [null, manhwa],
-    });
-    expect(searchAniListOther).toHaveBeenCalledWith(["The Greatest Estate Developer"]);
+    searchAniListReadingMany.mockResolvedValue([[manhwa]]);
+    expect(await matchMetadata("anime", ["Naruto", "The Greatest Estate Developer"])).toEqual({ results: [[hit], [manhwa]] });
+    // Only the miss is looked up as a comic.
+    expect(searchAniListReadingMany).toHaveBeenCalledWith(["The Greatest Estate Developer"]);
   });
 
-  it("leaves the misses unexplained rather than losing the matches", async () => {
+  it("leaves a miss empty rather than losing the matches when the comic lookup fails", async () => {
     const hit = { source: "anilist", externalId: "1", title: "Naruto" };
     searchAniListMany.mockResolvedValue([[hit], []]);
-    searchAniListOther.mockRejectedValue(new ProviderError("anilist", "HTTP 500", 500));
-    expect(await matchMetadata("anime", ["Naruto", "Nothing At All"])).toEqual({ results: [[hit], []], elsewhere: undefined });
+    searchAniListReadingMany.mockRejectedValue(new ProviderError("anilist", "HTTP 500", 500));
+    expect(await matchMetadata("anime", ["Naruto", "Nothing At All"])).toEqual({ results: [[hit], []] });
   });
 
   it("asks nothing extra when every title matched", async () => {
     searchAniListMany.mockResolvedValue([[{ source: "anilist", externalId: "1", title: "Naruto" }]]);
     await matchMetadata("anime", ["Naruto"]);
-    expect(searchAniListOther).not.toHaveBeenCalled();
+    expect(searchAniListReadingMany).not.toHaveBeenCalled();
   });
 
   it("uses the single search for other kinds, keeping going when one fails", async () => {

@@ -189,7 +189,18 @@ export type Database = {
     }
     Enums: {
       category_kind: "anime" | "movie" | "series" | "game" | "custom"
-      item_format: "movie" | "tv" | "tv_short" | "ova" | "ona" | "special"
+      item_format:
+        | "movie"
+        | "tv"
+        | "tv_short"
+        | "ova"
+        | "ona"
+        | "special"
+        | "manga"
+        | "manhwa"
+        | "manhua"
+        | "light_novel"
+        | "novel"
       item_status: "planned" | "in_progress" | "completed" | "dropped"
       meta_source: "tmdb" | "anilist" | "igdb" | "manual"
     }
@@ -320,7 +331,19 @@ export const Constants = {
   public: {
     Enums: {
       category_kind: ["anime", "movie", "series", "game", "custom"],
-      item_format: ["movie", "tv", "tv_short", "ova", "ona", "special"],
+      item_format: [
+        "movie",
+        "tv",
+        "tv_short",
+        "ova",
+        "ona",
+        "special",
+        "manga",
+        "manhwa",
+        "manhua",
+        "light_novel",
+        "novel",
+      ],
       item_status: ["planned", "in_progress", "completed", "dropped"],
       meta_source: ["tmdb", "anilist", "igdb", "manual"],
     },

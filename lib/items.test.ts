@@ -16,6 +16,7 @@ import {
   progressShort,
   progressUnit,
   selectItems,
+  totalCount,
   sortItems,
   statusPatch,
   type Item,
@@ -184,6 +185,14 @@ describe("progressUnit", () => {
     expect(progressUnit("custom")).toBe("Total");
     expect(progressUnit("movie")).toBeNull();
     expect(progressUnit("game")).toBeNull();
+    // A comic on an anime shelf counts chapters.
+    expect(progressUnit("reading")).toBe("Chapters");
+  });
+
+  it("says how many there are in the unit's own word", () => {
+    expect(totalCount(28, "Episodes")).toBe("28 eps");
+    expect(totalCount(222, "Chapters")).toBe("222 ch");
+    expect(totalCount(12, "Total")).toBe("12 total");
   });
 });
 
@@ -284,6 +293,7 @@ describe("progressShort", () => {
     expect(progressShort({ progress_current: 13, progress_total: 24 }, "anime")).toBe("13/24");
     expect(progressShort({ progress_current: 13, progress_total: null }, "series")).toBe("Ep 13");
     expect(progressShort({ progress_current: 4, progress_total: null }, "custom")).toBe("4");
+    expect(progressShort({ progress_current: 45, progress_total: null }, "reading")).toBe("Ch 45");
   });
 
   it("stays quiet with nothing to show, or where nothing is counted", () => {

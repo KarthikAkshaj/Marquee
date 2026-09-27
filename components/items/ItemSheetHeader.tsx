@@ -6,9 +6,9 @@ import type { CSSProperties } from "react";
 import { toast } from "sonner";
 import { InlineEdit } from "@/components/ui/InlineEdit";
 import { categoryStyle } from "@/lib/categories";
-import { progressUnit, type Item, type ItemDetails } from "@/lib/items";
+import { progressUnit, totalCount, type Item, type ItemDetails } from "@/lib/items";
 import { generatedCover } from "@/lib/poster-art";
-import type { CategoryKind } from "@/lib/status";
+import { labelKind, readingLabel, type CategoryKind } from "@/lib/status";
 import { cn } from "@/lib/utils";
 import { TicketStamp } from "@/components/fun/TicketStamp";
 import { ItemCover } from "./ItemCover";
@@ -45,8 +45,9 @@ export function ItemSheetHeader({ item, category, onDetails, onToggleFavorite, s
   const wash = item.accent_color
     ? `linear-gradient(150deg, color-mix(in oklab, ${item.accent_color} 45%, var(--color-bg)), color-mix(in oklab, ${item.accent_color} 15%, var(--color-sheet)) 60%, var(--color-sheet))`
     : cover.background;
-  const unit = progressUnit(category.kind);
-  const meta = [category.name, item.progress_total && unit ? `${item.progress_total} ${unit === "Episodes" ? "eps" : "total"}` : null]
+  const unit = progressUnit(labelKind(category.kind, item.format));
+  // "Anime · 28 eps", or for a comic on that shelf "Anime · Manhwa · 222 ch".
+  const meta = [category.name, readingLabel(item.format), item.progress_total && unit ? totalCount(item.progress_total, unit) : null]
     .filter(Boolean)
     .join(" · ");
 

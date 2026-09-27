@@ -47,9 +47,11 @@ describe("MatchFlow", () => {
     saveMatches.mockReset();
     setItemAccents.mockReset();
     fetchMock.mockReset();
-    fetchMock.mockImplementation(async (url: string) => {
+    fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
       if (url.includes("related=")) return reply({ results: narutoSeries });
-      return url.startsWith("/api/search?") ? reply({ results: [hells] }) : reply({ results: [[naruto], [onigiri], []] });
+      // A search with other words asks the same way, for one title.
+      const { queries } = JSON.parse(String(init?.body)) as { queries: string[] };
+      return queries.length === 1 ? reply({ results: [[hells]] }) : reply({ results: [[naruto], [onigiri], []] });
     });
     vi.stubGlobal("fetch", fetchMock);
   });
@@ -74,21 +76,19 @@ describe("MatchFlow", () => {
     fireEvent.change(within(rowFor("Hells Paradise")).getByRole("textbox"), { target: { value: "Hell's Paradise" } });
     fireEvent.click(within(rowFor("Hells Paradise")).getByRole("button", { name: "Search" }));
     await waitFor(() => expect(screen.getByLabelText("Update Hells Paradise")).toBeChecked());
-    expect(fetchMock).toHaveBeenLastCalledWith("/api/search?kind=anime&q=Hell%27s+Paradise");
+    expect(JSON.parse(fetchMock.mock.lastCall?.[1].body)).toEqual({ kind: "anime", queries: ["Hell's Paradise"] });
     expect(screen.getByRole("button", { name: "Update 2 titles" })).toBeEnabled();
   });
 
-  it("says when AniList only has the story as a comic", async () => {
-    fetchMock.mockImplementation(async (url: string) =>
-      url.startsWith("/api/search?")
-        ? reply({ results: [] })
-        : reply({ results: [[naruto], [onigiri], []], elsewhere: [null, null, { form: "manhwa", title: "Hell's Paradise" }] }),
-    );
+  it("offers the comic when AniList only has the story as one, saying what it is", async () => {
+    const manhwa: SearchResult = { ...anime("140407", "Hells Paradise"), year: 2021, subtitle: "Manhwa · 222 ch", format: "manhwa" };
+    fetchMock.mockImplementation(async () => reply({ results: [[naruto], [onigiri], [manhwa]] }));
     render(<MatchFlow shelf={shelf} items={items} taken={[]} />);
 
-    await waitFor(() => expect(screen.getByText("1 not found")).toBeInTheDocument());
-    expect(within(rowFor("Hells Paradise")).getByText("AniList only has this as a manhwa, not an anime.")).toBeInTheDocument();
-    expect(within(rowFor("Naruto")).queryByText(/only has this as/)).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText("2 to update")).toBeInTheDocument());
+    expect(screen.queryByText("1 not found")).not.toBeInTheDocument();
+    expect(within(rowFor("Hells Paradise")).getByText("2021 · Manhwa · 222 ch")).toBeInTheDocument();
+    expect(screen.getByLabelText("Update Hells Paradise")).toBeChecked();
   });
 
   it("saves the ticked matches and keeps the rest on screen", async () => {

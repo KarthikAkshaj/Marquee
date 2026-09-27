@@ -1,12 +1,10 @@
 import { z } from "zod";
 import { CONFIDENT, similarity } from "@/lib/match";
-import type { ItemFormat } from "@/lib/status";
+import { READING_LABELS, type ItemFormat, type ReadingFormat } from "@/lib/status";
 import { cleanGenres, fetchJson, toScore } from "./http";
 import {
   ProviderError,
   RESULT_LIMIT,
-  type Elsewhere,
-  type OtherForm,
   type Release,
   type SearchResult,
   type SeriesTitle,
@@ -194,49 +192,100 @@ export async function getAniListShapes(ids: readonly string[]): Promise<Map<stri
   return new Map(body.data.Page.media.map((media) => [String(media.id), shapeOf(media)]));
 }
 
-const OTHER_FIELDS = "title { english romaji } format countryOfOrigin";
+const READING_FIELDS = `${MEDIA_FIELDS} chapters volumes countryOfOrigin`;
 
-const otherSchema = z.object({
-  title: z.object({ english: z.string().nullish(), romaji: z.string().nullish() }),
-  format: z.string().nullish(),
+const readingSchema = mediaSchema.extend({
+  chapters: z.number().nullish(),
+  volumes: z.number().nullish(),
   countryOfOrigin: z.string().nullish(),
 });
 
-/** AniList tags comics by where they came from, not by what they're called. */
-function otherForm(media: z.infer<typeof otherSchema>): OtherForm {
-  if (media.format === "NOVEL") return media.countryOfOrigin === "JP" ? "light novel" : "novel";
+export type AniListReading = z.infer<typeof readingSchema>;
+
+/** AniList files comics by where they came from, not by what they're called. */
+export function readingFormat(media: Pick<AniListReading, "format" | "countryOfOrigin">): ReadingFormat {
+  if (media.format === "NOVEL") return media.countryOfOrigin === "JP" ? "light_novel" : "novel";
   if (media.countryOfOrigin === "KR") return "manhwa";
   if (media.countryOfOrigin === "CN" || media.countryOfOrigin === "TW") return "manhua";
   return "manga";
 }
 
+/** A comic's chapter count isn't final while it's still coming out, or paused. */
+const STILL_COMING = new Set([...UNFINISHED, "HIATUS"]);
+
+function readingDetail(media: AniListReading): string | undefined {
+  if (media.status === "RELEASING") return "Releasing";
+  if (media.status === "NOT_YET_RELEASED") return "Upcoming";
+  if (media.status === "HIATUS") return "On hiatus";
+  if (media.chapters) return `${media.chapters} ch`;
+  if (media.volumes) return `${media.volumes} ${media.volumes === 1 ? "vol" : "vols"}`;
+  return undefined;
+}
+
 /**
- * For titles with no anime on AniList, what AniList does have instead, so the
- * row can say why it found nothing. One request for up to 10 names; a name has
- * to match closely, or an unrelated comic would "explain" the miss.
+ * A comic or novel, saying what it is: "Manhwa · 222 ch" (U5). Chapters stand
+ * where episodes would, so progress and +1 count them.
  */
-export async function searchAniListOther(queries: readonly string[]): Promise<(Elsewhere | null)[]> {
+export function normaliseAniListReading(media: AniListReading): SearchResult | null {
+  const result = normaliseAniList(media);
+  if (!result) return null;
+  const format = readingFormat(media);
+  return {
+    ...result,
+    progressTotal: media.status && STILL_COMING.has(media.status) ? undefined : (media.chapters ?? undefined),
+    subtitle: [READING_LABELS[format], readingDetail(media)].filter(Boolean).join(" · "),
+    runtimeMinutes: undefined,
+    format,
+  };
+}
+
+const READING_QUERY = `query ($search: String, $perPage: Int) {
+  Page(perPage: $perPage) {
+    media(search: $search, type: MANGA, isAdult: false, sort: SEARCH_MATCH) { ${READING_FIELDS} }
+  }
+}`;
+
+/** AniList's comics and novels by name: an anime shelf's Manga search (U5). */
+export async function searchAniListReading(query: string): Promise<SearchResult[]> {
+  const schema = z.object({ data: z.object({ Page: z.object({ media: z.array(readingSchema) }) }) });
+  const body = await fetchJson(
+    "anilist",
+    ENDPOINT,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: READING_QUERY, variables: { search: query, perPage: RESULT_LIMIT } }),
+    },
+    schema,
+  );
+  return body.data.Page.media.map(normaliseAniListReading).filter((result) => result !== null);
+}
+
+/**
+ * For titles with no anime on AniList, the comics and novels it has by that
+ * name instead, to offer as the match (U5). One request for up to 10 names. A
+ * name has to match closely, or an unrelated comic would stand in for the miss.
+ */
+export async function searchAniListReadingMany(queries: readonly string[]): Promise<SearchResult[][]> {
   if (queries.length === 0) return [];
   if (queries.length > ANILIST_BATCH) throw new ProviderError("anilist", "too many searches in one batch");
   const variables = Object.fromEntries(queries.map((query, index) => [`s${index}`, query]));
   const query = `query (${queries.map((_, index) => `$s${index}: String`).join(", ")}) {
-${queries.map((_, index) => `q${index}: Page(perPage: 3) { media(search: $s${index}, type: MANGA, isAdult: false, sort: SEARCH_MATCH) { ${OTHER_FIELDS} } }`).join("\n")}
+${queries.map((_, index) => `q${index}: Page(perPage: 3) { media(search: $s${index}, type: MANGA, isAdult: false, sort: SEARCH_MATCH) { ${READING_FIELDS} } }`).join("\n")}
 }`;
-  const schema = z.object({ data: z.record(z.string(), z.object({ media: z.array(otherSchema) })) });
+  const schema = z.object({ data: z.record(z.string(), z.object({ media: z.array(readingSchema) })) });
   const body = await fetchJson(
     "anilist",
     ENDPOINT,
     { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query, variables }) },
     schema,
   );
-  return queries.map((typed, index) => {
-    for (const media of body.data[`q${index}`]?.media ?? []) {
-      const names = [media.title.english, media.title.romaji].filter((name) => typeof name === "string");
-      const title = names[0]?.trim();
-      if (title && names.some((name) => similarity(typed, name) >= CONFIDENT)) return { form: otherForm(media), title };
-    }
-    return null;
-  });
+  return queries.map((typed, index) =>
+    (body.data[`q${index}`]?.media ?? [])
+      .filter((media) => [media.title.english, media.title.romaji].some((name) => typeof name === "string" && similarity(typed, name) >= CONFIDENT))
+      .map(normaliseAniListReading)
+      .filter((result) => result !== null),
+  );
 }
 
 const SERIES_FIELDS = `${BASE_FIELDS} type isAdult startDate { year month day }`;
