@@ -62,6 +62,7 @@ export function ContinueRow({ items, shelves }: ContinueRowProps) {
                 onIncrement={() => actions.increment(item)}
                 stamped={actions.stamps.has(item.id)}
                 onStamped={() => actions.endStamp(item.id)}
+                eager={index < 3}
               />
             </li>
           ))}

@@ -17,6 +17,8 @@ type PosterRowProps = {
   empty: string;
   items: Item[];
   shelves: PaletteCategory[];
+  /** Posters from the start whose covers load at once: for a row in the first screenful. */
+  eager?: number;
   className?: string;
 };
 
@@ -24,7 +26,7 @@ type PosterRowProps = {
  * A row of posters with your rating on each (handoff §01): Recently finished
  * and Favourites on Home (SPEC §8.4, §10). Each opens its title.
  */
-export function PosterRow({ id, title, note, empty, items, shelves, className }: PosterRowProps) {
+export function PosterRow({ id, title, note, empty, items, shelves, eager = 0, className }: PosterRowProps) {
   const byId = new Map(shelves.map((shelf) => [shelf.id, shelf]));
   const posters = items.flatMap((item) => {
     const shelf = byId.get(item.category_id);
@@ -49,7 +51,7 @@ export function PosterRow({ id, title, note, empty, items, shelves, className }:
                     className="relative h-36 overflow-hidden rounded-[9px] border border-white/7 shadow-[0_10px_26px_var(--glow)] transition-transform duration-200 ease-cinematic group-hover:-translate-y-1 md:h-44.25"
                     style={{ "--glow": glow } as CSSProperties}
                   >
-                    <ItemCover item={item} categoryColor={shelf.color} sizes="118px" />
+                    <ItemCover item={item} categoryColor={shelf.color} sizes="118px" eager={index < eager} />
                     {item.rating !== null && (
                       <span className="absolute top-1.75 right-1.75 flex items-center gap-1 rounded-full bg-bg/60 px-1.5 py-0.75 backdrop-blur-[6px] md:top-2 md:right-2 md:px-1.75">
                         <span aria-hidden className="size-1 rounded-full bg-completed md:size-1.25" />

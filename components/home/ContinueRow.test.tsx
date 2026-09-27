@@ -15,7 +15,9 @@ vi.mock("next/link", () => ({
     </a>
   ),
 }));
-vi.mock("next/image", () => ({ default: () => null }));
+vi.mock("next/image", () => ({
+  default: ({ loading }: { loading?: string }) => <span data-loading={loading} />,
+}));
 
 const { ContinueRow } = await import("./ContinueRow");
 
@@ -82,6 +84,15 @@ describe("ContinueRow", () => {
     expect(toggle).toHaveTextContent("Show less");
     expect(toggle).toHaveAttribute("aria-expanded", "true");
     expect(screen.getAllByRole("listitem")[3]).not.toHaveClass("hidden");
+  });
+
+  it("loads the covers that show before See all at once, and lets the rest wait", () => {
+    const items = ["One", "Two", "Three", "Four"].map((title, index) =>
+      item({ id: String(index), title, cover_url: `https://image.tmdb.org/t/p/w500/${index}.jpg` }),
+    );
+    const { container } = render(<ContinueRow items={items} shelves={[anime]} />);
+    const loading = [...container.querySelectorAll<HTMLElement>("[data-loading]")].map((cover) => cover.dataset.loading);
+    expect(loading).toEqual(["eager", "eager", "eager", "lazy"]);
   });
 
   it("says so when nothing is in progress, and ignores titles that just finished", () => {

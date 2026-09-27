@@ -32,6 +32,8 @@ export function ShelfItems({ category, params, items, actions, stamps, onStamped
               actions={actions}
               stamped={stamps.has(item.id)}
               onStamped={() => onStamped(item.id)}
+              // Six is the first row at every width: two, three, four or six across.
+              eager={index < 6}
             />
           </li>
         ))}

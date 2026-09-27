@@ -18,6 +18,8 @@ type PosterCardProps = {
   /** Just finished: show the ADMIT ONE stamp, then call onStamped. */
   stamped?: boolean;
   onStamped?: () => void;
+  /** In the shelf's first row, so its cover loads at once. */
+  eager?: boolean;
 };
 
 /**
@@ -40,7 +42,7 @@ const lit = {
  * `hover:` only applies on devices that can hover, so phones never tap an
  * invisible button.
  */
-export function PosterCard({ item, href, kind, categoryColor, actions, stamped = false, onStamped }: PosterCardProps) {
+export function PosterCard({ item, href, kind, categoryColor, actions, stamped = false, onStamped, eager = false }: PosterCardProps) {
   const status = STATUS_STYLE[item.status];
   const watching = item.status === "in_progress";
   const percent = watching ? progressPercent(item) : null;
@@ -94,6 +96,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
             item={item}
             categoryColor={categoryColor}
             sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 50vw"
+            eager={eager}
           />
         </Link>
 

@@ -16,6 +16,13 @@ import { getCategories, getHome, getViewer } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Home" };
 
+/**
+ * Posters per row that load at once: a full row across a 1920 screen, where
+ * both rows are in the first screenful and the browser can pick either one's
+ * cover as the page painted. On a phone they're a short scroll away.
+ */
+const FIRST_SCREEN_POSTERS = 12;
+
 /** Home (SPEC §8.4): greeting, what's in progress, the numbers, and what you finished. */
 export default async function HomePage() {
   const [viewer, categories] = await Promise.all([getViewer(), getCategories()]);
@@ -84,6 +91,7 @@ export default async function HomePage() {
         empty="Nothing finished yet. No rush."
         items={home.finished}
         shelves={shelves}
+        eager={FIRST_SCREEN_POSTERS}
         className="mt-4.5 md:mt-7"
       />
       <PosterRow
@@ -93,6 +101,7 @@ export default async function HomePage() {
         empty="Star a title from its card or sheet and it lands here."
         items={home.favourites}
         shelves={shelves}
+        eager={FIRST_SCREEN_POSTERS}
         className="mt-4.5 md:mt-7"
       />
     </>

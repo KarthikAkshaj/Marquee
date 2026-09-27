@@ -18,6 +18,8 @@ type ContinueCardProps = {
   onIncrement: () => void;
   stamped: boolean;
   onStamped: () => void;
+  /** Shows before "See all", so its cover loads at once. */
+  eager?: boolean;
 };
 
 /**
@@ -25,7 +27,7 @@ type ContinueCardProps = {
  * where you're up to and a +1. Finishing the last episode completes it, and it
  * leaves the row.
  */
-export function ContinueCard({ item, shelf, onIncrement, stamped, onStamped }: ContinueCardProps) {
+export function ContinueCard({ item, shelf, onIncrement, stamped, onStamped, eager = false }: ContinueCardProps) {
   const cover = generatedCover(item.id, shelf.color);
   const glow = item.accent_color ? `color-mix(in oklab, ${item.accent_color} 34%, transparent)` : cover.glow;
   const unit = progressUnit(shelf.kind);
@@ -44,7 +46,7 @@ export function ContinueCard({ item, shelf, onIncrement, stamped, onStamped }: C
       <Link href={href} tabIndex={-1} aria-hidden className="absolute inset-0 z-1" />
 
       <div className="pointer-events-none relative z-2 h-20 w-13.5 shrink-0 overflow-hidden rounded-[6px] shadow-[0_10px_26px_var(--glow)] md:h-31 md:w-21.5 md:rounded-[7px]">
-        <ItemCover item={item} categoryColor={shelf.color} sizes="86px" />
+        <ItemCover item={item} categoryColor={shelf.color} sizes="86px" eager={eager} />
       </div>
 
       <div className="pointer-events-none relative z-2 flex min-w-0 flex-1 flex-col">
