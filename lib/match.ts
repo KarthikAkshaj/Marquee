@@ -1,5 +1,19 @@
-import type { Release, SearchResult } from "@/lib/search/types";
-import type { ItemStatus } from "@/lib/status";
+import type { Release, SearchResult, SeriesTitle } from "@/lib/search/types";
+import { stepStatus, type ItemStatus } from "@/lib/status";
+
+/** Another title from a run (a season, a film in the collection), picked to add as its own title. */
+export type ExtraPick = { result: SeriesTitle; status: ItemStatus };
+
+/** Ticks or unticks one title of a run. A ticked one starts from the status of the title it came with. */
+export function toggleExtra(extras: readonly ExtraPick[], title: SeriesTitle, add: boolean, from: ItemStatus): ExtraPick[] {
+  const rest = extras.filter((extra) => extra.result.externalId !== title.externalId);
+  return add ? [...rest, { result: title, status: seasonStatus(from, title.release) }] : rest;
+}
+
+/** Steps one ticked title's status, leaving the others alone. */
+export function stepExtra(extras: readonly ExtraPick[], externalId: string, direction: 1 | -1): ExtraPick[] {
+  return extras.map((extra) => (extra.result.externalId === externalId ? { ...extra, status: stepStatus(extra.status, direction) } : extra));
+}
 
 /** Case, accents, punctuation and spacing don't matter: "One-Punch Man" is "one punch man". */
 export function normaliseName(text: string): string {

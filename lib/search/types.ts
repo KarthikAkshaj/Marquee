@@ -5,6 +5,17 @@ import type { CategoryKind, ItemFormat } from "@/lib/status";
 export const SEARCH_KINDS = ["anime", "movie", "series", "game"] as const satisfies readonly CategoryKind[];
 export type SearchKind = (typeof SEARCH_KINDS)[number];
 
+/**
+ * Kinds whose titles come in runs you can add the rest of: an anime's seasons
+ * and films, a film's collection. A TV show's seasons are all one title.
+ */
+export const RELATED_KINDS = ["anime", "movie"] as const satisfies readonly SearchKind[];
+export type RelatedKind = (typeof RELATED_KINDS)[number];
+
+export function isRelatedKind(kind: string): kind is RelatedKind {
+  return (RELATED_KINDS as readonly string[]).includes(kind);
+}
+
 export type SearchSource = Exclude<Database["public"]["Enums"]["meta_source"], "manual">;
 
 /** One provider hit, normalised (SPEC §7). Optional fields are omitted, never null. */
@@ -45,7 +56,7 @@ export type OtherForm = "manga" | "manhwa" | "manhua" | "light novel" | "novel";
 /** Why a title wasn't found: AniList knows it, but not as an anime. */
 export type Elsewhere = { form: OtherForm; title: string };
 
-/** One entry of an anime's series (its seasons, films and specials), in release order. */
+/** One entry of a run: an anime's seasons, films and specials, or a film collection. In release order. */
 export type SeriesTitle = SearchResult & { release: Release };
 
 /**
@@ -56,7 +67,12 @@ export type SearchError = "signed_out" | "invalid_query" | "rate_limited" | "not
 
 export type SearchResponse = { results: SearchResult[]; error?: SearchError };
 
-export type SeriesResponse = { results: SeriesTitle[]; error?: SearchError };
+export type SeriesResponse = {
+  results: SeriesTitle[];
+  /** What the provider calls the run, when it names one ("Dune Collection"). */
+  name?: string;
+  error?: SearchError;
+};
 
 /** A provider answered badly (non-2xx, timeout, unreadable body). */
 export class ProviderError extends Error {

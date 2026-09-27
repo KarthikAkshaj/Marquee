@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import duneCollection from "./__fixtures__/tmdb-collection-dune.json";
 import breakingBad from "./__fixtures__/tmdb-tv-breaking-bad.json";
 import movieGenres from "./__fixtures__/tmdb-genres-movie.json";
 import tvGenres from "./__fixtures__/tmdb-genres-tv.json";
@@ -8,7 +9,9 @@ import severanceSearch from "./__fixtures__/tmdb-search-tv-severance.json";
 import severance from "./__fixtures__/tmdb-tv-severance.json";
 import unauthorized from "./__fixtures__/tmdb-unauthorized.json";
 import {
+  getTmdbCollection,
   getTmdbSeriesDetails,
+  normaliseCollection,
   normaliseMovieDetails,
   normaliseShowDetails,
   resetTmdbGenres,
@@ -50,6 +53,9 @@ describe("TMDB", () => {
     expect(normaliseMovieDetails({ id: 1, runtime: 0 }).runtimeMinutes).toBeUndefined();
     expect(normaliseMovieDetails({ id: 1, runtime: null }).runtimeMinutes).toBeUndefined();
     expect(normaliseMovieDetails({ id: 1, runtime: 99999 }).runtimeMinutes).toBeUndefined();
+
+    expect(normaliseMovieDetails({ id: 1, runtime: 155, belongs_to_collection: { id: 726871 } }).collectionId).toBe(726871);
+    expect(normaliseMovieDetails({ id: 1, runtime: 132, belongs_to_collection: null }).collectionId).toBeUndefined();
 
     expect(normaliseShowDetails({ id: 1, number_of_episodes: 62, episode_run_time: [47, 22] }).runtimeMinutes).toBe(47);
     expect(normaliseShowDetails({ id: 1, number_of_episodes: 62, episode_run_time: [] }).runtimeMinutes).toBeUndefined();
@@ -106,6 +112,59 @@ describe("TMDB", () => {
     expect(await getTmdbSeriesDetails("1396")).toEqual({ progressTotal: 62, genres: ["Drama", "Crime"] });
     expect((await getTmdbSeriesDetails("95396")).progressTotal).toBeUndefined();
     await expect(getTmdbSeriesDetails("../movie/1")).rejects.toThrow("invalid series id");
+  });
+
+  it("lists a collection's films oldest first, and says which aren't out yet", () => {
+    const genres = new Map([[878, "Science Fiction"], [12, "Adventure"]]);
+    // Shuffled: TMDB promises no order.
+    const shuffled = { ...duneCollection, parts: [duneCollection.parts[2], duneCollection.parts[0], duneCollection.parts[1]] };
+    const { name, titles } = normaliseCollection(shuffled, genres, "2026-09-27");
+
+    expect(name).toBe("Dune Collection");
+    expect(titles.map((title) => [title.title, title.year, title.release])).toEqual([
+      ["Dune", 2021, "out"],
+      ["Dune: Part Two", 2024, "out"],
+      ["Dune: Part Three", 2026, "upcoming"],
+    ]);
+    expect(titles[0]).toMatchObject({ source: "tmdb", externalId: "438631", format: "movie", genres: ["Science Fiction", "Adventure"] });
+    expect(titles[0].coverUrl).toMatch(/^https:\/\/image\.tmdb\.org\/t\/p\/w500\//);
+    // Nobody has voted on a film that isn't out, so there's no score to show.
+    expect(titles[2]).toMatchObject({ subtitle: "Upcoming", communityScore: undefined });
+
+    // Out on its release day, not the day after.
+    expect(normaliseCollection(duneCollection, genres, "2026-12-15").titles[2].release).toBe("out");
+  });
+
+  it("keeps undated films last and adult ones out", () => {
+    const part = duneCollection.parts[0];
+    const { titles } = normaliseCollection(
+      {
+        id: 1,
+        name: " ",
+        parts: [
+          { ...part, id: 3, title: "Untitled Sequel", release_date: "" },
+          { ...part, id: 2, title: "Not For Here", adult: true },
+          { ...part, id: 4, title: "Nor This", softcore: true },
+          { ...part, id: 1, title: "The First One", release_date: "1999-03-31" },
+        ],
+      },
+      new Map(),
+      "2026-09-27",
+    );
+    expect(titles.map((title) => [title.title, title.release])).toEqual([
+      ["The First One", "out"],
+      ["Untitled Sequel", "upcoming"],
+    ]);
+    expect(normaliseCollection({ id: 1, name: " ", parts: [] }, new Map()).name).toBeUndefined();
+  });
+
+  it("fetches a collection with the film genre names", async () => {
+    const fetch = tmdb({ "/collection/726871": duneCollection, "/genre/movie/list": movieGenres });
+    vi.stubGlobal("fetch", fetch);
+    const { titles } = await getTmdbCollection(726871);
+    expect(titles.map((title) => title.title)).toEqual(["Dune", "Dune: Part Two", "Dune: Part Three"]);
+    expect(titles[1].genres).toEqual(["Science Fiction", "Adventure"]);
+    await expect(getTmdbCollection(0)).rejects.toThrow("invalid collection id");
   });
 
   it("reports a bad token as a provider error, and retries genres after a failure", async () => {

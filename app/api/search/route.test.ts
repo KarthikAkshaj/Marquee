@@ -9,11 +9,11 @@ vi.mock("@/lib/supabase/server", () => ({
 
 const searchMetadata = vi.fn();
 const matchMetadata = vi.fn();
-const getAnimeSeries = vi.fn();
+const getRelated = vi.fn();
 vi.mock("@/lib/search", () => ({
   searchMetadata: (...args: unknown[]) => searchMetadata(...args),
   matchMetadata: (...args: unknown[]) => matchMetadata(...args),
-  getAnimeSeries: (...args: unknown[]) => getAnimeSeries(...args),
+  getRelated: (...args: unknown[]) => getRelated(...args),
 }));
 
 const { GET, POST } = await import("./route");
@@ -110,23 +110,28 @@ describe("POST /api/search (Find covers)", () => {
 describe("GET /api/search?related= (the rest of a series)", () => {
   beforeEach(() => {
     getClaims.mockReset();
-    getAnimeSeries.mockReset();
+    getRelated.mockReset();
   });
 
-  it("is for anime with an AniList id, signed in", async () => {
+  it("is for anime and films with a provider id, signed in", async () => {
     getClaims.mockResolvedValue({ data: null });
     expect((await call("kind=anime&related=113415")).status).toBe(401);
 
     signIn("user-series");
-    for (const query of ["kind=movie&related=113415", "kind=anime&related=abc", "kind=anime&related="]) {
+    // A show's seasons are one title, and games have no runs.
+    for (const query of ["kind=series&related=113415", "kind=game&related=1", "kind=anime&related=abc", "kind=anime&related="]) {
       expect((await call(query)).status, query).toBe(400);
     }
-    expect(getAnimeSeries).not.toHaveBeenCalled();
+    expect(getRelated).not.toHaveBeenCalled();
 
-    getAnimeSeries.mockResolvedValue({ results: [{ source: "anilist", externalId: "145064", title: "Jujutsu Kaisen Season 2", release: "out" }] });
+    getRelated.mockResolvedValue({ results: [{ source: "anilist", externalId: "145064", title: "Jujutsu Kaisen Season 2", release: "out" }] });
     const response = await call("kind=anime&related=113415");
     expect(response.status).toBe(200);
     expect((await response.json()).results[0].title).toBe("Jujutsu Kaisen Season 2");
-    expect(getAnimeSeries).toHaveBeenCalledWith("113415");
+    expect(getRelated).toHaveBeenCalledWith("anime", "113415");
+
+    getRelated.mockResolvedValue({ name: "Dune Collection", results: [] });
+    expect(await (await call("kind=movie&related=438631")).json()).toEqual({ name: "Dune Collection", results: [] });
+    expect(getRelated).toHaveBeenLastCalledWith("movie", "438631");
   });
 });

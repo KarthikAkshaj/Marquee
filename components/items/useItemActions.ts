@@ -3,11 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useOptimistic, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { announceAdded } from "@/components/add/announceAdded";
+import { announceAdded, announceAddedMany, listTitles } from "@/components/add/announceAdded";
 import { itemFromResult, newItemId } from "@/lib/add";
 import {
   addFromSearch,
+  addManyFromSearch,
   deleteItem,
+  deleteItems,
   incrementItemProgress,
   moveItem,
   setItemFavorite,
@@ -57,6 +59,16 @@ export function useItemActions(items: Item[]) {
     run(item.id, { type: "remove" }, () => deleteItem(item.id), () => toast.success(`Removed ${item.title}.`));
   }
 
+  /** Undo for titles added together: gone at once, one toast. */
+  function removeAll(items: readonly Item[]) {
+    startTransition(async () => {
+      for (const item of items) addOptimistic({ id: item.id, change: { type: "remove" } });
+      const result = await deleteItems(items.map((item) => item.id));
+      if (result.ok) toast.success(`Removed ${listTitles(items.map((item) => item.title))}.`);
+      else toast.error(result.message);
+    });
+  }
+
   return {
     items: optimisticItems,
     stamps,
@@ -78,6 +90,26 @@ export function useItemActions(items: Item[]) {
         announceAdded(item, category.name, () => remove(item)),
       );
       return item;
+    },
+    /**
+     * The rest of a run ticked after an add (SPEC §8.7): all shown at once, saved
+     * in one go, one toast with one Undo. The first is newest, as on the server.
+     */
+    addAllFromSearch(category: ShelfCategory, picks: readonly { result: SearchResult; status: ItemStatus }[]) {
+      if (picks.length === 0) return;
+      const now = Date.now();
+      const inputs = picks.map(({ result, status }) => ({ id: newItemId(), categoryId: category.id, status, result }));
+      const added = inputs.map((input, index) => itemFromResult(input, new Date(now - index)));
+      startTransition(async () => {
+        for (const item of added) addOptimistic({ id: item.id, change: { type: "add", item } });
+        const result = await addManyFromSearch({
+          categoryId: category.id,
+          entries: inputs.map(({ id, status, result: picked }) => ({ id, status, result: picked })),
+        });
+        if (!result.ok) return void toast.error(result.message);
+        const saved = added.filter((item) => result.added.includes(item.id));
+        if (saved.length > 0) announceAddedMany(saved, category.name, () => removeAll(saved));
+      });
     },
     setStatus(item: Item, status: ItemStatus) {
       if (status === item.status) return;

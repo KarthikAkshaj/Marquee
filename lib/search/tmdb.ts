@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { cleanGenres, fetchJson, toScore, yearFromDate } from "./http";
-import { ProviderError, RESULT_LIMIT, type SearchResult } from "./types";
+import { ProviderError, RESULT_LIMIT, type Release, type SearchResult, type SeriesTitle } from "./types";
 
 const API = "https://api.themoviedb.org/3";
 const POSTER = "https://image.tmdb.org/t/p/w500";
@@ -160,9 +160,16 @@ export function normaliseShowDetails(details: z.infer<typeof showDetailsSchema>)
   };
 }
 
-const movieDetailsSchema = z.object({ id: z.number(), runtime: z.number().nullish() });
+const movieDetailsSchema = z.object({
+  id: z.number(),
+  runtime: z.number().nullish(),
+  belongs_to_collection: z.object({ id: z.number() }).nullish(),
+});
 
-export type MovieDetails = Pick<SearchResult, "runtimeMinutes">;
+export type MovieDetails = Pick<SearchResult, "runtimeMinutes"> & {
+  /** The TMDB collection it belongs to ("Dune Collection"), when it has one. */
+  collectionId?: number;
+};
 
 /** Longest film ever released runs under 15 hours; anything past this is bad data. */
 const MAX_RUNTIME = 2000;
@@ -172,13 +179,56 @@ function runtime(minutes: number | null | undefined): number | undefined {
 }
 
 export function normaliseMovieDetails(details: z.infer<typeof movieDetailsSchema>): MovieDetails {
-  return { runtimeMinutes: runtime(details.runtime) };
+  return { runtimeMinutes: runtime(details.runtime), collectionId: details.belongs_to_collection?.id };
 }
 
-/** A film's length, which search results don't carry. Looked up on add. */
+/** A film's length and collection, which search results don't carry. Looked up on add. */
 export async function getTmdbMovieDetails(id: string): Promise<MovieDetails> {
   if (!/^\d+$/.test(id)) throw new ProviderError("tmdb", "invalid movie id");
   return normaliseMovieDetails(await request(`/movie/${id}?language=en-US`, movieDetailsSchema));
+}
+
+const collectionSchema = z.object({
+  id: z.number(),
+  name: z.string().nullish(),
+  parts: z.array(movieSchema.extend({ adult: z.boolean().nullish(), softcore: z.boolean().nullish() })).nullish(),
+});
+
+export type MovieCollection = { name?: string; titles: SeriesTitle[] };
+
+/** Out once its release date has passed; with no date, or a date to come, it's upcoming. */
+function filmRelease(date: string | null | undefined, today: string): Release {
+  return date && /^\d{4}-\d{2}-\d{2}$/.test(date) && date <= today ? "out" : "upcoming";
+}
+
+/**
+ * A collection's films oldest first, films with no date last. TMDB lists them
+ * in no promised order. An upcoming film says so where the original title
+ * would go, since that's what the row has room for.
+ */
+export function normaliseCollection(
+  collection: z.infer<typeof collectionSchema>,
+  genres: GenreNames,
+  today = new Date().toISOString().slice(0, 10),
+): MovieCollection {
+  const films = (collection.parts ?? [])
+    .filter((part) => !part.adult && !part.softcore)
+    .flatMap((part) => {
+      const result = normaliseTmdbMovie(part, genres);
+      if (!result) return [];
+      const release = filmRelease(part.release_date, today);
+      const title: SeriesTitle = { ...result, release, subtitle: release === "upcoming" ? "Upcoming" : result.subtitle };
+      return [{ title, date: part.release_date || "9999" }];
+    })
+    .sort((a, b) => a.date.localeCompare(b.date));
+  return { name: collection.name?.trim() || undefined, titles: films.map((film) => film.title) };
+}
+
+/** Every film in a TMDB collection, for adding the rest of it alongside one. */
+export async function getTmdbCollection(id: number): Promise<MovieCollection> {
+  if (!Number.isInteger(id) || id <= 0) throw new ProviderError("tmdb", "invalid collection id");
+  const [collection, genres] = await Promise.all([request(`/collection/${id}?language=en-US`, collectionSchema), genreNames("movie")]);
+  return normaliseCollection(collection, genres);
 }
 
 export async function getTmdbSeriesDetails(id: string): Promise<SeriesDetails> {

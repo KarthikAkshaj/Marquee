@@ -12,6 +12,12 @@ export const ITEM_STATUSES = [
   "dropped",
 ] as const satisfies readonly ItemStatus[];
 
+/** The next or previous status, wrapping round: what ←→ and a status stepper do. */
+export function stepStatus(status: ItemStatus, direction: 1 | -1): ItemStatus {
+  const index = ITEM_STATUSES.indexOf(status);
+  return ITEM_STATUSES[(index + direction + ITEM_STATUSES.length) % ITEM_STATUSES.length];
+}
+
 export const ITEM_FORMATS = [
   "movie",
   "tv",

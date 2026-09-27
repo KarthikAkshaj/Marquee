@@ -1,63 +1,78 @@
 "use client";
 
-import { StatusStepper } from "@/components/add/StatusStepper";
+import { useId } from "react";
+import { MatchCover } from "@/components/match/MatchCover";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { resultMeta } from "@/lib/add";
-import type { SearchResult, SeriesTitle } from "@/lib/search/types";
-import type { CategoryKind } from "@/lib/status";
+import type { ExtraPick } from "@/lib/match";
+import type { RelatedKind, SearchResult, SeriesTitle } from "@/lib/search/types";
 import { cn } from "@/lib/utils";
-import { MatchCover } from "./MatchCover";
-import type { ExtraPick } from "./useMatching";
+import { StatusStepper } from "./StatusStepper";
 import type { SeriesState } from "./useSeries";
 
-type MatchSeriesProps = {
+const COPY: Record<RelatedKind, { heading: string; provider: string; none: string }> = {
+  anime: { heading: "More in this series", provider: "AniList", none: "AniList doesn't list any other seasons for this one." },
+  movie: { heading: "More in this collection", provider: "TMDB", none: "TMDB doesn't list this film in a collection." },
+};
+
+type SeriesPickerProps = {
+  /** The title the run was looked up from. */
   pick: SearchResult;
+  /** What that title is called in the list: "Your match", "Just added". */
+  pickNote: string;
   series: SeriesState | undefined;
   extras: ExtraPick[];
-  kind: CategoryKind;
+  kind: RelatedKind;
   categoryColor: string;
-  /** Why a season can't be ticked: it's on the shelf, or picked for another title. */
-  blockedBy: (key: string) => string | null;
+  /** One line under the heading: what ticking does here. */
+  hint: string;
+  /** Why a title can't be ticked: it's on the shelf, or picked for another title. */
+  blockedBy: (title: SeriesTitle) => string | null;
   onRetry: () => void;
   onToggle: (title: SeriesTitle, add: boolean) => void;
   onStep: (externalId: string, direction: 1 | -1) => void;
 };
 
-/** The rest of the match's series, oldest first, to tick and add as titles of their own. */
-export function MatchSeries({ pick, series, extras, kind, categoryColor, blockedBy, onRetry, onToggle, onStep }: MatchSeriesProps) {
+/**
+ * The rest of a title's run, oldest first: an anime's seasons and films, or
+ * the other films in a collection. Tick one to add it as its own title, with
+ * its own status.
+ */
+export function SeriesPicker({ pick, pickNote, series, extras, kind, categoryColor, hint, blockedBy, onRetry, onToggle, onStep }: SeriesPickerProps) {
+  const headingId = useId();
+  const copy = COPY[kind];
   const titles = series?.state === "done" ? series.titles : [];
   const others = titles.filter((title) => title.externalId !== pick.externalId);
+  const heading = series?.state === "done" && series.name ? series.name : copy.heading;
 
   return (
-    <section aria-labelledby="match-series" aria-busy={series?.state === "loading"} className="flex flex-col gap-0.5">
-      <h3 id="match-series" className="label-mono px-2.5 text-text-muted">
-        More in this series
+    <section aria-labelledby={headingId} aria-busy={series?.state === "loading"} className="flex flex-col gap-0.5">
+      <h3 id={headingId} className="label-mono px-2.5 text-text-muted">
+        {heading}
       </h3>
-      <p className="mb-1.5 px-2.5 text-12 text-text-muted">Seen other seasons or films? Tick them to add them as their own titles.</p>
+      <p className="mb-1.5 px-2.5 text-12 text-text-muted">{hint}</p>
 
       {(!series || series.state === "loading") &&
         [0, 1, 2].map((index) => <span key={index} className="mx-2.5 my-0.5 h-14 animate-pulse rounded-nav bg-white/4 motion-reduce:animate-none" />)}
 
       {series?.state === "failed" && (
         <p className="flex flex-wrap items-center gap-x-3 px-2.5 text-13 text-text-muted">
-          AniList didn&apos;t answer.
+          {copy.provider} didn&apos;t answer.
           <button type="button" onClick={onRetry} className="min-h-11 text-accent hover:text-accent-bright md:min-h-0">
             Try again
           </button>
         </p>
       )}
 
-      {series?.state === "done" && others.length === 0 && (
-        <p className="px-2.5 text-13 text-text-muted">AniList doesn&apos;t list any other seasons for this one.</p>
-      )}
+      {series?.state === "done" && others.length === 0 && <p className="px-2.5 text-13 text-text-muted">{copy.none}</p>}
 
       {others.length > 0 && (
         <ul className="flex flex-col gap-0.5">
           {titles.map((title) => {
             const mine = title.externalId === pick.externalId;
             const extra = extras.find((entry) => entry.result.externalId === title.externalId);
-            const blocked = mine || extra ? null : blockedBy(`${title.source}:${title.externalId}`);
-            const note = mine ? "Your match" : blocked;
+            const blocked = mine || extra ? null : blockedBy(title);
+            const note = mine ? pickNote : blocked;
             return (
               <li
                 key={title.externalId}

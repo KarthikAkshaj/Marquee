@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PaletteCategory, PaletteTitle } from "@/lib/palette";
-import type { SearchResponse } from "@/lib/search/types";
+import type { SearchResponse, SeriesResponse } from "@/lib/search/types";
 
 const push = vi.fn();
 let pathname = "/home";
@@ -16,7 +16,12 @@ const openSurprise = vi.fn();
 vi.mock("./PaletteProvider", () => ({ usePalette: () => ({ open: vi.fn(), openSurprise }) }));
 
 const addTitle = vi.fn();
-vi.mock("@/components/add/useAddTitle", () => ({ useAddTitle: () => addTitle }));
+const addTitles = vi.fn();
+vi.mock("@/components/add/useAddTitle", () => ({ useAddTitle: () => addTitle, useAddTitles: () => addTitles }));
+
+/** What /api/search?related= answers with: the rest of the run. */
+let related: SeriesResponse = { results: [] };
+const fetchRelated = vi.fn(async () => ({ json: async () => related }));
 
 let response: SearchResponse | undefined;
 vi.mock("@/components/add/useMetadataSearch", () => ({
@@ -94,9 +99,15 @@ describe("PaletteSearch", () => {
     pathname = "/home";
     push.mockReset();
     addTitle.mockReset();
+    addTitles.mockReset();
     response = undefined;
+    related = { results: [] };
+    vi.stubGlobal("fetch", fetchRelated);
   });
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
 
   it("starts with recent titles, every place and the actions", () => {
     const { options } = setup();
@@ -146,6 +157,34 @@ describe("PaletteSearch", () => {
     key("Enter");
     expect(push).toHaveBeenCalledWith("/c/movies?item=t3");
     expect(addTitle).not.toHaveBeenCalled();
+  });
+
+  it("offers the rest of a film's collection after adding it, minus what's on the shelf", async () => {
+    pathname = "/c/movies";
+    const dune = { source: "tmdb" as const, externalId: "438631", title: "Dune", year: 2021 };
+    const partThree = { source: "tmdb" as const, externalId: "1170608", title: "Dune: Part Three", year: 2026, subtitle: "Upcoming", release: "upcoming" as const };
+    response = { results: [dune] };
+    related = {
+      name: "Dune Collection",
+      results: [{ ...dune, release: "out" }, { source: "tmdb", externalId: "693134", title: "Dune: Part Two", year: 2024, release: "out" }, partThree],
+    };
+    const { type, key, onClose } = setup();
+    type("dune");
+    key("ArrowDown");
+    key("ArrowRight");
+    key("ArrowRight");
+    key("Enter");
+    expect(addTitle).toHaveBeenCalledWith(movies, dune, "completed", false);
+    expect(onClose).not.toHaveBeenCalled();
+
+    expect(await screen.findByRole("heading", { name: "Dune Collection" })).toBeInTheDocument();
+    expect(fetchRelated).toHaveBeenCalledWith("/api/search?kind=movie&related=438631");
+    expect(screen.getByText("On your shelf")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Add Dune: Part Three" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add 1" }));
+    // Unreleased, so planned whatever the first one went on as.
+    expect(addTitles).toHaveBeenCalledWith(movies, [{ result: partThree, status: "planned" }]);
+    expect(onClose).toHaveBeenCalled();
   });
 
   it("adds and opens with Alt+Enter", () => {

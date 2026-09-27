@@ -1,19 +1,23 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { z } from "zod";
 import { SOURCE_FOR_KIND, searchKindOf, type AddFromSearchInput } from "@/lib/add";
 import { incrementPatch, progressPatch, statusPatch, type ItemDetails } from "@/lib/items";
-import { getAddDetails } from "@/lib/search";
+import { getAddDetails, type AddDetails } from "@/lib/search";
 import type { ItemStatus } from "@/lib/status";
 import { createClient } from "@/lib/supabase/server";
 import {
   addFromSearchSchema,
+  addManyFromSearchSchema,
   createItemSchema,
+  type AddManyFromSearchInput,
   itemAccentSchema,
   itemAccentsSchema,
   itemDetailsSchema,
   itemFavoriteSchema,
   itemIdSchema,
+  itemIdsSchema,
   itemProgressSchema,
   itemStatusSchema,
   moveItemSchema,
@@ -32,6 +36,8 @@ const field = (formData: FormData, name: string) => {
   const value = formData.get(name);
   return typeof value === "string" ? value : "";
 };
+
+type Supabase = Awaited<ReturnType<typeof createClient>>;
 
 /** Signed-in user id, re-checked inside every action (proxy.ts is not the boundary). */
 async function requireUserId() {
@@ -252,7 +258,25 @@ export async function deleteItem(id: string): Promise<ItemActionResult> {
   return SAVED;
 }
 
-const NOT_ADDED = { ok: false, message: "Couldn't add that title. Try again." } as const satisfies ItemActionResult;
+/**
+ * Undo for titles added together (SPEC §8.7). The Undo button is the confirm:
+ * it only ever takes back what that same toast just added.
+ */
+export async function deleteItems(ids: string[]): Promise<ItemActionResult> {
+  const parsed = itemIdsSchema.safeParse(ids);
+  if (!parsed.success) return NOT_SAVED;
+
+  const { supabase, userId } = await requireUserId();
+  if (!userId) return SESSION_ENDED;
+
+  const { error } = await supabase.from("items").delete().in("id", parsed.data);
+  if (error) return { ok: false, message: "Couldn't remove those titles. Try again." };
+
+  revalidatePath("/", "layout");
+  return SAVED;
+}
+
+const NOT_ADDED ={ ok: false, message: "Couldn't add that title. Try again." } as const satisfies ItemActionResult;
 
 /**
  * Adds a title picked from search (SPEC §8.7) with its metadata snapshot (§7).
@@ -266,23 +290,39 @@ export async function addFromSearch(input: AddFromSearchInput): Promise<ItemActi
   if (!userId) return SESSION_ENDED;
 
   const { id, categoryId, status, result } = parsed.data;
-  const { data: category, error: categoryError } = await supabase
-    .from("categories")
-    .select("kind")
-    .eq("id", categoryId)
-    .maybeSingle();
-  if (categoryError) return NOT_ADDED;
-  if (!category) return { ok: false, message: "That shelf isn't there anymore." };
-
-  const kind = searchKindOf(category.kind);
-  if (!kind || SOURCE_FOR_KIND[kind] !== result.source) return NOT_ADDED;
+  const shelf = await searchShelf(supabase, categoryId);
+  if (!shelf.ok) return shelf.missing ? SHELF_GONE : NOT_ADDED;
+  if (SOURCE_FOR_KIND[shelf.kind] !== result.source) return NOT_ADDED;
 
   // Search results carry neither a show's episode count nor a film's running
   // time. AniList answers both in the search itself, so anime needs no lookup.
-  const details = await getAddDetails(kind, result.externalId);
-  const progressTotal = details ? details.progressTotal : result.progressTotal;
+  const details = await getAddDetails(shelf.kind, result.externalId);
 
-  const { error } = await supabase.from("items").insert({
+  const { error } = await supabase.from("items").insert(searchRow({ id, status, result }, userId, categoryId, details));
+  // 23505: the same search result is already on this shelf.
+  if (error?.code === "23505") return { ok: false, message: "That's already on this shelf." };
+  if (error) return NOT_ADDED;
+
+  revalidatePath("/", "layout");
+  return SAVED;
+}
+
+type SearchPick = Pick<z.output<typeof addFromSearchSchema>, "id" | "status" | "result">;
+
+const SHELF_GONE = { ok: false, message: "That shelf isn't there anymore." } as const satisfies ItemActionResult;
+
+/** Which provider the shelf a search result is going onto searches. RLS limits it to the viewer's own. */
+async function searchShelf(supabase: Supabase, categoryId: string) {
+  const { data, error } = await supabase.from("categories").select("kind").eq("id", categoryId).maybeSingle();
+  const kind = data ? searchKindOf(data.kind) : null;
+  if (error || !kind) return { ok: false, missing: !error && !data } as const;
+  return { ok: true, kind } as const;
+}
+
+/** The row a search result becomes, with whatever the add-time lookup found. */
+function searchRow({ id, status, result }: SearchPick, userId: string, categoryId: string, details: AddDetails | null) {
+  const progressTotal = details ? details.progressTotal : result.progressTotal;
+  return {
     id,
     user_id: userId,
     category_id: categoryId,
@@ -300,13 +340,70 @@ export async function addFromSearch(input: AddFromSearchInput): Promise<ItemActi
     community_score: result.communityScore ?? null,
     runtime_minutes: details?.runtimeMinutes ?? result.runtimeMinutes ?? null,
     format: result.format ?? null,
+  };
+}
+
+export type AddManyResult = { ok: true; added: string[] } | { ok: false; message: string };
+
+const NOT_ADDED_MANY = { ok: false, message: "Couldn't add those titles. Try again." } as const satisfies ItemActionResult;
+
+/** Add-time lookups in flight at once: a collection can run past twenty films. */
+const LOOKUPS_AT_ONCE = 5;
+
+/**
+ * The rest of a run, added alongside a title just picked from search: an
+ * anime's other seasons, a film's collection (SPEC §8.7). One insert, so they
+ * land together, the first one newest so a shelf sorted by recent reads them
+ * in order. Ones already on the shelf are left out instead of failing the lot.
+ */
+export async function addManyFromSearch(input: AddManyFromSearchInput): Promise<AddManyResult> {
+  const parsed = addManyFromSearchSchema.safeParse(input);
+  if (!parsed.success) return NOT_ADDED_MANY;
+
+  const { supabase, userId } = await requireUserId();
+  if (!userId) return SESSION_ENDED;
+
+  const { categoryId, entries } = parsed.data;
+  const shelf = await searchShelf(supabase, categoryId);
+  if (!shelf.ok) return shelf.missing ? SHELF_GONE : NOT_ADDED_MANY;
+  const source = SOURCE_FOR_KIND[shelf.kind];
+  if (entries.some((entry) => entry.result.source !== source)) return NOT_ADDED_MANY;
+
+  const { data: existing, error: existingError } = await supabase
+    .from("items")
+    .select("external_id")
+    .eq("category_id", categoryId)
+    .eq("source", source)
+    .in(
+      "external_id",
+      entries.map((entry) => entry.result.externalId),
+    );
+  if (existingError) return NOT_ADDED_MANY;
+  const have = new Set(existing.map((row) => row.external_id));
+  const fresh = entries.filter((entry) => {
+    if (have.has(entry.result.externalId)) return false;
+    have.add(entry.result.externalId);
+    return true;
   });
-  // 23505: the same search result is already on this shelf.
-  if (error?.code === "23505") return { ok: false, message: "That's already on this shelf." };
-  if (error) return NOT_ADDED;
+  if (fresh.length === 0) return { ok: true, added: [] };
+
+  const details: (AddDetails | null)[] = [];
+  for (let start = 0; start < fresh.length; start += LOOKUPS_AT_ONCE) {
+    const chunk = fresh.slice(start, start + LOOKUPS_AT_ONCE);
+    details.push(...(await Promise.all(chunk.map((entry) => getAddDetails(shelf.kind, entry.result.externalId)))));
+  }
+
+  const now = Date.now();
+  const rows = fresh.map((entry, index) => {
+    const at = new Date(now - index).toISOString();
+    return { ...searchRow(entry, userId, categoryId, details[index]), created_at: at, updated_at: at };
+  });
+  const { error } = await supabase.from("items").insert(rows);
+  if (error?.code === "23505") return { ok: false, message: "Some of those are already on this shelf." };
+  if (error) return NOT_ADDED_MANY;
 
   revalidatePath("/", "layout");
-  return SAVED;
+  return { ok: true, added: fresh.map((entry) => entry.id) };
 }
 
 /**

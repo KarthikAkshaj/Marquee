@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 import { getAniListSeries, searchAniList, searchAniListMany, searchAniListOther } from "./anilist";
 import { igdbConfigured, searchIgdb } from "./igdb";
 import {
+  getTmdbCollection,
   getTmdbMovieDetails,
   getTmdbSeriesDetails,
   searchTmdbMovies,
@@ -10,10 +11,29 @@ import {
   type MovieDetails,
   type SeriesDetails,
 } from "./tmdb";
-import { ProviderError, type Elsewhere, type SearchKind, type SearchResponse, type SearchResult, type SeriesResponse } from "./types";
+import {
+  ProviderError,
+  type Elsewhere,
+  type RelatedKind,
+  type SearchKind,
+  type SearchResponse,
+  type SearchResult,
+  type SeriesResponse,
+} from "./types";
 
-export { SEARCH_KINDS } from "./types";
-export type { Elsewhere, OtherForm, Release, SearchError, SearchKind, SearchResponse, SearchResult, SeriesResponse, SeriesTitle } from "./types";
+export { RELATED_KINDS, SEARCH_KINDS, isRelatedKind } from "./types";
+export type {
+  Elsewhere,
+  OtherForm,
+  RelatedKind,
+  Release,
+  SearchError,
+  SearchKind,
+  SearchResponse,
+  SearchResult,
+  SeriesResponse,
+  SeriesTitle,
+} from "./types";
 
 const DAY = 60 * 60 * 24;
 
@@ -71,7 +91,8 @@ export async function getSeriesDetails(id: string): Promise<SeriesDetails | null
   }
 }
 
-const cachedMovieDetails = unstable_cache((id: string) => getTmdbMovieDetails(id), ["tmdb-movie-details-v1"], {
+// v2 carries the collection a film belongs to.
+const cachedMovieDetails = unstable_cache((id: string) => getTmdbMovieDetails(id), ["tmdb-movie-details-v2"], {
   revalidate: DAY,
 });
 
@@ -136,7 +157,7 @@ const cachedSeries = unstable_cache((id: string) => getAniListSeries(Number(id))
 
 /**
  * An anime's seasons, films and specials in release order, for adding the rest
- * of a series from Find covers. Cached for a day; failures aren't.
+ * of a series. Cached for a day; failures aren't.
  */
 export async function getAnimeSeries(id: string): Promise<SeriesResponse> {
   try {
@@ -145,6 +166,31 @@ export async function getAnimeSeries(id: string): Promise<SeriesResponse> {
     console.error("[search] series", error instanceof ProviderError ? error.message : error);
     return { results: [], error: "unavailable" };
   }
+}
+
+const cachedCollection = unstable_cache((id: number) => getTmdbCollection(id), ["tmdb-collection-v1"], { revalidate: DAY });
+
+/**
+ * Every film in the collection a film belongs to, oldest first, for adding the
+ * rest of it. Two lookups: the film, which is usually cached from the add that
+ * came just before, then its collection. A film in no collection has nothing.
+ */
+export async function getMovieCollection(id: string): Promise<SeriesResponse> {
+  if (!tmdbConfigured()) return { results: [], error: "not_configured" };
+  try {
+    const { collectionId } = await cachedMovieDetails(id);
+    if (!collectionId) return { results: [] };
+    const collection = await cachedCollection(collectionId);
+    return { results: collection.titles, name: collection.name };
+  } catch (error) {
+    console.error("[search] collection", error instanceof ProviderError ? error.message : error);
+    return { results: [], error: "unavailable" };
+  }
+}
+
+/** The rest of a title's run: an anime's series, or a film's collection. */
+export function getRelated(kind: RelatedKind, id: string): Promise<SeriesResponse> {
+  return kind === "movie" ? getMovieCollection(id) : getAnimeSeries(id);
 }
 
 /**

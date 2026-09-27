@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import type { z } from "zod";
 import { SOURCE_FOR_KIND, searchKindOf } from "@/lib/add";
-import { getAddDetails, type AddDetails } from "@/lib/search";
+import { getAddDetails, type AddDetails, type SearchKind } from "@/lib/search";
 import type { ItemStatus } from "@/lib/status";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
@@ -47,11 +47,17 @@ function matchPatch(item: ShelfRow, result: Result, title: string, details: AddD
 }
 
 /**
- * Other seasons of a matched title, added as new titles. They go in through
- * `import_titles()` so nothing is stamped "started" or "finished" today, then
- * get their details like any match. Ones already on the shelf are skipped.
+ * Other seasons of a matched title, or other films in its collection, added as
+ * new titles. They go in through `import_titles()` so nothing is stamped
+ * "started" or "finished" today, then get their details like any match. Ones
+ * already on the shelf are skipped.
  */
-async function addSeasons(supabase: Supabase, categoryId: string, extras: Extra[]): Promise<{ added: number; missed: number }> {
+async function addSeasons(
+  supabase: Supabase,
+  kind: SearchKind,
+  categoryId: string,
+  extras: Extra[],
+): Promise<{ added: number; missed: number }> {
   if (extras.length === 0) return { added: 0, missed: 0 };
   const source = extras[0].result.source;
   const { data: existing, error } = await supabase
@@ -96,7 +102,9 @@ async function addSeasons(supabase: Supabase, categoryId: string, extras: Extra[
   let added = 0;
   for (const [index, row] of created.entries()) {
     const { result, status } = fresh[index];
-    const patch = matchPatch({ title: result.title, status, progress_current: 0, progress_total: null }, result, result.title, null);
+    // A collection lists no running times; anime seasons carry theirs already.
+    const details = await getAddDetails(kind, result.externalId);
+    const patch = matchPatch({ title: result.title, status, progress_current: 0, progress_total: null }, result, result.title, details);
     const { error: updateError } = await supabase.from("items").update(patch).eq("id", row.id).eq("source", "manual");
     if (!updateError) added += 1;
     // Don't leave a bare hand-added copy behind.
@@ -161,7 +169,7 @@ export async function saveMatches(input: SaveMatchesInput): Promise<SaveMatchesR
     }
   }
 
-  const { added, missed } = await addSeasons(supabase, categoryId, extras);
+  const { added, missed } = await addSeasons(supabase, kind, categoryId, extras);
   revalidatePath("/", "layout");
   return { ok: true, saved, taken, failed, added, missed };
 }

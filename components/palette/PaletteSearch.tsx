@@ -5,11 +5,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { AddPanelFooter } from "@/components/add/AddPanelFooter";
 import { AddSearchHeader } from "@/components/add/AddSearchHeader";
+import { AddTheRest } from "@/components/add/AddTheRest";
 import { GroupHeading } from "@/components/add/GroupHeading";
 import { ManualAddRow } from "@/components/add/ManualAddRow";
-import { useAddTitle } from "@/components/add/useAddTitle";
+import { useAddTitle, useAddTitles } from "@/components/add/useAddTitle";
+import { findDuplicate } from "@/lib/add";
 import { defaultAddTarget, titleHref, type PaletteCategory, type PaletteTitle } from "@/lib/palette";
-import { ITEM_STATUSES, type ItemStatus } from "@/lib/status";
+import { isRelatedKind, type SearchResult } from "@/lib/search/types";
+import { stepStatus as nextStatus, type ItemStatus } from "@/lib/status";
 import { AddResultsGroup } from "./AddResultsGroup";
 import { GoToGroup } from "./GoToGroup";
 import { LinkRow } from "./LinkRow";
@@ -36,6 +39,7 @@ export function PaletteSearch({ categories, titles, onClose, onManual }: Palette
   const router = useRouter();
   const pathname = usePathname();
   const addTitle = useAddTitle();
+  const addTitles = useAddTitles();
   const actions = usePaletteActions();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
@@ -43,6 +47,8 @@ export function PaletteSearch({ categories, titles, onClose, onManual }: Palette
   const [status, setStatus] = useState<ItemStatus>("planned");
   const [navigating, setNavigating] = useState(false);
   const [selected, setSelected] = useState("");
+  // Just added an anime or a film: the rest of its run comes next.
+  const [added, setAdded] = useState<{ result: SearchResult; status: ItemStatus; shelf: PaletteCategory } | null>(null);
   const rows = usePaletteRows({ query, categories, titles, actions, target });
   const active = rows.values.includes(selected) ? selected : (rows.values[0] ?? "");
 
@@ -64,13 +70,33 @@ export function PaletteSearch({ categories, titles, onClose, onManual }: Palette
     }
     if (!target) return;
     if (add?.duplicate) return go(titleHref(target, add.duplicate.id));
+    if (add && !openAfter && isRelatedKind(target.kind)) {
+      void addTitle(target, add.result, status, false);
+      return setAdded({ result: add.result, status, shelf: target });
+    }
     onClose();
     if (add) void addTitle(target, add.result, status, openAfter);
     else if (value === MANUAL) onManual(target, rows.typed, status);
   }
 
   function stepStatus(direction: 1 | -1) {
-    setStatus((current) => ITEM_STATUSES[(ITEM_STATUSES.indexOf(current) + direction + ITEM_STATUSES.length) % ITEM_STATUSES.length]);
+    setStatus((current) => nextStatus(current, direction));
+  }
+
+  if (added && isRelatedKind(added.shelf.kind)) {
+    const { shelf } = added;
+    const onShelf = (titles ?? []).filter((title) => title.category_id === shelf.id);
+    return (
+      <AddTheRest
+        added={added.result}
+        status={added.status}
+        kind={added.shelf.kind}
+        shelf={shelf}
+        blockedBy={(title) => (findDuplicate(title, onShelf) ? "On your shelf" : null)}
+        onAdd={(extras) => void addTitles(shelf, extras)}
+        onDone={onClose}
+      />
+    );
   }
 
   function onKeyDown(event: KeyboardEvent) {

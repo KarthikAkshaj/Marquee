@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bestMatch, blockedReason, claimMatches, saveBatches, seasonStatus, similarity } from "./match";
+import { bestMatch, blockedReason, claimMatches, saveBatches, seasonStatus, similarity, stepExtra, toggleExtra } from "./match";
 import type { SearchResult } from "./search/types";
 
 const anime = (title: string, subtitle: string, extra: Partial<SearchResult> = {}): SearchResult => ({
@@ -76,6 +76,31 @@ describe("seasonStatus", () => {
     expect(seasonStatus("completed", "airing")).toBe("in_progress");
     expect(seasonStatus("in_progress", "airing")).toBe("in_progress");
     expect(seasonStatus("completed", "upcoming")).toBe("planned");
+  });
+});
+
+describe("toggleExtra and stepExtra", () => {
+  const partTwo = { source: "tmdb" as const, externalId: "693134", title: "Dune: Part Two", release: "out" as const };
+  const partThree = { source: "tmdb" as const, externalId: "1170608", title: "Dune: Part Three", release: "upcoming" as const };
+
+  it("ticks from the first title's status, never twice, and unticks", () => {
+    let extras = toggleExtra([], partTwo, true, "completed");
+    extras = toggleExtra(extras, partThree, true, "completed");
+    extras = toggleExtra(extras, partTwo, true, "completed");
+    expect(extras.map((extra) => [extra.result.title, extra.status])).toEqual([
+      ["Dune: Part Three", "planned"],
+      ["Dune: Part Two", "completed"],
+    ]);
+    expect(toggleExtra(extras, partThree, false, "completed").map((extra) => extra.result.title)).toEqual(["Dune: Part Two"]);
+  });
+
+  it("steps one title's status round the list, leaving the rest", () => {
+    const extras = [
+      { result: partTwo, status: "dropped" as const },
+      { result: partThree, status: "planned" as const },
+    ];
+    expect(stepExtra(extras, "693134", 1).map((extra) => extra.status)).toEqual(["planned", "planned"]);
+    expect(stepExtra(extras, "1170608", -1).map((extra) => extra.status)).toEqual(["dropped", "dropped"]);
   });
 });
 

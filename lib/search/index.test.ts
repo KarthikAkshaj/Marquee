@@ -10,6 +10,8 @@ const searchAniListOther = vi.fn();
 const getAniListSeries = vi.fn();
 const searchTmdbMovies = vi.fn();
 const getTmdbSeriesDetails = vi.fn();
+const getTmdbMovieDetails = vi.fn();
+const getTmdbCollection = vi.fn();
 vi.mock("./anilist", () => ({
   searchAniList: (q: string) => searchAniList(q),
   searchAniListMany: (queries: string[]) => searchAniListMany(queries),
@@ -21,10 +23,12 @@ vi.mock("./tmdb", () => ({
   searchTmdbMovies: (q: string) => searchTmdbMovies(q),
   searchTmdbSeries: vi.fn(),
   getTmdbSeriesDetails: (id: string) => getTmdbSeriesDetails(id),
+  getTmdbMovieDetails: (id: string) => getTmdbMovieDetails(id),
+  getTmdbCollection: (id: number) => getTmdbCollection(id),
 }));
 vi.mock("./igdb", () => ({ igdbConfigured: () => false, searchIgdb: vi.fn() }));
 
-const { getAnimeSeries, getSeriesDetails, matchMetadata, normaliseQuery, possessiveVariant, searchMetadata } = await import("./index");
+const { getAnimeSeries, getRelated, getSeriesDetails, matchMetadata, normaliseQuery, possessiveVariant, searchMetadata } = await import("./index");
 const { ProviderError } = await import("./types");
 
 describe("searchMetadata", () => {
@@ -153,5 +157,46 @@ describe("getAnimeSeries", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     getAniListSeries.mockRejectedValueOnce(new ProviderError("anilist", "HTTP 429", 429));
     expect(await getAnimeSeries("113415")).toEqual({ results: [], error: "unavailable" });
+  });
+});
+
+describe("getRelated for films", () => {
+  beforeEach(() => vi.stubEnv("TMDB_READ_TOKEN", "token"));
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+    getTmdbMovieDetails.mockReset();
+    getTmdbCollection.mockReset();
+  });
+
+  it("goes from a film to its collection's films, named", async () => {
+    const sequel = { source: "tmdb", externalId: "693134", title: "Dune: Part Two", release: "out" };
+    getTmdbMovieDetails.mockResolvedValue({ runtimeMinutes: 155, collectionId: 726871 });
+    getTmdbCollection.mockResolvedValue({ name: "Dune Collection", titles: [sequel] });
+    expect(await getRelated("movie", "438631")).toEqual({ name: "Dune Collection", results: [sequel] });
+    expect(getTmdbMovieDetails).toHaveBeenCalledWith("438631");
+    expect(getTmdbCollection).toHaveBeenCalledWith(726871);
+  });
+
+  it("has nothing for a film in no collection, and asks no further", async () => {
+    getTmdbMovieDetails.mockResolvedValue({ runtimeMinutes: 132 });
+    expect(await getRelated("movie", "496243")).toEqual({ results: [] });
+    expect(getTmdbCollection).not.toHaveBeenCalled();
+  });
+
+  it("says TMDB isn't set up, or is down, without throwing", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    getTmdbMovieDetails.mockResolvedValue({ collectionId: 726871 });
+    getTmdbCollection.mockRejectedValueOnce(new ProviderError("tmdb", "HTTP 500", 500));
+    expect(await getRelated("movie", "438631")).toEqual({ results: [], error: "unavailable" });
+
+    vi.stubEnv("TMDB_READ_TOKEN", "");
+    expect(await getRelated("movie", "438631")).toEqual({ results: [], error: "not_configured" });
+  });
+
+  it("sends anime to AniList's series", async () => {
+    getAniListSeries.mockResolvedValueOnce([]);
+    expect(await getRelated("anime", "113415")).toEqual({ results: [] });
+    expect(getAniListSeries).toHaveBeenLastCalledWith(113415);
   });
 });

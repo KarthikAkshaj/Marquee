@@ -9,7 +9,7 @@ import { setItemAccents } from "@/lib/actions/items";
 import { accentFromCover } from "@/lib/image/accent-color";
 import { blockedReason, claimMatches, matchKey, saveBatches } from "@/lib/match";
 import type { ManualTitle } from "@/lib/queries";
-import type { SearchKind, SearchResult } from "@/lib/search/types";
+import { isRelatedKind, type SearchKind, type SearchResult } from "@/lib/search/types";
 import { EXTRAS_PER_SAVE } from "@/lib/validators";
 import { MatchBar } from "./MatchBar";
 import { MatchDone } from "./MatchDone";
@@ -142,12 +142,11 @@ export function MatchFlow({ shelf, items, taken }: MatchFlowProps) {
         row={open}
         onClose={() => setOpenId(null)}
         sourceName={SOURCE_NAMES[source]}
-        kind={shelf.kind}
         categoryColor={shelf.color}
         conflict={open ? (conflicts.get(open.item.id) ?? null) : null}
-        withSeries={shelf.kind === "anime"}
+        seriesKind={isRelatedKind(shelf.kind) ? shelf.kind : null}
         seriesFor={matching.seriesFor}
-        blockedBy={(key) => (open ? blockedReason(holders, key, open.item.id) : null)}
+        blockedBy={(title) => (open ? blockedReason(holders, `${title.source}:${title.externalId}`, open.item.id) : null)}
         onLoadSeries={matching.loadSeries}
         onChoose={(choice) => open && matching.choose(open.item.id, choice)}
         onSearch={(query) => open && void matching.research(open.item.id, query)}

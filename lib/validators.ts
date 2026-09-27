@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_KINDS } from "@/lib/categories";
 import { AVATAR_MAX_BYTES, AVATAR_TYPES, BIO_MAX, DISPLAY_NAME_MAX, USERNAME_PATTERN, type AvatarType } from "@/lib/profile";
-import { SEARCH_KINDS } from "@/lib/search/types";
+import { RELATED_KINDS, SEARCH_KINDS } from "@/lib/search/types";
 import { ITEM_FORMATS, ITEM_STATUSES } from "@/lib/status";
 
 /** Every server action input is parsed through zod (SPEC §11). */
@@ -207,6 +207,24 @@ export const addFromSearchSchema = z.object({
 export const EXTRAS_PER_SAVE = 50;
 
 /**
+ * The rest of a run added alongside a search pick (SPEC §8.7): other seasons of
+ * an anime, other films of a collection. One series' worth at most.
+ */
+export const addManyFromSearchSchema = z.object({
+  categoryId: z.string().uuid(),
+  entries: z
+    .array(z.object({ id: z.string().uuid(), status: z.enum(ITEM_STATUSES), result: searchResultSchema }))
+    .min(1)
+    .max(EXTRAS_PER_SAVE)
+    .refine((entries) => new Set(entries.map((entry) => entry.id)).size === entries.length, "Each title needs its own id"),
+});
+
+export type AddManyFromSearchInput = z.input<typeof addManyFromSearchSchema>;
+
+/** Titles removed together (Undo on a run added at once): never more than one add brings. */
+export const itemIdsSchema = z.array(itemIdSchema).min(1).max(EXTRAS_PER_SAVE);
+
+/**
  * Find covers: hand-added titles on one shelf, the search result each should
  * become, and any other seasons of it to add alongside, each with a status.
  */
@@ -266,9 +284,12 @@ export const matchQuerySchema = z.object({
   queries: z.array(z.string().trim().min(1).max(200)).min(1).max(10),
 });
 
-/** GET /api/search?kind=anime&related=<AniList id>: the rest of that anime's series. */
+/**
+ * GET /api/search?kind=&related=<provider id>: the rest of a title's run, an
+ * anime's series (AniList id) or a film's collection (TMDB id).
+ */
 export const relatedQuerySchema = z.object({
-  kind: z.literal("anime"),
+  kind: z.enum(RELATED_KINDS),
   related: z.string().regex(/^\d{1,12}$/),
 });
 

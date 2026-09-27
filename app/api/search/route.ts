@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getAnimeSeries, matchMetadata, searchMetadata, type MatchResponse, type SearchError, type SearchResponse } from "@/lib/search";
+import { getRelated, matchMetadata, searchMetadata, type MatchResponse, type SearchError, type SearchResponse } from "@/lib/search";
 import { createRateLimiter } from "@/lib/search/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 import { matchQuerySchema, relatedQuerySchema, searchQuerySchema } from "@/lib/validators";
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     });
     if (!related.success) return respond({ results: [], error: "invalid_query" });
     if (!limiter.take(userId)) return respond({ results: [], error: "rate_limited" });
-    return respond(await getAnimeSeries(related.data.related));
+    return respond(await getRelated(related.data.kind, related.data.related));
   }
 
   const params = searchQuerySchema.safeParse({

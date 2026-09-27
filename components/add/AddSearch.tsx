@@ -16,7 +16,7 @@ import { useMetadataSearch } from "./useMetadataSearch";
 
 const MANUAL = "manual";
 
-type AddSearchProps = Omit<AddTitlePanelProps, "open" | "onOpenChange">;
+type AddSearchProps = Omit<AddTitlePanelProps, "open" | "onOpenChange" | "onAddMore">;
 
 /**
  * Type, pick, Enter (SPEC §8.7). ↑↓ move through results; once you're moving

@@ -104,11 +104,12 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
           category={{ ...category, kind: searchKind }}
           items={shelf.items}
           defaultStatus={defaultStatus}
+          // The panel closes itself: for anime and films it first offers the rest of the run.
           onAdd={(result, status, openAfter) => {
-            setAdding(null);
             const item = shelf.addFromSearch(category, result, status);
             if (openAfter) sheet.open(item.id);
           }}
+          onAddMore={(extras) => shelf.addAllFromSearch(category, extras)}
           onOpenExisting={(id) => {
             setAdding(null);
             sheet.open(id);

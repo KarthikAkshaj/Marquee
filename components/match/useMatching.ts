@@ -1,14 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { bestMatch, seasonStatus } from "@/lib/match";
+import { bestMatch, stepExtra, toggleExtra, type ExtraPick } from "@/lib/match";
 import type { ManualTitle } from "@/lib/queries";
-import type { Elsewhere, SearchKind, SearchResponse, SearchResult, SeriesTitle } from "@/lib/search/types";
-import { ITEM_STATUSES, type ItemStatus } from "@/lib/status";
-import { useSeries } from "./useSeries";
-
-/** Another season of the match, to add as its own title. */
-export type ExtraPick = { result: SeriesTitle; status: ItemStatus };
+import { useSeries } from "@/components/add/useSeries";
+import { isRelatedKind, type Elsewhere, type SearchKind, type SearchResponse, type SearchResult, type SeriesTitle } from "@/lib/search/types";
 
 export type MatchRowState = {
   item: ManualTitle;
@@ -93,7 +89,7 @@ export function useMatching(kind: SearchKind, items: ManualTitle[]) {
     };
   }, [kind, initial]);
 
-  const series = useSeries();
+  const series = useSeries(isRelatedKind(kind) ? kind : null);
 
   const update = (id: string, change: (row: MatchRowState) => MatchRowState) =>
     setRows((current) => current.map((row) => (row.item.id === id ? change(row) : row)));
@@ -113,21 +109,9 @@ export function useMatching(kind: SearchKind, items: ManualTitle[]) {
         return { ...row, choice, include: choice !== null, extras };
       }),
     toggleExtra: (id: string, title: SeriesTitle, add: boolean) =>
-      update(id, (row) => ({
-        ...row,
-        extras: add
-          ? [...row.extras, { result: title, status: seasonStatus(row.item.status, title.release) }]
-          : row.extras.filter((extra) => extra.result.externalId !== title.externalId),
-      })),
+      update(id, (row) => ({ ...row, extras: toggleExtra(row.extras, title, add, row.item.status) })),
     stepExtra: (id: string, externalId: string, direction: 1 | -1) =>
-      update(id, (row) => ({
-        ...row,
-        extras: row.extras.map((extra) => {
-          if (extra.result.externalId !== externalId) return extra;
-          const index = ITEM_STATUSES.indexOf(extra.status);
-          return { ...extra, status: ITEM_STATUSES[(index + direction + ITEM_STATUSES.length) % ITEM_STATUSES.length] };
-        }),
-      })),
+      update(id, (row) => ({ ...row, extras: stepExtra(row.extras, externalId, direction) })),
     toggle: (id: string, include: boolean) => update(id, (row) => ({ ...row, include: include && row.choice !== null })),
     /** Try other words for one title, e.g. its full or original name. */
     async research(id: string, query: string) {

@@ -189,6 +189,22 @@ describe("saveMatches", () => {
     expect(db.items.filter((row) => row.external_id === "131573")).toHaveLength(1);
   });
 
+  it("gives films added from a collection their running time, which collections don't list", async () => {
+    db.categories = [{ id: CATEGORY, kind: "movie" }];
+    db.items = [item(1, { title: "dune", status: "completed" })];
+    getAddDetails.mockImplementation(async (_kind: string, externalId: string) => ({ runtimeMinutes: externalId === "693134" ? 167 : 155 }));
+    const film = (externalId: string, title: string) => ({ source: "tmdb" as const, externalId, title, format: "movie" as const });
+
+    const result = await saveMatches(
+      input({ matches: [{ itemId: id(1), result: film("438631", "Dune"), extras: [{ result: film("693134", "Dune: Part Two"), status: "completed" }] }] }),
+    );
+
+    expect(result).toMatchObject({ ok: true, saved: [id(1)], added: 1, missed: 0 });
+    expect(getAddDetails).toHaveBeenCalledWith("movie", "693134");
+    expect(db.items.find((row) => row.external_id === "693134")).toMatchObject({ source: "tmdb", runtime_minutes: 167, format: "movie" });
+    expect(byId(1)).toMatchObject({ external_id: "438631", runtime_minutes: 155 });
+  });
+
   it("removes a season it couldn't fill in, and leaves seasons of a failed match alone", async () => {
     db.items = [item(1), item(2)];
     failing.add("Broken season").add(id(2));

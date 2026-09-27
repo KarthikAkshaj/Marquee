@@ -4,27 +4,25 @@ import { X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import type { SeriesTitle } from "@/lib/search/types";
-import type { CategoryKind } from "@/lib/status";
+import { SeriesPicker } from "@/components/add/SeriesPicker";
+import type { SeriesState } from "@/components/add/useSeries";
+import type { RelatedKind, SeriesTitle } from "@/lib/search/types";
 import { MatchCandidates } from "./MatchCandidates";
 import { MatchSearchForm } from "./MatchSearchForm";
-import { MatchSeries } from "./MatchSeries";
 import { triggerId } from "./MatchRow";
 import type { MatchRowState } from "./useMatching";
-import type { SeriesState } from "./useSeries";
 
 type MatchPickerProps = {
   /** The row being matched; null closes the picker. */
   row: MatchRowState | null;
   onClose: () => void;
   sourceName: string;
-  kind: CategoryKind;
   categoryColor: string;
   conflict: string | null;
-  /** Only anime have their seasons as separate titles to add. */
-  withSeries: boolean;
+  /** Anime seasons and film collections have the rest of their run to add; other kinds, null. */
+  seriesKind: RelatedKind | null;
   seriesFor: (externalId: string) => SeriesState | undefined;
-  blockedBy: (key: string) => string | null;
+  blockedBy: (title: SeriesTitle) => string | null;
   onLoadSeries: (externalId: string) => void;
   onChoose: (choice: number | null) => void;
   onSearch: (query: string) => void;
@@ -32,18 +30,24 @@ type MatchPickerProps = {
   onStepExtra: (externalId: string, direction: 1 | -1) => void;
 };
 
+/** What the picker's description offers to add alongside the match. */
+const ALONGSIDE: Record<RelatedKind, string> = {
+  anime: ", and add any other seasons you've seen.",
+  movie: ", and add any other films in its collection you've seen.",
+};
+
 /**
- * One title's match: the search results with covers, a new
- * search, and for anime the rest of the series to add alongside. A sheet from
- * the bottom on phones, a panel in the middle on desktop.
+ * One title's match: the search results with covers, a new search, and for
+ * anime and films the rest of the run to add alongside. A sheet from the
+ * bottom on phones, a panel in the middle on desktop.
  */
-export function MatchPicker({ row: open, onClose, sourceName, kind, categoryColor, conflict, withSeries, seriesFor, blockedBy, onLoadSeries, onChoose, onSearch, onToggleExtra, onStepExtra }: MatchPickerProps) {
+export function MatchPicker({ row: open, onClose, sourceName, categoryColor, conflict, seriesKind, seriesFor, blockedBy, onLoadSeries, onChoose, onSearch, onToggleExtra, onStepExtra }: MatchPickerProps) {
   // Keep showing the last row while the picker closes, so Radix can hand focus back.
   const [last, setLast] = useState(open);
   if (open && open !== last) setLast(open);
   const row = open ?? last;
   const pick = row && row.choice !== null ? row.candidates[row.choice] : null;
-  const pickId = withSeries && open ? pick?.externalId : undefined;
+  const pickId = seriesKind && open ? pick?.externalId : undefined;
 
   useEffect(() => {
     if (pickId) onLoadSeries(pickId);
@@ -73,7 +77,7 @@ export function MatchPicker({ row: open, onClose, sourceName, kind, categoryColo
                 <Dialog.Title className="mt-1 truncate text-16 font-medium text-text">{row.item.title}</Dialog.Title>
                 <Dialog.Description className="mt-0.5 text-12 text-text-muted">
                   Pick what this is on {sourceName}
-                  {withSeries ? ", and add any other seasons you've seen." : "."}
+                  {seriesKind ? ALONGSIDE[seriesKind] : "."}
                 </Dialog.Description>
               </div>
               <Dialog.Close aria-label="Close" className="-mt-1.5 -mr-2 grid size-11 shrink-0 place-items-center rounded-full text-text-muted hover:text-text">
@@ -84,13 +88,15 @@ export function MatchPicker({ row: open, onClose, sourceName, kind, categoryColo
             <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-2 py-3.5 md:px-3">
               <MatchSearchForm key={row.item.id} initial={row.item.title} sourceName={sourceName} onSearch={onSearch} className="px-2.5" />
               <MatchCandidates row={row} sourceName={sourceName} categoryColor={categoryColor} conflict={conflict} onChoose={onChoose} />
-              {withSeries && pick && row.state !== "waiting" && (
-                <MatchSeries
+              {seriesKind && pick && row.state !== "waiting" && (
+                <SeriesPicker
                   pick={pick}
+                  pickNote="Your match"
                   series={seriesFor(pick.externalId)}
                   extras={row.extras}
-                  kind={kind}
+                  kind={seriesKind}
                   categoryColor={categoryColor}
+                  hint={seriesKind === "movie" ? "Seen the other films? Tick them to add them as their own titles." : "Seen other seasons or films? Tick them to add them as their own titles."}
                   blockedBy={blockedBy}
                   onRetry={() => onLoadSeries(pick.externalId)}
                   onToggle={onToggleExtra}
