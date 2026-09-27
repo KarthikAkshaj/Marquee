@@ -11,15 +11,21 @@ import { cn } from "@/lib/utils";
  */
 export function NavLink({
   href,
+  match = href,
   className,
   children,
 }: {
   href: string;
+  /**
+   * The section this link stands for, when it opens one page inside it: the
+   * Settings link goes straight to Profile but stays current on every tab.
+   */
+  match?: string;
   className?: string;
   children: ReactNode;
 }) {
   const pathname = usePathname();
-  const active = pathname === href || pathname.startsWith(`${href}/`);
+  const active = pathname === match || pathname.startsWith(`${match}/`);
 
   return (
     <Link href={href} aria-current={active ? "page" : undefined} className={cn("group", className)}>

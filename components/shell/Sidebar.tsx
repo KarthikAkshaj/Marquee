@@ -96,8 +96,10 @@ export function Sidebar({ categories, user, dim }: SidebarProps) {
         >
           Import
         </NavLink>
+        {/* Straight to Profile: /settings only redirects there, a round trip for nothing. */}
         <NavLink
-          href="/settings"
+          href="/settings/profile"
+          match="/settings"
           className="rounded-nav px-2.5 py-2 text-13 text-text-muted transition-colors hover:text-text aria-[current=page]:bg-accent/12 aria-[current=page]:font-medium aria-[current=page]:text-accent"
         >
           Settings
