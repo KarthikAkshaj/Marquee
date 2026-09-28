@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
-import type { Database } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 import type { WrappedItem } from "@/lib/wrapped";
 
@@ -179,26 +178,39 @@ export const getHome = cache(async () => {
   };
 });
 
+/** PostgREST's cap on rows per request. */
 const PAGE = 1000;
 
+type Page<Row> = PromiseLike<{ data: Row[] | null; error: { message: string } | null }>;
+
 /**
- * Every title the viewer has, lightly, in pages: PostgREST returns at most
- * 1,000 rows per request, and an import needs all of them to spot duplicates.
+ * Every row a query matches, 1,000 at a time. Anything that counts or checks a
+ * whole library needs this: past the cap, one request quietly comes back
+ * short. `page` must order by something unique, or rows slip between pages.
  */
+async function readAll<Row>(page: (from: number, to: number) => Page<Row>, what: string): Promise<Row[]> {
+  const rows: Row[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await page(from, from + PAGE - 1);
+    if (error) throw new Error(`Couldn't load ${what}: ${error.message}`);
+    rows.push(...(data ?? []));
+    if (!data || data.length < PAGE) return rows;
+  }
+}
+
+/** Every title the viewer has, lightly: an import needs all of them to spot duplicates. */
 export const getAllTitles = cache(async () => {
   const supabase = await createClient();
-  const titles: { title: string; status: Database["public"]["Enums"]["item_status"]; category_id: string }[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase
-      .from("items")
-      .select("title, status, category_id")
-      .order("created_at", { ascending: true })
-      .order("id", { ascending: true })
-      .range(from, from + PAGE - 1);
-    if (error) throw new Error(`Couldn't load your titles: ${error.message}`);
-    titles.push(...data);
-    if (data.length < PAGE) return titles;
-  }
+  return readAll(
+    (from, to) =>
+      supabase
+        .from("items")
+        .select("title, status, category_id")
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to),
+    "your titles",
+  );
 });
 
 /** A shelf's hand-added titles, for Find covers. */
@@ -230,11 +242,6 @@ export const getShelfMatches = cache(async (categoryId: string) => {
 });
 
 /**
- * Everything /wrapped counts: what arrived this year, plus every completion
- * whenever it happened, since the ones with no date are a line of their own.
- * lib/wrapped does the arithmetic.
- */
-/**
  * Titles that came from a provider but carry nothing a provider could tell us
  * about how long they run, so Settings can offer to fill them in and hide the
  * offer once there is nothing left. A row that came back with either column
@@ -253,18 +260,28 @@ export const countRuntimeGaps = cache(async (): Promise<number> => {
   return error ? 0 : (count ?? 0);
 });
 
+/**
+ * Everything /wrapped counts: what arrived this year, plus every completion
+ * whenever it happened, since the ones with no date are a line of their own.
+ * lib/wrapped does the arithmetic.
+ */
 export const getWrappedItems = cache(async (year: number): Promise<WrappedItem[]> => {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("items")
-    .select(
-      "title, status, rating, genres, progress_current, progress_total, runtime_minutes, format, created_at, finished_at, cover_url, accent_color, categories(name, kind)",
-    )
-    .or(`created_at.gte.${year}-01-01,status.eq.completed`);
+  const rows = await readAll(
+    (from, to) =>
+      supabase
+        .from("items")
+        .select(
+          "title, status, rating, genres, progress_current, progress_total, runtime_minutes, format, created_at, finished_at, cover_url, accent_color, categories(name, kind)",
+        )
+        .or(`created_at.gte.${year}-01-01,status.eq.completed`)
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to),
+    "your year",
+  );
 
-  if (error) throw new Error(`Couldn't load your year: ${error.message}`);
-
-  return data.map(({ categories, ...item }) => ({
+  return rows.map(({ categories, ...item }) => ({
     ...item,
     kind: categories.kind,
     categoryName: categories.name,
