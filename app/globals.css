@@ -200,6 +200,21 @@
     from { scale: 2.1; filter: brightness(1.8); }
   }
 
+  /* The import's curtain call (U40): the count stamped on, the bulbs chasing round once. */
+  --animate-stamp-slam: stamp-slam 440ms cubic-bezier(0.22, 1, 0.36, 1) 180ms backwards;
+  --animate-bulbs-once: bulbs-once 2.6s ease-out forwards;
+
+  @keyframes stamp-slam {
+    0% { opacity: 0; scale: 1.9; rotate: -18deg; }
+    45% { opacity: 1; scale: 0.94; rotate: -6deg; }
+    100% { opacity: 1; scale: 1; rotate: -8deg; }
+  }
+  @keyframes bulbs-once {
+    0% { opacity: 0; }
+    12%, 76% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
   /* The sign under the landing wordmark, coming on one bulb at a time (U15). */
   --animate-bulb-on: bulb-on 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 
