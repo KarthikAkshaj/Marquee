@@ -88,6 +88,8 @@ describe("ProfileForm", () => {
     await waitFor(() =>
       expect(updateProfile).toHaveBeenCalledWith({ display_name: "Akuma", username: "akuma_3f9c", bio: "Frieren apologist." }),
     );
+    // The save lands on the bar itself (U33).
+    expect(await screen.findByRole("status")).toHaveTextContent("Saved. Looking like you.");
   });
 
   it("shows the member pass, following the form as you type", () => {

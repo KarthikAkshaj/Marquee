@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { AvatarUploader } from "./AvatarUploader";
 import { MemberPass } from "./MemberPass";
 import { SaveBar } from "./SaveBar";
+import { flashSaved } from "./savedFlash";
 import { UsernameField } from "./UsernameField";
 import { useUsernameCheck } from "./useUsernameCheck";
 
@@ -47,7 +48,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
       const result = await updateProfile(clean);
       if (!result.ok) return void toast.error(result.message);
       setValues(clean);
-      toast.success("Saved. Looking like you.");
+      // The save bar says so itself (U33).
+      flashSaved();
     });
   }
 

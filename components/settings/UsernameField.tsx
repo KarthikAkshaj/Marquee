@@ -58,14 +58,14 @@ export function UsernameField({ value, state, onChange }: UsernameFieldProps) {
 function Pill({ state }: { state: UsernameState }) {
   if (state.status === "available") {
     return (
-      <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-completed/14 px-2.5 py-1 text-[11.5px] font-medium text-completed">
+      <span className="flex shrink-0 animate-pop-spring items-center gap-1.5 rounded-full bg-completed/14 px-2.5 py-1 text-[11.5px] font-medium text-completed">
         <Check aria-hidden className="size-3" strokeWidth={2.4} /> available
       </span>
     );
   }
   if (state.status === "taken") {
     return (
-      <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-dropped-muted/16 px-2.5 py-1 text-[11.5px] font-medium text-dropped">
+      <span className="flex shrink-0 animate-pop-spring items-center gap-1.5 rounded-full bg-dropped-muted/16 px-2.5 py-1 text-[11.5px] font-medium text-dropped">
         <X aria-hidden className="size-3" strokeWidth={2.4} /> taken
       </span>
     );
