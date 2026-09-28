@@ -14,6 +14,7 @@ const category = (overrides: Partial<Tables["categories"]["Row"]>): Tables["cate
   color: "crimson",
   icon: "sparkles",
   position: 0,
+  is_public: true,
   created_at: "2026-09-16T00:00:00Z",
   ...overrides,
 });
@@ -73,6 +74,10 @@ describe("buildExport", () => {
     const text = JSON.stringify(buildExport(profile, [category({})], [item({})], now));
     expect(text).not.toContain("secret-user");
     expect(text).not.toContain("category_id");
+  });
+
+  it("leaves out what's shared, so a restore never publishes a shelf", () => {
+    expect(JSON.stringify(buildExport(profile, [category({})], [item({})], now))).not.toContain("is_public");
   });
 
   it("names the file after the user and the day", () => {

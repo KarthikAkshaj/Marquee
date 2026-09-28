@@ -4,7 +4,8 @@ type Row<T extends keyof Database["public"]["Tables"]> = Database["public"]["Tab
 
 type ExportProfile = Pick<Row<"profiles">, "username" | "display_name" | "bio" | "avatar_url" | "created_at">;
 type ExportItem = Omit<Row<"items">, "user_id" | "category_id">;
-type ExportCategory = Omit<Row<"categories">, "user_id"> & { items: ExportItem[] };
+// Sharing is a setting, not data: a restored backup never publishes a shelf.
+type ExportCategory = Omit<Row<"categories">, "user_id" | "is_public"> & { items: ExportItem[] };
 
 export type MarqueeExport = {
   app: "marquee";

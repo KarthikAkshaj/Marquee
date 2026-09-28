@@ -1,6 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { hasPassword } from "@/lib/auth/password";
+import { USERNAME_PATTERN } from "@/lib/profile";
+import { publicPageSchema, publicProfileSchema } from "@/lib/public-profile";
 import { createClient } from "@/lib/supabase/server";
 import type { StatsItem } from "@/lib/stats";
 import type { WrappedItem } from "@/lib/wrapped";
@@ -105,6 +107,62 @@ export const getProfile = cache(async () => {
 });
 
 export type Profile = Awaited<ReturnType<typeof getProfile>>;
+
+/** Settings → Profile's sharing card (SPEC §19): the main switch, and each shelf's. */
+export const getSharing = cache(async () => {
+  const viewer = await getViewer();
+  const supabase = await createClient();
+  const [profile, shelves] = await Promise.all([
+    supabase.from("profiles").select("is_public").eq("id", viewer.id).single(),
+    supabase.from("categories").select("id, name, slug, color, icon, is_public, items(count)").order("position"),
+  ]);
+
+  if (profile.error || shelves.error) throw new Error("Couldn't load what you share.");
+
+  return {
+    username: viewer.profile?.username ?? null,
+    isPublic: profile.data.is_public,
+    shelves: shelves.data.map(({ items, ...shelf }) => ({ ...shelf, itemCount: items[0]?.count ?? 0 })),
+  };
+});
+
+export type Sharing = Awaited<ReturnType<typeof getSharing>>;
+
+/**
+ * Someone's public profile (SPEC §19), read through the `public_profile`
+ * function so only the safe fields ever leave the database. Null for a
+ * private profile and for a username nobody has: the page treats them alike.
+ */
+export const getPublicProfile = cache(async (username: string) => {
+  // Links get retyped; the page sends /u/Akshaj on to /u/akshaj.
+  const handle = username.toLowerCase();
+  if (!USERNAME_PATTERN.test(handle)) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("public_profile", { p_username: handle });
+  if (error) throw new Error(`Couldn't load this profile: ${error.message}`);
+  return data === null ? null : publicProfileSchema.parse(data);
+});
+
+/**
+ * The whole public page in one trip (SPEC §19): the profile, the shelf asked
+ * for (or the first shared one) with its titles, and whether the viewer owns
+ * it. Null for a private profile and for a username nobody has.
+ */
+export const getPublicPage = cache(async (username: string, shelf: string | null) => {
+  const handle = username.toLowerCase();
+  if (!USERNAME_PATTERN.test(handle)) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("public_page", { p_username: handle, p_slug: shelf ?? undefined });
+  if (error) throw new Error(`Couldn't load this profile: ${error.message}`);
+  return data === null ? null : publicPageSchema.parse(data);
+});
+
+/** Whether anyone is signed in, for the public pages' top button. Unlike getViewer it never sends people to sign in. */
+export const isSignedIn = cache(async () => {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  return Boolean(data?.claims?.sub);
+});
 
 /** Settings → Account (SPEC §8.10): how the user signs in, and what deleting would take with it. */
 export const getAccount = cache(async () => {

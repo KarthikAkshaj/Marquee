@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           icon: string
           id: string
+          is_public: boolean
           kind: Database["public"]["Enums"]["category_kind"]
           name: string
           position: number
@@ -31,6 +32,7 @@ export type Database = {
           created_at?: string
           icon?: string
           id?: string
+          is_public?: boolean
           kind?: Database["public"]["Enums"]["category_kind"]
           name: string
           position?: number
@@ -42,6 +44,7 @@ export type Database = {
           created_at?: string
           icon?: string
           id?: string
+          is_public?: boolean
           kind?: Database["public"]["Enums"]["category_kind"]
           name?: string
           position?: number
@@ -146,6 +149,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          is_public: boolean
           updated_at: string
           username: string
         }
@@ -155,6 +159,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id: string
+          is_public?: boolean
           updated_at?: string
           username: string
         }
@@ -164,6 +169,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_public?: boolean
           updated_at?: string
           username?: string
         }
@@ -181,6 +187,15 @@ export type Database = {
         Returns: number
       }
       is_username_available: { Args: { candidate: string }; Returns: boolean }
+      public_page: {
+        Args: { p_slug?: string; p_username: string }
+        Returns: Json
+      }
+      public_profile: { Args: { p_username: string }; Returns: Json }
+      public_shelf: {
+        Args: { p_slug: string; p_username: string }
+        Returns: Json
+      }
       restore_shelves: { Args: { shelves: Json }; Returns: Json }
       restore_titles: {
         Args: { rows: Json; target_category: string }
