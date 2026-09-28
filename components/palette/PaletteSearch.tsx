@@ -9,10 +9,12 @@ import { AddTheRest } from "@/components/add/AddTheRest";
 import { GroupHeading } from "@/components/add/GroupHeading";
 import { ManualAddRow } from "@/components/add/ManualAddRow";
 import { useAddTitle, useAddTitles } from "@/components/add/useAddTitle";
+import { RowGlide, rowGlideList } from "@/components/ui/RowGlide";
 import { findDuplicate } from "@/lib/add";
 import { defaultAddTarget, titleHref, type PaletteCategory, type PaletteTitle } from "@/lib/palette";
 import { isRelatedKind, type SearchResult, type SearchType } from "@/lib/search/types";
 import { isReading, stepStatus as nextStatus, type ItemStatus, type LabelKind } from "@/lib/status";
+import { cn } from "@/lib/utils";
 import { AddResultsGroup } from "./AddResultsGroup";
 import { GoToGroup } from "./GoToGroup";
 import { LinkRow } from "./LinkRow";
@@ -151,7 +153,7 @@ export function PaletteSearch({ categories, titles, onClose, onManual }: Palette
         }
       />
 
-      <Command.List aria-busy={rows.search.loading} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
+      <Command.List aria-busy={rows.search.loading} className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain p-2", rowGlideList)}>
         {rows.titleRows.length > 0 && (
           <Command.Group heading={<GroupHeading>{rows.typed ? "Your titles" : "Recently updated"}</GroupHeading>}>
             {rows.titleRows.map((row) => (
@@ -177,6 +179,7 @@ export function PaletteSearch({ categories, titles, onClose, onManual }: Palette
         {rows.typed && target && (
           <ManualAddRow value={MANUAL} title={rows.typed} shelfName={target.name} divided={rows.values.length > 1} onSelect={() => choose(MANUAL)} />
         )}
+        <RowGlide active={active} />
       </Command.List>
 
       <AddPanelFooter source={rows.source} enterLabel="choose" />

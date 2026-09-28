@@ -20,7 +20,7 @@ type ManualAddRowProps = {
  */
 export function ManualAddRow({ value, title, shelfName, divided, onSelect }: ManualAddRowProps) {
   return (
-    <div className="sticky -bottom-2 -mx-2 -mb-2 bg-menu px-2 pb-2">
+    <div data-glide-off className="sticky -bottom-2 -mx-2 -mb-2 bg-menu px-2 pb-2">
       {divided && <Command.Separator className="mx-3 mb-2 h-px bg-white/7" />}
       <Command.Item value={value} onSelect={onSelect} className={cn(paletteRow, "py-2.75")}>
         <span

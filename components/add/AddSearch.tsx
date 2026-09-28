@@ -2,9 +2,11 @@
 
 import { Command } from "cmdk";
 import { useState, type KeyboardEvent } from "react";
+import { RowGlide, rowGlideList } from "@/components/ui/RowGlide";
 import { SOURCE_FOR_KIND, SOURCE_NAMES, findDuplicate, searchNotice } from "@/lib/add";
 import type { SearchType } from "@/lib/search/types";
 import { ITEM_STATUSES } from "@/lib/status";
+import { cn } from "@/lib/utils";
 import { AddPanelFooter } from "./AddPanelFooter";
 import { AddSearchHeader } from "./AddSearchHeader";
 import type { AddTitlePanelProps } from "./AddTitlePanel";
@@ -120,7 +122,7 @@ export function AddSearch({ category, items, defaultStatus, initialQuery = "", o
       <p aria-live="polite" className="sr-only">
         {search.idle ? "" : search.loading ? "Searching" : `${rows.length} results`}
       </p>
-      <Command.List aria-busy={search.loading} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
+      <Command.List aria-busy={search.loading} className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain p-2", rowGlideList)}>
         {notice && <div className="px-3 py-3 text-13 text-text-muted">{notice}</div>}
         {search.loading && rows.length === 0 && <ResultSkeleton />}
 
@@ -149,6 +151,7 @@ export function AddSearch({ category, items, defaultStatus, initialQuery = "", o
             onSelect={() => choose(MANUAL, false)}
           />
         )}
+        <RowGlide active={active} />
       </Command.List>
 
       <AddPanelFooter source={source} />

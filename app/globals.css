@@ -552,6 +552,30 @@
   }
 }
 
+/* The highlight that glides between palette rows (U28, RowGlide), behind the
+   rows, with the amber edge the settings tabs have. */
+@utility row-glide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  pointer-events: none;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 9px;
+  background-color: rgb(255 255 255 / 0.05);
+  box-shadow: inset 2px 0 0 rgb(244 182 80 / 0.7);
+  opacity: 0;
+  transition:
+    translate 300ms --theme(--ease-cinematic),
+    width 300ms --theme(--ease-cinematic),
+    height 300ms --theme(--ease-cinematic),
+    opacity 160ms ease-out;
+
+  &:where([data-fx="lite"] *) {
+    transition: none;
+  }
+}
+
 /* The room's light (U14): a soft wash in --tint from above, like light thrown
    off a screen. Plain gradients, no blur, so a new colour costs one repaint. */
 @utility room-light {
@@ -603,6 +627,13 @@
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
+}
+
+/* Rows under a gliding highlight (U28) leave the lighting-up to it. Outside
+   the utilities layer, so it wins over the rows' own selected classes. */
+[cmdk-list-sizer]:has(> .row-glide) [cmdk-item][data-selected="true"]:not([data-glide-off] *) {
+  border-color: transparent;
+  background-color: transparent;
 }
 
 /* Motion is a courtesy, not a requirement (SPEC §9.6): no drift, no sheen. */
