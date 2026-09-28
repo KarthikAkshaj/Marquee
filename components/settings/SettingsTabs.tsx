@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { GlideGroup, useGlide } from "@/components/ui/Glide";
 import { cn } from "@/lib/utils";
 
 export type SettingsTab = {
@@ -13,46 +14,47 @@ export type SettingsTab = {
 
 /**
  * Left tab list on desktop, segmented tabs across the top on phones (SPEC §8.10).
- * Tabs join as their pages land: Profile and Account come next.
+ * The current tab's highlight, amber bar and all, glides to the next tab (U20).
  */
 export function SettingsTabs({ tabs }: { tabs: SettingsTab[] }) {
   const pathname = usePathname();
 
   return (
     <nav aria-label="Settings">
-      <ul className="flex gap-1 rounded-[10px] border border-border bg-surface p-1 md:w-46.5 md:flex-col md:gap-0.75 md:rounded-none md:border-0 md:bg-transparent md:p-0">
-        {tabs.map((tab) => {
-          const active = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
-          return (
+      <GlideGroup id="settings-tabs">
+        <ul className="flex gap-1 rounded-[10px] border border-border bg-surface p-1 md:w-46.5 md:flex-col md:gap-0.75 md:rounded-none md:border-0 md:bg-transparent md:p-0">
+          {tabs.map((tab) => (
             <li key={tab.href} className="flex-1 md:flex-none">
-              <Link
-                href={tab.href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "relative flex min-h-11 items-center justify-center gap-2.5 rounded-[7px] px-3 text-[13.5px] transition-colors md:justify-start md:rounded-[9px] md:py-2.5",
-                  active
-                    ? "bg-accent/10 font-semibold text-text"
-                    : "text-text-muted hover:bg-white/4 hover:text-text",
-                )}
-              >
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute top-2.25 bottom-2.25 left-0 hidden w-0.5 rounded-full md:block",
-                    active && "bg-accent shadow-mark-xs",
-                  )}
-                />
-                <span className="md:flex-1">{tab.label}</span>
-                {tab.meta && (
-                  <span className={cn("font-mono text-[10.5px]", active ? "text-accent" : "text-text-muted")}>
-                    {tab.meta}
-                  </span>
-                )}
-              </Link>
+              <TabLink tab={tab} active={pathname === tab.href || pathname.startsWith(`${tab.href}/`)} />
             </li>
-          );
-        })}
-      </ul>
+          ))}
+        </ul>
+      </GlideGroup>
     </nav>
+  );
+}
+
+function TabLink({ tab, active }: { tab: SettingsTab; active: boolean }) {
+  const { bind, frames } = useGlide(
+    tab.href,
+    active,
+    "bg-accent/10",
+    <span className="absolute top-2.25 bottom-2.25 left-0 hidden w-0.5 rounded-full bg-accent shadow-mark-xs md:block" />,
+  );
+
+  return (
+    <Link
+      href={tab.href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "relative isolate flex min-h-11 items-center justify-center gap-2.5 rounded-[7px] px-3 text-[13.5px] transition-colors md:justify-start md:rounded-[9px] md:py-2.5",
+        active ? "font-semibold text-text" : "text-text-muted hover:text-text",
+      )}
+      {...bind}
+    >
+      {frames}
+      <span className="md:flex-1">{tab.label}</span>
+      {tab.meta && <span className={cn("font-mono text-[10.5px]", active ? "text-accent" : "text-text-muted")}>{tab.meta}</span>}
+    </Link>
   );
 }
