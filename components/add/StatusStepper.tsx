@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { STATUS_STYLE, statusLabel, type ItemStatus, type LabelKind } from "@/lib/status";
 import { cn } from "@/lib/utils";
+import { StatusRoll } from "./StatusRoll";
 
 type StatusStepperProps = {
   kind: LabelKind;
@@ -15,7 +16,7 @@ type StatusStepperProps = {
 const arrow =
   "-my-1.75 grid size-11 shrink-0 place-items-center rounded-full text-text-muted transition-colors hover:text-text md:my-0 md:size-6.5";
 
-/** "‹ Plan to Watch ›": the status a picked title goes in as. ←/→ step it from the keyboard. */
+/** "‹ Plan to Watch ›": the status a picked title goes in as. ←/→ step it from the keyboard, and the words roll over (U29). */
 export function StatusStepper({ kind, value, onStep, name }: StatusStepperProps) {
   const suffix = name ? ` for ${name}` : "";
   return (
@@ -24,9 +25,9 @@ export function StatusStepper({ kind, value, onStep, name }: StatusStepperProps)
         <ChevronLeft aria-hidden className="size-3.5" strokeWidth={2} />
       </button>
       <span aria-live="polite" className="flex min-w-0 items-center gap-1.75 text-[11.5px] whitespace-nowrap text-text">
-        <span className="sr-only">Adds as</span>
-        <span aria-hidden className={cn("size-1.25 shrink-0 rounded-full", STATUS_STYLE[value].fill)} />
-        {statusLabel(kind, value)}
+        <span className="sr-only">Adds as {statusLabel(kind, value)}</span>
+        <span aria-hidden className={cn("size-1.25 shrink-0 rounded-full transition-colors duration-300", STATUS_STYLE[value].fill)} />
+        <StatusRoll status={value} label={statusLabel(kind, value)} />
       </span>
       <button type="button" aria-label={`Next status${suffix}`} onClick={() => onStep(1)} className={arrow}>
         <ChevronRight aria-hidden className="size-3.5" strokeWidth={2} />

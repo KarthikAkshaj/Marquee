@@ -126,9 +126,9 @@ describe("MatchFlow", () => {
     expect(within(picker).getByText("On your shelf as “Boruto Part 2”")).toBeInTheDocument();
 
     fireEvent.click(within(picker).getByLabelText("Add Naruto: Shippuden"));
-    expect(within(picker).getByText("Completed")).toBeInTheDocument();
+    expect(within(picker).getByText("Adds as Completed")).toBeInTheDocument();
     fireEvent.click(within(picker).getByRole("button", { name: "Next status for Naruto: Shippuden" }));
-    expect(within(picker).getByText("Dropped")).toBeInTheDocument();
+    expect(within(picker).getByText("Adds as Dropped")).toBeInTheDocument();
     expect(within(picker).getByText("+1 more to add")).toBeInTheDocument();
     fireEvent.click(within(picker).getByRole("button", { name: "Done" }));
 

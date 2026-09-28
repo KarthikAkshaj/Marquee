@@ -100,11 +100,11 @@ describe("AddTitlePanel", () => {
     const { type, key, onAdd } = setup();
     type("frieren");
     key("ArrowRight");
-    expect(screen.getByText("Plan to Watch")).toBeInTheDocument();
+    expect(screen.getByText("Adds as Plan to Watch")).toBeInTheDocument();
 
     key("ArrowDown");
     key("ArrowRight");
-    expect(screen.getByText("Watching")).toBeInTheDocument();
+    expect(screen.getByText("Adds as Watching")).toBeInTheDocument();
     key("Enter");
     expect(onAdd).toHaveBeenCalledWith(onePiece, "in_progress", false);
   });
@@ -118,7 +118,7 @@ describe("AddTitlePanel", () => {
     fireEvent.click(screen.getByRole("radio", { name: "Manga" }));
     expect(searched).toBe("manga");
     expect(screen.getByRole("combobox")).toHaveAttribute("placeholder", "Search AniList for manga…");
-    expect(screen.getByText("Plan to Read")).toBeInTheDocument();
+    expect(screen.getByText("Adds as Plan to Read")).toBeInTheDocument();
     expect(screen.getAllByRole("option")[0]).toHaveTextContent("Frieren2020 · Manga · Releasing");
 
     key("Enter");
@@ -137,7 +137,7 @@ describe("AddTitlePanel", () => {
     expect(screen.getByRole("radio", { name: "Manga" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("radio", { name: "Manga" })).toHaveFocus();
     // The status stepper didn't move with it.
-    expect(screen.getByText("Plan to Read")).toBeInTheDocument();
+    expect(screen.getByText("Adds as Plan to Read")).toBeInTheDocument();
   });
 
   it("adds and opens with Alt+Enter, skipping the rest of the series", () => {
