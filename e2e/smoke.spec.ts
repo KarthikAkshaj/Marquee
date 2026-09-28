@@ -134,3 +134,16 @@ test("password forms switch and wake up for what they need", async ({ page }) =>
   await expect(create).toBeEnabled();
   await expect(page.getByLabel("Email")).toHaveValue("you@example.com");
 });
+
+test("public profiles need no sign-in, and a missing one says nothing about who exists", async ({ page }) => {
+  for (const path of ["/u/nobody_by_this_name", "/u/not-a-username!"]) {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(404);
+    expect(page.url()).not.toContain("/login");
+    await expect(page.getByText("Nothing showing here.")).toBeVisible();
+    await expect(page.getByText("This profile is private, or there's no one by that name.")).toBeVisible();
+    const robots = await page.locator('meta[name="robots"]').evaluateAll((tags) => tags.map((tag) => tag.getAttribute("content")));
+    expect(robots.length).toBeGreaterThan(0);
+    for (const content of robots) expect(content).toMatch(/noindex/);
+  }
+});

@@ -19,7 +19,14 @@ function isProtected(pathname: string) {
  * the build's list of dynamic routes.
  */
 function rendersPerRequest(pathname: string) {
-  return isProtected(pathname) || pathname === "/login" || pathname.startsWith("/auth/callback") || pathname.startsWith("/api/");
+  return (
+    isProtected(pathname) ||
+    pathname === "/login" ||
+    pathname.startsWith("/auth/callback") ||
+    pathname.startsWith("/api/") ||
+    // Public profiles are read per visit, but never need a session (SPEC §19).
+    pathname.startsWith("/u/")
+  );
 }
 
 /**

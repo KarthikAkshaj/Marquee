@@ -8,6 +8,16 @@ export const BRAND = {
   description: "Everything you've watched, are watching, and swear you'll get to.",
   ink: "#09090B",
   bulb: "#F4B650",
+  /**
+   * For link previews (the public profile's card): `--color-surface`, `--color-text`,
+   * `--color-text-muted`, `--color-accent-bright`, `--color-cat-crimson`, `--color-avatar-deep`.
+   */
+  stage: "#111114",
+  paper: "#EDE9E3",
+  mist: "#8E8A83",
+  glow: "#FFD58F",
+  crimson: "#E5484D",
+  ember: "#7A2B12",
 } as const;
 
 /**

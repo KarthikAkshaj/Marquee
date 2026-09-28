@@ -4,17 +4,21 @@ import { MotionConfig, motion } from "motion/react";
 import Link from "next/link";
 import { categoryHref, type CategoryParams, type StatusTab } from "@/lib/items";
 import { ITEM_STATUSES, statusLabels, type CategoryKind } from "@/lib/status";
-import { cn } from "@/lib/utils";
+import { cn, isPlainClick } from "@/lib/utils";
 
 type StatusTabsProps = {
   slug: string;
   kind: CategoryKind;
   params: CategoryParams;
   counts: Record<StatusTab, number>;
+  /** Where each tab goes; your own shelf by default, a public shelf on /u (SPEC §19). */
+  hrefFor?: (status: StatusTab) => string;
+  /** Switch in the browser instead of navigating, when the titles are already here. */
+  onPick?: (status: StatusTab) => void;
 };
 
 /** All · Plan to Watch · Watching · … with counts; the underline slides between them (SPEC §9.5). */
-export function StatusTabs({ slug, kind, params, counts }: StatusTabsProps) {
+export function StatusTabs({ slug, kind, params, counts, hrefFor, onPick }: StatusTabsProps) {
   const labels = statusLabels(kind);
   const tabs: { key: StatusTab; label: string }[] = [
     { key: "all", label: "All" },
@@ -33,8 +37,16 @@ export function StatusTabs({ slug, kind, params, counts }: StatusTabsProps) {
             return (
               <li key={key}>
                 <Link
-                  href={categoryHref(slug, params, { status: key })}
+                  href={hrefFor ? hrefFor(key) : categoryHref(slug, params, { status: key })}
                   scroll={false}
+                  onClick={
+                    onPick &&
+                    ((event) => {
+                      if (!isPlainClick(event)) return;
+                      event.preventDefault();
+                      onPick(key);
+                    })
+                  }
                   aria-current={active ? "page" : undefined}
                   className="group relative flex min-h-11 items-end gap-1.75 px-0.5 pb-3.25 md:min-h-0"
                 >
