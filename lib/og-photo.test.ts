@@ -1,4 +1,5 @@
 // @vitest-environment node
+import sharp from "sharp";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { drawablePhoto, drawableType, isTrustedPhoto, photoHosts } from "./og-photo";
 
@@ -39,9 +40,17 @@ describe("drawablePhoto", () => {
     expect(await drawablePhoto(OWN, hosts)).toMatch(/^data:image\/png;base64,/);
   });
 
-  it("gives up quietly on WebP, errors and strangers' addresses", async () => {
-    const fetch = vi.fn(async () => new Response(WEBP));
-    vi.stubGlobal("fetch", fetch);
+  it("redraws an uploaded WebP photo as a small PNG Satori can read", async () => {
+    const webp = await sharp({ create: { width: 600, height: 400, channels: 3, background: "#f4b650" } }).webp().toBuffer();
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(new Uint8Array(webp))));
+    const url = await drawablePhoto(OWN, hosts);
+    expect(url).toMatch(/^data:image\/png;base64,/);
+    const png = Buffer.from(url?.split(",")[1] ?? "", "base64");
+    expect(await sharp(png).metadata()).toMatchObject({ format: "png", width: 256, height: 256 });
+  });
+
+  it("gives up quietly on unreadable files, errors and strangers' addresses", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(WEBP)));
     expect(await drawablePhoto(OWN, hosts)).toBeNull();
 
     vi.stubGlobal("fetch", vi.fn(async () => new Response("nope", { status: 404 })));
