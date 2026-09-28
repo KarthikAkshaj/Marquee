@@ -722,6 +722,19 @@
   background: repeating-radial-gradient(circle at 108% 125%, transparent 0 7px, rgb(255 255 255 / 0.024) 7px 8px);
 }
 
+/* The category dialog's light takes the colour being picked, easing from one
+   to the next (U35). Registered, so the colour itself can transition. */
+@property --pick {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+
+@utility pick-glow {
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--pick) 24%, transparent), transparent);
+  transition: --pick 450ms --theme(--ease-cinematic);
+}
+
 /* The room's light (U14): a soft wash in --tint from above, like light thrown
    off a screen. Plain gradients, no blur, so a new colour costs one repaint. */
 @utility room-light {

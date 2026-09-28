@@ -44,6 +44,7 @@ export function CategoryRow({ category, onRename, onKind, onEdit, onDelete }: Ca
   return (
     <li
       ref={setNodeRef}
+      data-arrival={category.id}
       style={{
         transform: CSS.Translate.toString(transform),
         // dnd-kit's slide, plus the lift, which springs as it's picked up and put down.
@@ -58,6 +59,7 @@ export function CategoryRow({ category, onRename, onKind, onEdit, onDelete }: Ca
     >
       <span
         aria-hidden
+        data-arrival-wash
         className={cn(
           "pointer-events-none absolute inset-0 -z-10 rounded-[inherit] bg-linear-to-r to-transparent to-65% opacity-0 transition-opacity duration-300 group-focus-within/row:opacity-100 group-hover/row:opacity-100",
           style.wash,
@@ -76,6 +78,7 @@ export function CategoryRow({ category, onRename, onKind, onEdit, onDelete }: Ca
       </button>
       <span
         aria-hidden
+        data-arrival-dot
         className={cn(
           "hidden size-2.75 shrink-0 rounded-full transition-[scale] duration-300 ease-cinematic group-focus-within/row:scale-125 group-hover/row:scale-125 md:block",
           style.dot,

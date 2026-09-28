@@ -3,6 +3,7 @@ import { PaletteTrigger } from "@/components/palette/PaletteTrigger";
 import { UserMenu } from "@/components/user/UserMenu";
 import { categoryStyle } from "@/lib/categories";
 import type { CategoryWithCount } from "@/lib/queries";
+import { ArrivalList } from "@/components/ui/ArrivalList";
 import { GlideGroup } from "@/components/ui/Glide";
 import { cn } from "@/lib/utils";
 import { BrandMark } from "./BrandMark";
@@ -50,11 +51,12 @@ export function Sidebar({ categories, user, dim }: SidebarProps) {
           <p id="lists-heading" className="label-mono px-2.5 pt-4 pb-1.5 text-text-muted">
             Lists
           </p>
-          <ul aria-labelledby="lists-heading" className="flex flex-col gap-0.75">
+          {/* A category made while you're here switches on in its place (U35). */}
+          <ArrivalList aria-labelledby="lists-heading" className="flex flex-col gap-0.75">
             {categories.map((category) => {
               const style = categoryStyle(category.color);
               return (
-                <li key={category.id}>
+                <li key={category.id} data-arrival={category.id}>
                   <NavLink
                     href={`/c/${category.slug}`}
                     pill={style.pill}
@@ -65,6 +67,7 @@ export function Sidebar({ categories, user, dim }: SidebarProps) {
                   >
                     <span
                       aria-hidden
+                      data-arrival-dot
                       className={cn(
                         "size-1.75 shrink-0 rounded-full",
                         dim ? style.dotDim : [style.dot, style.glow],
@@ -83,7 +86,7 @@ export function Sidebar({ categories, user, dim }: SidebarProps) {
                 </li>
               );
             })}
-          </ul>
+          </ArrivalList>
           <Link
             href="/settings/categories?new=1"
             className="flex items-center gap-2.5 rounded-nav px-2.5 py-2.25 text-13 text-text-muted transition-colors hover:text-text"

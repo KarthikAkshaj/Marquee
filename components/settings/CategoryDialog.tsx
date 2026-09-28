@@ -2,7 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { Dialog } from "radix-ui";
-import { useState, useTransition, type FormEvent } from "react";
+import { useState, useTransition, type CSSProperties, type FormEvent } from "react";
 import { CategoryIcon } from "@/components/category/CategoryIcon";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -66,7 +66,13 @@ function CategoryForm({ initial, onClose, onSubmit }: Omit<CategoryDialogProps, 
   }
 
   return (
-    <form onSubmit={submit} noValidate>
+    <form onSubmit={submit} noValidate className="relative isolate">
+      {/* The light takes the colour being picked (U35). */}
+      <div
+        aria-hidden
+        className="pick-glow pointer-events-none absolute -top-32 left-1/2 -z-10 h-64 w-[130%] -translate-x-1/2"
+        style={{ "--pick": `var(--color-cat-${values.color})` } as CSSProperties}
+      />
       <div className="border-b border-border px-5 pt-4.5 pb-3.5">
         <Dialog.Title className="font-display text-28 leading-[1.1]">{editing ? "Edit category" : "New category"}</Dialog.Title>
         <Dialog.Description className="mt-1.25 text-12 text-text-muted">
@@ -76,7 +82,10 @@ function CategoryForm({ initial, onClose, onSubmit }: Omit<CategoryDialogProps, 
 
       <div className="flex flex-col gap-4.5 px-5 py-4.5">
         <div className="flex items-end gap-3">
-          <span aria-hidden className="mb-0.5 flex size-11 shrink-0 items-center justify-center rounded-card border border-white/8 bg-white/5">
+          <span
+            aria-hidden
+            className={cn("mb-0.5 flex size-11 shrink-0 items-center justify-center rounded-card border border-white/8 bg-white/5 transition-shadow duration-300", style.glow)}
+          >
             <CategoryIcon name={values.icon} className={cn("size-4.5", style.text)} />
           </span>
           <div className="min-w-0 flex-1">

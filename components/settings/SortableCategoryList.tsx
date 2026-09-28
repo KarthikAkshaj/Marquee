@@ -13,6 +13,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useId } from "react";
+import { ArrivalList } from "@/components/ui/ArrivalList";
 import type { CategoryWithCount } from "@/lib/queries";
 import type { CategoryKind } from "@/lib/status";
 import { CategoryRow } from "./CategoryRow";
@@ -70,7 +71,7 @@ export function SortableCategoryList({ categories, onReorder, onRename, onKind, 
       {/* Not overflow-hidden: a row lifted off the list (U34) would be clipped at its edges. */}
       <div className="rounded-[11px] border border-border bg-surface surface-highlight">
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-          <ul aria-label="Categories">
+          <ArrivalList aria-label="Categories">
             {categories.map((category) => (
               <CategoryRow
                 key={category.id}
@@ -81,7 +82,7 @@ export function SortableCategoryList({ categories, onReorder, onRename, onKind, 
                 onDelete={() => onDelete(category)}
               />
             ))}
-          </ul>
+          </ArrivalList>
         </SortableContext>
         <button
           type="button"
