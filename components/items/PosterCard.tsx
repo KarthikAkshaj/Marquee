@@ -7,6 +7,7 @@ import { generatedCover } from "@/lib/poster-art";
 import { STATUS_STYLE, labelKind, readingLabel, statusLabel, type CategoryKind } from "@/lib/status";
 import { cn, isPlainClick } from "@/lib/utils";
 import { ItemCover } from "./ItemCover";
+import { notePosterPress } from "./usePosterFlight";
 import { QuickActions, type ItemQuickActions } from "./QuickActions";
 
 type PosterCardProps = {
@@ -68,6 +69,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
   const open = (event: MouseEvent) => {
     if (!isPlainClick(event)) return;
     event.preventDefault();
+    notePosterPress(item.id);
     actions.onOpen(item);
   };
 
@@ -89,13 +91,14 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
       </div>
 
       <div
+        data-poster={item.id}
         className={cn(
           "relative order-first aspect-2/3 overflow-hidden rounded-card border border-white/7",
           "shadow-[0_12px_32px_var(--card-glow)] transition-[translate,scale,box-shadow,border-color] duration-200 ease-cinematic",
           lit.frame,
         )}
       >
-        <Link href={href} scroll={false} onClick={open} tabIndex={-1} aria-hidden className="absolute inset-0">
+        <Link href={href} scroll={false} onClick={open} tabIndex={-1} aria-hidden data-poster-art className="absolute inset-0">
           <ItemCover
             item={item}
             categoryColor={categoryColor}

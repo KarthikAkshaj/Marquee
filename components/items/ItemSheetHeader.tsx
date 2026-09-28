@@ -69,7 +69,7 @@ export function ItemSheetHeader({ item, category, onDetails, onToggleFavorite, s
       <SheetBackdrop backdropUrl={item.backdrop_url} wash={wash} />
 
       <div className="relative flex items-end gap-4 px-5 pt-3.5 md:gap-5 md:px-7 md:pt-36">
-        <div className="relative h-39 w-26 shrink-0 overflow-hidden rounded-card shadow-poster md:h-53.25 md:w-35.5">
+        <div data-sheet-poster className="relative h-39 w-26 shrink-0 overflow-hidden rounded-card shadow-poster md:h-53.25 md:w-35.5">
           <ItemCover item={item} categoryColor={category.color} sizes="142px" />
           {stamped && <TicketStamp size="sm" onDone={onStamped} />}
         </div>

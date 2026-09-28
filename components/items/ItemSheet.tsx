@@ -11,6 +11,7 @@ import { useReturnFocus } from "@/lib/use-return-focus";
 import { ItemSheetActions } from "./ItemSheetActions";
 import { ItemSheetFields } from "./ItemSheetFields";
 import { ItemSheetHeader } from "./ItemSheetHeader";
+import { usePosterFlight } from "./usePosterFlight";
 import type { ItemActions, ShelfCategory } from "./useItemActions";
 
 type ItemSheetProps = {
@@ -36,6 +37,7 @@ export function ItemSheet({ item, category, categories, actions, onClose, onDele
   const drag = useDragControls();
   const panel = useRef<HTMLDivElement>(null);
   const offscreen = desktop ? { x: "100%", y: 0 } : { x: 0, y: "100%" };
+  usePosterFlight(item?.id ?? null, desktop ? "right" : "bottom");
 
   const moveAndDelete = (open: Item) => ({
     currentId: category.id,
@@ -79,6 +81,7 @@ export function ItemSheet({ item, category, categories, actions, onClose, onDele
               >
                 <motion.div
                   ref={panel}
+                  data-sheet-panel
                   tabIndex={-1}
                   initial={offscreen}
                   animate={{ x: 0, y: 0 }}
