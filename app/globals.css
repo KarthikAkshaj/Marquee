@@ -348,9 +348,10 @@
 
 /*
  * Scroll reveals (U22): rises into place as it scrolls into view, driven by
- * the scroll itself, so it costs no script and runs off the main thread. The
- * rise finishes within the first 200px of the element entering, whatever its
- * height. Browsers without scroll timelines, lite devices and reduced motion
+ * the scroll itself, so it costs no script and runs off the main thread. It
+ * plays across the lower part of the screen, finishing once the element is
+ * about a third of the way up, so there is time to see it: over the first
+ * 200px it was done before a mouse wheel had turned twice. Browsers without scroll timelines, lite devices and reduced motion
  * just show it. Pairs with rise() on an outer element: that one plays on
  * load, this one as you scroll, and neither fights the other.
  *
@@ -360,7 +361,7 @@
  */
 @keyframes reveal {
   from {
-    translate: 0 22px;
+    translate: 0 40px;
   }
 }
 
@@ -372,9 +373,9 @@
 
 @utility reveal-art {
   @supports (animation-timeline: view()) {
-    animation: reveal-art both cubic-bezier(0.33, 1, 0.68, 1);
+    animation: reveal-art both cubic-bezier(0.25, 0.5, 0.4, 1);
     animation-timeline: view();
-    animation-range: entry 0% entry 200px;
+    animation-range: cover 0% cover 30%;
   }
 
   &:where([data-fx="lite"] *) {
@@ -388,10 +389,10 @@
 
 @utility reveal {
   @supports (animation-timeline: view()) {
-    /* Gentler than the house curve, which would land it within 20px of scrolling. */
-    animation: reveal both cubic-bezier(0.33, 1, 0.68, 1);
+    /* Gentle and even: tied to the scroll, a sharp curve lands it before it can be seen. */
+    animation: reveal both cubic-bezier(0.25, 0.5, 0.4, 1);
     animation-timeline: view();
-    animation-range: entry 0% entry 200px;
+    animation-range: cover 0% cover 30%;
   }
 
   &:where([data-fx="lite"] *) {
