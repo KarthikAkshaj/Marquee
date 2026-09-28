@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
+import { CountValue } from "@/components/ui/CountValue";
 import { searchKindOf } from "@/lib/add";
 import { importTitles } from "@/lib/actions/import";
 import { parseImport, titleKey } from "@/lib/import/parse";
@@ -150,7 +151,9 @@ export function ImportFlow({ shelves, saved, initialShelfId }: ImportFlowProps) 
               <p aria-live="polite" className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
                 <span aria-hidden className="size-1.75 rounded-full bg-completed shadow-[0_0_10px_var(--color-completed)]" />
                 <span className="font-mono text-[12.5px] text-text">
-                  {parsed.titles.length} {parsed.titles.length === 1 ? "title" : "titles"}
+                  {/* A file's lines count up as they land (U39); typing just shows the number. */}
+                  <CountValue key={file?.name ?? "typed"} value={parsed.titles.length} counting={file !== null} />{" "}
+                  {parsed.titles.length === 1 ? "title" : "titles"}
                 </span>
                 <span className="text-[12.5px] text-text-muted">
                   headed for {shelf.name} · {statusLabel(shelf.kind, defaultStatus)}
