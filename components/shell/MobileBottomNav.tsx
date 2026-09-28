@@ -18,7 +18,7 @@ type MobileBottomNavProps = { categories: CategoryWithCount[]; user: MenuUser };
 const FOCUSED = [/^\/c\/[^/]+\/match$/, /^\/import$/];
 
 const tab =
-  "flex min-h-11 flex-1 flex-col items-center justify-center gap-1.25 rounded-nav text-[10px] text-text-muted transition-colors hover:text-text aria-[current=page]:text-accent data-[active=true]:text-accent";
+  "press flex min-h-11 flex-1 flex-col items-center justify-center gap-1.25 rounded-nav text-[10px] text-text-muted [--press-scale:0.92] hover:text-text aria-[current=page]:text-accent data-[active=true]:text-accent";
 
 function TabBody({ icon, label }: { icon: ReactNode; label: string }) {
   return (
@@ -63,7 +63,7 @@ export function MobileBottomNav({ categories, user }: MobileBottomNavProps) {
             type="button"
             onClick={add}
             aria-label={onShelf ? "Add a title to this shelf" : "Search or add a title"}
-            className="-mt-7.5 grid size-14 place-items-center rounded-full bg-accent text-accent-ink shadow-fab transition-colors hover:bg-accent-hover active:scale-95 motion-reduce:active:scale-100"
+            className="press -mt-7.5 grid size-14 place-items-center rounded-full bg-accent text-accent-ink shadow-fab [--press-scale:0.9] hover:bg-accent-hover"
           >
             <Plus aria-hidden className="size-6.5" strokeWidth={2.2} />
           </button>

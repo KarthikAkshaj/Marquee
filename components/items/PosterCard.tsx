@@ -28,7 +28,7 @@ type PosterCardProps = {
  */
 const lit = {
   frame:
-    "group-hover:-translate-y-1.5 group-hover:scale-[1.03] group-hover:border-(--card-edge) group-hover:shadow-(--card-lit) group-has-[:focus-visible]:-translate-y-1.5 group-has-[:focus-visible]:border-(--card-edge) group-has-[:focus-visible]:shadow-(--card-lit) group-has-[[data-state=open]]:-translate-y-1.5 group-has-[[data-state=open]]:border-(--card-edge) group-has-[[data-state=open]]:shadow-(--card-lit)",
+    "pointer-coarse:group-active:scale-97 pointer-coarse:group-active:border-(--card-edge) pointer-coarse:group-active:shadow-(--card-lit) group-hover:group-active:scale-100 group-hover:-translate-y-1.5 group-hover:scale-[1.03] group-hover:border-(--card-edge) group-hover:shadow-(--card-lit) group-has-[:focus-visible]:-translate-y-1.5 group-has-[:focus-visible]:border-(--card-edge) group-has-[:focus-visible]:shadow-(--card-lit) group-has-[[data-state=open]]:-translate-y-1.5 group-has-[[data-state=open]]:border-(--card-edge) group-has-[[data-state=open]]:shadow-(--card-lit)",
   bar: "group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 group-has-[[data-state=open]]:opacity-100",
   /** Only the buttons take the pointer; the gradient around them still opens the title. */
   buttons:

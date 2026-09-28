@@ -41,7 +41,7 @@ export function ContinueCard({ item, shelf, onIncrement, stamped, onStamped, eag
 
   return (
     <article
-      className="relative flex h-full gap-3 overflow-hidden rounded-[11px] border border-border bg-surface p-2.5 transition-colors hover:border-border-strong md:gap-3.5 md:rounded-card md:p-3"
+      className="press relative flex h-full gap-3 overflow-hidden rounded-[11px] border border-border bg-surface p-2.5 [--press-scale:0.985] hover:border-border-strong has-[button:active]:[--press-scale:1] md:gap-3.5 md:rounded-card md:p-3"
       style={{ "--glow": glow } as CSSProperties}
     >
       <div aria-hidden className="pointer-events-none absolute -top-5 -left-7.5 size-45 bg-[radial-gradient(closest-side,var(--glow),transparent)] blur-[28px]" />
@@ -85,7 +85,7 @@ export function ContinueCard({ item, shelf, onIncrement, stamped, onStamped, eag
               type="button"
               onClick={onIncrement}
               aria-label={`Add 1 to ${item.title}`}
-              className="pointer-events-auto flex h-11 min-w-11 shrink-0 items-center justify-center rounded-[9px] border border-accent/30 bg-accent/12 px-3.25 font-mono text-13 font-medium text-accent transition-[color,background-color,scale] duration-150 ease-cinematic hover:bg-accent hover:text-accent-ink active:scale-92 md:h-auto md:min-w-0 md:rounded-[7px] md:px-2.5 md:py-1.5 md:text-12"
+              className="pointer-events-auto flex h-11 min-w-11 shrink-0 items-center justify-center rounded-[9px] border border-accent/30 bg-accent/12 px-3.25 press font-mono text-13 font-medium text-accent [--press-scale:0.9] hover:bg-accent hover:text-accent-ink md:h-auto md:min-w-0 md:rounded-[7px] md:px-2.5 md:py-1.5 md:text-12"
             >
               +1
             </button>

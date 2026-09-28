@@ -4,7 +4,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 const button = cva(
-  "inline-flex items-center justify-center gap-2 rounded-card transition-colors duration-150 ease-cinematic disabled:cursor-not-allowed",
+  "press inline-flex items-center justify-center gap-2 rounded-card disabled:cursor-not-allowed",
   {
     variants: {
       variant: {

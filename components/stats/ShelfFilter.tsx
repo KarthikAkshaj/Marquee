@@ -4,7 +4,7 @@ import type { StatsShelf } from "@/lib/stats";
 import { cn } from "@/lib/utils";
 
 const chip = cn(
-  "flex h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 text-[12.5px] transition-colors md:h-8.5",
+  "press flex h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 text-[12.5px] md:h-8.5",
   "border-white/8 bg-elevated text-text-muted hover:text-text",
   "aria-[current=true]:border-accent/45 aria-[current=true]:bg-accent/10 aria-[current=true]:font-semibold aria-[current=true]:text-text",
 );

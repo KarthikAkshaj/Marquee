@@ -134,6 +134,8 @@
 
   /* motion (SPEC §9.6) */
   --ease-cinematic: cubic-bezier(0.22, 1, 0.36, 1);
+  /* A damped spring (overshoots about 15%, then settles): things let go of after a press. */
+  --ease-spring: linear(0, 0.073, 0.245, 0.46, 0.674, 0.857, 0.996, 1.087, 1.135, 1.148, 1.136, 1.11, 1.078, 1.047, 1.02, 1, 0.987, 0.98, 0.978, 0.98, 0.984, 0.989, 0.993, 0.997, 1, 1.002, 1.003, 1.003, 1);
 
   /* wrong code: a short no-shake of the head */
   --animate-shake: shake 360ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -297,6 +299,26 @@
   }
   .tmdb-gradient {
     background: linear-gradient(90deg, var(--color-tmdb-green), var(--color-tmdb-blue));
+  }
+}
+
+/*
+ * Press feedback (U21). Held down, a control sinks fast; let go, it springs
+ * back past its size and settles, like a physical button. The transition on
+ * the state being entered is the one that runs, so pressing and releasing
+ * each get their own curve.
+ */
+@utility press {
+  transition-property: color, background-color, border-color, box-shadow, opacity, scale;
+  transition-duration: 150ms, 150ms, 150ms, 150ms, 150ms, 460ms;
+  transition-timing-function: --theme(--ease-cinematic), --theme(--ease-cinematic), --theme(--ease-cinematic),
+    --theme(--ease-cinematic), --theme(--ease-cinematic), --theme(--ease-spring);
+
+  &:active:not(:disabled, [aria-disabled="true"]) {
+    scale: var(--press-scale, 0.97);
+    transition-duration: 150ms, 150ms, 150ms, 150ms, 150ms, 90ms;
+    transition-timing-function: --theme(--ease-cinematic), --theme(--ease-cinematic), --theme(--ease-cinematic),
+      --theme(--ease-cinematic), --theme(--ease-cinematic), ease-out;
   }
 }
 
