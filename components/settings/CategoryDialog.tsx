@@ -31,8 +31,8 @@ export function CategoryDialog({ open, initial, onClose, onSubmit }: CategoryDia
   return (
     <Dialog.Root open={open} onOpenChange={(next) => !next && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-scrim/72 backdrop-blur-[3px]" />
-        <Dialog.Content onOpenAutoFocus={returnFocus.remember} onCloseAutoFocus={returnFocus.restore} className="fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-110 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-tile border border-white/10 bg-sheet shadow-modal">
+        <Dialog.Overlay className="scrim-motion fixed inset-0 z-50 bg-scrim/72 backdrop-blur-[3px]" />
+        <Dialog.Content onOpenAutoFocus={returnFocus.remember} onCloseAutoFocus={returnFocus.restore} className="panel-motion fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-110 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-tile border border-white/10 bg-sheet shadow-modal">
           <CategoryForm initial={initial} onClose={onClose} onSubmit={onSubmit} />
         </Dialog.Content>
       </Dialog.Portal>

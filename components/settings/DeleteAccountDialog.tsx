@@ -67,8 +67,8 @@ export function DeleteAccountDialog({ open, onOpenChange, username, titleCount, 
       }}
     >
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-50 bg-scrim/72 backdrop-blur-[3px]" />
-        <AlertDialog.Content onOpenAutoFocus={returnFocus.remember} onCloseAutoFocus={returnFocus.restore} className="fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-109 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-tile border border-dropped-muted/30 bg-sheet shadow-modal">
+        <AlertDialog.Overlay className="scrim-motion fixed inset-0 z-50 bg-scrim/72 backdrop-blur-[3px]" />
+        <AlertDialog.Content onOpenAutoFocus={returnFocus.remember} onCloseAutoFocus={returnFocus.restore} className="panel-motion fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-109 -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-tile border border-dropped-muted/30 bg-sheet shadow-modal">
           <div className="px-5.5 pt-5 pb-4">
             <AlertDialog.Title className="font-display text-28 leading-[1.1]">
               Delete your <em className="text-dropped">account?</em>

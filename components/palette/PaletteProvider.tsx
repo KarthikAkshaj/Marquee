@@ -105,12 +105,12 @@ export function PaletteProvider({ categories, children }: { categories: PaletteC
 
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-50 bg-scrim/66 backdrop-blur-[4px]" />
+          <Dialog.Overlay className="scrim-motion fixed inset-0 z-50 bg-scrim/66 backdrop-blur-[4px]" />
           <Dialog.Content
             onOpenAutoFocus={returnFocus.remember}
             onCloseAutoFocus={returnFocus.restore}
             aria-describedby={undefined}
-            className="fixed top-4 left-1/2 z-50 flex max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-165 -translate-x-1/2 flex-col overflow-hidden rounded-sheet border border-white/10 bg-menu/82 shadow-dialog backdrop-blur-[26px] backdrop-saturate-130 md:top-29.5 md:max-h-[calc(100dvh-150px)]"
+            className="panel-motion fixed top-4 left-1/2 z-50 flex origin-top max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-165 -translate-x-1/2 flex-col overflow-hidden rounded-sheet border border-white/10 bg-menu/82 shadow-dialog backdrop-blur-[26px] backdrop-saturate-130 md:top-29.5 md:max-h-[calc(100dvh-150px)]"
           >
             <Dialog.Title className="sr-only">Search Marquee</Dialog.Title>
             <PaletteSearch

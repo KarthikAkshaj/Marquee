@@ -484,6 +484,74 @@
   }
 }
 
+/*
+ * Panels that arrive (U26). On a Radix dialog's scrim and panel: the scrim
+ * fades in, the panel drops a little and settles on the spring; closing, it
+ * falls away fast. Radix keeps a closing dialog mounted until its exit
+ * animation ends. The panel moves by transform, so its own centring (the
+ * translate property) is left alone. Top-anchored panels add origin-top.
+ */
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes scrim-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes panel-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes panel-drop {
+  from {
+    transform: translateY(-14px) scale(0.965);
+  }
+}
+
+@keyframes panel-leave {
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+@utility scrim-motion {
+  &[data-state="open"] {
+    animation: scrim-in 220ms ease-out;
+  }
+
+  &[data-state="closed"] {
+    animation: scrim-out 160ms ease-in forwards;
+  }
+
+  &:where([data-fx="lite"] *) {
+    animation: none;
+  }
+}
+
+@utility panel-motion {
+  &[data-state="open"] {
+    animation:
+      panel-fade 200ms --theme(--ease-cinematic) backwards,
+      panel-drop 540ms --theme(--ease-spring) backwards;
+  }
+
+  &[data-state="closed"] {
+    animation: panel-leave 140ms cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+
+  &:where([data-fx="lite"] *) {
+    animation: none;
+  }
+}
+
 /* The room's light (U14): a soft wash in --tint from above, like light thrown
    off a screen. Plain gradients, no blur, so a new colour costs one repaint. */
 @utility room-light {
