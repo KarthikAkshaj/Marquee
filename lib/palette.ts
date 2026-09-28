@@ -85,7 +85,8 @@ export type PaletteLink = {
 /** Everywhere "Go to" can take you (SPEC §8.8). */
 export function paletteLinks(categories: readonly PaletteCategory[]): PaletteLink[] {
   return [
-    { value: "go:home", label: "Home", href: "/home", keywords: ["continue", "stats"] },
+    { value: "go:home", label: "Home", href: "/home", keywords: ["continue"] },
+    { value: "go:stats", label: "Stats", href: "/stats", keywords: ["numbers", "ratings", "genres", "charts", "hours"] },
     ...categories.map((category) => ({
       value: `go:category:${category.id}`,
       label: category.name,

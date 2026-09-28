@@ -1,7 +1,7 @@
 "use client";
 
 import { Command } from "cmdk";
-import { FileUp, Home, Settings } from "lucide-react";
+import { ChartColumn, FileUp, Home, Settings, type LucideIcon } from "lucide-react";
 import { GroupHeading } from "@/components/add/GroupHeading";
 import { CategoryIcon } from "@/components/category/CategoryIcon";
 import { categoryStyle } from "@/lib/categories";
@@ -16,11 +16,14 @@ type GoToGroupProps = {
   onChoose: (value: string) => void;
 };
 
+/** Everything that isn't a shelf or a settings tab. */
+const ICONS: Record<string, LucideIcon> = { "/home": Home, "/stats": ChartColumn, "/import": FileUp };
+
 function LinkIcon({ link }: { link: PaletteLink }) {
   if (link.category) {
     return <CategoryIcon name={link.category.icon} className={cn("size-3.75", categoryStyle(link.category.color).text)} />;
   }
-  const Icon = link.href === "/home" ? Home : link.href === "/import" ? FileUp : Settings;
+  const Icon = ICONS[link.href] ?? Settings;
   return <Icon aria-hidden className="size-3.75" strokeWidth={1.8} />;
 }
 

@@ -27,20 +27,26 @@ export function Sidebar({ categories, user, dim }: SidebarProps) {
       </Link>
 
       <nav aria-label="Main" className="flex min-h-0 flex-col gap-0.75 overflow-y-auto">
-        <NavLink
-          href="/home"
-          className={cn(
-            "flex items-center gap-2.5 rounded-nav px-2.5 py-2.25 text-[13.5px] text-text-muted transition-colors hover:text-text",
-            "aria-[current=page]:font-medium aria-[current=page]:text-accent",
-            dim ? "aria-[current=page]:bg-accent/10" : "aria-[current=page]:bg-accent/12",
-          )}
-        >
-          <span
-            aria-hidden
-            className="size-1.5 rounded-full bg-text-muted group-aria-[current=page]:bg-accent"
-          />
-          Home
-        </NavLink>
+        {[
+          { href: "/home", label: "Home" },
+          { href: "/stats", label: "Stats" },
+        ].map((link) => (
+          <NavLink
+            key={link.href}
+            href={link.href}
+            className={cn(
+              "flex items-center gap-2.5 rounded-nav px-2.5 py-2.25 text-[13.5px] text-text-muted transition-colors hover:text-text",
+              "aria-[current=page]:font-medium aria-[current=page]:text-accent",
+              dim ? "aria-[current=page]:bg-accent/10" : "aria-[current=page]:bg-accent/12",
+            )}
+          >
+            <span
+              aria-hidden
+              className="size-1.5 rounded-full bg-text-muted group-aria-[current=page]:bg-accent"
+            />
+            {link.label}
+          </NavLink>
+        ))}
 
         <p id="lists-heading" className="label-mono px-2.5 pt-4 pb-1.5 text-text-muted">
           Lists

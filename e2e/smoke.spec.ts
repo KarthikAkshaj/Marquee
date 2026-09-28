@@ -27,6 +27,11 @@ test("signed-out visitors can't open import", async ({ page }) => {
   await expect(page).toHaveURL(/\/login\?next=%2Fimport/);
 });
 
+test("signed-out visitors can't open stats", async ({ page }) => {
+  await page.goto("/stats?shelf=anime");
+  await expect(page).toHaveURL(/\/login\?next=%2Fstats/);
+});
+
 test("signed-out visitors are bounced from the app to login", async ({ page }) => {
   await page.goto("/home");
   await expect(page).toHaveURL(/\/login/);
@@ -90,7 +95,9 @@ test("search engines get the public pages and are kept out of the app", async ({
   const robots = await request.get("/robots.txt");
   expect(robots.status()).toBe(200);
   const rules = await robots.text();
-  for (const path of ["/home", "/c/", "/import", "/settings", "/auth/", "/api/"]) expect(rules).toContain(`Disallow: ${path}`);
+  for (const path of ["/home", "/stats", "/wrapped", "/c/", "/import", "/settings", "/auth/", "/api/"]) {
+    expect(rules).toContain(`Disallow: ${path}`);
+  }
   expect(rules).toMatch(/Sitemap: https?:\/\/[^\s]+\/sitemap\.xml/);
 
   const sitemap = await request.get("/sitemap.xml");

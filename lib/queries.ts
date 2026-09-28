@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import type { StatsItem } from "@/lib/stats";
 import type { WrappedItem } from "@/lib/wrapped";
 
 /**
@@ -286,4 +287,24 @@ export const getWrappedItems = cache(async (year: number): Promise<WrappedItem[]
     kind: categories.kind,
     categoryName: categories.name,
   }));
+});
+
+/**
+ * Every title, with only what /stats counts. The whole library, so it pages;
+ * lib/stats does the arithmetic and the shelf filter.
+ */
+export const getStatsItems = cache(async (): Promise<StatsItem[]> => {
+  const supabase = await createClient();
+  return readAll(
+    (from, to) =>
+      supabase
+        .from("items")
+        .select(
+          "id, title, category_id, status, rating, genres, progress_current, progress_total, runtime_minutes, format, finished_at, community_score, source, cover_url",
+        )
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to),
+    "your numbers",
+  );
 });

@@ -60,10 +60,11 @@ describe("palette navigation", () => {
   const books = category({ id: "b", name: "Books", slug: "books", kind: "custom", color: "sand" });
   const games = category({ id: "g", name: "Games", slug: "games", kind: "game", color: "teal" });
 
-  it("links home, every shelf and each settings tab", () => {
+  it("links home, stats, every shelf and each settings tab", () => {
     const links = paletteLinks([anime, books]);
     expect(links.map((link) => link.href)).toEqual([
       "/home",
+      "/stats",
       "/c/anime",
       "/c/books",
       "/import",
