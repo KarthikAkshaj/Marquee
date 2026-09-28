@@ -14,7 +14,7 @@ export function StatsStrip({ tiles, className }: { tiles: StatTile[]; className?
   return (
     <section aria-label="Your numbers" className={cn("-mx-5 flex flex-col md:mx-0", className)}>
       <div className="relative">
-        <ul className="flex gap-2.25 overflow-x-auto px-5 [scrollbar-width:none] md:gap-0 md:rounded-card md:border md:border-border md:bg-surface md:px-0">
+        <ul tabIndex={0} className="flex gap-2.25 overflow-x-auto px-5 [scrollbar-width:none] md:gap-0 md:rounded-card md:border md:border-border md:bg-surface md:px-0">
           {tiles.map((tile) => (
             <li
               key={tile.key}

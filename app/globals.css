@@ -353,11 +353,36 @@
  * height. Browsers without scroll timelines, lite devices and reduced motion
  * just show it. Pairs with rise() on an outer element: that one plays on
  * load, this one as you scroll, and neither fights the other.
+ *
+ * Words only rise; they're never faded, so text is at full contrast at every
+ * moment, even half way into view. Artwork inside can fade in with
+ * reveal-art on the same timeline.
  */
 @keyframes reveal {
   from {
-    opacity: 0;
     translate: 0 22px;
+  }
+}
+
+@keyframes reveal-art {
+  from {
+    opacity: 0;
+  }
+}
+
+@utility reveal-art {
+  @supports (animation-timeline: view()) {
+    animation: reveal-art both cubic-bezier(0.33, 1, 0.68, 1);
+    animation-timeline: view();
+    animation-range: entry 0% entry 200px;
+  }
+
+  &:where([data-fx="lite"] *) {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 }
 

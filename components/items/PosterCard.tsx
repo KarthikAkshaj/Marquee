@@ -93,7 +93,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
       <div
         data-poster={item.id}
         className={cn(
-          "relative order-first aspect-2/3 overflow-hidden rounded-card border border-white/7",
+          "reveal-art relative order-first aspect-2/3 overflow-hidden rounded-card border border-white/7",
           "shadow-[0_12px_32px_var(--card-glow)] transition-[translate,scale,box-shadow,border-color] duration-200 ease-cinematic",
           lit.frame,
         )}
