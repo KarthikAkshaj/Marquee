@@ -1,6 +1,7 @@
 "use client";
 
 import { getImageProps } from "next/image";
+import { stillSizes } from "@/lib/image/still";
 import type { Item } from "@/lib/items";
 import { cn } from "@/lib/utils";
 
@@ -28,10 +29,12 @@ export function SpotlightArt({ item, wash }: SpotlightArtProps) {
   if (tall) {
     const common = { alt: "", fill: true, fetchPriority: "high", loading: "eager" } as const;
     const { props: art } = getImageProps({ ...common, src: tall, sizes: coverOnly ? "(min-width: 768px) 55vw, 100vw" : "100vw" });
-    const still = wide ? getImageProps({ ...common, src: wide, sizes: WIDE }).props : null;
+    // Up to ~600px tall: a banner drawn that tall is wider than any screen, so ask for all of it.
+    const wideSizes = wide ? stillSizes(wide, 600, WIDE) : WIDE;
+    const still = wide ? getImageProps({ ...common, src: wide, sizes: wideSizes }).props : null;
     picture = (
       <picture>
-        {still && <source media="(min-width: 768px)" srcSet={still.srcSet} sizes={WIDE} />}
+        {still && <source media="(min-width: 768px)" srcSet={still.srcSet} sizes={wideSizes} />}
         {/* Shown from the first paint, never waiting on a script: it is what the page counts as loaded.
             Only the slow push moves it, and that is a transform. */}
         <img

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { stillSizes } from "@/lib/image/still";
 import { cn } from "@/lib/utils";
 
 type SheetBackdropProps = {
@@ -27,7 +28,8 @@ export function SheetBackdrop({ backdropUrl, wash }: SheetBackdropProps) {
           src={backdropUrl}
           alt=""
           fill
-          sizes="(min-width: 768px) 560px, 100vw"
+          // The band is 240px tall; a banner drawn that tall is far wider than the sheet.
+          sizes={stillSizes(backdropUrl, 240, "(min-width: 768px) 560px, 100vw")}
           onLoad={() => setLoaded(backdropUrl)}
           className={cn(
             "object-cover object-[center_30%] opacity-0 transition-opacity duration-300",

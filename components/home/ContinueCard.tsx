@@ -6,6 +6,7 @@ import type { CSSProperties } from "react";
 import { TicketStamp } from "@/components/fun/TicketStamp";
 import { ItemCover } from "@/components/items/ItemCover";
 import { categoryStyle } from "@/lib/categories";
+import { stillSizes } from "@/lib/image/still";
 import { continueSubtitle } from "@/lib/home";
 import { progressLabel, progressPercent, progressShort, progressUnit, type Item } from "@/lib/items";
 import { titleHref, type PaletteCategory } from "@/lib/palette";
@@ -53,7 +54,7 @@ export function ContinueCard({ item, shelf, onIncrement, stamped, onStamped, eag
             src={item.backdrop_url}
             alt=""
             fill
-            sizes="(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw"
+            sizes={stillSizes(item.backdrop_url, 150, "(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw")}
             className="object-cover object-[center_30%] opacity-40 transition-[opacity,scale] duration-500 ease-cinematic group-hover:scale-104 group-hover:opacity-55 lite:transition-none"
           />
           <div className="absolute inset-0 bg-linear-to-t from-surface/85 via-surface/30 to-transparent" />
