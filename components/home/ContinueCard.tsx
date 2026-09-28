@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { TicketStamp } from "@/components/fun/TicketStamp";
@@ -41,9 +42,23 @@ export function ContinueCard({ item, shelf, onIncrement, stamped, onStamped, eag
 
   return (
     <article
-      className="press relative flex h-full gap-3 overflow-hidden rounded-[11px] border border-border bg-surface p-2.5 [--press-scale:0.985] hover:border-border-strong has-[button:active]:[--press-scale:1] md:gap-3.5 md:rounded-card md:p-3"
+      className="press group relative isolate flex h-full gap-3 overflow-hidden rounded-[11px] border border-border bg-surface p-2.5 [--press-scale:0.985] hover:border-border-strong has-[button:active]:[--press-scale:1] md:gap-3.5 md:rounded-card md:p-3"
       style={{ "--glow": glow } as CSSProperties}
     >
+      {item.backdrop_url && (
+        // The title's still behind the card, as a streaming row shows it (U11): strongest on the
+        // right, fading out under the words, and lifting a little on hover.
+        <div aria-hidden className="pointer-events-none absolute inset-0 mask-[linear-gradient(to_right,transparent_8%,black_70%)]">
+          <Image
+            src={item.backdrop_url}
+            alt=""
+            fill
+            sizes="(min-width: 1280px) 400px, (min-width: 768px) 50vw, 100vw"
+            className="object-cover object-[center_30%] opacity-40 transition-[opacity,scale] duration-500 ease-cinematic group-hover:scale-104 group-hover:opacity-55 lite:transition-none"
+          />
+          <div className="absolute inset-0 bg-linear-to-t from-surface/85 via-surface/30 to-transparent" />
+        </div>
+      )}
       <div aria-hidden className="pointer-events-none absolute -top-5 -left-7.5 size-45 bg-[radial-gradient(closest-side,var(--glow),transparent)] blur-[28px]" />
       {/* The whole card opens the title for pointers and thumbs; the title link below is the one keyboards reach. */}
       <Link href={href} tabIndex={-1} aria-hidden className="absolute inset-0 z-1" />
