@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { BulbRing } from "@/components/fun/BulbRing";
 import { AuthCard } from "./AuthCard";
 import { CodeForm } from "./CodeForm";
 
@@ -72,6 +71,7 @@ export function CheckInbox({
           <button
             type="submit"
             disabled={coolingDown || pending}
+            aria-busy={pending}
             className={cn(
               "min-h-11 w-full rounded-card border bg-surface py-2.75 transition-colors",
               coolingDown
@@ -94,8 +94,6 @@ export function CheckInbox({
       <p className="mt-4 text-[11.5px] text-text-muted md:mt-4.5">
         Nothing after a minute? It&apos;s probably sulking in spam.
       </p>
-      {/* Chasing while a new code is on its way (U18). */}
-      {pending && <BulbRing lit radius="22" count={72} />}
     </AuthCard>
   );
 }

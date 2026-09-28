@@ -3,7 +3,6 @@
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
-import { BulbRing } from "@/components/fun/BulbRing";
 import { TicketStamp } from "@/components/fun/TicketStamp";
 import { Button } from "@/components/ui/Button";
 import { verifyEmailCode, type VerifyCodeState } from "@/lib/actions/auth";
@@ -76,7 +75,6 @@ export function CodeForm({ email, next, sentAt }: CodeFormProps) {
         Or just tap the link in the email.
       </p>
 
-      {pending && <BulbRing lit radius="22" count={72} />}
       {verified && (
         <>
           <TicketStamp hold caption="ENJOY THE SHOW" onDone={() => {}} />

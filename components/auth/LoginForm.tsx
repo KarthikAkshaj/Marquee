@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { signInWithEmail, type AuthActionState } from "@/lib/actions/auth";
 import { emailSchema } from "@/lib/validators";
-import { BulbRing } from "@/components/fun/BulbRing";
 import { AuthCard } from "./AuthCard";
 import { CaptchaNotice } from "./CaptchaNotice";
 import { CheckInbox } from "./CheckInbox";
@@ -89,7 +88,7 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
       <AuthCard className="px-5.5 pt-6.5 pb-5.5 md:px-8 md:pt-8 md:pb-7">
         <BrandMark variant="card" />
         <h1 className="font-display opsz-120 mt-4.5 text-[32px] leading-[1.05] md:mt-5.5 md:text-[38px]">
-          Let&apos;s get you <em className="text-accent">in.</em>
+          Let&apos;s get you <em className="neon text-accent">in.</em>
         </h1>
         <p className="mt-2.25 text-13 leading-normal text-text-muted md:mt-2.5 md:text-[13.5px]">
           New here? This is also how you sign up.
@@ -155,8 +154,6 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
           )}
         </form>
         {captchaEnabled() && <CaptchaNotice />}
-        {/* The card's bulbs chase while the code is on its way (U18). */}
-        {pending && <BulbRing lit radius="22" count={72} />}
       </AuthCard>
       {captcha}
     </>

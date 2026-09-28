@@ -180,6 +180,14 @@
     to { stroke-dashoffset: var(--bulb-cycle); }
   }
 
+  /* The sign-in card's bulbs on standby (U24): alternate layers breathing half a beat apart. */
+  --animate-twinkle: twinkle 3.6s ease-in-out infinite;
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.12; }
+    50% { opacity: 0.62; }
+  }
+
   /* The sign under the landing wordmark, coming on one bulb at a time (U15). */
   --animate-bulb-on: bulb-on 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 
@@ -546,6 +554,38 @@
   &[data-state="closed"] {
     animation: panel-leave 140ms cubic-bezier(0.4, 0, 1, 1) forwards;
   }
+
+  &:where([data-fx="lite"] *) {
+    animation: none;
+  }
+}
+
+/*
+ * A word lit like a neon sign (U24): it glows, and as the page opens it
+ * sputters on. Only its colour and glow change, never its opacity, so it
+ * counts as painted from the first frame and the page's largest paint isn't
+ * held back.
+ */
+@keyframes neon-on {
+  0%,
+  9%,
+  17% {
+    color: rgb(244 182 80 / 0.3);
+    text-shadow: none;
+  }
+  6%,
+  13%,
+  30%,
+  100% {
+    color: var(--color-accent);
+    text-shadow: var(--neon-glow);
+  }
+}
+
+@utility neon {
+  --neon-glow: 0 0 12px rgb(244 182 80 / 0.5), 0 0 30px rgb(244 182 80 / 0.22);
+  text-shadow: var(--neon-glow);
+  animation: neon-on 1.5s linear 500ms backwards;
 
   &:where([data-fx="lite"] *) {
     animation: none;
