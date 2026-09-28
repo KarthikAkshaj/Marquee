@@ -101,7 +101,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
         data-poster={item.id}
         className={cn(
           "reveal-art relative order-first aspect-2/3 overflow-hidden rounded-card border border-white/7",
-          "shadow-[0_12px_32px_var(--card-glow)] transition-[translate,scale,box-shadow,border-color] duration-200 ease-cinematic",
+          "tilt shadow-[0_12px_32px_var(--card-glow)] transition-[translate,scale,transform,box-shadow,border-color] duration-200 ease-cinematic",
           lit.frame,
         )}
       >
@@ -116,7 +116,8 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
 
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-0 -translate-x-full bg-linear-115 from-transparent from-35% via-white/10 to-transparent to-65% group-hover:translate-x-full group-hover:transition-transform group-hover:duration-350 group-hover:ease-cinematic"
+          // Light on the poster, following the pointer as it leans (U19).
+          className="glare pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 ease-cinematic group-hover:opacity-100"
         />
         <span aria-hidden className={cn("pointer-events-none absolute top-2.25 right-2.25 size-1.75 rounded-full transition-[background-color,box-shadow] duration-200 ease-cinematic", status.fill, status.glow)} />
         {item.is_favorite && (

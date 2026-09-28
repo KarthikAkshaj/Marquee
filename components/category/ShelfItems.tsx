@@ -1,5 +1,6 @@
 import { ItemRow } from "@/components/items/ItemRow";
 import { PosterCard } from "@/components/items/PosterCard";
+import { usePosterTilt } from "@/components/items/usePosterTilt";
 import type { ItemQuickActions } from "@/components/items/QuickActions";
 import { itemHref, type CategoryParams, type Item } from "@/lib/items";
 import { rise } from "@/lib/motion";
@@ -18,10 +19,11 @@ type ShelfItemsProps = {
 /** The titles on a shelf, as posters or dense rows (SPEC §8.5). */
 export function ShelfItems({ category, params, items, actions, stamps, onStamped }: ShelfItemsProps) {
   const hrefFor = (item: Item) => itemHref(category.slug, params, item.id);
+  const tilt = usePosterTilt<HTMLUListElement>(params.view === "grid");
 
   if (params.view === "grid") {
     return (
-      <ul className="grid grid-cols-2 gap-x-4 gap-y-4.5 sm:grid-cols-3 md:grid-cols-4 md:gap-5 xl:grid-cols-6">
+      <ul ref={tilt} className="grid grid-cols-2 gap-x-4 gap-y-4.5 sm:grid-cols-3 md:grid-cols-4 md:gap-5 xl:grid-cols-6">
         {items.map((item, index) => (
           <li key={item.id} {...rise(index)}>
             {/* rise() plays on load; this rises in whatever comes into view as you scroll. */}

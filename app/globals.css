@@ -492,6 +492,24 @@
     radial-gradient(40% 40% at 88% 8%, color-mix(in oklab, var(--tint) 12%, transparent), transparent 70%);
 }
 
+/* Posters that lean toward the mouse (U19): usePosterTilt sets the angles, and
+   the poster's own transition smooths them. Level when nothing sets them. */
+@utility tilt {
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+}
+
+/* The light on a leaning poster, following the pointer across it. It adds
+   light rather than covering the art. */
+@utility glare {
+  background: radial-gradient(
+    circle at var(--glare-x, 30%) var(--glare-y, 18%),
+    rgb(255 255 255 / 0.14),
+    rgb(255 255 255 / 0.04) 32%,
+    transparent 62%
+  );
+  mix-blend-mode: plus-lighter;
+}
+
 /* Motion is a courtesy, not a requirement (SPEC §9.6): no drift, no sheen. */
 @media (prefers-reduced-motion: reduce) {
   *,
