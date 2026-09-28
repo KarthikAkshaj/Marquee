@@ -10,6 +10,7 @@ import { parseImport, titleKey } from "@/lib/import/parse";
 import { defaultList } from "@/lib/import/read-file";
 import { importBatches, reviewRows, reviewSummary, savedIndex, type ReviewRow, type SavedTitle } from "@/lib/import/review";
 import { statusLabel, type ItemStatus } from "@/lib/status";
+import { cn } from "@/lib/utils";
 import { ImportBar } from "./ImportBar";
 import { ImportDone } from "./ImportDone";
 import { ImportHeader } from "./ImportHeader";
@@ -38,6 +39,8 @@ export function ImportFlow({ shelves, saved, initialShelfId }: ImportFlowProps) 
   const [text, setText] = useState("");
   const [file, setFile] = useState<LoadedFile | null>(null);
   const [step, setStep] = useState<"source" | "review" | "done">("source");
+  // Once the import leaves the step it opened on, each step rises in as it arrives (U38).
+  const [moved, setMoved] = useState(false);
   const [rows, setRows] = useState<ReviewRow[]>([]);
   const [skipDuplicates, setSkipDuplicates] = useState(true);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
@@ -60,9 +63,14 @@ export function ImportFlow({ shelves, saved, initialShelfId }: ImportFlowProps) 
     );
   }
 
+  function goTo(next: "source" | "review" | "done") {
+    setStep(next);
+    setMoved(true);
+  }
+
   function toReview() {
     setRows(reviewRows(parsed.titles, defaultStatus, index, skipDuplicates));
-    setStep("review");
+    goTo("review");
     window.scrollTo({ top: 0 });
   }
 
@@ -92,7 +100,7 @@ export function ImportFlow({ shelves, saved, initialShelfId }: ImportFlowProps) 
     }
     setProgress(null);
     setDone({ added, skippedDuplicates: summary.skippedDuplicates, leftOut: summary.leftOut });
-    setStep("done");
+    goTo("done");
     window.scrollTo({ top: 0 });
   }
 
@@ -101,85 +109,87 @@ export function ImportFlow({ shelves, saved, initialShelfId }: ImportFlowProps) 
     setFile(null);
     setRows([]);
     setDone(null);
-    setStep("source");
+    goTo("source");
   }
 
   return (
     <div className="flex flex-col gap-5.5">
-      <ImportHeader step={step} />
+      <ImportHeader step={step} moved={moved} />
 
-      {step === "source" && (
-        <>
-          <ImportTargetCard
-            shelves={shelves}
-            shelfId={shelfId}
-            onShelf={setShelfId}
-            kind={shelf.kind}
-            status={defaultStatus}
-            onStatus={setDefaultStatus}
-          />
-          <ImportSourceCard
-            text={text}
-            file={file}
-            onText={setText}
-            onFile={(name, lists) => {
-              const index = defaultList(lists, shelf);
-              setFile({ name, lists, index });
-              setText(lists[index].text);
-            }}
-            onPickList={(index) => {
-              if (!file) return;
-              setFile({ ...file, index });
-              setText(file.lists[index].text);
-            }}
-            onClearFile={() => {
-              setText("");
-              setFile(null);
-            }}
-          />
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <p aria-live="polite" className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-              <span aria-hidden className="size-1.75 rounded-full bg-completed shadow-[0_0_10px_var(--color-completed)]" />
-              <span className="font-mono text-[12.5px] text-text">
-                {parsed.titles.length} {parsed.titles.length === 1 ? "title" : "titles"}
-              </span>
-              <span className="text-[12.5px] text-text-muted">
-                headed for {shelf.name} · {statusLabel(shelf.kind, defaultStatus)}
-                {parsed.repeats > 0 && ` · ${parsed.repeats} repeated ${parsed.repeats === 1 ? "line" : "lines"} dropped`}
-              </span>
-            </p>
-            <Button variant="secondary" onClick={toReview} disabled={parsed.titles.length === 0} className="h-11 gap-2.25 px-5 text-[13.5px] font-medium">
-              Review {parsed.titles.length} {parsed.titles.length === 1 ? "title" : "titles"} <span aria-hidden className="font-mono text-12">→</span>
-            </Button>
-          </div>
-        </>
-      )}
+      <div key={step} className={cn("flex flex-col gap-5.5", moved && "animate-rise [animation-delay:70ms]")}>
+        {step === "source" && (
+          <>
+            <ImportTargetCard
+              shelves={shelves}
+              shelfId={shelfId}
+              onShelf={setShelfId}
+              kind={shelf.kind}
+              status={defaultStatus}
+              onStatus={setDefaultStatus}
+            />
+            <ImportSourceCard
+              text={text}
+              file={file}
+              onText={setText}
+              onFile={(name, lists) => {
+                const index = defaultList(lists, shelf);
+                setFile({ name, lists, index });
+                setText(lists[index].text);
+              }}
+              onPickList={(index) => {
+                if (!file) return;
+                setFile({ ...file, index });
+                setText(file.lists[index].text);
+              }}
+              onClearFile={() => {
+                setText("");
+                setFile(null);
+              }}
+            />
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <p aria-live="polite" className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                <span aria-hidden className="size-1.75 rounded-full bg-completed shadow-[0_0_10px_var(--color-completed)]" />
+                <span className="font-mono text-[12.5px] text-text">
+                  {parsed.titles.length} {parsed.titles.length === 1 ? "title" : "titles"}
+                </span>
+                <span className="text-[12.5px] text-text-muted">
+                  headed for {shelf.name} · {statusLabel(shelf.kind, defaultStatus)}
+                  {parsed.repeats > 0 && ` · ${parsed.repeats} repeated ${parsed.repeats === 1 ? "line" : "lines"} dropped`}
+                </span>
+              </p>
+              <Button variant="secondary" onClick={toReview} disabled={parsed.titles.length === 0} className="h-11 gap-2.25 px-5 text-[13.5px] font-medium">
+                Review {parsed.titles.length} {parsed.titles.length === 1 ? "title" : "titles"} <span aria-hidden className="font-mono text-12">→</span>
+              </Button>
+            </div>
+          </>
+        )}
 
-      {step === "review" && (
-        <>
-          <ImportReview
-            shelf={shelf}
-            shelves={shelves}
-            sourceName={sourceName(file)}
-            rows={rows}
-            index={index}
-            defaultStatus={defaultStatus}
-            onRows={setRows}
-            onChangeSource={() => setStep("source")}
-          />
-          <ImportBar
-            ready={summary.ready.length}
-            duplicates={summary.duplicateCount}
-            skipDuplicates={skipDuplicates}
-            onSkipDuplicates={onSkipDuplicates}
-            onBack={() => setStep("source")}
-            onImport={() => void runImport(shelf)}
-            progress={progress}
-          />
-        </>
-      )}
+        {step === "review" && (
+          <>
+            <ImportReview
+              shelf={shelf}
+              shelves={shelves}
+              sourceName={sourceName(file)}
+              rows={rows}
+              index={index}
+              defaultStatus={defaultStatus}
+              onRows={setRows}
+              onChangeSource={() => goTo("source")}
+            />
+            <ImportBar
+              ready={summary.ready.length}
+              duplicates={summary.duplicateCount}
+              skipDuplicates={skipDuplicates}
+              onSkipDuplicates={onSkipDuplicates}
+              onBack={() => goTo("source")}
+              onImport={() => void runImport(shelf)}
+              progress={progress}
+            />
+          </>
+        )}
 
-      {step === "done" && done && <ImportDone {...done} shelf={shelf} canMatch={searchKindOf(shelf.kind) !== null} onAgain={startOver} />}
+        {step === "done" && done && <ImportDone {...done} shelf={shelf} canMatch={searchKindOf(shelf.kind) !== null} onAgain={startOver} />}
+      </div>
     </div>
   );
 }

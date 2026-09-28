@@ -22,16 +22,20 @@ const COPY = {
       </>
     ),
     line: "Everything you ticked is on the shelf now.",
-    step: 2,
+    step: 3,
   },
 } as const;
 
-/** The import page's heading and step dots (handoff §05). */
-export function ImportHeader({ step }: { step: keyof typeof COPY }) {
+/**
+ * The import page's heading and step dots (handoff §05). Once the import has
+ * moved on from where it opened (`moved`), each new heading rises in (U38);
+ * the first one is simply there, as the page's largest paint.
+ */
+export function ImportHeader({ step, moved = false }: { step: keyof typeof COPY; moved?: boolean }) {
   const copy = COPY[step];
   return (
     <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-6">
-      <div>
+      <div key={moved ? step : "first"} className={moved ? "animate-rise" : undefined}>
         {step === "source" && <p className="mb-2.25 font-mono text-[10px] tracking-[.14em] text-text-muted md:text-[11px]">IMPORT</p>}
         <h1 className="font-display text-[34px] leading-[1.05] md:text-[46px] md:leading-none">{copy.title}</h1>
         <p className="mt-2.5 text-[13.5px] text-text-muted md:text-14">{copy.line}</p>
