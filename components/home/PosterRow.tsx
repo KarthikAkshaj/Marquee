@@ -34,7 +34,7 @@ export function PosterRow({ id, title, note, empty, items, shelves, eager = 0, c
   });
 
   return (
-    <section aria-labelledby={id} className={className}>
+    <section aria-labelledby={id} className={cn("reveal", className)}>
       <SectionHeader id={id} title={title} aside={posters.length > 0 && <span className="text-12 text-text-muted md:text-[12.5px]">{note}</span>} />
       {posters.length === 0 ? (
         <p className="text-13 text-text-muted">{empty}</p>

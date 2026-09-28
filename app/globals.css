@@ -322,6 +322,38 @@
   }
 }
 
+/*
+ * Scroll reveals (U22): rises into place as it scrolls into view, driven by
+ * the scroll itself, so it costs no script and runs off the main thread. The
+ * rise finishes within the first 200px of the element entering, whatever its
+ * height. Browsers without scroll timelines, lite devices and reduced motion
+ * just show it. Pairs with rise() on an outer element: that one plays on
+ * load, this one as you scroll, and neither fights the other.
+ */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+  }
+}
+
+@utility reveal {
+  @supports (animation-timeline: view()) {
+    /* Gentler than the house curve, which would land it within 20px of scrolling. */
+    animation: reveal both cubic-bezier(0.33, 1, 0.68, 1);
+    animation-timeline: view();
+    animation-range: entry 0% entry 200px;
+  }
+
+  &:where([data-fx="lite"] *) {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 /* Motion is a courtesy, not a requirement (SPEC §9.6): no drift, no sheen. */
 @media (prefers-reduced-motion: reduce) {
   *,

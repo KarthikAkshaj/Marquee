@@ -22,7 +22,7 @@ export function StatsCard({ id, label, insight, detail, children, footnote, tabl
   return (
     <section
       aria-labelledby={id}
-      className={cn("flex flex-col rounded-tile border border-border bg-surface px-4 py-4.5 surface-highlight md:px-6 md:py-5.5", className)}
+      className={cn("reveal flex flex-col rounded-tile border border-border bg-surface px-4 py-4.5 surface-highlight md:px-6 md:py-5.5", className)}
     >
       <h2 id={id} className="label-mono text-text-muted">
         {label}

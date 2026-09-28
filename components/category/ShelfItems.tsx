@@ -24,17 +24,20 @@ export function ShelfItems({ category, params, items, actions, stamps, onStamped
       <ul className="grid grid-cols-2 gap-x-4 gap-y-4.5 sm:grid-cols-3 md:grid-cols-4 md:gap-5 xl:grid-cols-6">
         {items.map((item, index) => (
           <li key={item.id} {...rise(index)}>
-            <PosterCard
-              item={item}
-              href={hrefFor(item)}
-              kind={category.kind}
-              categoryColor={category.color}
-              actions={actions}
-              stamped={stamps.has(item.id)}
-              onStamped={() => onStamped(item.id)}
-              // Six is the first row at every width: two, three, four or six across.
-              eager={index < 6}
-            />
+            {/* rise() plays on load; this rises in whatever comes into view as you scroll. */}
+            <div className="reveal">
+              <PosterCard
+                item={item}
+                href={hrefFor(item)}
+                kind={category.kind}
+                categoryColor={category.color}
+                actions={actions}
+                stamped={stamps.has(item.id)}
+                onStamped={() => onStamped(item.id)}
+                // Six is the first row at every width: two, three, four or six across.
+                eager={index < 6}
+              />
+            </div>
           </li>
         ))}
       </ul>
@@ -58,13 +61,15 @@ export function ShelfItems({ category, params, items, actions, stamps, onStamped
       <ul className="divide-y divide-border">
         {items.map((item, index) => (
           <li key={item.id} {...rise(index)}>
-            <ItemRow
-              item={item}
-              href={hrefFor(item)}
-              kind={category.kind}
-              categoryColor={category.color}
-              onOpen={() => actions.onOpen(item)}
-            />
+            <div className="reveal">
+              <ItemRow
+                item={item}
+                href={hrefFor(item)}
+                kind={category.kind}
+                categoryColor={category.color}
+                onOpen={() => actions.onOpen(item)}
+              />
+            </div>
           </li>
         ))}
       </ul>
