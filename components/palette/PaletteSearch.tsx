@@ -10,6 +10,7 @@ import { GroupHeading } from "@/components/add/GroupHeading";
 import { ManualAddRow } from "@/components/add/ManualAddRow";
 import { useAddTitle, useAddTitles } from "@/components/add/useAddTitle";
 import { RowGlide, rowGlideList } from "@/components/ui/RowGlide";
+import { useDealIn } from "@/components/ui/useDealIn";
 import { findDuplicate } from "@/lib/add";
 import { defaultAddTarget, titleHref, type PaletteCategory, type PaletteTitle } from "@/lib/palette";
 import { isRelatedKind, type SearchResult, type SearchType } from "@/lib/search/types";
@@ -57,6 +58,8 @@ export function PaletteSearch({ categories, titles, onClose, onManual }: Palette
   const comics = target?.kind === "anime" && type === "manga";
   const words: LabelKind | null = target ? (comics ? "reading" : target.kind) : null;
   const active = rows.values.includes(selected) ? selected : (rows.values[0] ?? "");
+  const listRef = useRef<HTMLDivElement>(null);
+  useDealIn(listRef, rows.values.join("|"));
 
   function go(href: string) {
     onClose();
@@ -153,7 +156,7 @@ export function PaletteSearch({ categories, titles, onClose, onManual }: Palette
         }
       />
 
-      <Command.List aria-busy={rows.search.loading} className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain p-2", rowGlideList)}>
+      <Command.List ref={listRef} aria-busy={rows.search.loading} className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain p-2", rowGlideList)}>
         {rows.titleRows.length > 0 && (
           <Command.Group heading={<GroupHeading>{rows.typed ? "Your titles" : "Recently updated"}</GroupHeading>}>
             {rows.titleRows.map((row) => (

@@ -1,8 +1,9 @@
 "use client";
 
 import { Command } from "cmdk";
-import { useState, type KeyboardEvent } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import { RowGlide, rowGlideList } from "@/components/ui/RowGlide";
+import { useDealIn } from "@/components/ui/useDealIn";
 import { SOURCE_FOR_KIND, SOURCE_NAMES, findDuplicate, searchNotice } from "@/lib/add";
 import type { SearchType } from "@/lib/search/types";
 import { ITEM_STATUSES } from "@/lib/status";
@@ -47,6 +48,8 @@ export function AddSearch({ category, items, defaultStatus, initialQuery = "", o
   const values = [...rows.map((row) => row.value), ...(typed ? [MANUAL] : [])];
   // Keep the highlight where it was while results refresh; otherwise start at the top.
   const active = values.includes(selected) ? selected : (values[0] ?? "");
+  const listRef = useRef<HTMLDivElement>(null);
+  useDealIn(listRef, values.join("|"));
   const notice = searchNotice({
     source,
     query,
@@ -122,7 +125,7 @@ export function AddSearch({ category, items, defaultStatus, initialQuery = "", o
       <p aria-live="polite" className="sr-only">
         {search.idle ? "" : search.loading ? "Searching" : `${rows.length} results`}
       </p>
-      <Command.List aria-busy={search.loading} className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain p-2", rowGlideList)}>
+      <Command.List ref={listRef} aria-busy={search.loading} className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain p-2", rowGlideList)}>
         {notice && <div className="px-3 py-3 text-13 text-text-muted">{notice}</div>}
         {search.loading && rows.length === 0 && <ResultSkeleton />}
 
