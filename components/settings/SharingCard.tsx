@@ -1,10 +1,11 @@
 "use client";
 
-import { Check, Copy, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { CategoryIcon } from "@/components/category/CategoryIcon";
+import { ShareLink } from "@/components/public/ShareLink";
 import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
 import { setProfilePublic, setShelfPublic } from "@/lib/actions/profile";
@@ -25,7 +26,6 @@ type SharingCardProps = Sharing & {
 export function SharingCard({ username, isPublic, shelves, link }: SharingCardProps) {
   const [on, setOn] = useState(isPublic);
   const [shared, setShared] = useState(() => new Set(shelves.filter((shelf) => shelf.is_public).map((shelf) => shelf.id)));
-  const [copied, setCopied] = useState(false);
   const [, startSaving] = useTransition();
 
   function flipProfile(next: boolean) {
@@ -55,17 +55,6 @@ export function SharingCard({ username, isPublic, shelves, link }: SharingCardPr
     });
   }
 
-  async function copy() {
-    if (!link) return;
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch {
-      toast.error("Couldn't copy. The link is right there to select.");
-    }
-  }
-
   return (
     <section id="sharing" aria-labelledby="sharing-title" className="scroll-mt-24 rounded-[11px] border border-border bg-surface p-4.5 surface-highlight md:p-5">
       <h2 id="sharing-title" className="label-mono tracking-[.12em] text-text-muted">
@@ -90,14 +79,7 @@ export function SharingCard({ username, isPublic, shelves, link }: SharingCardPr
         <div className="mt-4 flex animate-rise flex-col gap-2.5 rounded-card border border-accent/20 bg-accent/6 p-3 lite:animate-none md:flex-row md:items-center">
           <p className="min-w-0 flex-1 truncate font-mono text-12 text-text select-all">{link}</p>
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={copy} className="h-11 flex-1 px-3.5 text-13 md:h-9 md:flex-none">
-              {copied ? (
-                <Check aria-hidden className="size-4 animate-pop-spring text-completed lite:animate-none" strokeWidth={2.2} />
-              ) : (
-                <Copy aria-hidden className="size-4" strokeWidth={1.8} />
-              )}
-              {copied ? "Copied" : "Copy link"}
-            </Button>
+            <ShareLink url={link} title={`@${username} on Marquee`} className="flex-1 md:flex-none" />
             <Button asChild variant="ghost" className="h-11 px-3.5 text-13 md:h-9">
               <Link href={`/u/${username}`}>
                 View
