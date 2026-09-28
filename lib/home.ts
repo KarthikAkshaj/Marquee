@@ -1,5 +1,5 @@
-import { progressUnit, totalCount, type Item } from "@/lib/items";
-import { labelKind, statusLabel, type CategoryKind } from "@/lib/status";
+import { progressUnit, totalCount, type Item, type ProgressUnit } from "@/lib/items";
+import { labelKind, statusLabel, type CategoryKind, type LabelKind } from "@/lib/status";
 
 /** "Evening", by the viewer's own clock (SPEC §8.4). */
 export function greetingFor(hour: number): string {
@@ -56,4 +56,27 @@ export function continueSubtitle(item: Pick<Item, "year" | "progress_total" | "g
   const unit = progressUnit(labelKind(kind, item.format));
   const detail = item.progress_total && unit ? totalCount(item.progress_total, unit) : item.genres[0];
   return [item.year, detail].filter(Boolean).join(" · ");
+}
+
+const STEP_WORDS: Record<ProgressUnit, string> = { Episodes: "Episode", Chapters: "Chapter", Total: "" };
+
+/**
+ * What the spotlight's +1 marks (U10): "Episode 13", "Chapter 46", or "Last
+ * episode" when it finishes the title. Null for what counts no progress
+ * (films, games), which get no +1 at all.
+ */
+export function nextStep(item: Pick<Item, "progress_current" | "progress_total">, kind: LabelKind): string | null {
+  const unit = progressUnit(kind);
+  if (!unit) return null;
+  const next = item.progress_current + 1;
+  const word = STEP_WORDS[unit];
+  if (!word) return String(next);
+  return item.progress_total === next ? `Last ${word.toLowerCase()}` : `${word} ${next}`;
+}
+
+/** "13 to go", when there's a total to count down to. */
+export function stepsLeft(item: Pick<Item, "progress_current" | "progress_total">): string | null {
+  if (!item.progress_total) return null;
+  const left = item.progress_total - item.progress_current;
+  return left > 0 ? `${left} to go` : null;
 }

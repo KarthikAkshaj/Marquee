@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { continueSubtitle, dateLine, greetingFor, midFlightLine, statTiles } from "./home";
+import { continueSubtitle, dateLine, greetingFor, midFlightLine, nextStep, statTiles, stepsLeft } from "./home";
 
 describe("home copy", () => {
   it("greets by the hour", () => {
@@ -53,5 +53,25 @@ describe("continueSubtitle", () => {
 
   it("counts a comic on an anime shelf in chapters", () => {
     expect(continueSubtitle({ year: 2021, progress_total: 222, genres: ["Fantasy"], format: "manhwa" }, "anime")).toBe("2021 · 222 ch");
+  });
+});
+
+describe("spotlight steps", () => {
+  it("names the next episode or chapter, and the last one", () => {
+    expect(nextStep({ progress_current: 12, progress_total: 25 }, "anime")).toBe("Episode 13");
+    expect(nextStep({ progress_current: 24, progress_total: 25 }, "series")).toBe("Last episode");
+    expect(nextStep({ progress_current: 45, progress_total: null }, "reading")).toBe("Chapter 46");
+    expect(nextStep({ progress_current: 3, progress_total: null }, "custom")).toBe("4");
+  });
+
+  it("gives films and games no step", () => {
+    expect(nextStep({ progress_current: 0, progress_total: null }, "movie")).toBeNull();
+    expect(nextStep({ progress_current: 0, progress_total: null }, "game")).toBeNull();
+  });
+
+  it("counts down only when there's a total", () => {
+    expect(stepsLeft({ progress_current: 12, progress_total: 25 })).toBe("13 to go");
+    expect(stepsLeft({ progress_current: 12, progress_total: null })).toBeNull();
+    expect(stepsLeft({ progress_current: 25, progress_total: 25 })).toBeNull();
   });
 });

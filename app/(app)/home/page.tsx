@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SurpriseButton } from "@/components/fun/SurpriseButton";
-import { ContinueRow } from "@/components/home/ContinueRow";
 import { HomeGreeting } from "@/components/home/HomeGreeting";
+import { HomeLead } from "@/components/home/HomeLead";
 import { MarqueeSign } from "@/components/home/MarqueeSign";
 import { PosterRow } from "@/components/home/PosterRow";
 import { StartAdding } from "@/components/home/StartAdding";
@@ -68,21 +68,25 @@ export default async function HomePage() {
     home.finishedThisYear,
   );
   const name = viewer.profile?.display_name ?? viewer.profile?.username ?? "you";
+  // With a title in the spotlight, the poster rows are below the first screen and can wait.
+  const spotlit = home.continuing.length > 0;
 
   return (
     <>
       <AmbientBackground variant="app" />
-      <HomeGreeting name={name} line={midFlightLine(inProgress)} action={<SurpriseButton />} />
-      {/* A shelf this thin has no year worth reviewing, and /wrapped would only
-          say so. Its own threshold counts this year's arrivals, which Home
-          doesn't have to hand, so a whole library standing still all year can
-          still land on that screen. */}
-      {wrappedInSeason() && totalItems >= ENOUGH_TITLES && (
-        <WrappedCard year={wrappedYear()} className="mt-5 md:mt-7" />
-      )}
-      <div className="mt-5.5 md:mt-8.5">
-        <ContinueRow items={home.continuing} shelves={shelves} />
-      </div>
+      <HomeLead
+        items={home.continuing}
+        shelves={shelves}
+        greeting={<HomeGreeting name={name} line={midFlightLine(inProgress)} action={<SurpriseButton />} />}
+      >
+        {/* A shelf this thin has no year worth reviewing, and /wrapped would only
+            say so. Its own threshold counts this year's arrivals, which Home
+            doesn't have to hand, so a whole library standing still all year can
+            still land on that screen. */}
+        {wrappedInSeason() && totalItems >= ENOUGH_TITLES && (
+          <WrappedCard year={wrappedYear()} className="mt-5 md:mt-7" />
+        )}
+      </HomeLead>
       <StatsStrip tiles={tiles} className="mt-4 md:mt-6.5" />
       <PosterRow
         id="finished-heading"
@@ -91,7 +95,7 @@ export default async function HomePage() {
         empty="Nothing finished yet. No rush."
         items={home.finished}
         shelves={shelves}
-        eager={FIRST_SCREEN_POSTERS}
+        eager={spotlit ? 0 : FIRST_SCREEN_POSTERS}
         className="mt-4.5 md:mt-7"
       />
       <PosterRow
@@ -101,7 +105,7 @@ export default async function HomePage() {
         empty="Star a title from its card or sheet and it lands here."
         items={home.favourites}
         shelves={shelves}
-        eager={FIRST_SCREEN_POSTERS}
+        eager={spotlit ? 0 : FIRST_SCREEN_POSTERS}
         className="mt-4.5 md:mt-7"
       />
     </>
