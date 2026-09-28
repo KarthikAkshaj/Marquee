@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 export function StartAdding() {
   const { open } = usePalette();
   return (
-    <Button onClick={open} className="h-11 gap-1.5 px-4.5 shadow-cta-sm">
+    <Button onClick={(event) => open(event.currentTarget)} className="h-11 gap-1.5 px-4.5 shadow-cta-sm">
       <Plus aria-hidden className="size-4" strokeWidth={2.4} />
       Add your first title
     </Button>

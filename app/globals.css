@@ -603,9 +603,35 @@
     animation: panel-leave 140ms cubic-bezier(0.4, 0, 1, 1) forwards;
   }
 
+  /* Grown from the control that opened it (U27): hidden while the box grows,
+     then faded in as it lands, instead of its own drop. */
+  &[data-morph="flying"][data-state="open"] {
+    animation: none;
+    opacity: 0;
+  }
+
+  &[data-morph="landed"][data-state="open"] {
+    animation: panel-fade 180ms ease-out;
+  }
+
   &:where([data-fx="lite"] *) {
     animation: none;
   }
+}
+
+/* The glass box that grows from the search field into the palette (U27). */
+@utility palette-ghost {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  /* Lit from its top edge, like the search bar's light spilling into the panel it opens. */
+  background:
+    radial-gradient(70% 45% at 50% 0%, rgb(244 182 80 / 0.1), transparent 70%),
+    linear-gradient(rgb(26 26 31 / 0.97), rgb(20 20 24 / 0.97));
+  box-shadow:
+    --theme(--shadow-dialog),
+    inset 0 1px 0 rgb(244 182 80 / 0.22);
 }
 
 /*

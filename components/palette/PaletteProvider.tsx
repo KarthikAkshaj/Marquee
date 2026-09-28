@@ -8,15 +8,16 @@ import type { PaletteCategory } from "@/lib/palette";
 import type { ItemStatus } from "@/lib/status";
 import { useReturnFocus } from "@/lib/use-return-focus";
 import { PaletteSearch } from "./PaletteSearch";
+import { usePaletteMorph } from "./usePaletteMorph";
 import { usePaletteTitles } from "./usePaletteTitles";
 
 type AppDialogs = {
-  /** The ⌘K palette. */
-  open: () => void;
+  /** The ⌘K palette, grown from the control that opened it when there is one (U27). */
+  open: (source?: HTMLElement) => void;
   /** Surprise me (SPEC §10). */
   openSurprise: () => void;
   /** The phone's + button: the shelf's own add panel when one is on screen, the palette anywhere else. */
-  add: () => void;
+  add: (source?: HTMLElement) => void;
   setAddHandler: (handler: (() => void) | null) => void;
 };
 
@@ -60,13 +61,20 @@ export function PaletteProvider({ categories, children }: { categories: PaletteC
   const [manual, setManual] = useState<ManualAdd | null>(null);
   const { titles, refresh } = usePaletteTitles();
   const addHandler = useRef<(() => void) | null>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const morph = usePaletteMorph(panel);
+  const { start: startMorph, reset: resetMorph } = morph;
 
-  const show = useCallback(() => {
-    setOpen(true);
-    void refresh();
-  }, [refresh]);
+  const show = useCallback(
+    (source?: HTMLElement) => {
+      startMorph(source);
+      setOpen(true);
+      void refresh();
+    },
+    [refresh, startMorph],
+  );
 
-  const add = useCallback(() => (addHandler.current ? addHandler.current() : show()), [show]);
+  const add = useCallback((source?: HTMLElement) => (addHandler.current ? addHandler.current() : show(source)), [show]);
   const setAddHandler = useCallback((handler: (() => void) | null) => {
     addHandler.current = handler;
   }, []);
@@ -103,10 +111,18 @@ export function PaletteProvider({ categories, children }: { categories: PaletteC
     <PaletteContext.Provider value={{ open: show, openSurprise: () => void showSurprise(), add, setAddHandler }}>
       {children}
 
-      <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Root
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (!next) resetMorph();
+        }}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="scrim-motion fixed inset-0 z-50 bg-scrim/66 backdrop-blur-[4px]" />
           <Dialog.Content
+            ref={panel}
+            data-morph={morph.phase}
             onOpenAutoFocus={returnFocus.remember}
             onCloseAutoFocus={returnFocus.restore}
             aria-describedby={undefined}

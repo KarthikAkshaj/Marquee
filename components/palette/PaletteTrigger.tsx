@@ -17,7 +17,7 @@ export function PaletteTrigger({ variant, dim = false }: { variant: "sidebar" | 
     return (
       <button
         type="button"
-        onClick={open}
+        onClick={(event) => open(event.currentTarget)}
         aria-label="Search or add"
         className="flex size-11 items-center justify-center rounded-card border border-border bg-surface text-text-muted transition-colors hover:text-text"
       >
@@ -29,7 +29,7 @@ export function PaletteTrigger({ variant, dim = false }: { variant: "sidebar" | 
   return (
     <button
       type="button"
-      onClick={open}
+      onClick={(event) => open(event.currentTarget)}
       aria-keyshortcuts="Control+K Meta+K"
       className="mb-1.5 flex items-center gap-2 rounded-nav border border-border bg-surface px-2.5 py-2.5 text-left transition-colors hover:border-border-strong"
     >

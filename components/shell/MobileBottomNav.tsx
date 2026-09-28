@@ -62,7 +62,7 @@ export function MobileBottomNav({ categories, user }: MobileBottomNavProps) {
         <div className="flex flex-1 justify-center">
           <button
             type="button"
-            onClick={add}
+            onClick={(event) => add(event.currentTarget)}
             aria-label={onShelf ? "Add a title to this shelf" : "Search or add a title"}
             className="press group relative -mt-7.5 grid size-14 place-items-center rounded-full bg-accent text-accent-ink shadow-fab [--press-scale:0.9] hover:bg-accent-hover"
           >
