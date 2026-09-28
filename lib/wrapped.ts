@@ -10,6 +10,7 @@
  * undated ones to a line of their own.
  */
 import type { Item } from "@/lib/items";
+import { screenTime } from "@/lib/screen-time";
 import { isReading, type CategoryKind } from "@/lib/status";
 
 /** An item plus the shelf it sits on, which is where its kind comes from. */
@@ -48,26 +49,6 @@ export const ENOUGH_TITLES = 5;
 
 /** How many genres get their own slice before the rest become "other". */
 const GENRE_SLICES = 5;
-
-/**
- * The fallback when a row has no stored runtime: everything added before
- * runtimes were kept, and everything added by hand. A TV anime episode runs
- * about 24 minutes, an hour-long series episode about 45, a live action
- * feature about 115, an anime film about 90. The copy says "roughly".
- */
-const MINUTES = { anime: 24, series: 45, movie: 115 } as const;
-const ANIME_FILM_MINUTES = 90;
-
-/**
- * One sitting, where the runtime is the whole picture rather than a figure per
- * episode. Anything added since runtimes were stored says so outright. Older
- * rows fall back to the shape of the shelf, and to the guess that an anime
- * with exactly one episode is probably a film and might be an OVA.
- */
-function isFeature(item: WrappedItem): boolean {
-  if (item.format) return item.format === "movie";
-  return item.kind === "movie" || (item.kind === "anime" && item.progress_total === 1);
-}
 
 export type GenreSlice = { name: string; count: number; share: number };
 
@@ -170,33 +151,12 @@ function pickTop(items: WrappedItem[]): TopTitle | null {
   };
 }
 
-/** Episodes and rough watching time inside a set of finished titles. */
-function watchTime(finished: WrappedItem[]) {
-  let episodes = 0;
-  let minutes = 0;
-
-  for (const item of finished) {
-    // Read, not watched: chapters are counted on their own.
-    if (isReading(item.format)) continue;
-    if (isFeature(item)) {
-      // Counts towards the hours and nothing else: a film is not an episode.
-      minutes += item.runtime_minutes ?? (item.kind === "movie" ? MINUTES.movie : ANIME_FILM_MINUTES);
-    } else if (item.kind === "anime" || item.kind === "series") {
-      episodes += item.progress_current;
-      minutes += item.progress_current * (item.runtime_minutes ?? MINUTES[item.kind]);
-    }
-    // Games and custom shelves count no progress, so they can't be timed.
-  }
-
-  return { episodes, hours: Math.round(minutes / 60) };
-}
-
 /** Everything /wrapped shows, from one year's worth of rows. */
 export function summarise(items: WrappedItem[], year: number): Wrapped {
   const arrived = items.filter((item) => yearOf(item.created_at) === year);
   const completed = items.filter((item) => item.status === "completed");
   const finished = completed.filter((item) => yearOf(item.finished_at) === year);
-  const { episodes, hours } = watchTime(finished);
+  const { episodes, hours } = screenTime(finished);
   const top = pickTop(arrived);
   const reading = [...finished, ...arrived.filter((item) => item.status === "in_progress")].filter((item) => isReading(item.format));
 
