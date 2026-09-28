@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { BrandMark } from "@/components/shell/BrandMark";
 import { CountValue } from "@/components/ui/CountValue";
 import { Avatar } from "@/components/user/Avatar";
 import type { Profile } from "@/lib/queries";
+import { cn } from "@/lib/utils";
 import { PassStub } from "./PassStub";
 import { usePassTilt } from "./usePassTilt";
 
@@ -24,6 +26,9 @@ type MemberPassProps = {
 export function MemberPass({ name, username, bio, avatarUrl, stats }: MemberPassProps) {
   const { frame, pass } = usePassTilt<HTMLElement, HTMLDivElement>();
   const shown = name || username;
+  // A photo that arrives while the page is open (every upload has its own URL) develops in (U32).
+  const [firstPhoto] = useState(avatarUrl);
+  const developing = avatarUrl !== null && avatarUrl !== firstPhoto;
 
   return (
     <section ref={frame} aria-label="Member pass" className="relative animate-rise">
@@ -45,8 +50,14 @@ export function MemberPass({ name, username, bio, avatarUrl, stats }: MemberPass
             </div>
 
             <div className="flex min-w-0 items-center gap-4 md:gap-5">
-              <span className="shrink-0 rounded-full bg-linear-135 from-accent-bright via-accent to-avatar-deep p-[2.5px] shadow-mark-card">
-                <span className="block rounded-full bg-sheet p-[2px]">
+              <span
+                key={developing ? avatarUrl : "first"}
+                className={cn(
+                  "shrink-0 rounded-full bg-linear-135 from-accent-bright via-accent to-avatar-deep p-[2.5px] shadow-mark-card",
+                  developing && "animate-ring-swell lite:animate-none",
+                )}
+              >
+                <span className={cn("block rounded-full bg-sheet p-[2px]", developing && "animate-develop lite:animate-none")}>
                   <Avatar name={shown} src={avatarUrl} size="pass" />
                 </span>
               </span>
