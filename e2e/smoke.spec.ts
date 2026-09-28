@@ -116,3 +116,21 @@ test("email code button only wakes up for a valid email", async ({ page }) => {
   await page.getByLabel("Email").fill("you@example.com");
   await expect(send).toBeEnabled();
 });
+
+test("password forms switch and wake up for what they need", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "Use a password instead" }).click();
+  const signIn = page.getByRole("button", { name: "Sign in", exact: true });
+  await expect(signIn).toBeDisabled();
+  await page.getByLabel("Email").fill("you@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("anything");
+  await expect(signIn).toBeEnabled();
+
+  await page.getByRole("button", { name: "New here? Create an account" }).click();
+  const create = page.getByRole("button", { name: "Create account" });
+  await page.getByLabel("Password", { exact: true }).fill("short");
+  await expect(create).toBeDisabled();
+  await page.getByLabel("Password", { exact: true }).fill("popcorn-row-7");
+  await expect(create).toBeEnabled();
+  await expect(page.getByLabel("Email")).toHaveValue("you@example.com");
+});

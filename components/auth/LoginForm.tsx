@@ -1,18 +1,24 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useActionState, useState } from "react";
-import { captchaEnabled } from "@/lib/captcha";
-import { BrandMark } from "@/components/shell/BrandMark";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { signInWithEmail, type AuthActionState } from "@/lib/actions/auth";
-import { emailSchema } from "@/lib/validators";
+import { signInWithEmail, signInWithPassword, type AuthActionState } from "@/lib/actions/auth";
+import { captchaEnabled } from "@/lib/captcha";
+import { cn } from "@/lib/utils";
+import { emailSchema, passwordSchema } from "@/lib/validators";
 import { AuthCard } from "./AuthCard";
 import { CaptchaNotice } from "./CaptchaNotice";
 import { CheckInbox } from "./CheckInbox";
-import { GoogleButton } from "./GoogleButton";
-import { CAPTCHA_UNREACHABLE, useCaptcha } from "./useCaptcha";
+import { GoogleOr } from "./GoogleOr";
+import { choosesPassword, LOGIN_MODES, type LoginMode } from "./loginModes";
+import { LoginHeading } from "./LoginHeading";
+import { ForgotLink, ModeLinks } from "./ModeLinks";
+import { PasswordField } from "./PasswordField";
+import { SignedInStamp } from "./SignedInStamp";
+import { captchaFailureMessage, useCaptcha } from "./useCaptcha";
 
 const initialState: AuthActionState = { status: "idle" };
 
@@ -22,44 +28,64 @@ type LoginFormProps = {
   urlError: string | null;
   /** Google only shows once it is switched on in Supabase. */
   googleEnabled: boolean;
+  /** "password" when this browser signed in with one last time. */
+  initialMode?: LoginMode;
 };
 
-export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
+export function LoginForm({ next, urlError, googleEnabled, initialMode = "code" }: LoginFormProps) {
+  const [mode, setMode] = useState<LoginMode>(initialMode);
   const [email, setEmail] = useState("");
+  // A new password waits here while its code is on the way (loginModes.ts).
+  const [password, setPassword] = useState("");
   // "Different email" hides the inbox view without losing what was typed.
   const [dismissedAt, setDismissedAt] = useState<number | null>(null);
+  // Switching forms puts the last one's error away.
+  const [putAway, setPutAway] = useState<AuthActionState | null>(null);
   const { mount: captchaMount, getToken: getCaptchaToken } = useCaptcha();
+  const router = useRouter();
 
   /**
-   * Every send goes through here, including the resend on the next screen. The
-   * robot check runs inside the action rather than ahead of it: React treats one
-   * submission as a single transition, so waiting here is what keeps the button
-   * busy for the second or two Cloudflare takes, and stops a second click.
+   * Every submit goes through here, including the resend on the next screen.
+   * The robot check runs inside the action rather than ahead of it: React treats
+   * one submission as a single transition, so waiting here is what keeps the
+   * button busy for the second or two Cloudflare takes, and stops a second click.
    */
-  async function sendCode(previous: AuthActionState, formData: FormData): Promise<AuthActionState> {
+  async function submit(previous: AuthActionState, formData: FormData): Promise<AuthActionState> {
     try {
       const token = await getCaptchaToken();
       if (token) formData.set("captchaToken", token);
     } catch (error) {
-      // The reason is for whoever is fixing it; the visitor gets the one thing
-      // they can act on, and a blocked script is worth naming because a reload
-      // will never fix it.
-      if (process.env.NODE_ENV !== "production") console.error("[captcha]", error);
-      const blocked = error instanceof Error && error.message === CAPTCHA_UNREACHABLE;
-      return {
-        status: "error",
-        message: blocked
-          ? "Something is blocking the robot check, usually an ad blocker. Allow challenges.cloudflare.com and try again."
-          : "The robot check didn't load. Refresh the page and try again.",
-      };
+      return { status: "error", message: captchaFailureMessage(error) };
     }
+    if (formData.get("mode") === "password") return signInWithPassword(previous, formData);
+    // Everything else emails a code. A password being chosen stays on this page until the code is typed.
+    formData.delete("password");
     return signInWithEmail(previous, formData);
   }
 
-  const [state, formAction, pending] = useActionState(sendCode, initialState);
+  const [state, formAction, pending] = useActionState(submit, initialState);
+  const signedIn = state.status === "signed-in" ? state.next : null;
 
-  const isValid = emailSchema.safeParse(email).success;
+  useEffect(() => {
+    if (signedIn) router.replace(signedIn);
+  }, [signedIn, router]);
+
+  const copy = LOGIN_MODES[mode];
+  const isNew = choosesPassword(mode);
+  const emailValid = emailSchema.safeParse(email).success;
+  const passwordReady = isNew ? passwordSchema.safeParse(password).success : password.length > 0;
+  const ready = emailValid && (mode === "code" || passwordReady);
+  const error = state.status === "error" && state !== putAway ? state.message : null;
   const showInbox = state.status === "sent" && state.sentAt !== dismissedAt;
+  const busy = pending || signedIn !== null;
+  // Google is a way in, not a way back to a password.
+  const withGoogle = googleEnabled && mode !== "reset";
+
+  function switchMode(to: LoginMode) {
+    setMode(to);
+    setPassword("");
+    setPutAway(state);
+  }
 
   // The captcha div sits below whichever screen is showing, never inside one, so
   // that moving to the code screen doesn't pull the widget out of the page and
@@ -74,6 +100,7 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
           email={state.email}
           next={next}
           sentAt={state.sentAt}
+          newPassword={isNew ? password : undefined}
           formAction={formAction}
           pending={pending}
           onDifferentEmail={() => setDismissedAt(state.sentAt)}
@@ -86,37 +113,13 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
   return (
     <>
       <AuthCard className="px-5.5 pt-6.5 pb-5.5 md:px-8 md:pt-8 md:pb-7">
-        <BrandMark variant="card" />
-        <h1 className="font-display opsz-120 mt-4.5 text-[32px] leading-[1.05] md:mt-5.5 md:text-[38px]">
-          Let&apos;s get you <em className="neon text-accent">in.</em>
-        </h1>
-        <p className="mt-2.25 text-13 leading-normal text-text-muted md:mt-2.5 md:text-[13.5px]">
-          New here? This is also how you sign up.
-          <span className="hidden md:inline"> Free, no card.</span>
-        </p>
+        <LoginHeading mode={mode} urlError={urlError} />
 
-        {urlError && (
-          <p
-            role="alert"
-            className="mt-5 rounded-card border border-dropped/30 bg-dropped/10 px-3.5 py-2.5 text-13 text-dropped"
-          >
-            {urlError}
-          </p>
-        )}
+        {withGoogle && <GoogleOr next={next} />}
 
-        {googleEnabled && (
-          <>
-            <GoogleButton next={next} className="mt-6" />
-            <div aria-hidden className="my-4.5 flex items-center gap-3">
-              <span className="h-px flex-1 bg-border" />
-              <span className="label-mono text-text-muted">or</span>
-              <span className="h-px flex-1 bg-border" />
-            </div>
-          </>
-        )}
-
-        <form action={formAction} className={googleEnabled ? undefined : "mt-6"} noValidate>
+        <form action={formAction} className={withGoogle ? undefined : "mt-6"} noValidate>
           <input type="hidden" name="next" value={next} />
+          <input type="hidden" name="mode" value={mode} />
           <label htmlFor="email" className="label-mono mb-2 block tracking-[.12em] text-text-muted">
             Email
           </label>
@@ -124,34 +127,50 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
             id="email"
             name="email"
             type="email"
-            autoComplete="email"
+            autoComplete={mode === "code" ? "email" : "username"}
             inputMode="email"
             placeholder="you@email.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            aria-invalid={state.status === "error"}
-            aria-describedby={state.status === "error" ? "email-error" : "email-hint"}
+            readOnly={signedIn !== null}
+            aria-invalid={error !== null}
+            aria-describedby={error ? "email-error" : mode === "code" && !emailValid ? "email-hint" : undefined}
             required
           />
-          {state.status === "error" && (
-            <p id="email-error" role="alert" className="mt-2 text-13 text-dropped">
-              {state.message}
+          {copy.passwordLabel && (
+            <PasswordField
+              key={isNew ? "new" : "current"}
+              label={copy.passwordLabel}
+              value={password}
+              onChange={setPassword}
+              isNew={isNew}
+              invalid={error !== null && mode === "password"}
+              describedBy={error ? "email-error" : undefined}
+              readOnly={signedIn !== null}
+              aside={mode === "password" && <ForgotLink onClick={() => switchMode("reset")} />}
+            />
+          )}
+          {error && (
+            <p id="email-error" role="alert" className="mt-2 text-13 text-pretty text-dropped">
+              {error}
             </p>
           )}
           <Button
             type="submit"
-            disabled={!isValid || pending}
-            aria-busy={pending}
-            className="mt-2.5 h-auto w-full py-3.25 text-14 shadow-cta-sm"
+            disabled={!ready || busy}
+            aria-busy={busy}
+            className={cn("h-auto w-full py-3.25 text-14 shadow-cta-sm", mode === "code" ? "mt-2.5" : "mt-4")}
           >
             {pending && <Loader2 aria-hidden className="size-4 animate-spin" strokeWidth={1.5} />}
-            {pending ? "Sending…" : "Email me a code"}
+            {signedIn ? "You're in" : pending ? copy.busy : copy.submit}
           </Button>
-          {!isValid && (
+          {mode === "code" && !emailValid && (
             <p id="email-hint" className="mt-2.25 text-center text-[11px] text-text-muted">
               Enter an email and this wakes up.
             </p>
           )}
+          <ModeLinks mode={mode} onSwitch={switchMode} disabled={busy} />
+          {signedIn && <SignedInStamp />}
         </form>
         {captchaEnabled() && <CaptchaNotice />}
       </AuthCard>

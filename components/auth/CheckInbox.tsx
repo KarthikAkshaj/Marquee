@@ -12,6 +12,8 @@ type CheckInboxProps = {
   next: string;
   /** Server time the code went out. */
   sentAt: number;
+  /** Chosen on the create or reset form, saved once the code checks out. */
+  newPassword?: string;
   formAction: (formData: FormData) => void;
   pending: boolean;
   onDifferentEmail: () => void;
@@ -25,6 +27,7 @@ export function CheckInbox({
   email,
   next,
   sentAt,
+  newPassword,
   formAction,
   pending,
   onDifferentEmail,
@@ -62,7 +65,7 @@ export function CheckInbox({
         </p>
       </div>
 
-      <CodeForm email={email} next={next} sentAt={sentAt} />
+      <CodeForm email={email} next={next} sentAt={sentAt} newPassword={newPassword} />
 
       <div className="mt-5 flex gap-2.25 md:gap-2.5">
         <form action={formAction} className="flex-1">

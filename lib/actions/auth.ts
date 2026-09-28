@@ -1,15 +1,31 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { otpErrorMessage } from "@/lib/auth/otp";
+import {
+  PASSWORD_NOT_SAVED,
+  SIGN_IN_METHOD_COOKIE,
+  SIGN_IN_METHOD_MAX_AGE,
+  signInErrorMessage,
+} from "@/lib/auth/password";
+import { savePassword } from "@/lib/auth/save-password";
 import { signInCallback } from "@/lib/auth/welcome";
 import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
-import { safeRedirectPath, signInWithEmailSchema, verifyEmailCodeSchema } from "@/lib/validators";
+import {
+  passwordSchema,
+  safeRedirectPath,
+  signInWithEmailSchema,
+  signInWithPasswordSchema,
+  verifyEmailCodeSchema,
+} from "@/lib/validators";
 
 export type AuthActionState =
   | { status: "idle" }
   | { status: "sent"; email: string; sentAt: number }
+  /** Signed in by password: the page stamps the ticket and moves on to `next` itself. */
+  | { status: "signed-in"; next: string }
   | { status: "error"; message: string };
 
 export type VerifyCodeState =
@@ -62,7 +78,59 @@ export async function signInWithEmail(
   return { status: "sent", email: parsed.data.email, sentAt: Date.now() };
 }
 
-/** Checks the 6-digit code and signs the user in (SPEC §6, §8.2). */
+/**
+ * Email and password (SPEC §6). Supabase answers a wrong password and an
+ * unknown email the same way, and so does the page.
+ */
+export async function signInWithPassword(
+  _prev: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const parsed = signInWithPasswordSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+
+  if (!parsed.success) {
+    return { status: "error", message: parsed.error.issues[0]?.message ?? "Check your email and password." };
+  }
+
+  const next = safeRedirectPath(formData.get("next")?.toString());
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signInWithPassword({
+    ...parsed.data,
+    options: { captchaToken: formData.get("captchaToken")?.toString() || undefined },
+  });
+
+  if (error) return { status: "error", message: signInErrorMessage(error) };
+
+  await rememberSignInMethod(true);
+  return { status: "signed-in", next };
+}
+
+/** The login page opens on the password form for people who used one last time. */
+async function rememberSignInMethod(password: boolean) {
+  const store = await cookies();
+  if (!password) {
+    store.delete(SIGN_IN_METHOD_COOKIE);
+    return;
+  }
+  store.set(SIGN_IN_METHOD_COOKIE, "password", {
+    maxAge: SIGN_IN_METHOD_MAX_AGE,
+    path: "/",
+    sameSite: "lax",
+    httpOnly: true,
+    secure: siteUrl().startsWith("https:"),
+  });
+}
+
+/**
+ * Checks the 6-digit code and signs the user in (SPEC §6, §8.2). A `password`
+ * alongside makes it a sign-up or a reset: the code proves the address, then
+ * the password is saved on the fresh session. Sign-up is the same whether the
+ * email is new or not, so the page never reveals who has an account.
+ */
 export async function verifyEmailCode(
   prev: VerifyCodeState,
   formData: FormData,
@@ -80,6 +148,13 @@ export async function verifyEmailCode(
       message: parsed.error.issues[0]?.message ?? "Enter all 6 digits.",
       attempt,
     };
+  }
+
+  // Checked before the code is spent, so a bad password costs nothing.
+  const typed = formData.get("password");
+  const password = typeof typed === "string" && typed !== "" ? passwordSchema.safeParse(typed) : null;
+  if (password && !password.success) {
+    return { status: "error", message: password.error.issues[0]?.message ?? "Check your password.", attempt };
   }
 
   const sentAt = Number(formData.get("sentAt"));
@@ -100,6 +175,15 @@ export async function verifyEmailCode(
     };
   }
 
+  if (password) {
+    // They're in either way; a password that didn't take is retried from Settings.
+    const failed = await savePassword(supabase, password.data);
+    if (failed) console.error("[auth] password not saved after code sign-in:", failed.code ?? failed.message);
+    await rememberSignInMethod(!failed);
+    return { status: "verified", next: failed ? PASSWORD_NOT_SAVED : next };
+  }
+
+  await rememberSignInMethod(false);
   return { status: "verified", next };
 }
 

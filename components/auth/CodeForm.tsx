@@ -3,11 +3,11 @@
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
-import { TicketStamp } from "@/components/fun/TicketStamp";
 import { Button } from "@/components/ui/Button";
 import { verifyEmailCode, type VerifyCodeState } from "@/lib/actions/auth";
 import { OTP_LENGTH } from "@/lib/auth/otp";
 import { CodeInput } from "./CodeInput";
+import { SignedInStamp } from "./SignedInStamp";
 
 const initialState: VerifyCodeState = { status: "idle" };
 
@@ -16,6 +16,8 @@ type CodeFormProps = {
   next: string;
   /** Server time the code was sent; decides "expired" vs "doesn't match". */
   sentAt: number;
+  /** Saved along with the sign-in; never put in the page, only added to the submit. */
+  newPassword?: string;
 };
 
 /**
@@ -23,8 +25,11 @@ type CodeFormProps = {
  * While it checks, the card's bulbs chase; a right code stamps the ticket and
  * heads for your shelves at once, the stamp holding while they load (U18).
  */
-export function CodeForm({ email, next, sentAt }: CodeFormProps) {
-  const [state, formAction, pending] = useActionState(verifyEmailCode, initialState);
+export function CodeForm({ email, next, sentAt, newPassword }: CodeFormProps) {
+  const [state, formAction, pending] = useActionState((previous: VerifyCodeState, formData: FormData) => {
+    if (newPassword) formData.set("password", newPassword);
+    return verifyEmailCode(previous, formData);
+  }, initialState);
   const [complete, setComplete] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
@@ -72,17 +77,10 @@ export function CodeForm({ email, next, sentAt }: CodeFormProps) {
       </Button>
 
       <p id="code-hint" className="mt-2.5 text-12 text-text-muted">
-        Or just tap the link in the email.
+        {newPassword ? "Type it here and your password is set." : "Or just tap the link in the email."}
       </p>
 
-      {verified && (
-        <>
-          <TicketStamp hold caption="ENJOY THE SHOW" onDone={() => {}} />
-          <p role="status" className="sr-only">
-            You&apos;re in. Opening your shelves.
-          </p>
-        </>
-      )}
+      {verified && <SignedInStamp />}
     </form>
   );
 }

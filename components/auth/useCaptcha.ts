@@ -23,6 +23,18 @@ declare global {
 const SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileReady";
 /** The script never arrived, which is a blocker or a filtered network, not a flaky challenge. */
 export const CAPTCHA_UNREACHABLE = "captcha unreachable";
+
+/**
+ * What a visitor is told when no token came. The reason is for whoever is
+ * fixing it; the visitor gets the one thing they can act on, and a blocked
+ * script is worth naming because a reload will never fix it.
+ */
+export function captchaFailureMessage(error: unknown) {
+  if (process.env.NODE_ENV !== "production") console.error("[captcha]", error);
+  return error instanceof Error && error.message === CAPTCHA_UNREACHABLE
+    ? "Something is blocking the robot check, usually an ad blocker. Allow challenges.cloudflare.com and try again."
+    : "The robot check didn't load. Refresh the page and try again.";
+}
 // A script that loads but never calls back would otherwise hang the submit.
 const GIVE_UP_AFTER = 10_000;
 let loading: Promise<Turnstile> | null = null;
