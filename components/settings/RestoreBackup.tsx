@@ -3,6 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { BulbMeter } from "@/components/fun/BulbMeter";
 import { Button } from "@/components/ui/Button";
 import { restoreFinished, restoreShelves, restoreTitles } from "@/lib/actions/restore";
 import { batches, readBackup, type RestorePlan } from "@/lib/restore";
@@ -115,6 +116,7 @@ export function RestoreBackup() {
             Nothing is deleted. Titles already on your shelves are updated to match the file, the rest are added, and
             anything the backup doesn&apos;t mention is left exactly as it is.
           </p>
+          {busy && <BulbMeter done={done} total={plan.titles} label="Putting your backup back" className="mt-1" />}
           <div className="mt-auto flex flex-wrap items-center gap-2.5 pt-1.5">
             <Button onClick={restore} disabled={busy}>
               {busy && <Loader2 aria-hidden className="size-4 animate-spin motion-reduce:animate-none" strokeWidth={1.8} />}

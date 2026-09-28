@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import { BulbMeter } from "@/components/fun/BulbMeter";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 
@@ -20,6 +21,7 @@ export function ImportBar({ ready, duplicates, skipDuplicates, onSkipDuplicates,
   const busy = progress !== null;
   return (
     <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-x-5.5 gap-y-2 rounded-[12px] border border-white/9 bg-menu/92 px-3.5 py-3 shadow-menu backdrop-blur-[18px] md:bottom-4 md:px-4.5 md:py-3.5">
+      {progress && <BulbMeter done={progress.done} total={progress.total} label="Importing" className="basis-full" />}
       <p className="flex items-center gap-3 font-mono text-[15px] tracking-[-.01em]">
         <span className="text-text">{ready} ready</span>
         {duplicates > 0 && (

@@ -3,6 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { BulbMeter } from "@/components/fun/BulbMeter";
 import { Button } from "@/components/ui/Button";
 import { fillRuntimes } from "@/lib/actions/backfill";
 
@@ -57,6 +58,7 @@ export function RuntimeBackfill({ pending }: { pending: number }) {
         Looking them up again makes those hours real. Nothing else about your titles changes, not your progress, your
         ratings, or where they sit.
       </p>
+      {busy && <BulbMeter done={filled} total={pending} label="Looking up runtimes" className="mt-1" />}
       <div className="mt-auto flex flex-wrap items-center gap-2.5 pt-1.5">
         <Button onClick={run} disabled={busy}>
           {busy && <Loader2 aria-hidden className="size-4 animate-spin motion-reduce:animate-none" strokeWidth={1.8} />}
