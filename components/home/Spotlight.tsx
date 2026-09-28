@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { TicketStamp } from "@/components/fun/TicketStamp";
 import { useItemActions } from "@/components/items/useItemActions";
 import { Button } from "@/components/ui/Button";
@@ -50,7 +50,9 @@ export function Spotlight({ item: initial, shelf, greeting, onFinished }: Spotli
       className="relative isolate -mx-5 -mt-6.5 flex min-h-140 flex-col px-5 pt-6.5 pb-8 md:-mx-10 md:-mt-8.5 md:min-h-128 md:px-10 md:pt-8.5 md:pb-11 xl:min-h-144"
     >
       <SpotlightArt key={item.id} item={item} wash={wash} />
-      {greeting}
+      {/* Made on the server and placed among this section's children; a keyed wrapper keeps
+          React's list-key check from mistaking it for an unkeyed list item. */}
+      <Fragment key="greeting">{greeting}</Fragment>
 
       <div className="mt-auto max-w-2xl pt-14">
         <p style={line(0).style} className={cn("flex items-center gap-2", line(0).className)}>

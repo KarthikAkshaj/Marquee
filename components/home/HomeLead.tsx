@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import type { Item } from "@/lib/items";
 import type { PaletteCategory } from "@/lib/palette";
 import { ContinueRow } from "./ContinueRow";
@@ -44,9 +44,11 @@ export function HomeLead({ items, shelves, greeting, children }: HomeLeadProps) 
           onFinished={() => setDone((finished) => new Set(finished).add(lead.id))}
         />
       ) : (
-        greeting
+        // Slots made on the server sit among this list's children; keyed wrappers keep React's
+        // list-key check from mistaking them for unkeyed list items.
+        <Fragment key="greeting">{greeting}</Fragment>
       )}
-      {children}
+      <Fragment key="between">{children}</Fragment>
       {showRow && (
         <div className="mt-5.5 md:mt-8.5">
           <ContinueRow items={rest} shelves={shelves} />
