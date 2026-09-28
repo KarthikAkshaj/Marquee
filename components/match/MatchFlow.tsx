@@ -25,6 +25,8 @@ type MatchFlowProps = {
 };
 
 const SAVE_BATCH = 25;
+/** Rows in the first screenful on a desktop (about 76px each), whose covers load at once. */
+const FIRST_SCREEN_ROWS = 10;
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
 
 /** Works out cover colours for the saved titles in the background, then saves them in one go. */
@@ -113,7 +115,7 @@ export function MatchFlow({ shelf, items, taken }: MatchFlowProps) {
         </p>
       )}
       <ul aria-label={`Matches from ${SOURCE_NAMES[source]}`} className="overflow-hidden rounded-[12px] border border-border bg-surface">
-        {matching.rows.map((row) => (
+        {matching.rows.map((row, index) => (
           <MatchRow
             key={row.item.id}
             row={row}
@@ -123,6 +125,7 @@ export function MatchFlow({ shelf, items, taken }: MatchFlowProps) {
             onToggle={(include) => matching.toggle(row.item.id, include)}
             onOpen={() => setOpenId(row.item.id)}
             onSearch={(query) => void matching.research(row.item.id, query)}
+            eager={index < FIRST_SCREEN_ROWS}
           />
         ))}
       </ul>

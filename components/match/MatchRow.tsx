@@ -19,13 +19,15 @@ type MatchRowProps = {
   /** Opens the picker: other results, a new search, and the rest of the series. */
   onOpen: () => void;
   onSearch: (query: string) => void;
+  /** One of the rows on screen when the page opens, so its cover loads at once. */
+  eager?: boolean;
 };
 
 /** The row's "change the match" button, where focus goes back to when the picker closes. */
 export const triggerId = (itemId: string) => `match-open-${itemId}`;
 
 /** Your title → the match we found, with a picker for other results and seasons when it's wrong. */
-export function MatchRow({ row, source, categoryColor, conflict, onToggle, onOpen, onSearch }: MatchRowProps) {
+export function MatchRow({ row, source, categoryColor, conflict, onToggle, onOpen, onSearch, eager = false }: MatchRowProps) {
   const sourceName = SOURCE_NAMES[source];
   const pick = row.choice !== null ? row.candidates[row.choice] : null;
   const nothing = row.state !== "waiting" && row.candidates.length === 0;
@@ -56,7 +58,7 @@ export function MatchRow({ row, source, categoryColor, conflict, onToggle, onOpe
           </>
         ) : pick ? (
           <>
-            <MatchCover result={pick} categoryColor={categoryColor} />
+            <MatchCover result={pick} categoryColor={categoryColor} eager={eager} />
             <span className="min-w-0">
               <span className="block truncate text-14 font-medium text-text">{pick.title}</span>
               <span className="block truncate font-mono text-[11px] text-text-muted">
