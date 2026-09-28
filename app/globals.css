@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Weaker devices and anyone who asked for less motion (U9, lib/fx.ts): lite:animate-none and friends. */
+@custom-variant lite (&:where([data-fx="lite"] *));
+
 /*
  * Cinematic Dark — design tokens.
  * Values come from the design handoff, which wins over SPEC §9 where they differ.

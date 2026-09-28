@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { EffectsTier } from "@/components/shell/EffectsTier";
 import { GrainOverlay } from "@/components/shell/GrainOverlay";
 import { BRAND } from "@/lib/brand";
 import { siteUrl } from "@/lib/site";
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-dvh" suppressHydrationWarning>
         {children}
         <GrainOverlay />
+        <EffectsTier />
         <Toaster
           theme="dark"
           position="bottom-right"
