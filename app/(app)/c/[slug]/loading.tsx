@@ -1,6 +1,6 @@
 export default function CategoryLoading() {
   return (
-    <div aria-busy aria-label="Loading" className="animate-pulse">
+    <div aria-busy aria-label="Loading" className="projector">
       <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div className="h-11 w-48 rounded-card bg-surface md:h-13.5 md:w-60" />
         <div className="flex gap-2.5">

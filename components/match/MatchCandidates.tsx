@@ -49,9 +49,9 @@ export function MatchCandidates({ row, sourceName, categoryColor, conflict, onCh
 
   if (row.state === "waiting") {
     return (
-      <div aria-busy className="flex flex-col gap-1 px-2.5">
+      <div aria-busy className="projector flex flex-col gap-1 px-2.5">
         {[0, 1, 2].map((index) => (
-          <span key={index} className="h-14 animate-pulse rounded-nav bg-white/4 motion-reduce:animate-none" />
+          <span key={index} className="h-14 rounded-nav bg-white/4" />
         ))}
       </div>
     );

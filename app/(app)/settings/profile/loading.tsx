@@ -1,6 +1,6 @@
 export default function ProfileLoading() {
   return (
-    <div aria-busy aria-label="Loading" className="flex animate-pulse flex-col gap-7">
+    <div aria-busy aria-label="Loading" className="flex projector flex-col gap-7">
       <div className="flex items-center gap-4.5 md:gap-6">
         <div className="size-24 rounded-full bg-surface md:size-30" />
         <div className="flex flex-1 flex-col gap-3">

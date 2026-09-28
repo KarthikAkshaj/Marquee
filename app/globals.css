@@ -404,6 +404,52 @@
   }
 }
 
+/*
+ * Projector light while loading (U16): one soft beam of warm light sweeps
+ * across whatever is loading, as if a projector were warming up, instead of
+ * everything pulsing grey. Put it on the loading area (or on a lone
+ * placeholder). Only the beam moves, by transform, and it adds light rather
+ * than covering anything. Lite devices keep still placeholders; reduced
+ * motion's global rule sends the beam off after one instant pass.
+ */
+@keyframes projector {
+  to {
+    translate: 370% 0;
+  }
+}
+
+@utility projector {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 40%;
+    translate: -120% 0;
+    /* Soft on every side: the light fades in and out across its width and
+       towards the top and bottom, so it never shows an edge of its own. */
+    background: linear-gradient(
+      100deg,
+      transparent 10%,
+      rgb(244 182 80 / 0.035) 38%,
+      rgb(255 236 204 / 0.07) 50%,
+      rgb(244 182 80 / 0.035) 62%,
+      transparent 90%
+    );
+    mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+    mix-blend-mode: plus-lighter;
+    animation: projector 2.6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  }
+
+  &:where([data-fx="lite"] *)::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 /* Motion is a courtesy, not a requirement (SPEC §9.6): no drift, no sheen. */
 @media (prefers-reduced-motion: reduce) {
   *,

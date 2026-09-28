@@ -1,6 +1,6 @@
 export default function CategoriesLoading() {
   return (
-    <div aria-busy aria-label="Loading" className="animate-pulse">
+    <div aria-busy aria-label="Loading" className="projector">
       <div className="h-4 w-80 max-w-full rounded-full bg-surface" />
       <div className="mt-4 overflow-hidden rounded-[11px] border border-border">
         {Array.from({ length: 4 }, (_, index) => (

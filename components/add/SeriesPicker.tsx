@@ -53,7 +53,7 @@ export function SeriesPicker({ pick, pickNote, series, extras, kind, categoryCol
       <p className="mb-1.5 px-2.5 text-12 text-text-muted">{hint}</p>
 
       {(!series || series.state === "loading") &&
-        [0, 1, 2].map((index) => <span key={index} className="mx-2.5 my-0.5 h-14 animate-pulse rounded-nav bg-white/4 motion-reduce:animate-none" />)}
+        [0, 1, 2].map((index) => <span key={index} className="projector mx-2.5 my-0.5 h-14 rounded-nav bg-white/4" />)}
 
       {series?.state === "failed" && (
         <p className="flex flex-wrap items-center gap-x-3 px-2.5 text-13 text-text-muted">

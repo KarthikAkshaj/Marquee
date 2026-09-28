@@ -53,8 +53,8 @@ export function MatchRow({ row, source, categoryColor, conflict, onToggle, onOpe
       <div className="col-start-2 flex min-w-0 items-center gap-3 md:col-auto">
         {row.state === "waiting" ? (
           <>
-            <span className="h-12.5 w-8.5 shrink-0 animate-pulse rounded-[5px] bg-white/6 motion-reduce:animate-none" />
-            <span className="h-3 w-2/5 animate-pulse rounded-xs bg-white/6 motion-reduce:animate-none" />
+            <span className="projector h-12.5 w-8.5 shrink-0 rounded-[5px] bg-white/6" />
+            <span className="projector h-3 w-2/5 rounded-xs bg-white/6" />
           </>
         ) : pick ? (
           <>

@@ -1,6 +1,6 @@
 export default function DataLoading() {
   return (
-    <div aria-busy aria-label="Loading" className="flex animate-pulse flex-col gap-4 motion-reduce:animate-none">
+    <div aria-busy aria-label="Loading" className="flex projector flex-col gap-4">
       <div className="grid gap-4 md:grid-cols-2">
         {[0, 1].map((card) => (
           <div key={card} className="flex flex-col gap-3 rounded-[11px] border border-border p-5">
