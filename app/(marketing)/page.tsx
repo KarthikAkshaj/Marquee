@@ -5,6 +5,7 @@ import { LegalLinks } from "@/components/marketing/LegalLinks";
 import { FeatureStrip } from "@/components/marketing/FeatureStrip";
 import { HomeMockup } from "@/components/marketing/HomeMockup";
 import { PosterWall } from "@/components/marketing/PosterWall";
+import { SignBulbs } from "@/components/marketing/SignBulbs";
 import { BrandMark } from "@/components/shell/BrandMark";
 import { Button } from "@/components/ui/Button";
 
@@ -69,9 +70,13 @@ export default function LandingPage() {
           </span>
         </p>
 
-        <h1 className="font-display opsz-144 mt-4.5 text-[82px] leading-[.88] tracking-[-.03em] md:mt-5.5 md:text-[136px]">
-          Mar<em className="text-accent">quee</em>
-        </h1>
+        {/* The wordmark on its sign: the bulb row takes the wordmark's width. */}
+        <div className="mt-4.5 w-fit md:mt-5.5">
+          <h1 className="font-display opsz-144 text-[82px] leading-[.88] tracking-[-.03em] md:text-[136px]">
+            Mar<em className="text-accent">quee</em>
+          </h1>
+          <SignBulbs />
+        </div>
 
         <p className="mt-5 text-[17px] leading-[1.42] text-balance md:mt-6.5 md:text-[23px] md:leading-[1.45]">
           Everything you&apos;ve watched, are watching, <br className="hidden md:inline" />

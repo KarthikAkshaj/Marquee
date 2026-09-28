@@ -173,6 +173,20 @@
     50% { opacity: 1; }
   }
 
+  /* Bulbs round a control: every fourth lit, stepping round (U15, BulbRing sets --bulb-cycle). */
+  --animate-bulb-chase: bulb-chase 720ms steps(4) infinite;
+
+  @keyframes bulb-chase {
+    to { stroke-dashoffset: var(--bulb-cycle); }
+  }
+
+  /* The sign under the landing wordmark, coming on one bulb at a time (U15). */
+  --animate-bulb-on: bulb-on 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+
+  @keyframes bulb-on {
+    from { opacity: 0; }
+  }
+
   /* Pickers: a sheet rising on phones, a panel settling in on desktop */
   --animate-sheet-up: sheet-up 320ms cubic-bezier(0.22, 1, 0.36, 1);
   --animate-pop-in: pop-in 220ms cubic-bezier(0.22, 1, 0.36, 1);

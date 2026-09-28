@@ -8,6 +8,7 @@ import { usePalette } from "@/components/palette/PaletteProvider";
 import { AccountSheet } from "@/components/user/AccountSheet";
 import { Avatar } from "@/components/user/Avatar";
 import type { MenuUser } from "@/components/user/UserMenu";
+import { BulbRing } from "@/components/fun/BulbRing";
 import type { CategoryWithCount } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import { ListsSheet } from "./ListsSheet";
@@ -63,9 +64,10 @@ export function MobileBottomNav({ categories, user }: MobileBottomNavProps) {
             type="button"
             onClick={add}
             aria-label={onShelf ? "Add a title to this shelf" : "Search or add a title"}
-            className="press -mt-7.5 grid size-14 place-items-center rounded-full bg-accent text-accent-ink shadow-fab [--press-scale:0.9] hover:bg-accent-hover"
+            className="press group relative -mt-7.5 grid size-14 place-items-center rounded-full bg-accent text-accent-ink shadow-fab [--press-scale:0.9] hover:bg-accent-hover"
           >
             <Plus aria-hidden className="size-6.5" strokeWidth={2.2} />
+            <BulbRing radius="50%" count={14} />
           </button>
         </div>
         <button type="button" onClick={() => setSheet("account")} aria-haspopup="dialog" data-active={inSettings} className={tab}>
