@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { CountInView } from "@/components/ui/CountInView";
 import { categoryStyle } from "@/lib/categories";
 import type { StatTile } from "@/lib/home";
 import { cn } from "@/lib/utils";
@@ -14,8 +15,9 @@ export function StatsStrip({ tiles, className }: { tiles: StatTile[]; className?
   return (
     <section aria-label="Your numbers" className={cn("-mx-5 flex flex-col md:mx-0", className)}>
       <div className="relative">
-        <ul tabIndex={0} className="flex gap-2.25 overflow-x-auto px-5 [scrollbar-width:none] md:gap-0 md:rounded-card md:border md:border-border md:bg-surface md:px-0">
-          {tiles.map((tile) => (
+        {/* relative: the numbers' hidden screen-reader text is positioned, and must scroll with the strip, not stretch the page. */}
+        <ul tabIndex={0} className="relative flex gap-2.25 overflow-x-auto px-5 [scrollbar-width:none] md:gap-0 md:rounded-card md:border md:border-border md:bg-surface md:px-0">
+          {tiles.map((tile, index) => (
             <li
               key={tile.key}
               className={cn(
@@ -31,7 +33,9 @@ export function StatsStrip({ tiles, className }: { tiles: StatTile[]; className?
                 />
                 <span className="truncate font-mono text-[9.5px] tracking-[.12em] text-text-muted uppercase md:text-[10px]">{tile.label}</span>
               </p>
-              <p className="font-mono text-[21px] leading-none tracking-[-.02em] md:text-[26px]">{tile.value}</p>
+              <p className="font-mono text-[21px] leading-none tracking-[-.02em] md:text-[26px]">
+                <CountInView value={tile.value} delayMs={index * 60} />
+              </p>
               <p className="truncate text-[10.5px] text-text-muted md:text-[11.5px]">{tile.detail}</p>
             </li>
           ))}

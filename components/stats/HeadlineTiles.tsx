@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { CountValue } from "@/components/ui/CountValue";
 import { EMPTY } from "@/lib/items";
 import { formatAverage, formatCount, type Headline, type StatsShelf } from "@/lib/stats";
 import { statusLabel } from "@/lib/status";
 import { cn } from "@/lib/utils";
 
-type Tile = { label: string; value: string; detail: string };
+/** `count` ticks up from zero when set (U23); an average like 7.6 just shows. */
+type Tile = { label: string; value: string; count?: number; detail: string };
 
 function tiles(numbers: Headline, shelf: StatsShelf | null): Tile[] {
   // A shelf speaks its own verb ("3 watching"); everything together speaks the neutral one.
@@ -13,9 +15,10 @@ function tiles(numbers: Headline, shelf: StatsShelf | null): Tile[] {
     {
       label: "Titles",
       value: formatCount(numbers.titles),
+      count: numbers.titles,
       detail: `${formatCount(numbers.inProgress)} ${statusLabel(kind, "in_progress").toLowerCase()} · ${formatCount(numbers.planned)} ${statusLabel("custom", "planned").toLowerCase()}`,
     },
-    { label: "Finished", value: formatCount(numbers.finished), detail: `${formatCount(numbers.finishedThisYear)} this year` },
+    { label: "Finished", value: formatCount(numbers.finished), count: numbers.finished, detail: `${formatCount(numbers.finishedThisYear)} this year` },
     {
       label: "Average score",
       value: numbers.average === null ? EMPTY : formatAverage(numbers.average),
@@ -27,6 +30,7 @@ function tiles(numbers: Headline, shelf: StatsShelf | null): Tile[] {
     list.push({
       label: "Hours watched",
       value: formatCount(hours),
+      count: hours,
       detail: [`roughly · ${formatCount(episodes)} episodes`, chapters > 0 && `${formatCount(chapters)} chapters`].filter(Boolean).join(" · "),
     });
   }
@@ -52,7 +56,9 @@ export function HeadlineTiles({ numbers, shelf }: { numbers: Headline; shelf: St
             )}
           >
             <p className="font-mono text-[9.5px] tracking-[.12em] text-text-muted uppercase md:text-[10px]">{tile.label}</p>
-            <p className="font-mono text-[26px] leading-none tracking-[-.02em] md:text-[32px]">{tile.value}</p>
+            <p className="font-mono text-[26px] leading-none tracking-[-.02em] md:text-[32px]">
+              {tile.count !== undefined ? <CountValue value={tile.count} delayMs={index * 70} /> : tile.value}
+            </p>
             <p className="text-[11.5px] leading-snug text-text-muted md:text-12">{tile.detail}</p>
           </li>
         ))}
