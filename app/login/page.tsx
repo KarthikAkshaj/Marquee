@@ -36,23 +36,25 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       </div>
       <div aria-hidden className="vignette-login pointer-events-none absolute inset-0 z-5" />
 
-      <Link
-        href="/"
-        aria-label="Marquee home"
-        className="relative z-7 mt-2 flex min-h-11 items-center self-start rounded-nav md:absolute md:top-6.5 md:left-15 md:mt-0 md:min-h-0"
-      >
-        <BrandMark variant="mobile" className="md:hidden" />
-        <BrandMark variant="header" className="hidden md:flex" />
-      </Link>
+      <header className="relative z-7 mt-2 self-start md:absolute md:top-6.5 md:left-15 md:mt-0">
+        <Link
+          href="/"
+          aria-label="Marquee home"
+          className="flex min-h-11 items-center rounded-nav md:min-h-0"
+        >
+          <BrandMark variant="mobile" className="md:hidden" />
+          <BrandMark variant="header" className="hidden md:flex" />
+        </Link>
+      </header>
 
       <main className="relative z-7 my-auto w-full md:my-0 md:w-104">
         <LoginForm next={next} urlError={error} googleEnabled={googleEnabled} />
       </main>
 
-      <div className="relative z-7 flex flex-col items-center gap-1">
+      <footer className="relative z-7 flex flex-col items-center gap-1">
         <CenteredAttributions />
         <LegalLinks />
-      </div>
+      </footer>
     </div>
   );
 }
