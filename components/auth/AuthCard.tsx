@@ -6,7 +6,7 @@ export function AuthCard({ className, children }: { className?: string; children
   return (
     <div
       className={cn(
-        "rounded-sheet border border-white/8 bg-elevated shadow-dialog-sm md:shadow-dialog",
+        "relative rounded-sheet border border-white/8 bg-elevated shadow-dialog-sm md:shadow-dialog",
         className,
       )}
     >

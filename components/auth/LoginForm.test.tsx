@@ -7,6 +7,8 @@ vi.mock("@/lib/actions/auth", () => ({
   // The code entry form renders once a code is sent, and reaches for this.
   verifyEmailCode: vi.fn(async () => ({ status: "idle" as const })),
 }));
+// A right code moves on with the router (U18).
+vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 
 type Options = Record<string, (token?: string) => void> & { sitekey?: string };
 /** What the widget was rendered with, so a test can call Turnstile's callbacks back. */

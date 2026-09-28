@@ -4,6 +4,8 @@ import { CheckInbox } from "./CheckInbox";
 
 // The code form calls a server action; the network isn't part of these tests.
 vi.mock("@/lib/actions/auth", () => ({ verifyEmailCode: vi.fn() }));
+// A right code moves on with the router (U18).
+vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn() }) }));
 
 function renderInbox(overrides: Partial<Parameters<typeof CheckInbox>[0]> = {}) {
   const props = {

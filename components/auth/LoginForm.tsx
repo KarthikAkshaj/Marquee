@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { signInWithEmail, type AuthActionState } from "@/lib/actions/auth";
 import { emailSchema } from "@/lib/validators";
+import { BulbRing } from "@/components/fun/BulbRing";
 import { AuthCard } from "./AuthCard";
 import { CaptchaNotice } from "./CaptchaNotice";
 import { CheckInbox } from "./CheckInbox";
@@ -154,6 +155,8 @@ export function LoginForm({ next, urlError, googleEnabled }: LoginFormProps) {
           )}
         </form>
         {captchaEnabled() && <CaptchaNotice />}
+        {/* The card's bulbs chase while the code is on its way (U18). */}
+        {pending && <BulbRing lit radius="22" count={72} />}
       </AuthCard>
       {captcha}
     </>

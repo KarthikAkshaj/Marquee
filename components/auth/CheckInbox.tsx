@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { BulbRing } from "@/components/fun/BulbRing";
 import { AuthCard } from "./AuthCard";
 import { CodeForm } from "./CodeForm";
 
@@ -93,6 +94,8 @@ export function CheckInbox({
       <p className="mt-4 text-[11.5px] text-text-muted md:mt-4.5">
         Nothing after a minute? It&apos;s probably sulking in spam.
       </p>
+      {/* Chasing while a new code is on its way (U18). */}
+      {pending && <BulbRing lit radius="22" count={72} />}
     </AuthCard>
   );
 }

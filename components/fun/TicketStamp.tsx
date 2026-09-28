@@ -8,13 +8,17 @@ type TicketStampProps = {
   /** Called once the stamp has faded, so the parent can forget it. */
   onDone: () => void;
   size?: "sm" | "md";
+  /** The small line under ADMIT ONE. */
+  caption?: string;
+  /** Stay on once stamped, for a page that's about to change anyway (signing in). */
+  hold?: boolean;
 };
 
 /**
  * "ADMIT ONE" slammed onto a title the moment it's finished (SPEC §9.6):
  * under 700ms, then gone. Reduced motion skips it entirely.
  */
-export function TicketStamp({ onDone, size = "md" }: TicketStampProps) {
+export function TicketStamp({ onDone, size = "md", caption = "FINISHED", hold = false }: TicketStampProps) {
   const reduced = useReducedMotion();
   const finish = useEffectEvent(onDone);
 
@@ -29,8 +33,8 @@ export function TicketStamp({ onDone, size = "md" }: TicketStampProps) {
       aria-hidden
       className="pointer-events-none absolute inset-0 z-10 grid place-items-center bg-bg/35"
       initial={{ opacity: 0 }}
-      animate={{ opacity: [0, 1, 1, 0] }}
-      transition={{ duration: 0.68, times: [0, 0.12, 0.72, 1], ease: "easeOut" }}
+      animate={{ opacity: hold ? [0, 1] : [0, 1, 1, 0] }}
+      transition={hold ? { duration: 0.12, ease: "easeOut" } : { duration: 0.68, times: [0, 0.12, 0.72, 1], ease: "easeOut" }}
       onAnimationComplete={onDone}
     >
       <motion.div
@@ -43,7 +47,7 @@ export function TicketStamp({ onDone, size = "md" }: TicketStampProps) {
         )}
       >
         <span className={cn("font-mono font-bold tracking-[.22em]", size === "md" ? "text-[13px]" : "text-[10.5px]")}>ADMIT ONE</span>
-        <span className={cn("font-mono tracking-[.3em] text-completed/80", size === "md" ? "text-[8.5px]" : "text-[7px]")}>FINISHED</span>
+        <span className={cn("font-mono tracking-[.3em] text-completed/80", size === "md" ? "text-[8.5px]" : "text-[7px]")}>{caption}</span>
       </motion.div>
     </motion.div>
   );

@@ -1,7 +1,10 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useActionState, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { BulbRing } from "@/components/fun/BulbRing";
+import { TicketStamp } from "@/components/fun/TicketStamp";
 import { Button } from "@/components/ui/Button";
 import { verifyEmailCode, type VerifyCodeState } from "@/lib/actions/auth";
 import { OTP_LENGTH } from "@/lib/auth/otp";
@@ -16,13 +19,24 @@ type CodeFormProps = {
   sentAt: number;
 };
 
-/** Code entry: submits by itself once six digits are in, Verify is the backup. */
+/**
+ * Code entry: submits by itself once six digits are in, Verify is the backup.
+ * While it checks, the card's bulbs chase; a right code stamps the ticket and
+ * heads for your shelves at once, the stamp holding while they load (U18).
+ */
 export function CodeForm({ email, next, sentAt }: CodeFormProps) {
   const [state, formAction, pending] = useActionState(verifyEmailCode, initialState);
   const [complete, setComplete] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
 
   const failed = state.status === "error";
+  const verified = state.status === "verified";
+  const destination = verified ? state.next : null;
+
+  useEffect(() => {
+    if (destination) router.replace(destination);
+  }, [destination, router]);
 
   return (
     <form ref={formRef} action={formAction} className="mt-6" noValidate>
@@ -34,7 +48,7 @@ export function CodeForm({ email, next, sentAt }: CodeFormProps) {
         // A new key per failed attempt clears the boxes and replays the shake.
         key={failed ? state.attempt : 0}
         invalid={failed}
-        readOnly={pending}
+        readOnly={pending || verified}
         describedBy={failed ? "code-error code-hint" : "code-hint"}
         onChange={(code) => setComplete(code.length === OTP_LENGTH)}
         onComplete={() => {
@@ -50,17 +64,27 @@ export function CodeForm({ email, next, sentAt }: CodeFormProps) {
 
       <Button
         type="submit"
-        disabled={!complete || pending}
-        aria-busy={pending}
+        disabled={!complete || pending || verified}
+        aria-busy={pending || verified}
         className="mt-3 h-auto min-h-11 w-full py-3 text-14 shadow-cta-sm"
       >
         {pending && <Loader2 aria-hidden className="size-4 animate-spin" strokeWidth={1.5} />}
-        {pending ? "Checking…" : "Verify"}
+        {verified ? "You're in" : pending ? "Checking…" : "Verify"}
       </Button>
 
       <p id="code-hint" className="mt-2.5 text-12 text-text-muted">
         Or just tap the link in the email.
       </p>
+
+      {pending && <BulbRing lit radius="22" count={72} />}
+      {verified && (
+        <>
+          <TicketStamp hold caption="ENJOY THE SHOW" onDone={() => {}} />
+          <p role="status" className="sr-only">
+            You&apos;re in. Opening your shelves.
+          </p>
+        </>
+      )}
     </form>
   );
 }

@@ -14,7 +14,9 @@ export type AuthActionState =
 export type VerifyCodeState =
   | { status: "idle" }
   /** `attempt` changes on every failure so the code boxes can reset. */
-  | { status: "error"; message: string; attempt: number };
+  | { status: "error"; message: string; attempt: number }
+  /** Signed in: the page stamps the ticket and moves on to `next` itself. */
+  | { status: "verified"; next: string };
 
 /**
  * Emails a 6-digit sign-in code (SPEC §6). The same email carries a magic link
@@ -97,7 +99,7 @@ export async function verifyEmailCode(
     };
   }
 
-  redirect(next);
+  return { status: "verified", next };
 }
 
 /**
