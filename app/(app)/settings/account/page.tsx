@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DangerZone } from "@/components/settings/DangerZone";
 import { EmailCard } from "@/components/settings/EmailCard";
+import { PasswordCard } from "@/components/settings/PasswordCard";
 import { getAccount } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Account" };
@@ -16,6 +17,11 @@ export default async function AccountSettingsPage({ searchParams }: PageProps<"/
         pendingEmail={account.pendingEmail}
         signsInWith={account.signsInWith}
         halfConfirmed={params.notice === "email-half-confirmed"}
+      />
+      <PasswordCard
+        email={account.email}
+        hasPassword={account.signsInWith.password}
+        notSaved={params.notice === "password-not-saved"}
       />
       <DangerZone username={account.username} titleCount={account.titleCount} categoryCount={account.categoryCount} />
     </div>

@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
+import { hasPassword } from "@/lib/auth/password";
 import { createClient } from "@/lib/supabase/server";
 import type { StatsItem } from "@/lib/stats";
 import type { WrappedItem } from "@/lib/wrapped";
@@ -124,7 +125,11 @@ export const getAccount = cache(async () => {
     email: user.email ?? null,
     /** Set while an email change waits for its confirmation links. */
     pendingEmail: user.new_email ?? null,
-    signsInWith: { google: providers.has("google"), email: providers.has("email") },
+    signsInWith: {
+      google: providers.has("google"),
+      email: providers.has("email"),
+      password: hasPassword(user.user_metadata),
+    },
     username: profile.data.username,
     titleCount: titles.count ?? 0,
     categoryCount: categories.count ?? 0,

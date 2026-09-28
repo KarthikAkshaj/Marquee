@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { savePasswordErrorMessage } from "@/lib/auth/password";
+import { savePassword } from "@/lib/auth/save-password";
 import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
-import { emailSchema } from "@/lib/validators";
+import { emailSchema, otpCodeSchema, passwordSchema } from "@/lib/validators";
 
 export type AccountActionResult = { ok: true } | { ok: false; message: string };
 
@@ -40,6 +42,41 @@ export async function changeEmail(email: string): Promise<AccountActionResult> {
   if (error?.code === "email_exists") return { ok: false, message: "That address already has a Marquee account." };
   if (error?.code === "over_email_send_rate_limit") return { ok: false, message: "Too many emails just now. Try again in a minute." };
   if (error) return { ok: false, message: "Couldn't start the change. Try again." };
+
+  revalidatePath("/settings/account");
+  return { ok: true };
+}
+
+export type PasswordActionResult =
+  | { ok: true }
+  /** Supabase wants proof first: a code is on its way to the account's email. */
+  | { ok: false; confirm: true; message?: string }
+  | { ok: false; confirm?: false; message: string };
+
+/**
+ * Sets or changes the password from Settings → Account (SPEC §8.10). With
+ * Supabase's secure password change on and a session over a day old, the
+ * first try emails a code; the second carries it as `nonce`.
+ */
+export async function setPassword(password: string, nonce?: string): Promise<PasswordActionResult> {
+  const parsed = passwordSchema.safeParse(password);
+  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Check your password." };
+  const code = nonce === undefined ? null : otpCodeSchema.safeParse(nonce);
+  if (code && !code.success) return { ok: false, confirm: true, message: "Enter all 6 digits." };
+
+  const { supabase, userId } = await requireUserId();
+  if (!userId) return SESSION_ENDED;
+
+  const error = await savePassword(supabase, parsed.data, code?.data);
+  if (error?.code === "reauthentication_needed" || error?.code === "reauth_nonce_missing") {
+    const sent = await supabase.auth.reauthenticate();
+    if (sent.error) return { ok: false, message: savePasswordErrorMessage(sent.error) };
+    return { ok: false, confirm: true };
+  }
+  if (error?.code === "reauthentication_not_valid") {
+    return { ok: false, confirm: true, message: savePasswordErrorMessage(error) };
+  }
+  if (error) return { ok: false, message: savePasswordErrorMessage(error) };
 
   revalidatePath("/settings/account");
   return { ok: true };

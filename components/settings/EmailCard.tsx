@@ -14,9 +14,10 @@ type EmailCardProps = Pick<Account, "email" | "pendingEmail" | "signsInWith"> & 
   halfConfirmed: boolean;
 };
 
-function methodLabel({ google, email }: Account["signsInWith"]) {
-  if (google && email) return "Signs in with Google or an email code";
-  return google ? "Signed in with Google" : "Signed in with an email code";
+function methodLabel({ google, email, password }: Account["signsInWith"]) {
+  const ways = [google && "Google", email && "an email code", password && "a password"].filter((way) => way !== false);
+  if (ways.length <= 1) return `Signed in with ${ways[0] ?? "an email code"}`;
+  return `Signs in with ${ways.slice(0, -1).join(", ")} or ${ways.at(-1)}`;
 }
 
 /** Email, sign-in method, Change email, Switch account and Sign out (SPEC §8.10, handoff §07). */

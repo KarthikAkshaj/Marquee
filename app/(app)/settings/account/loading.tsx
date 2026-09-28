@@ -9,6 +9,11 @@ export default function AccountLoading() {
           <div className="h-10 w-24 rounded-card bg-surface" />
         </div>
       </div>
+      <div className="flex flex-col gap-3 rounded-[11px] border border-border p-5">
+        <div className="h-2.5 w-16 rounded-full bg-surface" />
+        <div className="h-5 w-28 rounded-full bg-surface" />
+        <div className="mt-2 h-10 w-36 rounded-card bg-surface" />
+      </div>
       <div className="h-24 rounded-[11px] border border-dropped-muted/15 bg-surface" />
     </div>
   );

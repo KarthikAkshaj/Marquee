@@ -13,10 +13,12 @@ import {
   itemStatusSchema,
   moveItemSchema,
   otpCodeSchema,
+  passwordSchema,
   profileSchema,
   reorderCategoriesSchema,
   safeRedirectPath,
   searchQuerySchema,
+  signInWithPasswordSchema,
   updateCategorySchema,
   usernameSchema,
 } from "./validators";
@@ -66,6 +68,29 @@ describe("otpCodeSchema", () => {
     for (const code of ["12345", "1234567", "12a456", " 123456", ""]) {
       expect(otpCodeSchema.safeParse(code).success).toBe(false);
     }
+  });
+});
+
+describe("passwordSchema", () => {
+  it("wants eight characters and keeps spaces", () => {
+    expect(passwordSchema.safeParse("seven77").success).toBe(false);
+    expect(passwordSchema.parse(" popcorn ")).toBe(" popcorn ");
+  });
+
+  it("stops where Supabase would, at 72 bytes", () => {
+    expect(passwordSchema.safeParse("a".repeat(72)).success).toBe(true);
+    expect(passwordSchema.safeParse("a".repeat(73)).success).toBe(false);
+    // Four bytes each: 18 of them is the limit.
+    expect(passwordSchema.safeParse("🍿".repeat(18)).success).toBe(true);
+    expect(passwordSchema.safeParse("🍿".repeat(19)).success).toBe(false);
+  });
+});
+
+describe("signInWithPasswordSchema", () => {
+  it("lets any existing password be tried", () => {
+    expect(signInWithPasswordSchema.safeParse({ email: "you@example.com", password: "short" }).success).toBe(true);
+    expect(signInWithPasswordSchema.safeParse({ email: "you@example.com", password: "" }).success).toBe(false);
+    expect(signInWithPasswordSchema.safeParse({ email: "nope", password: "popcorn-row-7" }).success).toBe(false);
   });
 });
 

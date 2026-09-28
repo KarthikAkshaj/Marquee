@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PASSWORD_MAX_BYTES, PASSWORD_MIN, passwordBytes } from "@/lib/auth/password";
 import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_KINDS } from "@/lib/categories";
 import { AVATAR_MAX_BYTES, AVATAR_TYPES, BIO_MAX, DISPLAY_NAME_MAX, USERNAME_PATTERN, type AvatarType } from "@/lib/profile";
 import { RELATED_KINDS, SEARCH_KINDS, SEARCH_TYPES } from "@/lib/search/types";
@@ -23,6 +24,22 @@ export const otpCodeSchema = z.string().regex(/^\d{6}$/, "Enter all 6 digits.");
 export const verifyEmailCodeSchema = z.object({
   email: emailSchema,
   token: otpCodeSchema,
+});
+
+const TOO_LONG = "That's longer than a password can be. Trim it a little.";
+
+/** A new password. Never trimmed: spaces are characters too. */
+export const passwordSchema = z
+  .string()
+  .min(PASSWORD_MIN, `Use at least ${PASSWORD_MIN} characters.`)
+  .refine((password) => passwordBytes(password) <= PASSWORD_MAX_BYTES, TOO_LONG);
+
+export const signInWithPasswordSchema = z.object({
+  email: emailSchema,
+  password: z
+    .string()
+    .min(1, "Enter your password.")
+    .refine((password) => passwordBytes(password) <= PASSWORD_MAX_BYTES, TOO_LONG),
 });
 
 /** Empty form fields arrive as "" — treat them as not provided. */
