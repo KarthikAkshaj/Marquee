@@ -4,6 +4,7 @@ import type { CSSProperties, MouseEvent } from "react";
 import { TicketStamp } from "@/components/fun/TicketStamp";
 import { progressPercent, progressShort, type Item } from "@/lib/items";
 import { generatedCover } from "@/lib/poster-art";
+import { lightRoom } from "@/lib/room-light";
 import { STATUS_STYLE, labelKind, readingLabel, statusLabel, type CategoryKind } from "@/lib/status";
 import { cn, isPlainClick } from "@/lib/utils";
 import { ItemCover } from "./ItemCover";
@@ -74,7 +75,13 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
   };
 
   return (
-    <div className="group @container flex flex-col gap-2.5" style={light}>
+    <div
+      className="group @container flex flex-col gap-2.5"
+      style={light}
+      // The room takes this title's colour while a mouse rests on it (U14).
+      onPointerEnter={(event) => event.pointerType === "mouse" && lightRoom(tint)}
+      onPointerLeave={(event) => event.pointerType === "mouse" && lightRoom(null)}
+    >
       <div>
         <p className="text-13 leading-[1.3] font-medium text-pretty transition-colors group-hover:text-white">
           <Link href={href} scroll={false} onClick={open}>

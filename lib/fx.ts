@@ -35,12 +35,15 @@ export const FX_QUERIES = ["(prefers-reduced-motion: reduce)", "(prefers-reduced
 
 type NavigatorHints = Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
 
+/** Whether a media query matches, false where there are no media queries (test DOMs). */
+const matches = (query: string) => window.matchMedia?.(query).matches ?? false;
+
 /** What this browser says about itself. Browser only. */
 export function readFxSignals(): FxSignals {
   const hints = navigator as NavigatorHints;
   return {
-    reducedMotion: window.matchMedia(FX_QUERIES[0]).matches,
-    reducedTransparency: window.matchMedia(FX_QUERIES[1]).matches,
+    reducedMotion: matches(FX_QUERIES[0]),
+    reducedTransparency: matches(FX_QUERIES[1]),
     saveData: hints.connection?.saveData === true,
     deviceMemory: hints.deviceMemory,
     cores: hints.hardwareConcurrency || undefined,

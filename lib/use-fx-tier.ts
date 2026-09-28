@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import { FX_QUERIES, fxTier, readFxSignals, type FxTier } from "@/lib/fx";
 
 function subscribe(onChange: () => void) {
+  if (!window.matchMedia) return () => {};
   const lists = FX_QUERIES.map((query) => window.matchMedia(query));
   for (const list of lists) list.addEventListener("change", onChange);
   return () => {

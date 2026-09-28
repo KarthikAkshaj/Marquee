@@ -1,8 +1,10 @@
 "use client";
 
 import { Fragment, useState, type ReactNode } from "react";
+import { RoomLight } from "@/components/shell/RoomLight";
 import type { Item } from "@/lib/items";
 import type { PaletteCategory } from "@/lib/palette";
+import { generatedCover } from "@/lib/poster-art";
 import { ContinueRow } from "./ContinueRow";
 import { Spotlight } from "./Spotlight";
 
@@ -32,10 +34,14 @@ export function HomeLead({ items, shelves, greeting, children }: HomeLeadProps) 
   if ((lead?.id ?? null) !== pinned) setPinned(lead?.id ?? null);
 
   const rest = items.filter((item) => item.id !== lead?.id);
+  const leadShelf = lead ? byId.get(lead.category_id) : undefined;
+  // The room takes the spotlight title's colour (U14).
+  const tint = lead && leadShelf ? (lead.accent_color ?? generatedCover(lead.id, leadShelf.color).tint) : null;
   const showRow = !lead || rest.some((item) => item.status === "in_progress");
 
   return (
     <>
+      <RoomLight base={tint} />
       {lead ? (
         <Spotlight
           item={lead}

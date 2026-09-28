@@ -5,6 +5,7 @@ import { AddTitlePanel } from "@/components/add/AddTitlePanel";
 import { useAddHandler } from "@/components/palette/PaletteProvider";
 import { DeleteItemDialog } from "@/components/items/DeleteItemDialog";
 import { ItemSheet } from "@/components/items/ItemSheet";
+import { RoomLight } from "@/components/shell/RoomLight";
 import { useItemActions, type ShelfCategory } from "@/components/items/useItemActions";
 import { searchKindOf } from "@/lib/add";
 import { countByStatus, filterByTitle, selectItems, type CategoryParams, type Item } from "@/lib/items";
@@ -52,6 +53,8 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
 
   return (
     <>
+      {/* The shelf keeps its own colour; hovering a poster lends the room that title's (U14). */}
+      <RoomLight base={null} />
       <CategoryHeader
         category={category}
         count={counts.all}
