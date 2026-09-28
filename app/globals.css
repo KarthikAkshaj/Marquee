@@ -214,6 +214,11 @@
   @keyframes settle {
     from { opacity: 0; scale: 1.08; }
   }
+  /* The same push without the fade, for art that must paint at once: the Home spotlight (U10). */
+  --animate-push: push 1.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  @keyframes push {
+    from { scale: 1.06; }
+  }
 
   /* Chart columns grow up from the baseline (pair with origin-bottom). A scale,
      not a height, so the browser never lays the chart out again mid-grow. */

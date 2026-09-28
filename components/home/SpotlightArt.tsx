@@ -1,7 +1,6 @@
 "use client";
 
 import { getImageProps } from "next/image";
-import { useState } from "react";
 import type { Item } from "@/lib/items";
 import { cn } from "@/lib/utils";
 
@@ -17,11 +16,10 @@ const WIDE = "(min-width: 1280px) calc(100vw - 248px), 100vw";
  * The spotlight's picture (U10). Streaming apps frame the same title two ways:
  * the landscape still across a wide screen, the portrait key art on a phone.
  * One <picture> does both, so a phone never downloads the still, and it's the
- * first image the page asks for. With only a cover, a wide screen shows it on
- * the right, fading into the words.
+ * first image the page asks for and the first it paints. With only a cover, a
+ * wide screen shows it on the right, fading into the words.
  */
 export function SpotlightArt({ item, wash }: SpotlightArtProps) {
-  const [loaded, setLoaded] = useState(false);
   const wide = item.backdrop_url;
   const tall = item.cover_url ?? item.backdrop_url;
   const coverOnly = !wide && tall !== null;
@@ -34,18 +32,12 @@ export function SpotlightArt({ item, wash }: SpotlightArtProps) {
     picture = (
       <picture>
         {still && <source media="(min-width: 768px)" srcSet={still.srcSet} sizes={WIDE} />}
+        {/* Shown from the first paint, never waiting on a script: it is what the page counts as loaded.
+            Only the slow push moves it, and that is a transform. */}
         <img
           {...art}
           alt=""
-          // A cached image can finish before React is listening, so check on mount as well.
-          ref={(node) => {
-            if (node?.complete && node.naturalWidth > 0) setLoaded(true);
-          }}
-          onLoad={() => setLoaded(true)}
-          className={cn(
-            "object-cover object-top opacity-0 transition-opacity duration-500 md:object-[center_25%]",
-            loaded && "animate-settle opacity-75 lite:animate-none md:opacity-90",
-          )}
+          className="animate-push object-cover object-top opacity-75 lite:animate-none md:object-[center_25%] md:opacity-90"
         />
       </picture>
     );
