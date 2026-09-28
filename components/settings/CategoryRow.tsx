@@ -22,13 +22,21 @@ type CategoryRowProps = {
   onDelete: () => void;
 };
 
+// The rows making room slide over and settle with a touch of give (U34).
+const SLIDE = { duration: 340, easing: "cubic-bezier(0.3, 1.2, 0.5, 1)" };
+
 const menuItem =
   "flex min-h-11 cursor-pointer items-center gap-2.5 rounded-nav px-2.5 text-13 outline-none select-none md:min-h-9";
 
-/** One draggable category (handoff §07): grip, colour, icon, name, type, count, more. */
+/**
+ * One draggable category (handoff §07): grip, colour, icon, name, type, count,
+ * more. Hovered or focused, it takes a wash of its own colour; dragged, it
+ * lifts off the list (U34).
+ */
 export function CategoryRow({ category, onRename, onKind, onEdit, onDelete }: CategoryRowProps) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: category.id,
+    transition: SLIDE,
   });
   const style = categoryStyle(category.color);
   const count = category.itemCount;
@@ -36,12 +44,26 @@ export function CategoryRow({ category, onRename, onKind, onEdit, onDelete }: Ca
   return (
     <li
       ref={setNodeRef}
-      style={{ transform: CSS.Translate.toString(transform), transition }}
+      style={{
+        transform: CSS.Translate.toString(transform),
+        // dnd-kit's slide, plus the lift, which springs as it's picked up and put down.
+        transition: [transition, "scale 320ms var(--ease-spring)", "rotate 320ms var(--ease-spring)", "box-shadow 200ms ease-out"]
+          .filter(Boolean)
+          .join(", "),
+      }}
       className={cn(
-        "relative flex items-center gap-2 border-b border-white/5 bg-surface py-2 pr-2 pl-1 last:border-b-0 md:gap-3.25 md:py-2.5 md:pr-3 md:pl-2",
-        isDragging && "z-10 bg-elevated shadow-menu",
+        "group/row relative isolate flex items-center gap-2 border-b border-white/5 bg-surface py-2 pr-2 pl-1 first:rounded-t-[10px] last:border-b-0 md:gap-3.25 md:py-2.5 md:pr-3 md:pl-2",
+        isDragging && "z-10 scale-[1.015] rotate-[0.4deg] rounded-[10px] bg-elevated shadow-menu",
       )}
     >
+      <span
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-0 -z-10 rounded-[inherit] bg-linear-to-r to-transparent to-65% opacity-0 transition-opacity duration-300 group-focus-within/row:opacity-100 group-hover/row:opacity-100",
+          style.wash,
+          isDragging && "opacity-100",
+        )}
+      />
       <button
         ref={setActivatorNodeRef}
         type="button"
@@ -52,7 +74,14 @@ export function CategoryRow({ category, onRename, onKind, onEdit, onDelete }: Ca
       >
         <GripVertical aria-hidden className="size-4" strokeWidth={1.8} />
       </button>
-      <span aria-hidden className={cn("hidden size-2.75 shrink-0 rounded-full md:block", style.dot, style.glow)} />
+      <span
+        aria-hidden
+        className={cn(
+          "hidden size-2.75 shrink-0 rounded-full transition-[scale] duration-300 ease-cinematic group-focus-within/row:scale-125 group-hover/row:scale-125 md:block",
+          style.dot,
+          style.glow,
+        )}
+      />
       <button
         type="button"
         onClick={onEdit}

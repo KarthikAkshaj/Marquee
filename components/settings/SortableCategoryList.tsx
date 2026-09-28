@@ -67,7 +67,8 @@ export function SortableCategoryList({ categories, onReorder, onRename, onKind, 
         },
       }}
     >
-      <div className="overflow-hidden rounded-[11px] border border-border bg-surface surface-highlight">
+      {/* Not overflow-hidden: a row lifted off the list (U34) would be clipped at its edges. */}
+      <div className="rounded-[11px] border border-border bg-surface surface-highlight">
         <SortableContext items={ids} strategy={verticalListSortingStrategy}>
           <ul aria-label="Categories">
             {categories.map((category) => (
@@ -85,7 +86,7 @@ export function SortableCategoryList({ categories, onReorder, onRename, onKind, 
         <button
           type="button"
           onClick={onCreate}
-          className="flex min-h-14 w-full items-center gap-3.25 border-t border-white/5 px-4 text-13 text-text-muted transition-colors hover:bg-accent/5 hover:text-accent md:min-h-12"
+          className="flex min-h-14 w-full items-center gap-3.25 rounded-b-[10px] border-t border-white/5 px-4 text-13 text-text-muted transition-colors hover:bg-accent/5 hover:text-accent md:min-h-12"
         >
           <span aria-hidden className="size-2.75 rounded-full border border-dashed border-white/30" />
           New category

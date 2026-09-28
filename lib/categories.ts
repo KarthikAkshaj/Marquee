@@ -25,6 +25,8 @@ type CategoryStyle = {
   pill: string;
   /** Icons and accents in the category's colour. */
   text: string;
+  /** Where a wash of the colour starts, for a gradient that fades from it (U34's rows). */
+  wash: string;
 };
 
 // Full class names spelled out so Tailwind can see them at build time.
@@ -35,6 +37,7 @@ const STYLES: Record<CategoryColor, CategoryStyle> = {
     glow: "shadow-[0_0_10px_color-mix(in_oklab,var(--color-cat-amber)_40%,transparent)]",
     pill: "bg-cat-amber/12",
     text: "text-cat-amber",
+    wash: "from-cat-amber/12",
   },
   crimson: {
     dot: "bg-cat-crimson",
@@ -42,6 +45,7 @@ const STYLES: Record<CategoryColor, CategoryStyle> = {
     glow: "shadow-[0_0_10px_color-mix(in_oklab,var(--color-cat-crimson)_40%,transparent)]",
     pill: "bg-cat-crimson/12",
     text: "text-cat-crimson",
+    wash: "from-cat-crimson/12",
   },
   violet: {
     dot: "bg-cat-violet",
@@ -49,6 +53,7 @@ const STYLES: Record<CategoryColor, CategoryStyle> = {
     glow: "shadow-[0_0_10px_color-mix(in_oklab,var(--color-cat-violet)_40%,transparent)]",
     pill: "bg-cat-violet/12",
     text: "text-cat-violet",
+    wash: "from-cat-violet/12",
   },
   teal: {
     dot: "bg-cat-teal",
@@ -56,6 +61,7 @@ const STYLES: Record<CategoryColor, CategoryStyle> = {
     glow: "shadow-[0_0_10px_color-mix(in_oklab,var(--color-cat-teal)_40%,transparent)]",
     pill: "bg-cat-teal/12",
     text: "text-cat-teal",
+    wash: "from-cat-teal/12",
   },
   sky: {
     dot: "bg-cat-sky",
@@ -63,6 +69,7 @@ const STYLES: Record<CategoryColor, CategoryStyle> = {
     glow: "shadow-[0_0_10px_color-mix(in_oklab,var(--color-cat-sky)_40%,transparent)]",
     pill: "bg-cat-sky/12",
     text: "text-cat-sky",
+    wash: "from-cat-sky/12",
   },
   rose: {
     dot: "bg-cat-rose",
@@ -70,6 +77,7 @@ const STYLES: Record<CategoryColor, CategoryStyle> = {
     glow: "shadow-[0_0_10px_color-mix(in_oklab,var(--color-cat-rose)_40%,transparent)]",
     pill: "bg-cat-rose/12",
     text: "text-cat-rose",
+    wash: "from-cat-rose/12",
   },
   lime: {
     dot: "bg-cat-lime",
@@ -77,6 +85,7 @@ const STYLES: Record<CategoryColor, CategoryStyle> = {
     glow: "shadow-[0_0_10px_color-mix(in_oklab,var(--color-cat-lime)_40%,transparent)]",
     pill: "bg-cat-lime/12",
     text: "text-cat-lime",
+    wash: "from-cat-lime/12",
   },
   sand: {
     dot: "bg-cat-sand",
@@ -84,6 +93,7 @@ const STYLES: Record<CategoryColor, CategoryStyle> = {
     glow: "shadow-[0_0_10px_color-mix(in_oklab,var(--color-cat-sand)_40%,transparent)]",
     pill: "bg-cat-sand/12",
     text: "text-cat-sand",
+    wash: "from-cat-sand/12",
   },
 };
 
