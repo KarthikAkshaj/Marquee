@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { otpErrorMessage } from "@/lib/auth/otp";
+import { signInCallback } from "@/lib/auth/welcome";
 import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 import { safeRedirectPath, signInWithEmailSchema, verifyEmailCodeSchema } from "@/lib/validators";
@@ -46,7 +47,7 @@ export async function signInWithEmail(
       shouldCreateUser: true,
       // Supabase verifies this with Turnstile before it sends anything (SPEC §6).
       captchaToken: formData.get("captchaToken")?.toString() || undefined,
-      emailRedirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
+      emailRedirectTo: signInCallback(siteUrl(), next),
     },
   });
 
@@ -115,7 +116,7 @@ export async function signInWithGoogle(formData: FormData) {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
+      redirectTo: signInCallback(siteUrl(), next),
       queryParams: { prompt: "select_account" },
     },
   });

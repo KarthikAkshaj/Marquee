@@ -4,6 +4,7 @@ import { PaletteProvider } from "@/components/palette/PaletteProvider";
 import { MobileBottomNav } from "@/components/shell/MobileBottomNav";
 import { MobileTopBar } from "@/components/shell/MobileTopBar";
 import { Sidebar } from "@/components/shell/Sidebar";
+import { WelcomeStamp } from "@/components/shell/WelcomeStamp";
 import { getCategories, getViewer } from "@/lib/queries";
 
 // Only the landing page is indexable (SPEC §11).
@@ -37,6 +38,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           <MobileBottomNav categories={categories} user={user} />
         </div>
       </div>
+      <WelcomeStamp />
     </PaletteProvider>
   );
 }

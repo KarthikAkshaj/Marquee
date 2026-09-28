@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 type TicketStampProps = {
   /** Called once the stamp has faded, so the parent can forget it. */
   onDone: () => void;
-  size?: "sm" | "md";
+  /** lg: over a whole page, welcoming a sign-in (U25). */
+  size?: "sm" | "md" | "lg";
   /** The small line under ADMIT ONE. */
   caption?: string;
   /** Stay on once stamped, for a page that's about to change anyway (signing in). */
@@ -43,11 +44,11 @@ export function TicketStamp({ onDone, size = "md", caption = "FINISHED", hold = 
         transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
         className={cn(
           "flex flex-col items-center rounded-[6px] border-2 border-completed bg-bg/80 text-completed shadow-[0_0_28px_color-mix(in_oklab,var(--color-completed)_45%,transparent)] outline-1 outline-offset-[-6px] outline-completed/50 outline-dashed",
-          size === "md" ? "gap-0.5 px-3.5 py-2" : "gap-0 px-2.5 py-1.5",
+          size === "lg" ? "gap-1 px-6 py-3.5" : size === "md" ? "gap-0.5 px-3.5 py-2" : "gap-0 px-2.5 py-1.5",
         )}
       >
-        <span className={cn("font-mono font-bold tracking-[.22em]", size === "md" ? "text-[13px]" : "text-[10.5px]")}>ADMIT ONE</span>
-        <span className={cn("font-mono tracking-[.3em] text-completed/80", size === "md" ? "text-[8.5px]" : "text-[7px]")}>{caption}</span>
+        <span className={cn("font-mono font-bold tracking-[.22em]", size === "lg" ? "text-[22px]" : size === "md" ? "text-[13px]" : "text-[10.5px]")}>ADMIT ONE</span>
+        <span className={cn("font-mono tracking-[.3em] text-completed/80", size === "lg" ? "text-[11px]" : size === "md" ? "text-[8.5px]" : "text-[7px]")}>{caption}</span>
       </motion.div>
     </motion.div>
   );

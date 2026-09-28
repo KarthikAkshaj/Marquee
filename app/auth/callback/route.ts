@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { WELCOME_COOKIE, WELCOME_MAX_AGE } from "@/lib/auth/welcome";
 import { createClient } from "@/lib/supabase/server";
 import { safeRedirectPath } from "@/lib/validators";
 
@@ -16,7 +17,17 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return noStore(NextResponse.redirect(new URL(next, origin)));
+      const response = NextResponse.redirect(new URL(next, origin));
+      // A sign-in, not an email change: the app says hello on arrival (U25).
+      if (searchParams.get("welcome") === "1") {
+        response.cookies.set(WELCOME_COOKIE, "1", {
+          maxAge: WELCOME_MAX_AGE,
+          path: "/",
+          sameSite: "lax",
+          secure: origin.startsWith("https:"),
+        });
+      }
+      return noStore(response);
     }
   }
 
