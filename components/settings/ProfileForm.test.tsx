@@ -90,10 +90,15 @@ describe("ProfileForm", () => {
     );
   });
 
-  it("shows the stats card", () => {
+  it("shows the member pass, following the form as you type", () => {
     render(<ProfileForm profile={profile} />);
-    expect(screen.getByText("2024-03")).toBeInTheDocument();
-    expect(screen.getByText("431")).toBeInTheDocument();
-    expect(screen.getByText("087")).toBeInTheDocument();
+    const pass = screen.getByRole("region", { name: "Member pass" });
+    expect(pass).toHaveTextContent("MAR 2024");
+    expect(pass).toHaveTextContent("431");
+    expect(pass).toHaveTextContent("87");
+    expect(pass).toHaveTextContent("@akuma_3f9c");
+
+    fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Akuma the Great" } });
+    expect(pass).toHaveTextContent("Akuma the Great");
   });
 });

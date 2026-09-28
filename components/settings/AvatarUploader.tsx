@@ -4,7 +4,6 @@ import { useRef, useState, useTransition, type ChangeEvent } from "react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
-import { Avatar } from "@/components/user/Avatar";
 import { removeAvatar } from "@/lib/actions/profile";
 import { AVATAR_TYPES } from "@/lib/profile";
 import { AvatarCropDialog } from "./AvatarCropDialog";
@@ -12,10 +11,8 @@ import { AvatarCropDialog } from "./AvatarCropDialog";
 /** The picked file only feeds the cropper; what's uploaded is a 512px square well under the bucket's 2 MB. */
 const PICK_MAX_BYTES = 15 * 1024 * 1024;
 
-type AvatarUploaderProps = { name: string; avatarUrl: string | null };
-
-/** Large avatar with Change photo and Remove (SPEC §8.10, handoff §07). */
-export function AvatarUploader({ name, avatarUrl }: AvatarUploaderProps) {
+/** Change photo and Remove, under the member pass that shows the photo (SPEC §8.10, U31). */
+export function AvatarUploader({ avatarUrl }: { avatarUrl: string | null }) {
   const input = useRef<HTMLInputElement>(null);
   const [source, setSource] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -45,19 +42,14 @@ export function AvatarUploader({ name, avatarUrl }: AvatarUploaderProps) {
   }
 
   return (
-    <div className="flex items-center gap-4.5 md:gap-6">
-      <div className="relative shrink-0">
-        <div aria-hidden className="glow-amber absolute -inset-3.5 rounded-full blur-[14px] md:-inset-4.5 md:blur-[16px]" />
-        <Avatar name={name} src={avatarUrl} size="xl" />
-      </div>
-
-      <div className="flex min-w-0 flex-1 flex-col gap-3">
-        <p className="hidden max-w-82.5 text-13 text-pretty text-text-muted md:block">
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6">
+        <p className="max-w-92 text-13 text-pretty text-text-muted">
           {avatarUrl
             ? "Looking good. Swap it whenever the mood changes."
             : "No photo yet, so we made one out of your initials. It beats a grey silhouette."}
         </p>
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2.5">
+        <div className="flex shrink-0 items-center gap-2 md:gap-2.5">
           <Button variant="secondary" onClick={() => input.current?.click()} className="h-11 px-4 text-13 md:h-10">
             Change photo
           </Button>
@@ -72,21 +64,21 @@ export function AvatarUploader({ name, avatarUrl }: AvatarUploaderProps) {
             </Button>
           )}
         </div>
-        {error && (
-          <p role="alert" className="text-12 text-dropped">
-            {error}
-          </p>
-        )}
-        <input
-          ref={input}
-          type="file"
-          accept={Object.keys(AVATAR_TYPES).join(",")}
-          onChange={pick}
-          tabIndex={-1}
-          aria-hidden
-          className="sr-only"
-        />
       </div>
+      {error && (
+        <p role="alert" className="text-12 text-dropped">
+          {error}
+        </p>
+      )}
+      <input
+        ref={input}
+        type="file"
+        accept={Object.keys(AVATAR_TYPES).join(",")}
+        onChange={pick}
+        tabIndex={-1}
+        aria-hidden
+        className="sr-only"
+      />
 
       <AvatarCropDialog source={source} onClose={() => setSource(null)} />
       <ConfirmDialog

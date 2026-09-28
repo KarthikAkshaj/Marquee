@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { USERNAME_PATTERN, normaliseUsername, ownAvatarPath, suggestUsername } from "./profile";
+import { USERNAME_PATTERN, memberSinceLabel, normaliseUsername, ownAvatarPath, passBarcode, suggestUsername } from "./profile";
 
 describe("normaliseUsername", () => {
   it("lowercases and turns spaces into underscores", () => {
@@ -31,5 +31,21 @@ describe("ownAvatarPath", () => {
     expect(ownAvatarPath(`${base}/someone-else/1.webp`, user)).toBeNull();
     expect(ownAvatarPath(`${base}/${user}/../someone-else/1.webp`, user)).toBeNull();
     expect(ownAvatarPath(`${base}/${user}/`, user)).toBeNull();
+  });
+});
+
+describe("member pass", () => {
+  it("prints the month you joined like a ticket", () => {
+    expect(memberSinceLabel("2026-03")).toBe("MAR 2026");
+    expect(memberSinceLabel("2024-12")).toBe("DEC 2024");
+    expect(memberSinceLabel("soon")).toBe("soon");
+  });
+
+  it("draws a barcode that's steady for a name and changes with it", () => {
+    const bars = passBarcode("akshaj");
+    expect(bars).toHaveLength(30);
+    expect(bars.every((width) => width >= 1 && width <= 3)).toBe(true);
+    expect(passBarcode("akshaj")).toEqual(bars);
+    expect(passBarcode("akshaj_")).not.toEqual(bars);
   });
 });

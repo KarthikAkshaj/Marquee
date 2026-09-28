@@ -8,7 +8,7 @@ import { BIO_MAX, DISPLAY_NAME_MAX } from "@/lib/profile";
 import type { Profile } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 import { AvatarUploader } from "./AvatarUploader";
-import { ProfileStats } from "./ProfileStats";
+import { MemberPass } from "./MemberPass";
 import { SaveBar } from "./SaveBar";
 import { UsernameField } from "./UsernameField";
 import { useUsernameCheck } from "./useUsernameCheck";
@@ -55,7 +55,14 @@ export function ProfileForm({ profile }: { profile: Profile }) {
 
   return (
     <div className="flex flex-col gap-7 pb-24">
-      <AvatarUploader name={clean.display_name || profile.username} avatarUrl={profile.avatar_url} />
+      <MemberPass
+        name={clean.display_name}
+        username={clean.username || profile.username}
+        bio={clean.bio}
+        avatarUrl={profile.avatar_url}
+        stats={profile.stats}
+      />
+      <AvatarUploader avatarUrl={profile.avatar_url} />
 
       <div className="flex flex-col gap-4.5">
         <div>
@@ -98,8 +105,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           />
         </div>
       </div>
-
-      <ProfileStats stats={profile.stats} />
 
       <SaveBar visible={dirty} canSave={canSave} saving={saving} onDiscard={() => setValues(saved)} onSave={save} />
     </div>

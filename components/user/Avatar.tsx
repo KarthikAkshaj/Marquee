@@ -8,6 +8,8 @@ const SIZES = {
   lg: { box: "size-10.5 text-[15px] shadow-avatar-lg", px: 42 },
   md: { box: "size-11 text-[15px] shadow-avatar", px: 44 },
   xl: { box: "size-24 text-[34px] shadow-avatar-lg md:size-30 md:text-[42px]", px: 120 },
+  /** On the member pass, inside its gold ring (U31). */
+  pass: { box: "size-17 text-[24px] md:size-21 md:text-[30px]", px: 84 },
 } as const;
 
 type AvatarProps = {

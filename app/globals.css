@@ -616,6 +616,64 @@
   }
 }
 
+/*
+ * The member pass (U31). ticket-notch bites the two half-circles out where the
+ * stub tears off: across the bottom on phones, down the right side from md.
+ * --stub is the stub's height (phones) or width (md up). A mask, so the
+ * notches are truly empty, whatever light is behind the card.
+ */
+@utility ticket-notch {
+  --notch: 11px;
+  mask:
+    radial-gradient(circle var(--notch) at 0 calc(100% - var(--stub)), #0000 calc(var(--notch) - 0.5px), #000 var(--notch))
+      left / 51% 100% no-repeat,
+    radial-gradient(circle var(--notch) at 100% calc(100% - var(--stub)), #0000 calc(var(--notch) - 0.5px), #000 var(--notch))
+      right / 51% 100% no-repeat;
+
+  @media (width >= 48rem) {
+    mask:
+      radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 0, #0000 calc(var(--notch) - 0.5px), #000 var(--notch))
+        top / 100% 51% no-repeat,
+      radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 100%, #0000 calc(var(--notch) - 0.5px), #000 var(--notch))
+        bottom / 100% 51% no-repeat;
+  }
+}
+
+/* Gold foil across the pass: a band of light wider than the card, slid by
+   transform (--foil-x from usePassTilt), swept across once as the page opens. */
+@keyframes foil-sweep {
+  from {
+    translate: -55% 0;
+  }
+}
+
+@utility foil {
+  position: absolute;
+  inset: 0 -60%;
+  pointer-events: none;
+  background: linear-gradient(
+    112deg,
+    transparent 32%,
+    rgb(255 213 143 / 0.06) 42%,
+    rgb(255 246 228 / 0.13) 49%,
+    rgb(244 182 80 / 0.07) 56%,
+    transparent 66%
+  );
+  mix-blend-mode: plus-lighter;
+  translate: var(--foil-x, 0%) 0;
+  transition: translate 600ms --theme(--ease-cinematic);
+  animation: foil-sweep 1.8s --theme(--ease-cinematic) 350ms backwards;
+
+  &:where([data-fx="lite"] *) {
+    animation: none;
+  }
+}
+
+/* Fine engraved rings, like the paper of a ticket or a banknote. Static. */
+@utility guilloche {
+  background: repeating-radial-gradient(circle at 108% 125%, transparent 0 7px, rgb(255 255 255 / 0.024) 7px 8px);
+}
+
 /* The room's light (U14): a soft wash in --tint from above, like light thrown
    off a screen. Plain gradients, no blur, so a new colour costs one repaint. */
 @utility room-light {
