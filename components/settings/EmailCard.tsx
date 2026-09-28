@@ -2,6 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useState, useTransition, type FormEvent } from "react";
+import { HouseLights } from "@/components/shell/HouseLights";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { changeEmail } from "@/lib/actions/account";
@@ -125,6 +126,8 @@ export function EmailCard({ email, pendingEmail, signsInWith, halfConfirmed }: E
           Sign out
         </Button>
       </div>
+      {/* The lights go down while you leave (U37). */}
+      <HouseLights down={leaving} label="Signing out." />
     </section>
   );
 }

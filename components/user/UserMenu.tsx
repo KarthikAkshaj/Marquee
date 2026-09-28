@@ -4,6 +4,7 @@ import { ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { DropdownMenu } from "radix-ui";
 import { useTransition } from "react";
+import { HouseLights } from "@/components/shell/HouseLights";
 import { signOut, switchAccount } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
 import { Avatar } from "./Avatar";
@@ -25,63 +26,67 @@ export function UserMenu({ user }: { user: MenuUser }) {
   const [pending, startTransition] = useTransition();
 
   return (
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger asChild>
-        <button
-          type="button"
-          className="group flex w-full items-center gap-2.5 rounded-[9px] border border-transparent px-2.25 py-2 text-left transition-colors hover:bg-white/5 data-[state=open]:border-white/12 data-[state=open]:bg-white/5"
-        >
-          <Avatar name={user.displayName} src={user.avatarUrl} size="sm" />
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-[12.5px] leading-[1.2] font-medium">{user.displayName}</span>
-            {user.username && <span className="mt-0.5 block truncate font-mono text-[10.5px] text-text-muted">@{user.username}</span>}
-          </span>
-          <ChevronUp
-            aria-hidden
-            className="size-3.25 shrink-0 text-text-muted transition-transform group-data-[state=open]:rotate-180"
-            strokeWidth={2.2}
-          />
-        </button>
-      </DropdownMenu.Trigger>
-
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          side="top"
-          align="start"
-          sideOffset={8}
-          className="z-50 w-(--radix-dropdown-menu-trigger-width) overflow-hidden rounded-[13px] border border-white/10 bg-menu shadow-menu"
-        >
-          <div className="flex items-center gap-2.75 border-b border-border px-3.5 pt-3.5 pb-3.25">
-            <Avatar name={user.displayName} src={user.avatarUrl} size="lg" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-[13.5px] font-medium">{user.displayName}</p>
-              {user.username && <p className="mt-0.5 truncate font-mono text-[11px] text-text-muted">@{user.username}</p>}
-              {user.email && <p className="mt-0.75 truncate text-[11px] text-text-muted">{user.email}</p>}
-            </div>
-          </div>
-
-          <div className="p-1.5">
-            <LinkItem href="/settings/profile">Profile</LinkItem>
-            <LinkItem href="/settings/categories">Settings</LinkItem>
-            <MenuItem disabled={pending} onSelect={() => startTransition(() => switchAccount())}>
-              Switch account
-            </MenuItem>
-            <DropdownMenu.Separator className="mx-2.5 my-1.5 h-px bg-border" />
-            <MenuItem danger disabled={pending} onSelect={() => startTransition(() => signOut())}>
-              Sign out
-            </MenuItem>
-          </div>
-
-          <div className="flex items-center gap-0.5 border-t border-border px-1.5 py-1">
-            <LegalItem href="/terms">Terms</LegalItem>
-            <span aria-hidden className="font-mono text-[11px] text-text-ghost">
-              ·
+    <>
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger asChild>
+          <button
+            type="button"
+            className="group flex w-full items-center gap-2.5 rounded-[9px] border border-transparent px-2.25 py-2 text-left transition-colors hover:bg-white/5 data-[state=open]:border-white/12 data-[state=open]:bg-white/5"
+          >
+            <Avatar name={user.displayName} src={user.avatarUrl} size="sm" />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[12.5px] leading-[1.2] font-medium">{user.displayName}</span>
+              {user.username && <span className="mt-0.5 block truncate font-mono text-[10.5px] text-text-muted">@{user.username}</span>}
             </span>
-            <LegalItem href="/privacy">Privacy</LegalItem>
-          </div>
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
+            <ChevronUp
+              aria-hidden
+              className="size-3.25 shrink-0 text-text-muted transition-transform group-data-[state=open]:rotate-180"
+              strokeWidth={2.2}
+            />
+          </button>
+        </DropdownMenu.Trigger>
+
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content
+            side="top"
+            align="start"
+            sideOffset={8}
+            className="z-50 w-(--radix-dropdown-menu-trigger-width) overflow-hidden rounded-[13px] border border-white/10 bg-menu shadow-menu"
+          >
+            <div className="flex items-center gap-2.75 border-b border-border px-3.5 pt-3.5 pb-3.25">
+              <Avatar name={user.displayName} src={user.avatarUrl} size="lg" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[13.5px] font-medium">{user.displayName}</p>
+                {user.username && <p className="mt-0.5 truncate font-mono text-[11px] text-text-muted">@{user.username}</p>}
+                {user.email && <p className="mt-0.75 truncate text-[11px] text-text-muted">{user.email}</p>}
+              </div>
+            </div>
+
+            <div className="p-1.5">
+              <LinkItem href="/settings/profile">Profile</LinkItem>
+              <LinkItem href="/settings/categories">Settings</LinkItem>
+              <MenuItem disabled={pending} onSelect={() => startTransition(() => switchAccount())}>
+                Switch account
+              </MenuItem>
+              <DropdownMenu.Separator className="mx-2.5 my-1.5 h-px bg-border" />
+              <MenuItem danger disabled={pending} onSelect={() => startTransition(() => signOut())}>
+                Sign out
+              </MenuItem>
+            </div>
+
+            <div className="flex items-center gap-0.5 border-t border-border px-1.5 py-1">
+              <LegalItem href="/terms">Terms</LegalItem>
+              <span aria-hidden className="font-mono text-[11px] text-text-ghost">
+                ·
+              </span>
+              <LegalItem href="/privacy">Privacy</LegalItem>
+            </div>
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
+      {/* The lights go down while you leave (U37). */}
+      <HouseLights down={pending} label="Signing out." />
+    </>
   );
 }
 

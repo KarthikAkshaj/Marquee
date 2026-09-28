@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useTransition, type ReactNode } from "react";
 import { LegalLinks } from "@/components/marketing/LegalLinks";
+import { HouseLights } from "@/components/shell/HouseLights";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { signOut, switchAccount } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
@@ -63,6 +64,8 @@ export function AccountSheet({ user, open, onOpenChange }: AccountSheetProps) {
         </button>
       </div>
       <LegalLinks onGo={close} className="mt-2 border-t border-border px-3 pt-1" />
+      {/* The lights go down while you leave (U37). */}
+      <HouseLights down={pending} label="Signing out." />
     </BottomSheet>
   );
 }

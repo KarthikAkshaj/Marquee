@@ -735,6 +735,38 @@
   transition: --pick 450ms --theme(--ease-cinematic);
 }
 
+/* House lights down (U37): the room dims, then an iris closes in to black.
+   --iris is registered so the circle's edge itself can move. */
+@property --iris {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 160%;
+}
+
+@keyframes lights-down {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes iris-out {
+  to {
+    --iris: -20%;
+  }
+}
+
+@utility house-lights {
+  background: radial-gradient(circle at 50% 42%, rgb(9 9 11 / 0.55) var(--iris), rgb(9 9 11 / 0.98) calc(var(--iris) + 14%));
+  animation:
+    lights-down 450ms ease-out,
+    iris-out 1.1s cubic-bezier(0.55, 0, 0.35, 1) 200ms forwards;
+
+  &:where([data-fx="lite"] *) {
+    background: var(--color-bg);
+    animation: lights-down 400ms ease-out;
+  }
+}
+
 /* The room's light (U14): a soft wash in --tint from above, like light thrown
    off a screen. Plain gradients, no blur, so a new colour costs one repaint. */
 @utility room-light {
