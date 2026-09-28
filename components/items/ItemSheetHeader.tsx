@@ -1,7 +1,6 @@
 "use client";
 
 import { Star } from "lucide-react";
-import Image from "next/image";
 import type { CSSProperties } from "react";
 import { toast } from "sonner";
 import { InlineEdit } from "@/components/ui/InlineEdit";
@@ -12,6 +11,7 @@ import { labelKind, readingLabel, type CategoryKind } from "@/lib/status";
 import { cn } from "@/lib/utils";
 import { TicketStamp } from "@/components/fun/TicketStamp";
 import { ItemCover } from "./ItemCover";
+import { SheetBackdrop } from "./SheetBackdrop";
 
 type ItemSheetHeaderProps = {
   item: Item;
@@ -36,7 +36,7 @@ function Headline({ title }: { title: string }) {
 }
 
 /**
- * Blurred backdrop in the title's own colour, the poster overlapping it, and
+ * The title's still in a band across the top, the poster overlapping it, and
  * the title and release year editable in place (SPEC §8.6, handoff §03).
  */
 export function ItemSheetHeader({ item, category, onDetails, onToggleFavorite, stamped, onStamped }: ItemSheetHeaderProps) {
@@ -66,16 +66,9 @@ export function ItemSheetHeader({ item, category, onDetails, onToggleFavorite, s
 
   return (
     <div className="relative" style={{ "--poster-glow": glow } as CSSProperties}>
-      <div aria-hidden className="absolute inset-x-0 top-0 h-57.5 overflow-hidden md:h-49">
-        {item.backdrop_url ? (
-          <Image src={item.backdrop_url} alt="" fill sizes="560px" className="scale-115 object-cover opacity-70 blur-[34px]" />
-        ) : (
-          <div className="absolute -inset-10 scale-115 blur-[34px]" style={{ background: wash }} />
-        )}
-        <div className="absolute inset-0 bg-linear-to-t from-sheet to-sheet/20" />
-      </div>
+      <SheetBackdrop backdropUrl={item.backdrop_url} wash={wash} />
 
-      <div className="relative flex items-end gap-4 px-5 pt-3.5 md:gap-5 md:px-7 md:pt-28">
+      <div className="relative flex items-end gap-4 px-5 pt-3.5 md:gap-5 md:px-7 md:pt-36">
         <div className="relative h-39 w-26 shrink-0 overflow-hidden rounded-card shadow-poster md:h-53.25 md:w-35.5">
           <ItemCover item={item} categoryColor={category.color} sizes="142px" />
           {stamped && <TicketStamp size="sm" onDone={onStamped} />}
