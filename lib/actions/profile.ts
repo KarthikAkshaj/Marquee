@@ -3,7 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { AVATAR_TYPES, ownAvatarPath, suggestUsername } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
-import { avatarFileSchema, profileSchema, usernameSchema, type ProfileInput } from "@/lib/validators";
+import {
+  avatarFileSchema,
+  profileSchema,
+  sharingSwitchSchema,
+  shelfSharingSchema,
+  usernameSchema,
+  type ProfileInput,
+} from "@/lib/validators";
 
 export type ProfileActionResult = { ok: true } | { ok: false; message: string };
 export type UsernameCheck =
@@ -118,5 +125,45 @@ export async function removeAvatar(): Promise<ProfileActionResult> {
   if (previous) await supabase.storage.from("avatars").remove([previous]);
 
   revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+const NOT_CHANGED = "Couldn't change that. Try again.";
+
+/**
+ * Settings → Profile's main sharing switch (SPEC §19). Turning it off hides
+ * the whole page at once and keeps each shelf's choice for next time.
+ */
+export async function setProfilePublic(on: boolean): Promise<ProfileActionResult> {
+  const parsed = sharingSwitchSchema.safeParse(on);
+  if (!parsed.success) return { ok: false, message: NOT_CHANGED };
+
+  const { supabase, userId } = await requireUserId();
+  if (!userId) return SESSION_ENDED;
+
+  const { error } = await supabase.from("profiles").update({ is_public: parsed.data }).eq("id", userId);
+  if (error) return { ok: false, message: NOT_CHANGED };
+
+  revalidatePath("/settings/profile");
+  return { ok: true };
+}
+
+/** One shelf's switch. RLS already keeps it to the owner's shelves; the filter says so out loud. */
+export async function setShelfPublic(categoryId: string, on: boolean): Promise<ProfileActionResult> {
+  const parsed = shelfSharingSchema.safeParse({ categoryId, on });
+  if (!parsed.success) return { ok: false, message: NOT_CHANGED };
+
+  const { supabase, userId } = await requireUserId();
+  if (!userId) return SESSION_ENDED;
+
+  const { data, error } = await supabase
+    .from("categories")
+    .update({ is_public: parsed.data.on })
+    .eq("id", parsed.data.categoryId)
+    .eq("user_id", userId)
+    .select("id");
+  if (error || data.length === 0) return { ok: false, message: NOT_CHANGED };
+
+  revalidatePath("/settings/profile");
   return { ok: true };
 }

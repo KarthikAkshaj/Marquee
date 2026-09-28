@@ -141,6 +141,14 @@ const categoryFields = {
 
 export const categoryIdSchema = z.string().uuid();
 
+/** Public profile switches (SPEC §19). */
+export const sharingSwitchSchema = z.boolean();
+
+export const shelfSharingSchema = z.object({
+  categoryId: categoryIdSchema,
+  on: z.boolean(),
+});
+
 export const createCategorySchema = z.object(categoryFields);
 
 export const updateCategorySchema = z
