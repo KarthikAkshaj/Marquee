@@ -23,7 +23,7 @@ export default function LandingPage() {
             { offset: 0, drift: "animate-drift-a [animation-duration:60s]" },
             { offset: 5, drift: "animate-drift-b [animation-duration:82s]" },
           ]}
-          className="inset-[-20%] gap-4.5 opacity-55 blur-[20px] saturate-[1.15] md:hidden"
+          className="parallax inset-[-20%] gap-4.5 opacity-55 blur-[20px] saturate-[1.15] md:hidden"
           rowClassName="gap-4.5"
           tileClassName="h-47.5 rounded-xl"
         />
@@ -33,7 +33,7 @@ export default function LandingPage() {
             { offset: 3, drift: "animate-drift-b" },
             { offset: 5, drift: "animate-drift-c" },
           ]}
-          className="inset-[-14%_-8%] hidden gap-6.5 opacity-78 blur-[16px] saturate-[1.25] md:flex"
+          className="parallax inset-[-14%_-8%] hidden gap-6.5 opacity-78 blur-[16px] saturate-[1.25] md:flex"
           rowClassName="gap-6.5"
           tileClassName="h-62.5 rounded-tile"
         />
@@ -78,11 +78,12 @@ export default function LandingPage() {
           <SignBulbs />
         </div>
 
-        <p className="mt-5 text-[17px] leading-[1.42] text-balance md:mt-6.5 md:text-[23px] md:leading-[1.45]">
+        {/* The lines under the wordmark rise in once; the wordmark itself stays put, since it's what the page counts as painted. */}
+        <p className="mt-5 animate-rise text-[17px] leading-[1.42] text-balance md:mt-6.5 md:text-[23px] md:leading-[1.45]" style={{ animationDelay: "180ms" }}>
           Everything you&apos;ve watched, are watching, <br className="hidden md:inline" />
           and swear you&apos;ll get to.
         </p>
-        <p className="mt-3 text-[13.5px] leading-normal text-text-muted md:mt-3.5 md:max-w-110 md:text-[15px] md:leading-[1.55]">
+        <p className="mt-3 animate-rise text-[13.5px] leading-normal text-text-muted md:mt-3.5 md:max-w-110 md:text-[15px] md:leading-[1.55]" style={{ animationDelay: "260ms" }}>
           Anime, films, series, games, plus any list you{" "}
           <span className="md:hidden">invent.</span>
           <span className="hidden md:inline">
@@ -90,7 +91,7 @@ export default function LandingPage() {
           </span>
         </p>
 
-        <div className="mt-6.5 flex flex-col gap-3 md:mt-9.5 md:flex-row md:items-center md:gap-4.5">
+        <div className="mt-6.5 flex animate-rise flex-col gap-3 md:mt-9.5 md:flex-row md:items-center md:gap-4.5" style={{ animationDelay: "340ms" }}>
           <Button asChild size="lg" className="shadow-cta max-md:rounded-[11px] max-md:py-3.75">
             <a href="/login">Get started, it&apos;s free</a>
           </Button>

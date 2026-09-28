@@ -1,4 +1,5 @@
 import { BrandMark } from "@/components/shell/BrandMark";
+import { MockupTilt } from "./MockupTilt";
 import { posterGradient, type PosterTone } from "@/lib/poster-art";
 
 const LISTS = [
@@ -22,12 +23,9 @@ const FINISHED: PosterTone[] = ["ember", "steel", "teal", "rose", "moss", "dust"
  */
 export function HomeMockup() {
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute top-49 left-[max(600px,calc(100%-842px))] z-8 hidden w-240 perspective-[1700px] xl:block"
-    >
+    <MockupTilt className="pointer-events-none absolute top-49 left-[max(600px,calc(100%-842px))] z-8 hidden w-240 perspective-[1700px] xl:block">
       <div className="glow-amber-mockup absolute inset-[40px_90px_60px_40px] blur-[60px]" />
-      <div className="relative flex h-140 origin-left overflow-hidden rounded-tile border border-white/11 bg-bg shadow-mockup [transform:rotateY(-19deg)_rotateX(6deg)_rotate(1.5deg)]">
+      <div className="relative flex h-140 origin-left overflow-hidden rounded-tile border border-white/11 bg-bg shadow-mockup transition-transform duration-700 ease-out [transform:rotateY(calc(-19deg+var(--look-y,0deg)))_rotateX(calc(6deg+var(--look-x,0deg)))_rotate(1.5deg)]">
         <div className="flex w-37.5 flex-none flex-col gap-3.5 border-r border-border bg-bg/70 px-3.5 py-4">
           <BrandMark variant="mockup" />
           <div className="flex flex-col gap-2.25">
@@ -88,6 +86,6 @@ export function HomeMockup() {
           </div>
         </div>
       </div>
-    </div>
+    </MockupTilt>
   );
 }

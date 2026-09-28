@@ -510,6 +510,33 @@
   mix-blend-mode: plus-lighter;
 }
 
+/*
+ * Depth on scroll (U17): the landing's poster wall slides down as the page
+ * scrolls up, so it seems further away than the words in front of it. Driven
+ * by the scroll itself; off for lite devices and reduced motion.
+ */
+@keyframes parallax {
+  to {
+    translate: 0 32%;
+  }
+}
+
+@utility parallax {
+  @supports (animation-timeline: scroll()) {
+    animation: parallax linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 100vh;
+  }
+
+  &:where([data-fx="lite"] *) {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 /* Motion is a courtesy, not a requirement (SPEC §9.6): no drift, no sheen. */
 @media (prefers-reduced-motion: reduce) {
   *,
