@@ -9,33 +9,38 @@ import { cn, isPlainClick } from "@/lib/utils";
 
 /**
  * One row of shelf chips above everything they scope (the URL keeps the
- * choice, SPEC §8). Only shelves with something on them are offered. The
- * chosen chip's amber glides to the next one you pick (U20).
+ * choice, SPEC §8): Stats, and For you. Only shelves with something on them
+ * are offered. The chosen chip's amber glides to the next one you pick (U20).
  */
 export function ShelfFilter({
   shelves,
   shelf,
   onPick,
+  path = "/stats",
+  label = "Count one shelf",
 }: {
   shelves: readonly StatsShelf[];
   shelf: StatsShelf | null;
   /** Switch in the browser instead of navigating (StatsBrowser); a plain link otherwise. */
   onPick?: (href: string) => void;
+  /** The page the chips scope. */
+  path?: "/stats" | "/for-you";
+  label?: string;
 }) {
   if (shelves.length < 2) return null;
 
   return (
-    <nav aria-label="Count one shelf" className="-mx-5 overflow-x-auto px-5 [scrollbar-width:none] md:mx-0 md:px-0">
-      <GlideGroup id="stats-shelves">
+    <nav aria-label={label} className="-mx-5 overflow-x-auto px-5 [scrollbar-width:none] md:mx-0 md:px-0">
+      <GlideGroup id={`${path.slice(1)}-shelves`}>
         <ul className="flex w-max gap-2 md:w-auto md:flex-wrap">
           <li>
-            <Chip href="/stats" current={shelf === null} onPick={onPick}>
+            <Chip href={path} current={shelf === null} onPick={onPick}>
               Everything
             </Chip>
           </li>
           {shelves.map((entry) => (
             <li key={entry.id}>
-              <Chip href={`/stats?shelf=${encodeURIComponent(entry.slug)}`} current={shelf?.id === entry.id} onPick={onPick}>
+              <Chip href={`${path}?shelf=${encodeURIComponent(entry.slug)}`} current={shelf?.id === entry.id} onPick={onPick}>
                 <span aria-hidden className={cn("size-1.5 rounded-full", categoryStyle(entry.color).dot)} />
                 {entry.name}
               </Chip>

@@ -32,6 +32,7 @@ export function Sidebar({ categories, user, dim }: SidebarProps) {
         <GlideGroup id="sidebar-main" className="flex flex-col gap-0.75">
           {[
             { href: "/home", label: "Home" },
+            { href: "/for-you", label: "For you" },
             { href: "/stats", label: "Stats" },
           ].map((link) => (
             <NavLink
