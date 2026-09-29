@@ -1,3 +1,4 @@
+import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SurpriseButton } from "@/components/fun/SurpriseButton";
@@ -11,8 +12,9 @@ import { WrappedCard } from "@/components/home/WrappedCard";
 import { AmbientBackground } from "@/components/shell/AmbientBackground";
 import { Button } from "@/components/ui/Button";
 import { midFlightLine, statTiles } from "@/lib/home";
+import { backlogPicks, tasteOf } from "@/lib/recommend";
 import { ENOUGH_TITLES, wrappedInSeason, wrappedYear } from "@/lib/wrapped";
-import { getCategories, getHome, getViewer } from "@/lib/queries";
+import { getCategories, getHome, getTasteItems, getViewer } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Home" };
 
@@ -22,6 +24,9 @@ export const metadata: Metadata = { title: "Home" };
  * cover as the page painted. On a phone they're a short scroll away.
  */
 const FIRST_SCREEN_POSTERS = 12;
+
+/** Planned titles in the "Picked for you" row; For you has the rest (SPEC §20). */
+const HOME_PICKS = 8;
 
 /** Home (SPEC §8.4): greeting, what's in progress, the numbers, and what you finished. */
 export default async function HomePage() {
@@ -52,7 +57,8 @@ export default async function HomePage() {
     );
   }
 
-  const home = await getHome();
+  const [home, library] = await Promise.all([getHome(), getTasteItems()]);
+  const picks = backlogPicks(library, tasteOf(library)).slice(0, HOME_PICKS);
   const shelves = categories.map(({ id, name, slug, color, icon, kind }) => ({ id, name, slug, color, icon, kind }));
   const inProgress = [...home.counts.values()].reduce((sum, count) => sum + count.inProgress, 0);
   const tiles = statTiles(
@@ -98,6 +104,23 @@ export default async function HomePage() {
         eager={spotlit ? 0 : FIRST_SCREEN_POSTERS}
         className="mt-4.5 md:mt-7"
       />
+      {picks.length > 0 && (
+        <PosterRow
+          id="picks-heading"
+          title="Picked for you"
+          note={
+            <Link href="/for-you" className="group -my-3 flex min-h-11 items-center gap-1 transition-colors hover:text-text md:my-0 md:min-h-0">
+              More picks
+              <ChevronRight aria-hidden className="size-3.5 transition-colors group-hover:text-accent" strokeWidth={1.8} />
+            </Link>
+          }
+          empty=""
+          items={picks.map((pick) => pick.item)}
+          captions={new Map(picks.map((pick) => [pick.item.id, pick.reason]))}
+          shelves={shelves}
+          className="mt-4.5 md:mt-7"
+        />
+      )}
       <PosterRow
         id="favourites-heading"
         title="Favourites"
