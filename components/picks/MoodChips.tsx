@@ -2,18 +2,21 @@
 
 import { FilterChip } from "@/components/ui/FilterChip";
 import { GlideGroup } from "@/components/ui/Glide";
-import { MOODS, forYouHref } from "@/lib/moods";
+import { MOODS, forYouHref, moodLabel } from "@/lib/moods";
+import { MoodBox } from "./MoodBox";
 import { showPicks, useMoodParam } from "./useShelfParam";
 
 /**
- * "Mood": a row of chips that narrows both halves of For you to one feeling
- * (SPEC §20). Switches in place, like the shelf chips, and keeps the shelf.
+ * "Mood": a row of chips that narrows both halves of For you to one feeling,
+ * and a box for any other word (SPEC §20). Switches in place, like the shelf
+ * chips, and keeps the shelf. A typed word gets a chip of its own while it's
+ * the mood.
  */
 export function MoodChips({ shelf }: { shelf: string | null }) {
   const choice = useMoodParam();
 
   return (
-    <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-center md:gap-3">
+    <div className="mt-3 flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:gap-3">
       <span id="mood-label" className="label-mono text-text-muted">
         Mood
       </span>
@@ -25,6 +28,13 @@ export function MoodChips({ shelf }: { shelf: string | null }) {
                 Any
               </FilterChip>
             </li>
+            {choice?.word && (
+              <li>
+                <FilterChip href={forYouHref({ shelf, mood: choice.word })} current onPick={showPicks}>
+                  {moodLabel(choice)}
+                </FilterChip>
+              </li>
+            )}
             {MOODS.map((mood) => (
               <li key={mood.slug}>
                 <FilterChip href={forYouHref({ shelf, mood: mood.slug })} current={choice?.mood?.slug === mood.slug} onPick={showPicks}>
@@ -35,6 +45,7 @@ export function MoodChips({ shelf }: { shelf: string | null }) {
           </ul>
         </GlideGroup>
       </nav>
+      <MoodBox shelf={shelf} />
     </div>
   );
 }

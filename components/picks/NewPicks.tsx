@@ -76,6 +76,8 @@ export function NewPicks({ initial, shelves }: NewPicksProps) {
     .filter((group) => group.all.length > 0 || notices[group.shelf.id]);
   // TMDB's credit goes wherever its data is on screen.
   const fromTmdb = groups.some((group) => group.cards.some((pick) => pick.result.source === "tmdb"));
+  // The first row of posters can be in the first screenful on a laptop, even when the shelf above it came up empty.
+  const firstRow = groups.findIndex((group) => group.cards.length > 0);
 
   return (
     <section aria-labelledby="new-heading" className="mt-9 md:mt-12">
@@ -123,8 +125,7 @@ export function NewPicks({ initial, shelves }: NewPicksProps) {
                       state={stateOf(pick.key)}
                       onPlan={() => void plan(pick, group.shelf)}
                       onDismiss={() => void dismiss(pick)}
-                      // The first row can be in the first screenful on a laptop.
-                      eager={groupIndex === 0 && index < SHOWN_PER_SHELF}
+                      eager={groupIndex === firstRow && index < SHOWN_PER_SHELF}
                     />
                   </li>
                 ))}
