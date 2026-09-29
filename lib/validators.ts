@@ -228,6 +228,14 @@ export const addFromSearchSchema = z.object({
   result: searchResultSchema,
 });
 
+/** A provider's title waved away on For you (SPEC §20): who it is, exactly. */
+export const pickKeySchema = z.object({
+  source: z.enum(["anilist", "tmdb", "igdb"]),
+  externalId: z.string().regex(/^\d{1,12}$/),
+});
+
+export type PickKey = z.infer<typeof pickKeySchema>;
+
 /** Most extra seasons one save carries (they go in through `import_titles`, max 100). */
 export const EXTRAS_PER_SAVE = 50;
 

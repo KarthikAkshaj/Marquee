@@ -53,6 +53,27 @@ export type Database = {
         }
         Relationships: []
       }
+      dismissed_picks: {
+        Row: {
+          created_at: string
+          external_id: string
+          source: Database["public"]["Enums"]["meta_source"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          external_id: string
+          source: Database["public"]["Enums"]["meta_source"]
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          external_id?: string
+          source?: Database["public"]["Enums"]["meta_source"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           accent_color: string | null
