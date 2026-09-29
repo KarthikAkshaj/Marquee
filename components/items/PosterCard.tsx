@@ -1,8 +1,8 @@
 import { Star } from "lucide-react";
 import Link from "next/link";
-import type { CSSProperties, MouseEvent } from "react";
+import { memo, type CSSProperties, type MouseEvent } from "react";
 import { TicketStamp } from "@/components/fun/TicketStamp";
-import { progressPercent, progressShort, type Item } from "@/lib/items";
+import { progressPercent, progressShort, sameItem, type Item } from "@/lib/items";
 import { generatedCover } from "@/lib/poster-art";
 import { lightRoom } from "@/lib/room-light";
 import { STATUS_STYLE, labelKind, readingLabel, statusLabel, type CategoryKind } from "@/lib/status";
@@ -17,9 +17,10 @@ type PosterCardProps = {
   kind: CategoryKind;
   categoryColor: string;
   actions: ItemQuickActions;
-  /** Just finished: show the ADMIT ONE stamp, then call onStamped. */
+  /** Just finished: show the ADMIT ONE stamp, then call onStamped with the title's id. */
   stamped?: boolean;
-  onStamped?: () => void;
+  /** The same function for every card, so an unchanged card is never redrawn for a new one. */
+  onStamped?: (id: string) => void;
   /** In the shelf's first row, so its cover loads at once. */
   eager?: boolean;
 };
@@ -42,9 +43,22 @@ const lit = {
  * progress for titles in progress, and on hover a lift, a sheen and the quick
  * actions. The title is the card's link; the cover repeats it for the mouse.
  * `hover:` only applies on devices that can hover, so phones never tap an
- * invisible button.
+ * invisible button. Redrawn only when its title (or what it's handed) changes.
  */
-export function PosterCard({ item, href, kind, categoryColor, actions, stamped = false, onStamped, eager = false }: PosterCardProps) {
+export const PosterCard = memo(
+  PosterCardView,
+  (before, after) =>
+    sameItem(before.item, after.item) &&
+    before.href === after.href &&
+    before.kind === after.kind &&
+    before.categoryColor === after.categoryColor &&
+    before.actions === after.actions &&
+    before.stamped === after.stamped &&
+    before.onStamped === after.onStamped &&
+    before.eager === after.eager,
+);
+
+function PosterCardView({ item, href, kind, categoryColor, actions, stamped = false, onStamped, eager = false }: PosterCardProps) {
   const status = STATUS_STYLE[item.status];
   const watching = item.status === "in_progress";
   const percent = watching ? progressPercent(item) : null;
@@ -137,7 +151,7 @@ export function PosterCard({ item, href, kind, categoryColor, actions, stamped =
           <QuickActions item={item} kind={kind} actions={actions} className={lit.buttons} />
         </div>
 
-        {stamped && onStamped && <TicketStamp onDone={onStamped} />}
+        {stamped && onStamped && <TicketStamp onDone={() => onStamped(item.id)} />}
 
         {percent !== null && (
           <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-0.75 bg-white/8">

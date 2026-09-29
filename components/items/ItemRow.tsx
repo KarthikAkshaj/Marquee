@@ -1,7 +1,7 @@
 import { Star } from "lucide-react";
 import Link from "next/link";
-import type { MouseEvent } from "react";
-import { EMPTY, progressLabel, type Item } from "@/lib/items";
+import { memo, type MouseEvent } from "react";
+import { EMPTY, progressLabel, sameItem, type Item } from "@/lib/items";
 import { labelKind, readingLabel, type CategoryKind } from "@/lib/status";
 import { isPlainClick } from "@/lib/utils";
 import { ItemCover } from "./ItemCover";
@@ -12,12 +12,25 @@ type ItemRowProps = {
   href: string;
   kind: CategoryKind;
   categoryColor: string;
-  /** Opens the item sheet in place; ctrl/⌘-click still opens the link. */
-  onOpen: () => void;
+  /** Opens the item sheet in place; ctrl/⌘-click still opens the link. The same function for every row. */
+  onOpen: (item: Item) => void;
 };
 
-/** Dense list row (SPEC §8.5): 40×60 thumb, title, year, status, progress, rating, updated. */
-export function ItemRow({ item, href, kind, categoryColor, onOpen }: ItemRowProps) {
+/**
+ * Dense list row (SPEC §8.5): 40×60 thumb, title, year, status, progress,
+ * rating, updated. Redrawn only when its title (or what it's handed) changes.
+ */
+export const ItemRow = memo(
+  ItemRowView,
+  (before, after) =>
+    sameItem(before.item, after.item) &&
+    before.href === after.href &&
+    before.kind === after.kind &&
+    before.categoryColor === after.categoryColor &&
+    before.onOpen === after.onOpen,
+);
+
+function ItemRowView({ item, href, kind, categoryColor, onOpen }: ItemRowProps) {
   const progress = item.progress_total || item.progress_current ? progressLabel(item) : EMPTY;
   const rating = item.rating ? `${item.rating} / 10` : EMPTY;
   // A comic or novel on an anime shelf says which.
@@ -30,7 +43,7 @@ export function ItemRow({ item, href, kind, categoryColor, onOpen }: ItemRowProp
       onClick={(event: MouseEvent) => {
         if (!isPlainClick(event)) return;
         event.preventDefault();
-        onOpen();
+        onOpen(item);
       }}
       className="grid min-h-19 grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-3.5 rounded-card px-2 py-2 transition-colors hover:bg-white/4 md:grid-cols-[40px_minmax(0,1fr)_140px_80px_72px_96px] md:gap-5"
     >

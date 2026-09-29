@@ -36,7 +36,7 @@ function ShelfItemsView({ category, params, items, actions, stamps, onStamped }:
                 categoryColor={category.color}
                 actions={actions}
                 stamped={stamps.has(item.id)}
-                onStamped={() => onStamped(item.id)}
+                onStamped={onStamped}
                 // Six is the first row at every width: two, three, four or six across.
                 eager={index < 6}
               />
@@ -70,7 +70,7 @@ function ShelfItemsView({ category, params, items, actions, stamps, onStamped }:
                 href={hrefFor(item)}
                 kind={category.kind}
                 categoryColor={category.color}
-                onOpen={() => actions.onOpen(item)}
+                onOpen={actions.onOpen}
               />
             </div>
           </li>

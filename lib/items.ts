@@ -53,6 +53,24 @@ function oneOf<T extends string>(options: readonly T[], value: string | undefine
   return value !== undefined && (options as readonly string[]).includes(value) ? (value as T) : fallback;
 }
 
+/**
+ * Whether two copies of a title would draw the same. A save's refresh sends
+ * every title back as a new object, so the grid compares what's in them and
+ * redraws only the one that changed: redrawing all 160 froze a sliding sheet
+ * for a quarter of a second on a phone.
+ */
+export function sameItem(a: Item, b: Item): boolean {
+  if (a === b) return true;
+  const keys = Object.keys(a) as (keyof Item)[];
+  if (keys.length !== Object.keys(b).length) return false;
+  return keys.every((key) => {
+    const left = a[key];
+    const right = b[key];
+    if (left === right) return true;
+    return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((value, index) => value === right[index]);
+  });
+}
+
 /** Unknown or malformed values fall back to defaults instead of erroring. */
 export function parseCategoryParams(raw: RawSearchParams): CategoryParams {
   return {

@@ -15,6 +15,7 @@ import {
   progressPercent,
   progressShort,
   progressUnit,
+  sameItem,
   selectItems,
   totalCount,
   sortItems,
@@ -54,6 +55,22 @@ function item(overrides: Partial<Item>): Item {
 }
 
 const titles = (items: Item[]) => items.map((i) => i.title);
+
+describe("sameItem", () => {
+  it("treats a fresh copy with the same contents as the same title", () => {
+    const saved = item({ title: "Frieren", genres: ["Adventure", "Drama"], tags: ["Travel"], rating: 9 });
+    expect(sameItem(saved, { ...saved, genres: [...saved.genres], tags: ["Travel"] })).toBe(true);
+    expect(sameItem(saved, saved)).toBe(true);
+  });
+
+  it("sees any change, in a field or inside a list", () => {
+    const saved = item({ title: "Frieren", genres: ["Adventure"], tags: null, rating: 9 });
+    expect(sameItem(saved, { ...saved, rating: 10 })).toBe(false);
+    expect(sameItem(saved, { ...saved, genres: ["Drama"] })).toBe(false);
+    expect(sameItem(saved, { ...saved, genres: ["Adventure", "Drama"] })).toBe(false);
+    expect(sameItem(saved, { ...saved, tags: [] })).toBe(false);
+  });
+});
 
 describe("parseCategoryParams", () => {
   it("reads valid params", () => {
