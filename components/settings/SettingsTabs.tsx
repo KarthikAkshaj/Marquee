@@ -22,9 +22,10 @@ export function SettingsTabs({ tabs }: { tabs: SettingsTab[] }) {
   return (
     <nav aria-label="Settings">
       <GlideGroup id="settings-tabs">
-        <ul className="flex gap-1 rounded-[10px] border border-border bg-surface p-1 md:w-46.5 md:flex-col md:gap-0.75 md:rounded-none md:border-0 md:bg-transparent md:p-0">
+        {/* Four tabs just fit a phone; on a narrower one the row scrolls inside its box rather than spilling out of it. */}
+        <ul className="flex gap-0.5 overflow-x-auto rounded-[10px] border border-border bg-surface p-1 [scrollbar-width:none] md:w-46.5 md:flex-col md:gap-0.75 md:overflow-visible md:rounded-none md:border-0 md:bg-transparent md:p-0 [&::-webkit-scrollbar]:hidden">
           {tabs.map((tab) => (
-            <li key={tab.href} className="flex-1 md:flex-none">
+            <li key={tab.href} className="flex-1 shrink-0 md:flex-none">
               <TabLink tab={tab} active={pathname === tab.href || pathname.startsWith(`${tab.href}/`)} />
             </li>
           ))}
@@ -47,7 +48,7 @@ function TabLink({ tab, active }: { tab: SettingsTab; active: boolean }) {
       href={tab.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative isolate flex min-h-11 items-center justify-center gap-2.5 rounded-[7px] px-3 text-[13.5px] transition-colors md:justify-start md:rounded-[9px] md:py-2.5",
+        "relative isolate flex min-h-11 items-center justify-center gap-2 rounded-[7px] px-2 text-13 whitespace-nowrap transition-colors md:justify-start md:gap-2.5 md:rounded-[9px] md:px-3 md:py-2.5 md:text-[13.5px]",
         active ? "font-semibold text-text" : "text-text-muted hover:text-text",
       )}
       {...bind}
