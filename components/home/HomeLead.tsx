@@ -11,6 +11,8 @@ import { Spotlight } from "./Spotlight";
 type HomeLeadProps = {
   /** In progress everywhere, most recently touched first. */
   items: Item[];
+  /** This visit's spotlight: something started or planned, from any shelf. */
+  featured: Item | null;
   shelves: PaletteCategory[];
   greeting: ReactNode;
   /** Between the spotlight and the Continue row: the year in review, in season. */
@@ -18,20 +20,28 @@ type HomeLeadProps = {
 };
 
 /**
- * The top of Home: the spotlight on the title you last touched, then Continue
- * for the rest (U10). The spotlight holds its title while you use it, so a +1
- * elsewhere that reorders the list doesn't swap the picture under your hand;
- * it moves on only once its title is finished and stamped.
+ * The top of Home: the spotlight on a title picked for this visit, then
+ * Continue for everything in progress (U10). Every save refreshes the page and
+ * the server picks again, but the spotlight holds its title while you use it,
+ * so nothing swaps the picture under your hand; it moves on only once its
+ * title is finished and stamped.
  */
-export function HomeLead({ items, shelves, greeting, children }: HomeLeadProps) {
+export function HomeLead({ items, featured, shelves, greeting, children }: HomeLeadProps) {
   const byId = new Map(shelves.map((shelf) => [shelf.id, shelf]));
   const [done, setDone] = useState<ReadonlySet<string>>(() => new Set());
-  const ready = (item: Item) => !done.has(item.id) && byId.has(item.category_id);
-  const next = items.find((item) => item.status === "in_progress" && ready(item)) ?? null;
+  const ready = (item: Item | null | undefined): item is Item => !!item && !done.has(item.id) && byId.has(item.category_id);
 
-  const [pinned, setPinned] = useState<string | null>(next?.id ?? null);
-  const lead = items.find((item) => item.id === pinned && ready(item)) ?? next;
-  if ((lead?.id ?? null) !== pinned) setPinned(lead?.id ?? null);
+  const [held, setHeld] = useState<Item | null>(featured);
+  // The held title as the server last sent it. A planned one only comes back when it's picked
+  // again, and nothing here changes it without starting it, so the copy held is still true.
+  // A started one that has left Continue was finished or moved: let it go.
+  const current =
+    held &&
+    (items.find((item) => item.id === held.id) ??
+      (held.id === featured?.id ? featured : null) ??
+      (held.status === "planned" ? held : null));
+  const lead = [current, featured, items.find((item) => item.status === "in_progress" && ready(item))].find(ready) ?? null;
+  if (lead !== held) setHeld(lead);
 
   const rest = items.filter((item) => item.id !== lead?.id);
   const leadShelf = lead ? byId.get(lead.category_id) : undefined;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { continueSubtitle, dateLine, greetingFor, midFlightLine, nextStep, statTiles, stepsLeft } from "./home";
+import { continueSubtitle, dateLine, greetingFor, midFlightLine, nextStep, spotlightPick, statTiles, stepsLeft } from "./home";
 
 describe("home copy", () => {
   it("greets by the hour", () => {
@@ -73,5 +73,35 @@ describe("spotlight steps", () => {
     expect(stepsLeft({ progress_current: 12, progress_total: 25 })).toBe("13 to go");
     expect(stepsLeft({ progress_current: 12, progress_total: null })).toBeNull();
     expect(stepsLeft({ progress_current: 25, progress_total: 25 })).toBeNull();
+  });
+});
+
+describe("spotlightPick", () => {
+  const titles = [
+    { id: "frieren", category_id: "anime", status: "in_progress" as const },
+    { id: "mushishi", category_id: "anime", status: "planned" as const },
+    { id: "done", category_id: "anime", status: "completed" as const },
+    ...Array.from({ length: 40 }, (_, index) => ({ id: `film-${index}`, category_id: "movies", status: "planned" as const })),
+    { id: "hades", category_id: "games", status: "dropped" as const },
+  ];
+  /** Hands back the given rolls in turn. */
+  const rolls = (...values: number[]) => () => values.shift() ?? 0;
+
+  it("picks a shelf first, so a long watchlist doesn't take every turn", () => {
+    // Two shelves have anything to show; the first roll lands on the first, anime.
+    expect(spotlightPick(titles, rolls(0.2, 0))?.id).toBe("frieren");
+    expect(spotlightPick(titles, rolls(0.7, 0))?.category_id).toBe("movies");
+  });
+
+  it("makes a started title three times as likely as a planned one", () => {
+    // Anime's odds: Frieren 3, Mushishi 1, so the top quarter of the roll is Mushishi's.
+    expect(spotlightPick(titles, rolls(0, 0.74))?.id).toBe("frieren");
+    expect(spotlightPick(titles, rolls(0, 0.76))?.id).toBe("mushishi");
+  });
+
+  it("leaves out what's finished or dropped, and has nothing for an empty queue", () => {
+    const picked = new Set(Array.from({ length: 200 }, () => spotlightPick(titles)?.id));
+    expect(picked.has("done") || picked.has("hades")).toBe(false);
+    expect(spotlightPick(titles.filter((title) => title.status === "completed"))).toBeNull();
   });
 });

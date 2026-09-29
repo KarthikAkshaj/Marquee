@@ -11,10 +11,10 @@ import { StatsStrip } from "@/components/home/StatsStrip";
 import { WrappedCard } from "@/components/home/WrappedCard";
 import { AmbientBackground } from "@/components/shell/AmbientBackground";
 import { Button } from "@/components/ui/Button";
-import { midFlightLine, statTiles } from "@/lib/home";
+import { midFlightLine, spotlightPick, statTiles } from "@/lib/home";
 import { backlogPicks, tasteOf } from "@/lib/recommend";
 import { ENOUGH_TITLES, wrappedInSeason, wrappedYear } from "@/lib/wrapped";
-import { getCategories, getDismissedPicks, getHome, getTasteItems, getViewer } from "@/lib/queries";
+import { getCategories, getDismissedPicks, getHome, getItem, getTasteItems, getViewer } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Home" };
 
@@ -58,7 +58,13 @@ export default async function HomePage() {
   }
 
   const [home, library, dismissed] = await Promise.all([getHome(), getTasteItems(), getDismissedPicks()]);
-  const picks = backlogPicks(library, tasteOf(library, { dismissed: dismissed.about })).slice(0, HOME_PICKS);
+  // A new spotlight each visit, from what's started or planned on any shelf. Started titles
+  // come from Continue's own list, so a pick is always in it; a planned one is fetched in full.
+  const pick = spotlightPick([...home.continuing, ...library.filter((title) => title.status === "planned")]);
+  const featured = pick ? (home.continuing.find((item) => item.id === pick.id) ?? (await getItem(pick.id))) : null;
+  const picks = backlogPicks(library, tasteOf(library, { dismissed: dismissed.about }))
+    .filter((offer) => offer.item.id !== featured?.id)
+    .slice(0, HOME_PICKS);
   const shelves = categories.map(({ id, name, slug, color, icon, kind }) => ({ id, name, slug, color, icon, kind }));
   const inProgress = [...home.counts.values()].reduce((sum, count) => sum + count.inProgress, 0);
   const tiles = statTiles(
@@ -75,13 +81,14 @@ export default async function HomePage() {
   );
   const name = viewer.profile?.display_name ?? viewer.profile?.username ?? "you";
   // With a title in the spotlight, the poster rows are below the first screen and can wait.
-  const spotlit = home.continuing.length > 0;
+  const spotlit = featured !== null;
 
   return (
     <>
       <AmbientBackground variant="app" />
       <HomeLead
         items={home.continuing}
+        featured={featured}
         shelves={shelves}
         greeting={<HomeGreeting name={name} line={midFlightLine(inProgress)} action={<SurpriseButton />} />}
       >

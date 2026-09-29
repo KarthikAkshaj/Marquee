@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Play, Plus } from "lucide-react";
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 import { TicketStamp } from "@/components/fun/TicketStamp";
@@ -12,7 +12,7 @@ import { progressLabel, progressPercent, type Item } from "@/lib/items";
 import { rise } from "@/lib/motion";
 import { titleHref, type PaletteCategory } from "@/lib/palette";
 import { generatedCover } from "@/lib/poster-art";
-import { labelKind, readingLabel, statusLabel } from "@/lib/status";
+import { labelKind, readingLabel, startLabel, statusLabel } from "@/lib/status";
 import { cn } from "@/lib/utils";
 import { SpotlightArt } from "./SpotlightArt";
 
@@ -26,16 +26,18 @@ type SpotlightProps = {
 };
 
 /**
- * The top of Home (U10): the title you're in the middle of, the way a
- * streaming app leads with it. Its art fills the width, the greeting sits on
- * top, and the next episode is one press away.
+ * The top of Home (U10): a title you're in the middle of or haven't started,
+ * the way a streaming app leads with one. Its art fills the width, the
+ * greeting sits on top, and the next episode, or the start, is one press away.
  */
 export function Spotlight({ item: initial, shelf, greeting, onFinished }: SpotlightProps) {
   const actions = useItemActions([initial]);
   const item = actions.items[0] ?? initial;
   const words = labelKind(shelf.kind, item.format);
+  const planned = item.status === "planned";
   const step = item.status === "in_progress" ? nextStep(item, words) : null;
-  const percent = progressPercent(item);
+  // Nothing done yet on a planned title: its length is in the line above, not a bar at zero.
+  const percent = planned ? null : progressPercent(item);
   const left = stepsLeft(item);
   const tag = readingLabel(item.format);
   const tint = item.accent_color ?? generatedCover(item.id, shelf.color).tint;
@@ -98,7 +100,13 @@ export function Spotlight({ item: initial, shelf, greeting, onFinished }: Spotli
               <span className="sr-only">done, for {item.title}</span>
             </Button>
           )}
-          <Button asChild variant={step ? "secondary" : "primary"} className="h-11.5 px-5">
+          {planned && (
+            <Button onClick={() => actions.setStatus(item, "in_progress")} className="h-11.5 gap-2 px-5 shadow-cta-sm">
+              <Play aria-hidden className="size-3.5 fill-current" strokeWidth={2.4} />
+              {startLabel(words)} <span className="sr-only">{item.title}</span>
+            </Button>
+          )}
+          <Button asChild variant={step || planned ? "secondary" : "primary"} className="h-11.5 px-5">
             <Link href={href}>
               Details <span className="sr-only">about {item.title}</span>
             </Link>

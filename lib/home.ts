@@ -74,6 +74,37 @@ export function nextStep(item: Pick<Item, "progress_current" | "progress_total">
   return item.progress_total === next ? `Last ${word.toLowerCase()}` : `${word} ${next}`;
 }
 
+type SpotlightTitle = Pick<Item, "id" | "category_id" | "status">;
+
+/** How many times likelier a started title is to take the spotlight than a planned one. */
+const STARTED_ODDS = 3;
+
+/**
+ * The spotlight's title for this visit (U10): a shelf at random, so one long
+ * watchlist doesn't take every turn, then a title on it that's in progress or
+ * planned, the started ones three times as likely.
+ */
+export function spotlightPick<Title extends SpotlightTitle>(titles: readonly Title[], random: () => number = Math.random): Title | null {
+  const shelves = new Map<string, Title[]>();
+  for (const title of titles) {
+    if (title.status !== "in_progress" && title.status !== "planned") continue;
+    const shelf = shelves.get(title.category_id);
+    if (shelf) shelf.push(title);
+    else shelves.set(title.category_id, [title]);
+  }
+  const pools = [...shelves.values()];
+  const pool = pools[Math.floor(random() * pools.length)];
+  if (!pool) return null;
+
+  const odds = (title: Title) => (title.status === "in_progress" ? STARTED_ODDS : 1);
+  let roll = random() * pool.reduce((sum, title) => sum + odds(title), 0);
+  for (const title of pool) {
+    roll -= odds(title);
+    if (roll < 0) return title;
+  }
+  return pool[pool.length - 1];
+}
+
 /** "13 to go", when there's a total to count down to. */
 export function stepsLeft(item: Pick<Item, "progress_current" | "progress_total">): string | null {
   if (!item.progress_total) return null;

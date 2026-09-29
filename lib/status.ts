@@ -116,6 +116,20 @@ export function statusLabels(kind: LabelKind): Record<ItemStatus, string> {
   return LABELS[kind];
 }
 
+/** The button that starts a planned title from Home's spotlight (U10). */
+const START: Record<LabelKind, string> = {
+  anime: "Start watching",
+  series: "Start watching",
+  movie: "Start watching",
+  game: "Start playing",
+  custom: "Start it",
+  reading: "Start reading",
+};
+
+export function startLabel(kind: LabelKind): string {
+  return START[kind];
+}
+
 type StatusStyle = {
   /** Solid dot / segment fill. */
   fill: string;

@@ -243,6 +243,15 @@ export const getHome = cache(async () => {
   };
 });
 
+/** One title in full: Home's spotlight when it lands on something planned. Null once it's gone. */
+export const getItem = cache(async (id: string) => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("items").select("*").eq("id", id).maybeSingle();
+
+  if (error) throw new Error(`Couldn't load this title: ${error.message}`);
+  return data;
+});
+
 /** PostgREST's cap on rows per request. */
 const PAGE = 1000;
 
