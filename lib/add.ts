@@ -118,7 +118,7 @@ export function searchNotice({ source, query, idle, loading, resultCount, error 
     if (query.trim()) return null;
     // Films and shows share names more than anything else (six films are called Darling).
     return source === "tmdb"
-      ? "Type a title. Same name as another? Add the year or language: darling 2010, darling telugu."
+      ? "Type a title. If it shares a name with others, add the year or language at the end."
       : `Type a title and we'll look it up on ${name}.`;
   }
   switch (error) {
