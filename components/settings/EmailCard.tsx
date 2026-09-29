@@ -8,17 +8,12 @@ import { Input } from "@/components/ui/Input";
 import { changeEmail } from "@/lib/actions/account";
 import { signOut, switchAccount } from "@/lib/actions/auth";
 import type { Account } from "@/lib/queries";
+import { SignInWays } from "./SignInWays";
 
 type EmailCardProps = Pick<Account, "email" | "pendingEmail" | "signsInWith"> & {
   /** From ?notice= after the first of the two confirmation links. */
   halfConfirmed: boolean;
 };
-
-function methodLabel({ google, email, password }: Account["signsInWith"]) {
-  const ways = [google && "Google", email && "an email code", password && "a password"].filter((way) => way !== false);
-  if (ways.length <= 1) return `Signed in with ${ways[0] ?? "an email code"}`;
-  return `Signs in with ${ways.slice(0, -1).join(", ")} or ${ways.at(-1)}`;
-}
 
 /** Email, sign-in method, Change email, Switch account and Sign out (SPEC §8.10, handoff §07). */
 export function EmailCard({ email, pendingEmail, signsInWith, halfConfirmed }: EmailCardProps) {
@@ -46,13 +41,8 @@ export function EmailCard({ email, pendingEmail, signsInWith, halfConfirmed }: E
       <p id="account-email" className="label-mono tracking-[.12em] text-text-muted">
         Email
       </p>
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <p className="min-w-0 text-16 break-all">{email}</p>
-        <span className="flex items-center gap-1.75 rounded-full border border-white/10 bg-white/5 px-2.75 py-1 text-[11.5px]">
-          <span aria-hidden className="size-1.5 rounded-full bg-completed" />
-          {methodLabel(signsInWith)}
-        </span>
-      </div>
+      <p className="mt-2.5 min-w-0 text-16 break-all">{email}</p>
+      <SignInWays {...signsInWith} />
 
       {signsInWith.email ? (
         waitingOn ? (
