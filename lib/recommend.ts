@@ -36,6 +36,9 @@ export type TasteItem = Pick<
   | "updated_at"
   | "finished_at"
   | "tags"
+  // How long it runs, for Surprise me's "How long have you got?" (SPEC §10).
+  | "runtime_minutes"
+  | "progress_total"
 >;
 
 export type PickShelf = { id: string; name: string; slug: string; kind: CategoryKind; color: string };
@@ -206,7 +209,8 @@ export function crowdLean(score: number | null | undefined): number {
 /** A crowd score worth naming as the reason. */
 const CROWD_PRAISE = 75;
 
-export type BacklogPick = { item: TasteItem; reason: string | null };
+/** `score`: how well it suits you, fit and crowd together; higher is better, 0 is neutral. */
+export type BacklogPick = { item: TasteItem; reason: string | null; score: number };
 
 /**
  * Your Planned titles, best fit first. The reason names the genre you rate
@@ -229,8 +233,7 @@ export function backlogPicks(items: readonly TasteItem[], taste: Taste): Backlog
         // Longest waiting first, then alphabetical, so the order never flickers.
         a.item.created_at.localeCompare(b.item.created_at) ||
         a.item.title.localeCompare(b.item.title),
-    )
-    .map(({ item, reason }) => ({ item, reason }));
+    );
 }
 
 function backlogReason(item: TasteItem, fit: Fit): string | null {

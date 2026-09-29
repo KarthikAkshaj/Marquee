@@ -3,11 +3,12 @@
 import { useAnimate, useReducedMotion } from "motion/react";
 import { useEffect, useEffectEvent } from "react";
 import { ItemCover } from "@/components/items/ItemCover";
-import type { PaletteCategory, PaletteTitle } from "@/lib/palette";
+import type { Item } from "@/lib/items";
+import type { PaletteCategory } from "@/lib/palette";
 import { cn } from "@/lib/utils";
 
 type SurpriseReelProps = {
-  frames: PaletteTitle[];
+  frames: Pick<Item, "id" | "cover_url" | "category_id">[];
   /** Where the pick sits in the strip; covers after it keep the strip full. */
   pickIndex: number;
   shelves: ReadonlyMap<string, PaletteCategory>;

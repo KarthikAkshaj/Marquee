@@ -41,6 +41,8 @@ function item(overrides: Partial<TasteItem> = {}): TasteItem {
     updated_at: "2026-09-01T00:00:00Z",
     finished_at: null,
     tags: null,
+    runtime_minutes: null,
+    progress_total: null,
     ...overrides,
   };
 }

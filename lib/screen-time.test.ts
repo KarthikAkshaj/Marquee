@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isFeature, screenTime, unitsSeen, type TimedItem } from "@/lib/screen-time";
+import { isFeature, lengthOf, screenTime, unitsSeen, type TimedItem } from "@/lib/screen-time";
 
 function item(overrides: Partial<TimedItem> = {}): TimedItem {
   return {
@@ -31,6 +31,20 @@ describe("isFeature", () => {
     expect(isFeature(item({ kind: "movie" }))).toBe(true);
     expect(isFeature(item({ progress_total: 1 }))).toBe(true);
     expect(isFeature(item({ progress_total: 12 }))).toBe(false);
+  });
+});
+
+describe("lengthOf", () => {
+  it("times a film whole and a show by the episode, with the run when the count is known", () => {
+    expect(lengthOf(item({ kind: "movie", runtime_minutes: 130 }))).toEqual({ feature: true, sitting: 130, whole: 130, guessed: false });
+    expect(lengthOf(item({ kind: "series", progress_total: 10, runtime_minutes: 50 }))).toEqual({ feature: false, sitting: 50, whole: 500, guessed: false });
+    expect(lengthOf(item({ kind: "anime", progress_total: null }))).toEqual({ feature: false, sitting: 24, whole: null, guessed: true });
+  });
+
+  it("has no length for games, custom shelves, comics and novels", () => {
+    expect(lengthOf(item({ kind: "game" }))).toBeNull();
+    expect(lengthOf(item({ kind: "custom", progress_total: 10 }))).toBeNull();
+    expect(lengthOf(item({ kind: "anime", format: "manga", progress_total: 200 }))).toBeNull();
   });
 });
 

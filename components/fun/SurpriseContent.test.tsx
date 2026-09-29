@@ -1,7 +1,8 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { useEffect, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { PaletteCategory, PaletteTitle } from "@/lib/palette";
+import type { PaletteCategory } from "@/lib/palette";
+import type { SurpriseTitle } from "@/lib/surprise";
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
@@ -12,7 +13,7 @@ const toastSuccess = vi.fn();
 vi.mock("sonner", () => ({ toast: { success: (...args: unknown[]) => toastSuccess(...args), error: vi.fn() } }));
 // The real reel spins for ~2.6s; land straight away.
 vi.mock("./SurpriseReel", () => ({
-  SurpriseReel: ({ spinKey, onLanded, frames }: { spinKey: number; onLanded: () => void; frames: PaletteTitle[] }) => {
+  SurpriseReel: ({ spinKey, onLanded, frames }: { spinKey: number; onLanded: () => void; frames: SurpriseTitle[] }) => {
     useEffect(() => onLanded(), [spinKey, onLanded]);
     return <p data-testid="reel">{frames.length} frames</p>;
   },
@@ -20,29 +21,42 @@ vi.mock("./SurpriseReel", () => ({
 
 const { SurpriseContent } = await import("./SurpriseContent");
 
-const shelf = (id: string, name: string): PaletteCategory => ({ id, name, slug: name.toLowerCase(), color: "crimson", icon: "sparkles", kind: "anime" });
-const anime = shelf("a", "Anime");
-const movies = shelf("m", "Movies");
-const games = shelf("g", "Games");
-const title = (id: string, category: string, status: PaletteTitle["status"] = "planned"): PaletteTitle => ({
+const shelf = (id: string, name: string, kind: PaletteCategory["kind"]): PaletteCategory => ({ id, name, slug: name.toLowerCase(), color: "crimson", icon: "sparkles", kind });
+const anime = shelf("a", "Anime", "anime");
+const movies = shelf("m", "Movies", "movie");
+const games = shelf("g", "Games", "game");
+const title = (id: string, category: string, extra: Partial<SurpriseTitle> = {}): SurpriseTitle => ({
   id,
   title: id,
-  status,
   year: 2020,
   cover_url: null,
   accent_color: null,
-  source: "manual",
-  external_id: null,
   category_id: category,
   format: null,
+  genres: [],
+  runtime_minutes: null,
+  progress_total: null,
+  reason: null,
+  weight: 1,
+  ...extra,
 });
 
-function setup(titles: PaletteTitle[], initialCategoryId: string | null = null) {
+function setup(titles: SurpriseTitle[], initialCategoryId: string | null = null) {
   const onClose = vi.fn();
   const onAddTitle = vi.fn();
-  render(<SurpriseContent categories={[anime, movies, games]} titles={titles} initialCategoryId={initialCategoryId} onClose={onClose} onAddTitle={onAddTitle} />);
+  render(
+    <SurpriseContent
+      categories={[anime, movies, games]}
+      pool={{ titles, personal: true }}
+      initialCategoryId={initialCategoryId}
+      onClose={onClose}
+      onAddTitle={onAddTitle}
+    />,
+  );
   return { onClose, onAddTitle };
 }
+
+const group = (name: string) => within(screen.getByRole("group", { name }));
 
 describe("SurpriseContent", () => {
   beforeEach(() => {
@@ -57,9 +71,9 @@ describe("SurpriseContent", () => {
 
   it("offers only shelves with something waiting, lands on a pick, and starts it", async () => {
     setItemStatus.mockResolvedValue({ ok: true });
-    const { onClose } = setup([title("Pluto", "a"), title("Dune", "m"), title("Hades", "g", "completed")]);
+    const { onClose } = setup([title("Pluto", "a"), title("Dune", "m")]);
 
-    expect(screen.getAllByRole("button", { name: /Anything|Anime|Movies|Games/ }).map((b) => b.textContent)).toEqual(["Anything", "Anime", "Movies"]);
+    expect(group("Pick from").getAllByRole("button").map((b) => b.textContent)).toEqual(["Anything", "Anime", "Movies"]);
     expect(await screen.findByText("Pluto")).toBeInTheDocument();
     expect(screen.getByText(/Tonight:/)).toBeInTheDocument();
 
@@ -75,13 +89,30 @@ describe("SurpriseContent", () => {
     fireEvent.click(screen.getByRole("button", { name: "Spin again" }));
     expect(await screen.findByText("Monster")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Movies" }));
+    fireEvent.click(group("Pick from").getByRole("button", { name: "Movies" }));
     expect(await screen.findByText("Dune")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Movies" })).toHaveAttribute("aria-pressed", "true");
+    expect(group("Pick from").getByRole("button", { name: "Movies" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("spins only through what fits the time and the mood, and says why and how long", async () => {
+    setup([
+      title("One Piece", "a", { format: "tv", progress_total: 1100, runtime_minutes: 24, genres: ["Action"] }),
+      title("Your Name", "a", { format: "movie", progress_total: 1, runtime_minutes: 106, genres: ["Romance"], reason: "You rate Romance 8.9" }),
+      title("Hades", "g", { genres: ["Action"] }),
+    ]);
+    fireEvent.click(group("How long have you got?").getByRole("button", { name: "An evening" }));
+    expect(screen.getByText("A film, or something short enough to finish tonight.")).toBeInTheDocument();
+    expect(await screen.findByText("Your Name")).toBeInTheDocument();
+    expect(screen.getByText("You rate Romance 8.9 · 1h 46m")).toBeInTheDocument();
+
+    // Nothing romantic that's also long, and games have no length: those choices can't be made.
+    expect(group("What's the mood?").getByRole("button", { name: "Action" })).toBeDisabled();
+    expect(group("Pick from").getByRole("button", { name: "Games" })).toBeDisabled();
+    expect(group("What's the mood?").getByRole("button", { name: "Romance" })).toBeEnabled();
   });
 
   it("says the queue is empty and offers to add something", () => {
-    const { onAddTitle } = setup([title("Hades", "g", "completed")]);
+    const { onAddTitle } = setup([]);
     expect(screen.getByText(/Nothing in the/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Add a title" }));
     expect(onAddTitle).toHaveBeenCalled();

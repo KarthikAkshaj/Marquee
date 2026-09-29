@@ -419,7 +419,7 @@ export const getTasteItems = cache(async (): Promise<TasteItem[]> => {
       supabase
         .from("items")
         .select(
-          "id, title, category_id, status, rating, genres, tags, community_score, source, external_id, is_favorite, format, cover_url, accent_color, year, created_at, updated_at, finished_at",
+          "id, title, category_id, status, rating, genres, tags, community_score, source, external_id, is_favorite, format, cover_url, accent_color, year, created_at, updated_at, finished_at, runtime_minutes, progress_total",
         )
         .order("created_at", { ascending: true })
         .order("id", { ascending: true })

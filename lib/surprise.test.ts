@@ -1,20 +1,29 @@
 import { describe, expect, it } from "vitest";
-import type { PaletteTitle } from "./palette";
-import { pickSurprise, reelFrames, surpriseCandidates } from "./surprise";
+import type { CategoryKind } from "./status";
+import { ANY, lengthLine, pickSurprise, reelFrames, surpriseCandidates, surpriseWeight, type SurpriseTitle } from "./surprise";
 
-const title = (id: string, extra: Partial<PaletteTitle> = {}): PaletteTitle => ({
+const title = (id: string, extra: Partial<SurpriseTitle> = {}): SurpriseTitle => ({
   id,
   title: id,
-  status: "planned",
   year: null,
   cover_url: null,
   accent_color: null,
-  source: "manual",
-  external_id: null,
   category_id: "anime",
   format: null,
+  genres: [],
+  runtime_minutes: null,
+  progress_total: null,
+  reason: null,
+  weight: 1,
   ...extra,
 });
+
+const kinds = new Map<string, CategoryKind>([
+  ["anime", "anime"],
+  ["movies", "movie"],
+  ["series", "series"],
+  ["games", "game"],
+]);
 
 /** A repeatable "random" sequence for the tests. */
 function sequence(...values: number[]) {
@@ -22,20 +31,33 @@ function sequence(...values: number[]) {
   return () => values[index++ % values.length];
 }
 
-describe("Surprise me", () => {
-  const titles = [title("a"), title("b", { category_id: "movies" }), title("c"), title("d", { status: "completed" })];
+const ids = (list: readonly SurpriseTitle[]) => list.map((entry) => entry.id);
 
-  it("only picks from what's waiting, optionally on one shelf", () => {
-    expect(surpriseCandidates(titles, null).map((t) => t.id)).toEqual(["a", "b", "c"]);
-    expect(surpriseCandidates(titles, "anime").map((t) => t.id)).toEqual(["a", "c"]);
-    expect(surpriseCandidates(titles, "games")).toEqual([]);
+describe("Surprise me", () => {
+  const titles = [title("a"), title("b", { category_id: "movies" }), title("c")];
+
+  it("picks from everything, or one shelf", () => {
+    expect(ids(surpriseCandidates(titles, ANY, kinds))).toEqual(["a", "b", "c"]);
+    expect(ids(surpriseCandidates(titles, { ...ANY, shelf: "anime" }, kinds))).toEqual(["a", "c"]);
+    expect(surpriseCandidates(titles, { ...ANY, shelf: "games" }, kinds)).toEqual([]);
   });
 
   it("avoids repeating the last pick unless it's the only one", () => {
-    const candidates = surpriseCandidates(titles, "anime");
+    const candidates = surpriseCandidates(titles, { ...ANY, shelf: "anime" }, kinds);
     expect(pickSurprise(candidates, "a", () => 0)?.id).toBe("c");
     expect(pickSurprise([title("a")], "a", () => 0)?.id).toBe("a");
     expect(pickSurprise([], null)).toBeNull();
+  });
+
+  it("leans toward the heavier titles without ruling out the rest", () => {
+    const leaning = [title("meh", { weight: 1 }), title("great", { weight: 3 })];
+    // The roll runs 0 to 4: the first quarter is "meh", the rest "great".
+    expect(pickSurprise(leaning, null, () => 0.2)?.id).toBe("meh");
+    expect(pickSurprise(leaning, null, () => 0.3)?.id).toBe("great");
+    expect(surpriseWeight(0)).toBe(1);
+    expect(surpriseWeight(3)).toBeGreaterThan(surpriseWeight(1));
+    // Capped, so one standout can't crowd out everything else.
+    expect(surpriseWeight(99)).toBe(surpriseWeight(3));
   });
 
   it("spins past other covers, lands on the pick, and keeps covers after it", () => {
@@ -51,7 +73,60 @@ describe("Surprise me", () => {
   it("still makes a reel from a single title", () => {
     const only = title("solo");
     const { frames, pickIndex } = reelFrames([only], only, 5, Math.random, 2);
-    expect(frames.map((t) => t.id)).toEqual(["solo", "solo", "solo", "solo", "solo", "solo", "solo"]);
+    expect(ids(frames)).toEqual(["solo", "solo", "solo", "solo", "solo", "solo", "solo"]);
     expect(pickIndex).toBe(4);
+  });
+});
+
+describe("How long have you got?", () => {
+  const library = [
+    title("frieren", { format: "tv", progress_total: 28, runtime_minutes: 24 }),
+    title("mushishi-special", { format: "special", progress_total: 2, runtime_minutes: 45 }),
+    title("cyberpunk", { format: "ona", progress_total: 10, runtime_minutes: 25 }),
+    title("your-name", { format: "movie", progress_total: 1, runtime_minutes: 106 }),
+    title("oppenheimer", { category_id: "movies", runtime_minutes: 181 }),
+    title("short-film", { category_id: "movies", runtime_minutes: 40 }),
+    title("the-bear", { category_id: "series", progress_total: 8, runtime_minutes: 30 }),
+    title("hades", { category_id: "games" }),
+    title("berserk", { format: "manga", progress_total: 380 }),
+    title("one-piece", { format: "tv", progress_total: 1100, runtime_minutes: 24 }),
+  ];
+  const lasting = (length: "hour" | "evening" | "weekend") => ids(surpriseCandidates(library, { ...ANY, length }, kinds));
+
+  it("an hour: one episode of anything, or a short film", () => {
+    expect(lasting("hour")).toEqual(["frieren", "mushishi-special", "cyberpunk", "short-film", "the-bear", "one-piece"]);
+  });
+
+  it("an evening: a film, or a run short enough to finish tonight", () => {
+    expect(lasting("evening")).toEqual(["mushishi-special", "your-name", "short-film"]);
+  });
+
+  it("a weekend: a series you could finish in two days (up to 12 hours), not a long one", () => {
+    // Frieren's 28 episodes are about 11 hours; One Piece is 440.
+    expect(lasting("weekend")).toEqual(["frieren", "cyberpunk", "the-bear"]);
+  });
+
+  it("leaves what no clock can time to Any length", () => {
+    for (const length of ["hour", "evening", "weekend"] as const) {
+      expect(lasting(length)).not.toContain("hades");
+      expect(lasting(length)).not.toContain("berserk");
+    }
+  });
+
+  it("filters by mood on your titles' own genres", () => {
+    const moody = [title("monster", { genres: ["Mystery", "Thriller"] }), title("k-on", { genres: ["Slice of Life", "Comedy"] })];
+    expect(ids(surpriseCandidates(moody, { ...ANY, mood: "mystery" }, kinds))).toEqual(["monster"]);
+    expect(ids(surpriseCandidates(moody, { ...ANY, mood: "feel-good" }, kinds))).toEqual(["k-on"]);
+  });
+});
+
+describe("lengthLine", () => {
+  it("says how long, and 'about' where the runtime is a stand-in", () => {
+    expect(lengthLine({ format: "movie", progress_total: 1, runtime_minutes: 106 }, "anime")).toBe("1h 46m");
+    expect(lengthLine({ format: null, progress_total: null, runtime_minutes: null }, "movie")).toBe("about 2h");
+    expect(lengthLine({ format: "tv", progress_total: 12, runtime_minutes: 24 }, "anime")).toBe("12 eps · 4h 48m");
+    expect(lengthLine({ format: "tv", progress_total: 12, runtime_minutes: null }, "anime")).toBe("12 eps · about 5h");
+    expect(lengthLine({ format: null, progress_total: null, runtime_minutes: 45 }, "series")).toBe("45 min episodes");
+    expect(lengthLine({ format: null, progress_total: null, runtime_minutes: null }, "game")).toBeNull();
   });
 });

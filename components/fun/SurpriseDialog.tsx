@@ -3,7 +3,9 @@
 import { X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Dialog } from "radix-ui";
-import { categorySlugFromPath, type PaletteCategory, type PaletteTitle } from "@/lib/palette";
+import { Button } from "@/components/ui/Button";
+import { categorySlugFromPath, type PaletteCategory } from "@/lib/palette";
+import type { SurprisePool } from "@/lib/surprise";
 import { useReturnFocus } from "@/lib/use-return-focus";
 import { SurpriseContent } from "./SurpriseContent";
 import { useCloseWatcher } from "@/lib/use-close-watcher";
@@ -13,12 +15,15 @@ type SurpriseDialogProps = {
   onOpenChange: (open: boolean) => void;
   categories: PaletteCategory[];
   /** Fresh titles once loaded; null while they're on their way. */
-  titles: PaletteTitle[] | null;
+  pool: SurprisePool | null;
+  /** The load didn't come back. */
+  failed: boolean;
+  onRetry: () => void;
   onAddTitle: () => void;
 };
 
 /** The Surprise me panel (SPEC §10). On a shelf it starts on that shelf; anywhere else, anything goes. */
-export function SurpriseDialog({ open, onOpenChange, categories, titles, onAddTitle }: SurpriseDialogProps) {
+export function SurpriseDialog({ open, onOpenChange, categories, pool, failed, onRetry, onAddTitle }: SurpriseDialogProps) {
   useCloseWatcher(open, () => onOpenChange(false));
   const returnFocus = useReturnFocus();
   const slug = categorySlugFromPath(usePathname());
@@ -40,20 +45,30 @@ export function SurpriseDialog({ open, onOpenChange, categories, titles, onAddTi
           <div className="flex items-start justify-between gap-4 border-b border-white/7 px-4 pt-4 pb-3.5 md:px-6 md:pt-5">
             <div>
               <Dialog.Title className="font-mono text-[10.5px] tracking-[.14em] text-accent">SURPRISE ME</Dialog.Title>
-              <Dialog.Description className="mt-1.5 text-13 text-text-muted">Can&apos;t pick? Let the reel do it.</Dialog.Description>
+              <Dialog.Description className="mt-1.5 text-13 text-text-muted">
+                Can&apos;t pick? Let the reel do it.
+                {pool?.personal && " It leans toward what you rate highly."}
+              </Dialog.Description>
             </div>
             <Dialog.Close aria-label="Close" className="-mt-1.5 -mr-2 grid size-11 place-items-center rounded-full text-text-muted hover:text-text">
               <X aria-hidden className="size-4.5" strokeWidth={1.8} />
             </Dialog.Close>
           </div>
-          {titles ? (
+          {pool ? (
             <SurpriseContent
               categories={categories}
-              titles={titles}
+              pool={pool}
               initialCategoryId={here}
               onClose={() => onOpenChange(false)}
               onAddTitle={onAddTitle}
             />
+          ) : failed ? (
+            <div className="flex h-80 flex-col items-center justify-center gap-3 text-center">
+              <p className="text-14 text-text-muted">The reel didn&apos;t load. Check your connection.</p>
+              <Button variant="secondary" onClick={onRetry} className="h-11 px-4.5">
+                Try again
+              </Button>
+            </div>
           ) : (
             <div aria-busy className="flex h-80 items-center justify-center text-13 text-text-muted">
               Loading the reel…

@@ -18,6 +18,8 @@ const row = (overrides: Partial<TasteItem>): TasteItem => ({
   genres: [],
   tags: null,
   finished_at: null,
+  runtime_minutes: null,
+  progress_total: null,
   community_score: null,
   source: "manual",
   external_id: null,

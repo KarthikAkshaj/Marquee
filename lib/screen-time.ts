@@ -28,9 +28,28 @@ const ANIME_FILM_MINUTES = 90;
  * rows fall back to the shape of the shelf, and to the guess that an anime
  * with exactly one episode is probably a film and might be an OVA.
  */
-export function isFeature(item: TimedItem): boolean {
+export function isFeature(item: Pick<TimedItem, "format" | "kind" | "progress_total">): boolean {
   if (item.format) return item.format === "movie";
   return item.kind === "movie" || (item.kind === "anime" && item.progress_total === 1);
+}
+
+/**
+ * How long a title takes: `sitting` is the film, or one episode; `whole` is
+ * the film, or every episode when the count is known. `guessed` when a
+ * fallback stood in for the runtime. Null for what no clock can time: games,
+ * custom shelves, comics and novels.
+ */
+export type Length = { feature: boolean; sitting: number; whole: number | null; guessed: boolean };
+
+export function lengthOf(item: Pick<TimedItem, "format" | "kind" | "progress_total" | "runtime_minutes">): Length | null {
+  if (isReading(item.format) || !isWatchedKind(item.kind)) return null;
+  const guessed = item.runtime_minutes === null;
+  if (isFeature(item)) {
+    const minutes = item.runtime_minutes ?? (item.kind === "movie" ? MINUTES.movie : ANIME_FILM_MINUTES);
+    return { feature: true, sitting: minutes, whole: minutes, guessed };
+  }
+  const episode = item.runtime_minutes ?? (item.kind === "series" ? MINUTES.series : MINUTES.anime);
+  return { feature: false, sitting: episode, whole: item.progress_total ? item.progress_total * episode : null, guessed };
 }
 
 /**

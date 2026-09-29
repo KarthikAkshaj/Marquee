@@ -4,6 +4,7 @@ import { Dialog } from "radix-ui";
 import { createContext, useCallback, useContext, useEffect, useEffectEvent, useRef, useState, type ReactNode } from "react";
 import { AddItemDialog } from "@/components/category/AddItemDialog";
 import { SurpriseDialog } from "@/components/fun/SurpriseDialog";
+import { useSurprisePool } from "@/components/fun/useSurprisePool";
 import type { PaletteCategory } from "@/lib/palette";
 import type { ItemStatus } from "@/lib/status";
 import { useReturnFocus } from "@/lib/use-return-focus";
@@ -53,7 +54,8 @@ function isTyping(target: EventTarget | null) {
 /**
  * The app-wide dialogs (SPEC §8.7b, §8.8, §10): Ctrl/⌘+K toggles the palette,
  * S spins Surprise me, and "Add manually" hands over to the manual add dialog.
- * Both lists of titles come fresh from /api/titles each time they open.
+ * Each fetches its titles fresh when it opens: the palette from /api/titles,
+ * Surprise me from /api/surprise.
  */
 export function PaletteProvider({ categories, children }: { categories: PaletteCategory[]; children: ReactNode }) {
   const returnFocus = useReturnFocus();
@@ -61,6 +63,8 @@ export function PaletteProvider({ categories, children }: { categories: PaletteC
   const [surprise, setSurprise] = useState<"closed" | "loading" | "ready">("closed");
   const [manual, setManual] = useState<ManualAdd | null>(null);
   const { titles, refresh } = usePaletteTitles();
+  const surprisePool = useSurprisePool();
+  const { refresh: refreshPool } = surprisePool;
   const addHandler = useRef<(() => void) | null>(null);
   const panel = useRef<HTMLDivElement>(null);
   const morph = usePaletteMorph(panel);
@@ -88,9 +92,9 @@ export function PaletteProvider({ categories, children }: { categories: PaletteC
   const showSurprise = useCallback(async () => {
     setOpen(false);
     setSurprise("loading");
-    await refresh();
+    await refreshPool();
     setSurprise((state) => (state === "loading" ? "ready" : state));
-  }, [refresh]);
+  }, [refreshPool]);
 
   const onKeyDown = useEffectEvent((event: KeyboardEvent) => {
     const key = event.key.toLowerCase();
@@ -149,7 +153,9 @@ export function PaletteProvider({ categories, children }: { categories: PaletteC
         open={surprise !== "closed"}
         onOpenChange={(next) => !next && setSurprise("closed")}
         categories={categories}
-        titles={surprise === "ready" ? titles : null}
+        pool={surprise === "ready" ? surprisePool.pool : null}
+        failed={surprise === "ready" && surprisePool.failed}
+        onRetry={() => void showSurprise()}
         onAddTitle={() => {
           setSurprise("closed");
           show();

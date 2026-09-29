@@ -43,6 +43,12 @@ test("For you's picks by mood need a session", async ({ request }) => {
   expect(await picks.json()).toEqual({ picks: [], notices: {}, error: "signed_out" });
 });
 
+test("Surprise me's reel needs a session", async ({ request }) => {
+  const reel = await request.get("/api/surprise");
+  expect(reel.status()).toBe(401);
+  expect(await reel.json()).toEqual({ titles: [], personal: false, error: "signed_out" });
+});
+
 test("signed-out visitors are bounced from the app to login", async ({ page }) => {
   await page.goto("/home");
   await expect(page).toHaveURL(/\/login/);
