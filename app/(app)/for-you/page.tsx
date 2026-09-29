@@ -5,8 +5,9 @@ import { ForYouEmpty } from "@/components/picks/ForYouEmpty";
 import { NewPicksSection } from "@/components/picks/NewPicksSection";
 import { NewPicksSkeleton } from "@/components/picks/NewPicksSkeleton";
 import { PickShelves } from "@/components/picks/PickShelves";
+import { TagFill } from "@/components/picks/TagFill";
 import { loadPickContext } from "@/lib/picks";
-import { knowsTaste } from "@/lib/recommend";
+import { knowsTaste, tagGaps } from "@/lib/recommend";
 
 export const metadata: Metadata = { title: "For you" };
 
@@ -30,6 +31,7 @@ export default async function ForYouPage({ searchParams }: { searchParams: Promi
         <p className="mt-3 text-14 text-pretty text-text-muted md:text-[15px]">
           What to start next, and what fans of your favourites can&apos;t stop talking about.
         </p>
+        <TagFill gaps={tagGaps(context.library)} />
       </header>
       <PickShelves shelves={context.offered} />
       <BacklogPicks

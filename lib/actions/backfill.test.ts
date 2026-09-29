@@ -8,6 +8,8 @@ let signedIn = true;
 let rows: Row[] = [];
 let readError: { message: string } | null = null;
 const saved: Record<string, unknown>[][] = [];
+/** Which function each save went through. */
+const savedWith: string[] = [];
 /** The `gt` the action asked for, which is how it walks past titles it can't fill. */
 let askedAfter: string | null = null;
 
@@ -29,8 +31,9 @@ vi.mock("@/lib/supabase/server", () => ({
     return {
       auth: { getClaims: async () => ({ data: signedIn ? { claims: { sub: "user-1" } } : null }) },
       from: () => query,
-      rpc: async (_name: string, args: { rows: Record<string, unknown>[] }) => {
+      rpc: async (name: string, args: { rows: Record<string, unknown>[] }) => {
         saved.push(args.rows);
+        savedWith.push(name);
         return { data: args.rows.length, error: null };
       },
     };
@@ -38,7 +41,13 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 const shapes = vi.fn<(ids: readonly string[]) => Promise<Map<string, TitleShape>>>();
-vi.mock("@/lib/search/anilist", () => ({ getAniListShapes: (ids: readonly string[]) => shapes(ids) }));
+const aniListTags = vi.fn<(ids: readonly string[]) => Promise<Map<string, string[]>>>();
+const igdbTags = vi.fn<(ids: readonly string[]) => Promise<Map<string, string[]>>>();
+vi.mock("@/lib/search/anilist", () => ({
+  getAniListShapes: (ids: readonly string[]) => shapes(ids),
+  getAniListTags: (ids: readonly string[]) => aniListTags(ids),
+}));
+vi.mock("@/lib/search/igdb", () => ({ getIgdbTags: (ids: readonly string[]) => igdbTags(ids) }));
 
 const movieDetails = vi.fn();
 const seriesDetails = vi.fn();
@@ -47,7 +56,7 @@ vi.mock("@/lib/search", () => ({
   getSeriesDetails: (id: string) => seriesDetails(id),
 }));
 
-const { fillRuntimes } = await import("./backfill");
+const { fillRuntimes, fillTags } = await import("./backfill");
 
 const anime = (id: string, externalId: string): Row => ({
   id,
@@ -152,5 +161,52 @@ describe("fillRuntimes", () => {
     readError = { message: "boom" };
     expect(await fillRuntimes(null)).toMatchObject({ ok: false });
     expect(saved).toHaveLength(0);
+  });
+});
+
+describe("fillTags (SPEC §20)", () => {
+  const game = (id: string, externalId: string): Row => ({ id, external_id: externalId, source: "igdb", categories: { kind: "game" } });
+
+  beforeEach(() => {
+    signedIn = true;
+    rows = [];
+    readError = null;
+    saved.length = 0;
+    savedWith.length = 0;
+    askedAfter = null;
+    aniListTags.mockReset();
+    igdbTags.mockReset();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  it("asks each provider once for the batch and saves quietly, with none for titles it no longer knows", async () => {
+    rows = [anime("a1", "154587"), anime("a2", "999999"), game("g1", "1942")];
+    aniListTags.mockResolvedValue(new Map([["154587", ["Travel", "Iyashikei"]]]));
+    igdbTags.mockResolvedValue(new Map([["1942", ["Action", "Open world"]]]));
+
+    expect(await fillTags(null)).toEqual({ ok: true, done: true, filled: 3, cursor: "g1" });
+    expect(aniListTags).toHaveBeenCalledExactlyOnceWith(["154587", "999999"]);
+    expect(savedWith).toEqual(["fill_item_tags"]);
+    expect(saved[0]).toEqual([
+      { id: "a1", tags: ["Travel", "Iyashikei"] },
+      { id: "a2", tags: [] },
+      { id: "g1", tags: ["Action", "Open world"] },
+    ]);
+  });
+
+  it("leaves a provider's titles for next time when it's down, and saves the rest", async () => {
+    rows = [anime("a1", "154587"), game("g1", "1942")];
+    aniListTags.mockRejectedValue(new Error("HTTP 429"));
+    igdbTags.mockResolvedValue(new Map([["1942", ["Action"]]]));
+    expect(await fillTags(null)).toMatchObject({ ok: true, filled: 1 });
+    expect(saved[0]).toEqual([{ id: "g1", tags: ["Action"] }]);
+  });
+
+  it("walks on from the cursor, says when it's done, and needs a session", async () => {
+    rows = [];
+    expect(await fillTags("a9")).toEqual({ ok: true, done: true, filled: 0, cursor: "a9" });
+    expect(askedAfter).toBe("a9");
+    signedIn = false;
+    expect(await fillTags(null)).toMatchObject({ ok: false });
   });
 });

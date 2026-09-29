@@ -12,7 +12,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getMovieDetails, getSeriesDetails } from "@/lib/search";
-import { getAniListShapes } from "@/lib/search/anilist";
+import { getAniListShapes, getAniListTags } from "@/lib/search/anilist";
+import { getIgdbTags } from "@/lib/search/igdb";
 import type { TitleShape } from "@/lib/search/types";
 import type { CategoryKind } from "@/lib/status";
 import { createClient } from "@/lib/supabase/server";
@@ -113,5 +114,68 @@ export async function fillRuntimes(cursor: string | null): Promise<BackfillResul
 
   // Only at the end: the counts in the layout don't change on the way through.
   if (done) revalidatePath("/", "layout");
+  return { ok: true, done, filled: filled ?? 0, cursor: next };
+}
+
+/** Titles per tag lookup: one AniList request, and one IGDB request, at most. */
+const TAG_BATCH = 50;
+
+type TagPending = { id: string; external_id: string; source: "anilist" | "igdb" };
+
+/** Each provider's answer for its titles in the batch, or null when it couldn't be asked. */
+async function tagsFrom(source: TagPending["source"], items: TagPending[]): Promise<Map<string, string[]> | null> {
+  if (items.length === 0) return new Map();
+  try {
+    const ids = items.map((item) => item.external_id);
+    return source === "anilist" ? await getAniListTags(ids) : await getIgdbTags(ids);
+  } catch (error) {
+    // One provider being down shouldn't lose the rest of the batch; its titles are asked again next time.
+    console.error("[backfill] tags", source, error);
+    return null;
+  }
+}
+
+/**
+ * Looks up tags for the next batch of anime and games that don't have them
+ * yet (SPEC §20): AniList's main tags, IGDB's themes. A title its provider no
+ * longer knows is saved with none, so it isn't asked about forever. `cursor`
+ * is the last id of the previous batch; pass null to start.
+ */
+export async function fillTags(cursor: string | null): Promise<BackfillResult> {
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  if (!claims?.claims?.sub) return { ok: false, message: "Your session ended. Sign in again." };
+
+  let query = supabase
+    .from("items")
+    .select("id, external_id, source")
+    .is("tags", null)
+    .not("external_id", "is", null)
+    .in("source", ["anilist", "igdb"])
+    .order("id")
+    .limit(TAG_BATCH);
+  if (cursor) query = query.gt("id", cursor);
+
+  const { data, error } = await query;
+  if (error) return { ok: false, message: "Couldn't read your shelves. Try again." };
+  if (data.length === 0) return { ok: true, done: true, filled: 0, cursor };
+
+  const done = data.length < TAG_BATCH;
+  const next = data[data.length - 1].id;
+  const pending = data.flatMap((item): TagPending[] =>
+    item.external_id && (item.source === "anilist" || item.source === "igdb") ? [{ id: item.id, external_id: item.external_id, source: item.source }] : [],
+  );
+
+  const answers = await Promise.all(
+    (["anilist", "igdb"] as const).map(async (source) => {
+      const mine = pending.filter((item) => item.source === source);
+      return { mine, tags: await tagsFrom(source, mine) };
+    }),
+  );
+  const rows = answers.flatMap(({ mine, tags }) => (tags ? mine.map((item) => ({ id: item.id, tags: tags.get(item.external_id) ?? [] })) : []));
+  if (rows.length === 0) return { ok: true, done, filled: 0, cursor: next };
+
+  const { data: filled, error: writeError } = await supabase.rpc("fill_item_tags", { rows });
+  if (writeError) return { ok: false, message: "Couldn't save what it found. Try again." };
   return { ok: true, done, filled: filled ?? 0, cursor: next };
 }
