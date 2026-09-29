@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import { AmbientBackground } from "@/components/shell/AmbientBackground";
 import { rise } from "@/lib/motion";
 import {
@@ -25,10 +25,14 @@ type StatsViewProps = {
   shelves: readonly StatsShelf[];
   /** The one in view, or null for everything. */
   shelf: StatsShelf | null;
+  /** The chip just picked, when the cards are still catching up to it (StatsBrowser). */
+  picked?: StatsShelf | null;
   /** Every title in the library; the shelf filter is applied here. */
   items: readonly StatsItem[];
   today: Date;
   wrappedYear: number;
+  /** Given by StatsBrowser, the chips switch shelves without a trip to the server. */
+  onPickShelf?: (href: string) => void;
 };
 
 function Rise({ index, className, children }: { index: number; className?: string; children: ReactNode }) {
@@ -41,26 +45,42 @@ function Rise({ index, className, children }: { index: number; className?: strin
 }
 
 /** /stats (SPEC §10): the headline numbers, then one card per question, all scoped by the shelf chips. */
-export function StatsView({ shelves, shelf, items, today, wrappedYear }: StatsViewProps) {
+export function StatsView({ shelves, shelf, picked, items, today, wrappedYear, onPickShelf }: StatsViewProps) {
   if (items.length === 0) return <StatsEmpty />;
 
-  const inView = shelf ? items.filter((item) => item.category_id === shelf.id) : items;
   const stocked = shelves.filter((entry) => items.some((item) => item.category_id === entry.id));
-  const byId = new Map(shelves.map((entry) => [entry.id, entry]));
-  const kinds = new Map(shelves.map((entry) => [entry.id, entry.kind]));
 
   return (
     <>
       <AmbientBackground {...(shelf ? { variant: "category", color: shelf.color } : { variant: "app" })} />
       <StatsHeader shelf={shelf} year={wrappedYear} />
       <div className="mt-5.5 md:mt-7">
-        <ShelfFilter shelves={stocked} shelf={shelf} />
+        <ShelfFilter shelves={stocked} shelf={picked === undefined ? shelf : picked} onPick={onPickShelf} />
       </div>
-      <div className="mt-4 md:mt-5">
+      <StatsNumbers shelves={shelves} shelf={shelf} items={items} today={today} />
+    </>
+  );
+}
+
+type StatsNumbersProps = Pick<StatsViewProps, "shelves" | "shelf" | "items" | "today">;
+
+/**
+ * The tiles and the cards, counted for one shelf. Remembered between renders,
+ * so a tapped chip lights up without waiting for all of this to be redone.
+ */
+const StatsNumbers = memo(function StatsNumbers({ shelves, shelf, items, today }: StatsNumbersProps) {
+  const inView = shelf ? items.filter((item) => item.category_id === shelf.id) : items;
+  const byId = new Map(shelves.map((entry) => [entry.id, entry]));
+  const kinds = new Map(shelves.map((entry) => [entry.id, entry.kind]));
+
+  return (
+    <>
+      {/* A new shelf deals the numbers in again. */}
+      <div key={shelf?.id ?? "all"} className="mt-4 md:mt-5">
         <HeadlineTiles numbers={headline(inView, kinds, today)} shelf={shelf} />
       </div>
 
-      <div className="mt-3 grid gap-3 md:mt-4 md:gap-4 lg:grid-cols-2">
+      <div key={`cards-${shelf?.id ?? "all"}`} className="mt-3 grid gap-3 md:mt-4 md:gap-4 lg:grid-cols-2">
         <Rise index={0} className="lg:col-span-2">
           <FinishedCard finishes={finishedByMonth(inView, today)} shelves={shelf ? null : shelves} className="h-full" />
         </Rise>
@@ -76,4 +96,4 @@ export function StatsView({ shelves, shelf, items, today, wrappedYear }: StatsVi
       </div>
     </>
   );
-}
+});

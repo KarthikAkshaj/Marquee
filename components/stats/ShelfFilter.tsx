@@ -5,14 +5,23 @@ import type { ReactNode } from "react";
 import { GlideGroup, useGlide } from "@/components/ui/Glide";
 import { categoryStyle } from "@/lib/categories";
 import type { StatsShelf } from "@/lib/stats";
-import { cn } from "@/lib/utils";
+import { cn, isPlainClick } from "@/lib/utils";
 
 /**
  * One row of shelf chips above everything they scope (the URL keeps the
  * choice, SPEC §8). Only shelves with something on them are offered. The
  * chosen chip's amber glides to the next one you pick (U20).
  */
-export function ShelfFilter({ shelves, shelf }: { shelves: readonly StatsShelf[]; shelf: StatsShelf | null }) {
+export function ShelfFilter({
+  shelves,
+  shelf,
+  onPick,
+}: {
+  shelves: readonly StatsShelf[];
+  shelf: StatsShelf | null;
+  /** Switch in the browser instead of navigating (StatsBrowser); a plain link otherwise. */
+  onPick?: (href: string) => void;
+}) {
   if (shelves.length < 2) return null;
 
   return (
@@ -20,13 +29,13 @@ export function ShelfFilter({ shelves, shelf }: { shelves: readonly StatsShelf[]
       <GlideGroup id="stats-shelves">
         <ul className="flex w-max gap-2 md:w-auto md:flex-wrap">
           <li>
-            <Chip href="/stats" current={shelf === null}>
+            <Chip href="/stats" current={shelf === null} onPick={onPick}>
               Everything
             </Chip>
           </li>
           {shelves.map((entry) => (
             <li key={entry.id}>
-              <Chip href={`/stats?shelf=${encodeURIComponent(entry.slug)}`} current={shelf?.id === entry.id}>
+              <Chip href={`/stats?shelf=${encodeURIComponent(entry.slug)}`} current={shelf?.id === entry.id} onPick={onPick}>
                 <span aria-hidden className={cn("size-1.5 rounded-full", categoryStyle(entry.color).dot)} />
                 {entry.name}
               </Chip>
@@ -38,7 +47,7 @@ export function ShelfFilter({ shelves, shelf }: { shelves: readonly StatsShelf[]
   );
 }
 
-function Chip({ href, current, children }: { href: string; current: boolean; children: ReactNode }) {
+function Chip({ href, current, onPick, children }: { href: string; current: boolean; onPick?: (href: string) => void; children: ReactNode }) {
   // The pill covers the chip's own border, so the chosen chip wears only the amber one.
   const { bind, frames } = useGlide(href, current, "-inset-px border border-accent/45 bg-accent/10");
 
@@ -47,6 +56,14 @@ function Chip({ href, current, children }: { href: string; current: boolean; chi
       href={href}
       scroll={false}
       aria-current={current ? "true" : undefined}
+      onClick={
+        onPick &&
+        ((event) => {
+          if (!isPlainClick(event)) return;
+          event.preventDefault();
+          onPick(href);
+        })
+      }
       className={cn(
         "press relative isolate flex h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 text-[12.5px] md:h-8.5",
         current ? "border-transparent font-semibold text-text" : "border-white/8 bg-elevated text-text-muted hover:text-text",
