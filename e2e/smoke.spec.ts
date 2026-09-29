@@ -37,6 +37,12 @@ test("signed-out visitors can't open For you", async ({ page }) => {
   await expect(page).toHaveURL(/\/login\?next=%2Ffor-you/);
 });
 
+test("For you's picks by mood need a session", async ({ request }) => {
+  const picks = await request.get("/api/picks?mood=war");
+  expect(picks.status()).toBe(401);
+  expect(await picks.json()).toEqual({ picks: [], notices: {}, error: "signed_out" });
+});
+
 test("signed-out visitors are bounced from the app to login", async ({ page }) => {
   await page.goto("/home");
   await expect(page).toHaveURL(/\/login/);
