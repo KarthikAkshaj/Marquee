@@ -114,7 +114,13 @@ type SearchNoticeInput = {
 /** Why there's nothing to pick, in one muted line. Every case still leaves "Add manually". */
 export function searchNotice({ source, query, idle, loading, resultCount, error }: SearchNoticeInput): string | null {
   const name = SOURCE_NAMES[source];
-  if (idle) return query.trim() ? null : `Type a title and we'll look it up on ${name}.`;
+  if (idle) {
+    if (query.trim()) return null;
+    // Films and shows share names more than anything else (six films are called Darling).
+    return source === "tmdb"
+      ? "Type a title. Same name as another? Add the year or language: darling 2010, darling telugu."
+      : `Type a title and we'll look it up on ${name}.`;
+  }
   switch (error) {
     case "not_configured":
       return `${name} search isn't set up yet, so add it by hand.`;
@@ -125,6 +131,8 @@ export function searchNotice({ source, query, idle, loading, resultCount, error 
     case "signed_out":
       return "Your session ended. Sign in again to search.";
   }
-  if (!loading && resultCount === 0) return `Nothing on ${name} by that name.`;
+  if (!loading && resultCount === 0) {
+    return source === "tmdb" ? `Nothing on ${name} by that name. Check the spelling, or drop the year.` : `Nothing on ${name} by that name.`;
+  }
   return null;
 }

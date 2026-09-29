@@ -98,4 +98,10 @@ describe("add helpers", () => {
     expect(searchNotice({ ...base, source: "igdb", error: "not_configured" })).toBe("IGDB search isn't set up yet, so add it by hand.");
     expect(searchNotice({ ...base, source: "tmdb", error: "unavailable" })).toMatch(/^TMDB isn't answering/);
   });
+
+  it("tells a film or show search how to pick out a namesake", () => {
+    const base = { source: "tmdb" as const, query: "", idle: true, loading: false, resultCount: 0, error: undefined };
+    expect(searchNotice(base)).toBe("Type a title. Same name as another? Add the year or language: darling 2010, darling telugu.");
+    expect(searchNotice({ ...base, query: "darling 1822", idle: false })).toBe("Nothing on TMDB by that name. Check the spelling, or drop the year.");
+  });
 });
