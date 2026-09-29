@@ -44,6 +44,24 @@ export const publicTitleSchema = z.object({
   is_favorite: z.boolean(),
 });
 
+/**
+ * A signed-in visitor's side of Add to my shelf: their own shelves, and which
+ * of the open shelf's titles they already have (keyed by the shared title's
+ * id). Only ever the visitor's own rows.
+ */
+const viewerSchema = z.object({
+  shelves: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      slug: z.string(),
+      kind: z.enum(CATEGORY_KINDS),
+      color: z.enum(CATEGORY_COLORS).catch("amber"),
+    }),
+  ),
+  has: z.record(z.string(), z.object({ item: z.string(), shelf: z.string() })).catch({}),
+});
+
 /** Everything the page needs in one trip (`public_page`): the profile, the open shelf and its titles. */
 export const publicPageSchema = publicProfileSchema.extend({
   /** The viewer is the owner. */
@@ -51,12 +69,23 @@ export const publicPageSchema = publicProfileSchema.extend({
   /** The open shelf's slug; null when nothing is shared yet. */
   shelf: z.string().nullable(),
   titles: z.array(publicTitleSchema),
+  /** Null for the owner and for anyone signed out. */
+  viewer: viewerSchema.nullable().catch(null),
 });
 
 export type PublicProfile = z.infer<typeof publicProfileSchema>;
 export type PublicPage = z.infer<typeof publicPageSchema>;
 export type PublicShelf = PublicProfile["shelves"][number];
 export type PublicTitle = z.infer<typeof publicTitleSchema>;
+export type PublicViewer = z.infer<typeof viewerSchema>;
+export type ViewerShelf = PublicViewer["shelves"][number];
+/** Where the visitor's own copy of a shared title is. */
+export type ViewerCopy = PublicViewer["has"][string];
+
+/** The visitor's shelves a title from a shelf of this kind can go on: only the same kind. */
+export function shelvesFor(viewer: PublicViewer, kind: PublicShelf["kind"]): ViewerShelf[] {
+  return viewer.shelves.filter((shelf) => shelf.kind === kind);
+}
 
 /** The member pass's numbers, from the shared shelves only. */
 export function publicStats(profile: PublicProfile) {

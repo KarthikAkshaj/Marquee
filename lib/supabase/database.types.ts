@@ -210,6 +210,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      copy_shared_title: {
+        Args: {
+          p_category: string
+          p_item: string
+          p_status: Database["public"]["Enums"]["item_status"]
+          p_username: string
+        }
+        Returns: string
+      }
       delete_account: { Args: never; Returns: undefined }
       fill_item_runtimes: { Args: { rows: Json }; Returns: number }
       fill_item_tags: { Args: { rows: Json }; Returns: number }
@@ -230,6 +239,10 @@ export type Database = {
       restore_shelves: { Args: { shelves: Json }; Returns: Json }
       restore_titles: {
         Args: { rows: Json; target_category: string }
+        Returns: Json
+      }
+      shared_title: {
+        Args: { p_item: string; p_username: string }
         Returns: Json
       }
     }

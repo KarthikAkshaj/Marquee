@@ -229,6 +229,16 @@ export const addFromSearchSchema = z.object({
   result: searchResultSchema,
 });
 
+/** Add to my shelf (SPEC §19): whose shared title, and where it goes on your side. */
+export const addSharedTitleSchema = z.object({
+  username: usernameSchema,
+  itemId: z.string().uuid(),
+  categoryId: z.string().uuid(),
+  status: z.enum(ITEM_STATUSES),
+});
+
+export type AddSharedTitleInput = z.input<typeof addSharedTitleSchema>;
+
 /** A provider's title waved away on For you (SPEC §20): who it is, exactly. */
 export const pickKeySchema = z.object({
   source: z.enum(["anilist", "tmdb", "igdb"]),

@@ -19,13 +19,15 @@ type PublicTitleDialogProps = {
   categoryColor: string;
   /** "Akshaj's Anime": whose shelf this is, for the foot of the card. */
   shelfLine: string;
+  /** Add to my shelf, for anyone but the owner. */
+  children?: ReactNode;
 };
 
 // Long enough for the panel's exit (panel-leave, 140ms) to finish on screen.
 const LEAVE_MS = 150;
 
 /** A shared title, read-only (SPEC §19): what it is, where it stands, and the owner's verdict. */
-export function PublicTitleDialog({ title, onClose, kind, categoryColor, shelfLine }: PublicTitleDialogProps) {
+export function PublicTitleDialog({ title, onClose, kind, categoryColor, shelfLine, children }: PublicTitleDialogProps) {
   const [open, setOpen] = useState(true);
   const status = STATUS_STYLE[title.status];
   const words = labelKind(kind, title.format);
@@ -119,6 +121,8 @@ export function PublicTitleDialog({ title, onClose, kind, categoryColor, shelfLi
               ))}
             </ul>
           )}
+
+          {children}
 
           <Dialog.Description className="mx-5.5 mt-5 mb-5.5 text-12 text-text-muted md:mx-6.5 md:mb-6.5">
             On {shelfLine}.

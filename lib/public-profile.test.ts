@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { publicHref, publicPageSchema, publicProfileSchema, publicStats, publicTitleSchema } from "./public-profile";
+import { publicHref, publicPageSchema, publicProfileSchema, publicStats, publicTitleSchema, shelvesFor } from "./public-profile";
 
 const profile = publicProfileSchema.parse({
   username: "akshaj",
@@ -67,6 +67,43 @@ describe("publicPageSchema", () => {
     const page = publicPageSchema.parse({ ...profile, own: null, shelf: "anime", titles: [] });
     expect(page).toMatchObject({ own: false, shelf: "anime", titles: [] });
     expect(page.shelves).toHaveLength(2);
+  });
+
+  it("has no visitor for the owner, anyone signed out, or a database from before Add to my shelf", () => {
+    expect(publicPageSchema.parse({ ...profile, own: false, shelf: "anime", titles: [], viewer: null }).viewer).toBeNull();
+    expect(publicPageSchema.parse({ ...profile, own: false, shelf: "anime", titles: [] }).viewer).toBeNull();
+  });
+
+  it("reads a visitor's shelves and copies, and shrugs off copies it can't read", () => {
+    const shelves = [
+      { id: "s1", name: "Anime", slug: "anime", kind: "anime", color: "crimson" },
+      { id: "s2", name: "Films", slug: "films", kind: "movie", color: "#123456" },
+    ];
+    const page = publicPageSchema.parse({
+      ...profile,
+      own: false,
+      shelf: "anime",
+      titles: [],
+      viewer: { shelves, has: { t1: { item: "i1", shelf: "s1" } } },
+    });
+    expect(page.viewer?.has.t1).toEqual({ item: "i1", shelf: "s1" });
+    expect(page.viewer?.shelves[1].color).toBe("amber");
+    expect(publicPageSchema.parse({ ...profile, own: false, shelf: "anime", titles: [], viewer: { shelves, has: { t1: 5 } } }).viewer?.has).toEqual({});
+  });
+});
+
+describe("shelvesFor", () => {
+  it("offers only your shelves of the same kind", () => {
+    const viewer = {
+      shelves: [
+        { id: "s1", name: "Anime", slug: "anime", kind: "anime" as const, color: "crimson" as const },
+        { id: "s2", name: "Films", slug: "films", kind: "movie" as const, color: "amber" as const },
+        { id: "s3", name: "Donghua", slug: "donghua", kind: "anime" as const, color: "teal" as const },
+      ],
+      has: {},
+    };
+    expect(shelvesFor(viewer, "anime").map((shelf) => shelf.name)).toEqual(["Anime", "Donghua"]);
+    expect(shelvesFor(viewer, "game")).toEqual([]);
   });
 });
 

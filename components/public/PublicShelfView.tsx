@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { StatusTabs } from "@/components/category/StatusTabs";
 import { DEFAULT_CATEGORY_PARAMS, countByStatus } from "@/lib/items";
-import type { PublicShelf, PublicTitle } from "@/lib/public-profile";
+import { shelvesFor, type PublicShelf, type PublicTitle, type PublicViewer, type ViewerCopy } from "@/lib/public-profile";
 import { statusLabel } from "@/lib/status";
+import { AddToMyShelf } from "./AddToMyShelf";
 import { PublicEmpty } from "./PublicEmpty";
 import { PublicGrid } from "./PublicGrid";
 import { PublicTitleDialog } from "./PublicTitleDialog";
@@ -18,17 +20,24 @@ type PublicShelfViewProps = {
   /** "Flux", for the foot of a title's card. */
   ownerName: string;
   own: boolean;
+  signedIn: boolean;
+  /** A signed-in visitor's shelves and copies, for Add to my shelf. */
+  viewer: PublicViewer | null;
 };
 
 /**
  * The shared shelves: chips to switch shelf (from the server), then status
  * tabs, posters and each title's card (all in the browser, SPEC §19).
  */
-export function PublicShelfView({ username, shelves, shelf, titles, ownerName, own }: PublicShelfViewProps) {
+export function PublicShelfView({ username, shelves, shelf, titles, ownerName, own, signedIn, viewer }: PublicShelfViewProps) {
   const firstShelf = shelves[0]?.slug ?? shelf.slug;
   const { status, itemId, href, pickStatus, open, close } = usePublicShelf(username, firstShelf, shelf.slug);
   const shown = status === "all" ? titles : titles.filter((title) => title.status === status);
   const opened = itemId ? titles.find((title) => title.id === itemId) : undefined;
+  // Copies made on this visit, on top of the ones the page came with.
+  const [added, setAdded] = useState<Record<string, ViewerCopy>>({});
+  // Signed in but without a viewer: the database hasn't learned Add to my shelf yet.
+  const canAdd = !own && (signedIn ? viewer !== null : true);
 
   return (
     <section aria-label={`${shelf.name} shelf`} className="mt-10 flex flex-col gap-5 md:mt-14 md:gap-6">
@@ -59,7 +68,19 @@ export function PublicShelfView({ username, shelves, shelf, titles, ownerName, o
           kind={shelf.kind}
           categoryColor={shelf.color}
           shelfLine={`${ownerName}'s ${shelf.name} shelf`}
-        />
+        >
+          {canAdd && (
+            <AddToMyShelf
+              title={opened}
+              username={username}
+              kind={shelf.kind}
+              signInHref={signedIn ? null : `/login?next=${encodeURIComponent(href({ item: opened.id }))}`}
+              shelves={viewer ? shelvesFor(viewer, shelf.kind) : []}
+              copy={added[opened.id] ?? viewer?.has[opened.id] ?? null}
+              onAdded={(copy) => setAdded((copies) => ({ ...copies, [opened.id]: copy }))}
+            />
+          )}
+        </PublicTitleDialog>
       )}
     </section>
   );

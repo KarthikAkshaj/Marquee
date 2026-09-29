@@ -44,6 +44,8 @@ export function PublicProfileView({ page, signedIn }: PublicProfileViewProps) {
           titles={page.titles}
           ownerName={name}
           own={page.own}
+          signedIn={signedIn}
+          viewer={page.viewer}
         />
       ) : (
         <PublicEmpty
