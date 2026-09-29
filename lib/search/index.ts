@@ -79,7 +79,7 @@ export function normaliseQuery(query: string): string {
  */
 const cachedSearch = unstable_cache(
   (kind: SearchKind, query: string) => PROVIDERS[kind].search(query),
-  ["metadata-search-v1"],
+  ["metadata-search-v2"],
   { revalidate: DAY },
 );
 

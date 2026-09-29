@@ -14,6 +14,7 @@ import warPage2 from "./__fixtures__/tmdb-discover-war-2.json";
 import {
   discoverPath,
   discoverTmdb,
+  languageLabel,
   searchTmdbKeywords,
   tmdbGenreList,
   getTmdbCollection,
@@ -257,6 +258,80 @@ describe("TMDB", () => {
     );
     expect(await searchTmdbKeywords("time travel")).toEqual([{ id: 4379, name: "time travel" }]);
     expect(await tmdbGenreList("movie")).toContainEqual({ id: 10752, name: "War" });
+  });
+
+  describe("namesakes", () => {
+    const film = (id: number, title: string, year: string, votes: number, language = "en", original = title) => ({
+      id,
+      title,
+      original_title: original,
+      release_date: `${year}-06-01`,
+      vote_count: votes,
+      vote_average: 6.5,
+      original_language: language,
+    });
+    // TMDB's own order for "darling": the Prabhas film is 17th of 20 on page one.
+    const darlingPage1 = [
+      film(1, "Strange Darling", "2024", 1046),
+      film(2, "Darling", "1965", 156),
+      film(3, "Don't Worry Darling", "2022", 3096),
+      film(4, "Darling", "2017", 12),
+      ...Array.from({ length: 12 }, (_, index) => film(100 + index, `My Darling ${index}`, "2000", 5)),
+      film(5, "Darling", "2010", 37, "te", "డార్లింగ్"),
+      film(6, "Darling", "2007", 14, "hi"),
+    ];
+
+    function tmdbSearch(pages: (url: URL) => unknown[]) {
+      const fetch = vi.fn(async (input: string) => {
+        const url = new URL(input);
+        if (url.pathname.endsWith("/genre/movie/list")) return json(movieGenres);
+        return json({ page: Number(url.searchParams.get("page")), results: pages(url) });
+      });
+      vi.stubGlobal("fetch", fetch);
+      return fetch;
+    }
+
+    it("puts films named exactly what was typed first, best known first, with their language", async () => {
+      tmdbSearch(() => darlingPage1);
+      const results = await searchTmdbMovies("darling");
+      expect(results.slice(0, 5).map((result) => `${result.title} ${result.year}`)).toEqual([
+        "Darling 1965",
+        "Darling 2010",
+        "Darling 2007",
+        "Darling 2017",
+        "Strange Darling 2024",
+      ]);
+      expect(results[1].subtitle).toBe("Telugu · డార్లింగ్");
+      expect(results[2].subtitle).toBe("Hindi");
+      expect(results[0].subtitle).toBeUndefined();
+    });
+
+    it("narrows by a language at the end, looking through the first two pages", async () => {
+      const fetch = tmdbSearch((url) => (url.searchParams.get("query") === "darling" ? darlingPage1 : []));
+      const results = await searchTmdbMovies("darling telugu");
+      expect(results[0]).toMatchObject({ title: "Darling", year: 2010, externalId: "5" });
+      const narrowed = fetch.mock.calls.map(([input]) => new URL(input)).filter((url) => url.searchParams.get("query") === "darling");
+      expect(narrowed.map((url) => url.searchParams.get("page"))).toEqual(["1", "2"]);
+    });
+
+    it("narrows by a year at the end, and still finds a title that ends in one", async () => {
+      const fetch = tmdbSearch((url) => {
+        if (url.searchParams.get("primary_release_year") === "2010") return [film(5, "Darling", "2010", 37, "te", "డార్లింగ్")];
+        if (url.searchParams.get("query") === "wonder woman 1984") return [film(9, "Wonder Woman 1984", "2020", 9000)];
+        return [];
+      });
+      expect((await searchTmdbMovies("darling 2010"))[0]).toMatchObject({ externalId: "5" });
+      expect(fetch.mock.calls.some(([input]) => new URL(input).searchParams.get("query") === "darling")).toBe(true);
+      expect((await searchTmdbMovies("wonder woman 1984")).map((result) => result.title)).toEqual(["Wonder Woman 1984"]);
+    });
+
+    it("names a language in words, and leaves English and unknown codes unsaid", () => {
+      expect(languageLabel("te")).toBe("Telugu");
+      expect(languageLabel("ko")).toBe("Korean");
+      expect(languageLabel("en")).toBeUndefined();
+      expect(languageLabel("xx")).toBeUndefined();
+      expect(languageLabel(null)).toBeUndefined();
+    });
   });
 
   it("reports a bad token as a provider error, and retries genres after a failure", async () => {

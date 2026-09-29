@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { cleanGenres, fetchJson, toScore, yearFromDate } from "./http";
+import { rankNamesakes, readTmdbHint } from "./tmdb-query";
 import {
   ProviderError,
   RESULT_LIMIT,
@@ -34,6 +35,8 @@ const baseSchema = z.object({
   genre_ids: z.array(z.number()).nullish(),
   vote_average: z.number().nullish(),
   vote_count: z.number().nullish(),
+  /** The language it was made in (ISO 639-1), which tells namesakes apart. */
+  original_language: z.string().nullish(),
 });
 
 const movieSchema = baseSchema.extend({
@@ -42,17 +45,9 @@ const movieSchema = baseSchema.extend({
   release_date: z.string().nullish(),
 });
 
-const tvSchema = baseSchema.extend({
-  name: z.string().nullish(),
-  original_name: z.string().nullish(),
-  first_air_date: z.string().nullish(),
-});
-
-export type TmdbMovie = z.infer<typeof movieSchema>;
-export type TmdbShow = z.infer<typeof tvSchema>;
 type Base = z.infer<typeof baseSchema>;
-
-const pageSchema = <T extends z.ZodType>(item: T) => z.object({ results: z.array(item) });
+export type TmdbMovie = z.infer<typeof movieSchema>;
+export type TmdbShow = Base & { name?: string | null; original_name?: string | null; first_air_date?: string | null };
 
 const genreListSchema = z.object({ genres: z.array(z.object({ id: z.number(), name: z.string() })) });
 
@@ -100,6 +95,24 @@ function originalTitle(title: string, original: string | null | undefined) {
   return trimmed && trimmed.toLowerCase() !== title.toLowerCase() ? trimmed : undefined;
 }
 
+const languageNames = new Intl.DisplayNames(["en"], { type: "language" });
+
+/** "Telugu" for a film made in Telugu. Nothing for English, which most titles here are, or a code with no name. */
+export function languageLabel(code: string | null | undefined): string | undefined {
+  if (!code || code === "en" || code === "xx") return undefined;
+  try {
+    const name = languageNames.of(code);
+    return name && name !== code ? name : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** The second line of a result: "Telugu · డార్లింగ్", so six films called Darling can be told apart. */
+function subtitleOf(title: string, entry: { original_language?: string | null }, original: string | null | undefined): string | undefined {
+  return [languageLabel(entry.original_language), originalTitle(title, original)].filter(Boolean).join(" · ") || undefined;
+}
+
 export function normaliseTmdbMovie(movie: TmdbMovie, genres: GenreNames): SearchResult | null {
   const title = movie.title?.trim();
   if (!title) return null;
@@ -108,7 +121,7 @@ export function normaliseTmdbMovie(movie: TmdbMovie, genres: GenreNames): Search
     title,
     year: yearFromDate(movie.release_date),
     format: "movie",
-    subtitle: originalTitle(title, movie.original_title),
+    subtitle: subtitleOf(title, movie, movie.original_title),
     altTitle: originalTitle(title, movie.original_title),
   };
 }
@@ -122,30 +135,61 @@ export function normaliseTmdbShow(show: TmdbShow, genres: GenreNames): SearchRes
     title,
     year: yearFromDate(show.first_air_date),
     format: "tv",
-    subtitle: originalTitle(title, show.original_name),
+    subtitle: subtitleOf(title, show, show.original_name),
     altTitle: originalTitle(title, show.original_name),
   };
 }
 
-function searchPath(type: "movie" | "tv", query: string) {
-  const params = new URLSearchParams({ query, include_adult: "false", language: "en-US", page: "1" });
+function searchPath(type: "movie" | "tv", query: string, narrow: Record<string, string> = {}, page = 1) {
+  const params = new URLSearchParams({ query, include_adult: "false", language: "en-US", page: String(page), ...narrow });
   return `/search/${type}?${params}`;
 }
 
-export async function searchTmdbMovies(query: string): Promise<SearchResult[]> {
-  const [page, genres] = await Promise.all([request(searchPath("movie", query), pageSchema(movieSchema)), genreNames("movie")]);
-  return page.results
-    .map((movie) => normaliseTmdbMovie(movie, genres))
+/**
+ * Pages read for a language hint. TMDB can't filter a search by language, so
+ * the films in it are picked out of the first forty; the Telugu Darling is
+ * 17th of 344.
+ */
+const LANGUAGE_PAGES = [1, 2];
+
+/**
+ * A search that tells namesakes apart. A year or language at the end of it
+ * ("darling 2010", "darling telugu") runs a narrowed search of the words
+ * before it, whose finds go first; the search as typed still runs, so a title
+ * that ends in a year ("Wonder Woman 1984", from 2020) is still found. Either
+ * way, titles named exactly what was typed come first.
+ */
+async function searchTmdb(type: "movie" | "tv", query: string): Promise<SearchResult[]> {
+  const hint = readTmdbHint(query);
+  const year: Record<string, string> = hint?.year ? { [type === "movie" ? "primary_release_year" : "first_air_date_year"]: String(hint.year) } : {};
+  const [plain, narrowed, genres] = await Promise.all([
+    request(searchPath(type, query), suggestedSchema),
+    hint
+      ? Promise.all((hint.language ? LANGUAGE_PAGES : [1]).map((page) => request(searchPath(type, hint.text, year, page), suggestedSchema)))
+      : Promise.resolve([]),
+    genreNames(type),
+  ]);
+
+  const describe = (entry: TmdbSuggested) => ({
+    title: (type === "movie" ? entry.title : entry.name) ?? "",
+    originalTitle: type === "movie" ? entry.original_title : entry.original_name,
+    votes: entry.vote_count ?? 0,
+  });
+  const picked = narrowed.flatMap((page) => page.results).filter((entry) => !hint?.language || entry.original_language === hint.language);
+  const seen = new Set<number>();
+  return [...rankNamesakes(picked, hint?.text ?? query, describe), ...rankNamesakes(plain.results, query, describe)]
+    .filter((entry) => !entry.adult && !entry.softcore && !seen.has(entry.id) && Boolean(seen.add(entry.id)))
+    .map((entry) => (type === "movie" ? normaliseTmdbMovie(entry, genres) : normaliseTmdbShow(entry, genres)))
     .filter((result) => result !== null)
     .slice(0, RESULT_LIMIT);
 }
 
-export async function searchTmdbSeries(query: string): Promise<SearchResult[]> {
-  const [page, genres] = await Promise.all([request(searchPath("tv", query), pageSchema(tvSchema)), genreNames("tv")]);
-  return page.results
-    .map((show) => normaliseTmdbShow(show, genres))
-    .filter((result) => result !== null)
-    .slice(0, RESULT_LIMIT);
+export function searchTmdbMovies(query: string): Promise<SearchResult[]> {
+  return searchTmdb("movie", query);
+}
+
+export function searchTmdbSeries(query: string): Promise<SearchResult[]> {
+  return searchTmdb("tv", query);
 }
 
 const showDetailsSchema = z.object({
