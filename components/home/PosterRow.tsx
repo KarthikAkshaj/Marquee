@@ -1,32 +1,32 @@
-import Link from "next/link";
-import type { CSSProperties } from "react";
-import { ItemCover } from "@/components/items/ItemCover";
-import type { Item } from "@/lib/items";
+import type { ReactNode } from "react";
 import { rise } from "@/lib/motion";
-import { titleHref, type PaletteCategory } from "@/lib/palette";
-import { generatedCover } from "@/lib/poster-art";
+import type { PaletteCategory } from "@/lib/palette";
 import { cn } from "@/lib/utils";
+import { PosterTile, type PosterItem } from "./PosterTile";
 import { SectionHeader } from "./SectionHeader";
 
 type PosterRowProps = {
   id: string;
   title: string;
-  /** A quiet note on the right, e.g. "Nice run." */
-  note: string;
+  /** A quiet note on the right, e.g. "Nice run.", or a link on. */
+  note: ReactNode;
   /** What to say when the row is empty. */
   empty: string;
-  items: Item[];
+  items: PosterItem[];
   shelves: PaletteCategory[];
   /** Posters from the start whose covers load at once: for a row in the first screenful. */
   eager?: number;
+  /** A muted line under each title, by item id (why it was picked). */
+  captions?: ReadonlyMap<string, string | null>;
   className?: string;
 };
 
 /**
  * A row of posters with your rating on each (handoff §01): Recently finished
- * and Favourites on Home (SPEC §8.4, §10). Each opens its title.
+ * and Favourites on Home (SPEC §8.4, §10), and Picked for you (§20). Each
+ * opens its title.
  */
-export function PosterRow({ id, title, note, empty, items, shelves, eager = 0, className }: PosterRowProps) {
+export function PosterRow({ id, title, note, empty, items, shelves, eager = 0, captions, className }: PosterRowProps) {
   const byId = new Map(shelves.map((shelf) => [shelf.id, shelf]));
   const posters = items.flatMap((item) => {
     const shelf = byId.get(item.category_id);
@@ -40,37 +40,11 @@ export function PosterRow({ id, title, note, empty, items, shelves, eager = 0, c
         <p className="text-13 text-text-muted">{empty}</p>
       ) : (
         <ul className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] md:mx-0 md:gap-4 md:px-0">
-          {posters.map(({ item, shelf }, index) => {
-            const glow = item.accent_color
-              ? `color-mix(in oklab, ${item.accent_color} 34%, transparent)`
-              : generatedCover(item.id, shelf.color).glow;
-            return (
-              <li key={item.id} style={rise(index).style} className={cn("w-24 shrink-0 md:w-29.5", rise(index).className)}>
-                <Link href={titleHref(shelf, item.id)} className="group flex flex-col gap-2 rounded-card md:gap-2.25">
-                  <div
-                    className="relative h-36 overflow-hidden rounded-[9px] border border-white/7 shadow-[0_10px_26px_var(--glow)] transition-transform duration-200 ease-cinematic group-hover:-translate-y-1 md:h-44.25"
-                    style={{ "--glow": glow } as CSSProperties}
-                  >
-                    <ItemCover item={item} categoryColor={shelf.color} sizes="118px" eager={index < eager} />
-                    {item.rating !== null && (
-                      <span className="absolute top-1.75 right-1.75 flex items-center gap-1 rounded-full bg-bg/60 px-1.5 py-0.75 backdrop-blur-[6px] md:top-2 md:right-2 md:px-1.75">
-                        <span aria-hidden className="size-1 rounded-full bg-completed md:size-1.25" />
-                        <span className="font-mono text-[9px] text-completed md:text-[9.5px]">
-                          <span className="sr-only">Rated </span>
-                          {item.rating}
-                          <span aria-hidden>/10</span>
-                          <span className="sr-only"> out of 10</span>
-                        </span>
-                      </span>
-                    )}
-                  </div>
-                  <span className="line-clamp-2 text-[11.5px] leading-[1.3] text-pretty transition-colors group-hover:text-white md:text-[12.5px]">
-                    {item.title}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
+          {posters.map(({ item, shelf }, index) => (
+            <li key={item.id} style={rise(index).style} className={cn("w-24 shrink-0 md:w-29.5", rise(index).className)}>
+              <PosterTile item={item} shelf={shelf} eager={index < eager} caption={captions?.get(item.id)} />
+            </li>
+          ))}
         </ul>
       )}
     </section>
