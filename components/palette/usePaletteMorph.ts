@@ -18,7 +18,7 @@ type Flight = { source: Source; phase: "flying" | "landed" };
  * Home's first "Add"), a glass box grows from that control to the palette's
  * spot on the poster flight's spring, and the palette appears inside it as it
  * lands. Opened from the keyboard there's nothing to grow from, so the panel
- * just arrives (U26). Full tier only.
+ * just arrives (U26). Full tier and a mouse only.
  *
  * `phase` goes on the panel as data-morph: "flying" keeps it hidden and
  * skips its own entrance, "landed" fades it in.
@@ -29,7 +29,11 @@ export function usePaletteMorph(panel: RefObject<HTMLElement | null>) {
 
   const start = useCallback(
     (from?: HTMLElement) => {
-      if (!from || tier !== "full") return setFlight(null);
+      // Mouse only. On a phone the keyboard slides up as the search field takes
+      // focus, and a blurred box resized every frame on top of that stuttered
+      // (0.3-0.5s frozen on a mid-range phone); the panel's own drop-in is enough.
+      const mouse = window.matchMedia?.("(hover: hover) and (pointer: fine)").matches === true;
+      if (!from || tier !== "full" || !mouse) return setFlight(null);
       const rect = from.getBoundingClientRect();
       if (rect.width === 0) return setFlight(null);
       setFlight({ source: { rect, radius: getComputedStyle(from).borderRadius }, phase: "flying" });
