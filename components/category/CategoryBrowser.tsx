@@ -9,7 +9,7 @@ import type { ItemQuickActions } from "@/components/items/QuickActions";
 import { RoomLight } from "@/components/shell/RoomLight";
 import { useItemActions, type ShelfCategory } from "@/components/items/useItemActions";
 import { searchKindOf } from "@/lib/add";
-import { countByStatus, filterByTitle, selectItems, type CategoryParams, type Item } from "@/lib/items";
+import { countByStatus, filterByTitle, selectItems, type Item } from "@/lib/items";
 import type { CategoryKind } from "@/lib/status";
 import { AddItemDialog } from "./AddItemDialog";
 import { CategoryHeader } from "./CategoryHeader";
@@ -17,13 +17,13 @@ import { EmptyShelf, emptyReason } from "./EmptyShelf";
 import { ShelfItems } from "./ShelfItems";
 import { StatusTabs } from "./StatusTabs";
 import { useOpenItem } from "./useOpenItem";
+import { useCategoryParams } from "./useCategoryParams";
 import { useShelfShortcuts } from "./useShelfShortcuts";
 
 type CategoryBrowserProps = {
   category: ShelfCategory & { kind: CategoryKind };
   /** Every shelf the viewer has, for "Move to category". */
   categories: ShelfCategory[];
-  params: CategoryParams;
   /** Every title on the shelf. Tabs, counts and sort are worked out here so edits update them at once. */
   items: Item[];
 };
@@ -32,7 +32,8 @@ type CategoryBrowserProps = {
 type Adding = { mode: "search"; query?: string } | { mode: "manual"; title: string } | null;
 
 /** The category page's interactive body (SPEC §8.5) and its item sheet (§8.6). */
-export function CategoryBrowser({ category, categories, params, items }: CategoryBrowserProps) {
+export function CategoryBrowser({ category, categories, items }: CategoryBrowserProps) {
+  const params = useCategoryParams();
   const [query, setQuery] = useState("");
   const [adding, setAdding] = useState<Adding>(null);
   const [deleting, setDeleting] = useState<Item | null>(null);
