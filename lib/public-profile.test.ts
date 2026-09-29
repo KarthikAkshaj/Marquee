@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { publicHref, publicPageSchema, publicProfileSchema, publicStats, publicTitleSchema, shelvesFor } from "./public-profile";
+import {
+  LINK_TOKEN,
+  accessArgs,
+  accessHref,
+  linkPageSchema,
+  publicHref,
+  publicPageSchema,
+  publicProfileSchema,
+  publicStats,
+  publicTitleSchema,
+  shelvesFor,
+} from "./public-profile";
 
 const profile = publicProfileSchema.parse({
   username: "akshaj",
@@ -104,6 +115,49 @@ describe("shelvesFor", () => {
     };
     expect(shelvesFor(viewer, "anime").map((shelf) => shelf.name)).toEqual(["Anime", "Donghua"]);
     expect(shelvesFor(viewer, "game")).toEqual([]);
+  });
+});
+
+describe("shelf access", () => {
+  const link = { by: "link", token: "abcdefghijklmnopqrstuv" } as const;
+  const profileAccess = { by: "profile", username: "akshaj" } as const;
+
+  it("builds a link's address with its tab and card, and a profile's as before", () => {
+    expect(accessHref(link, "anime", { shelf: "anime", status: "all" })).toBe("/s/abcdefghijklmnopqrstuv");
+    expect(accessHref(link, "anime", { shelf: "anime", status: "completed", item: "t1" })).toBe("/s/abcdefghijklmnopqrstuv?status=completed&item=t1");
+    expect(accessHref(profileAccess, "anime", { shelf: "movies", item: "t1" })).toBe("/u/akshaj?shelf=movies&item=t1");
+  });
+
+  it("hands the database one way in, never both", () => {
+    expect(accessArgs(link)).toEqual({ p_username: "", p_token: "abcdefghijklmnopqrstuv" });
+    expect(accessArgs(profileAccess)).toEqual({ p_username: "akshaj", p_token: "" });
+  });
+
+  it("knows a link's secret by its shape", () => {
+    expect(LINK_TOKEN.test("abcdefghijklmnopqrstuv")).toBe(true);
+    expect(LINK_TOKEN.test("Ab-_0123456789Ab-_0123")).toBe(true);
+    expect(LINK_TOKEN.test("short")).toBe(false);
+    expect(LINK_TOKEN.test("abcdefghijklmnopqrstu/")).toBe(false);
+  });
+});
+
+describe("linkPageSchema", () => {
+  const page = {
+    owner: { name: "Flux", avatar_url: null },
+    shelf: { slug: "anime", name: "Anime", kind: "anime", color: "crimson", icon: "sparkles", count: 2 },
+    own: null,
+    titles: [],
+    viewer: null,
+  };
+
+  it("reads a shelf by its link, with only the owner's name and photo", () => {
+    const parsed = linkPageSchema.parse({ ...page, owner: { ...page.owner, bio: "private", username: "flux_x" } });
+    expect(parsed.owner).toEqual({ name: "Flux", avatar_url: null });
+    expect(parsed.own).toBe(false);
+  });
+
+  it("lets a nameless owner through, for the page to call them Someone", () => {
+    expect(linkPageSchema.parse({ ...page, owner: { name: null, avatar_url: null } }).owner.name).toBeNull();
   });
 });
 

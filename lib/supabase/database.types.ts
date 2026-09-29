@@ -205,11 +205,51 @@ export type Database = {
         }
         Relationships: []
       }
+      shelf_links: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          token?: string
+          user_id?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shelf_links_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      copies_of: {
+        Args: { p_items: string[] }
+        Returns: {
+          copy_id: string
+          copy_shelf: string
+          shared_id: string
+        }[]
+      }
       copy_shared_title: {
         Args: {
           p_category: string
@@ -219,6 +259,16 @@ export type Database = {
         }
         Returns: string
       }
+      copy_shared_titles: {
+        Args: {
+          p_category: string
+          p_items: string[]
+          p_status: Database["public"]["Enums"]["item_status"]
+          p_token: string
+          p_username: string
+        }
+        Returns: Json
+      }
       delete_account: { Args: never; Returns: undefined }
       fill_item_runtimes: { Args: { rows: Json }; Returns: number }
       fill_item_tags: { Args: { rows: Json }; Returns: number }
@@ -227,6 +277,7 @@ export type Database = {
         Returns: number
       }
       is_username_available: { Args: { candidate: string }; Returns: boolean }
+      link_page: { Args: { p_token: string }; Returns: Json }
       public_page: {
         Args: { p_slug?: string; p_username: string }
         Returns: Json
@@ -244,6 +295,16 @@ export type Database = {
       shared_title: {
         Args: { p_item: string; p_username: string }
         Returns: Json
+      }
+      shared_titles: {
+        Args: { p_items: string[]; p_token: string; p_username: string }
+        Returns: Json
+      }
+      shelf_titles: { Args: { p_category: string }; Returns: Json }
+      viewer_side: { Args: { p_category: string }; Returns: Json }
+      visible_shelves: {
+        Args: { p_token: string; p_username: string }
+        Returns: string[]
       }
     }
     Enums: {

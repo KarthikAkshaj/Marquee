@@ -38,7 +38,7 @@ export function PublicProfileView({ page, signedIn }: PublicProfileViewProps) {
         <PublicShelfView
           // A new shelf starts on All, with no card open.
           key={shelf.slug}
-          username={page.username}
+          access={{ by: "profile", username: page.username }}
           shelves={page.shelves}
           shelf={shelf}
           titles={page.titles}

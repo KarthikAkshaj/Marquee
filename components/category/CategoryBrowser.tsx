@@ -21,7 +21,8 @@ import { useCategoryParams } from "./useCategoryParams";
 import { useShelfShortcuts } from "./useShelfShortcuts";
 
 type CategoryBrowserProps = {
-  category: ShelfCategory & { kind: CategoryKind };
+  /** `linkToken`: the shelf's secret link, for Share (SPEC §19). */
+  category: ShelfCategory & { kind: CategoryKind; linkToken?: string | null };
   /** Every shelf the viewer has, for "Move to category". */
   categories: ShelfCategory[];
   /** Every title on the shelf. Tabs, counts and sort are worked out here so edits update them at once. */

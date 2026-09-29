@@ -158,3 +158,15 @@ test("public profiles need no sign-in, and a missing one says nothing about who 
     for (const content of robots) expect(content).toMatch(/noindex/);
   }
 });
+
+test("a shelf link needs no sign-in, and a dead or made-up one shows nothing", async ({ page }) => {
+  for (const path of ["/s/AAAAAAAAAAAAAAAAAAAAAA", "/s/not-a-link"]) {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(404);
+    expect(page.url()).not.toContain("/login");
+    await expect(page.getByText("Nothing showing here.")).toBeVisible();
+    await expect(page.getByText("This link was turned off or replaced. Ask for a fresh one.")).toBeVisible();
+    const robots = await page.locator('meta[name="robots"]').evaluateAll((tags) => tags.map((tag) => tag.getAttribute("content")));
+    for (const content of robots) expect(content).toMatch(/noindex/);
+  }
+});

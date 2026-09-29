@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  COPIES_PER_SAVE,
   addFromSearchSchema,
   avatarFileSchema,
+  copySharedSchema,
   createCategorySchema,
   createItemSchema,
   emailSchema,
@@ -270,6 +272,29 @@ describe("searchQuerySchema", () => {
     expect(searchQuerySchema.parse({ kind: "anime", q: "frieren", type: "manga" }).type).toBe("manga");
     expect(searchQuerySchema.safeParse({ kind: "movie", q: "dune", type: "manga" }).success).toBe(false);
     expect(searchQuerySchema.safeParse({ kind: "anime", q: "frieren", type: "novel" }).success).toBe(false);
+  });
+});
+
+describe("copySharedSchema", () => {
+  const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+  const copy = {
+    access: { by: "link", token: "abcdefghijklmnopqrstuv" },
+    itemIds: [id(1)],
+    categoryId: id(9),
+    status: "planned",
+  };
+
+  it("takes one way in: a profile's username or a link's secret", () => {
+    expect(copySharedSchema.safeParse(copy).success).toBe(true);
+    expect(copySharedSchema.parse({ ...copy, access: { by: "profile", username: "Void_Flux" } }).access).toEqual({ by: "profile", username: "void_flux" });
+    expect(copySharedSchema.safeParse({ ...copy, access: { by: "link", token: "too-short" } }).success).toBe(false);
+    expect(copySharedSchema.safeParse({ ...copy, access: { by: "friend", username: "void_flux" } }).success).toBe(false);
+  });
+
+  it("copies between one and 500 titles at a time", () => {
+    expect(copySharedSchema.safeParse({ ...copy, itemIds: [] }).success).toBe(false);
+    expect(copySharedSchema.safeParse({ ...copy, itemIds: Array.from({ length: COPIES_PER_SAVE }, (_, n) => id(n)) }).success).toBe(true);
+    expect(copySharedSchema.safeParse({ ...copy, itemIds: Array.from({ length: COPIES_PER_SAVE + 1 }, (_, n) => id(n)) }).success).toBe(false);
   });
 });
 

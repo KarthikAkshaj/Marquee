@@ -2,6 +2,7 @@ import { z } from "zod";
 import { PASSWORD_MAX_BYTES, PASSWORD_MIN, passwordBytes } from "@/lib/auth/password";
 import { CATEGORY_COLORS, CATEGORY_ICONS, CATEGORY_KINDS } from "@/lib/categories";
 import { AVATAR_MAX_BYTES, AVATAR_TYPES, BIO_MAX, DISPLAY_NAME_MAX, USERNAME_PATTERN, type AvatarType } from "@/lib/profile";
+import { LINK_TOKEN } from "@/lib/public-profile";
 import { RELATED_KINDS, SEARCH_KINDS, SEARCH_TYPES } from "@/lib/search/types";
 import { ITEM_FORMATS, ITEM_STATUSES } from "@/lib/status";
 
@@ -229,15 +230,27 @@ export const addFromSearchSchema = z.object({
   result: searchResultSchema,
 });
 
-/** Add to my shelf (SPEC §19): whose shared title, and where it goes on your side. */
-export const addSharedTitleSchema = z.object({
-  username: usernameSchema,
-  itemId: z.string().uuid(),
+/** How a visitor reached a shared shelf (lib/public-profile `ShelfAccess`). */
+const shelfAccessSchema = z.discriminatedUnion("by", [
+  z.object({ by: z.literal("profile"), username: usernameSchema }),
+  z.object({ by: z.literal("link"), token: z.string().regex(LINK_TOKEN) }),
+]);
+
+/** Titles copied in one go; the database takes no more (0015_shelf_links.sql). */
+export const COPIES_PER_SAVE = 500;
+
+/** Add to my shelf and Add all (SPEC §19): which shared titles, and where they go on your side. */
+export const copySharedSchema = z.object({
+  access: shelfAccessSchema,
+  itemIds: z.array(z.string().uuid()).min(1).max(COPIES_PER_SAVE),
   categoryId: z.string().uuid(),
   status: z.enum(ITEM_STATUSES),
 });
 
-export type AddSharedTitleInput = z.input<typeof addSharedTitleSchema>;
+export type CopySharedInput = z.input<typeof copySharedSchema>;
+
+/** Undo for Add all: the copies just made. */
+export const copyIdsSchema = z.array(z.string().uuid()).min(1).max(COPIES_PER_SAVE);
 
 /** A provider's title waved away on For you (SPEC §20): who it is, exactly. */
 export const pickKeySchema = z.object({

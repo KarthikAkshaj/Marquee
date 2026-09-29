@@ -87,6 +87,47 @@ export function shelvesFor(viewer: PublicViewer, kind: PublicShelf["kind"]): Vie
   return viewer.shelves.filter((shelf) => shelf.kind === kind);
 }
 
+/**
+ * How a visitor reached a shared shelf: through a public profile, or a
+ * shelf's secret link. Everything that reads or copies from it passes this
+ * along, and the database's `visible_shelves` checks it. A new way in adds a
+ * case here and there.
+ */
+export type ShelfAccess = { by: "profile"; username: string } | { by: "link"; token: string };
+
+/** A shelf link's secret: 22 URL-safe characters (0015_shelf_links.sql). */
+export const LINK_TOKEN = /^[A-Za-z0-9_-]{22}$/;
+
+/**
+ * What the database functions take for each way in. They want both; the one
+ * not used goes as an empty string, which matches nothing: usernames run 3 to
+ * 20 characters and tokens are 22.
+ */
+export function accessArgs(access: ShelfAccess): { p_username: string; p_token: string } {
+  return access.by === "profile" ? { p_username: access.username, p_token: "" } : { p_username: "", p_token: access.token };
+}
+
+/** A shared shelf's address with its tab and open title: the profile's, or the link's. */
+export function accessHref(access: ShelfAccess, first: string | undefined, params: Partial<PublicParams>) {
+  if (access.by === "profile") return publicHref(access.username, first, params);
+  const search = new URLSearchParams();
+  if (params.status && params.status !== "all") search.set("status", params.status);
+  if (params.item) search.set("item", params.item);
+  const query = search.toString();
+  return `/s/${access.token}${query ? `?${query}` : ""}`;
+}
+
+/** One shelf by its link (`link_page`): the owner's name and photo, and the shelf as a public one reads. */
+export const linkPageSchema = z.object({
+  owner: z.object({ name: z.string().nullable(), avatar_url: z.string().nullable() }),
+  shelf: publicShelfSchema,
+  own: z.boolean().catch(false),
+  titles: z.array(publicTitleSchema),
+  viewer: viewerSchema.nullable().catch(null),
+});
+
+export type LinkPage = z.infer<typeof linkPageSchema>;
+
 /** The member pass's numbers, from the shared shelves only. */
 export function publicStats(profile: PublicProfile) {
   return {

@@ -6,6 +6,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { CategoryIcon } from "@/components/category/CategoryIcon";
 import { ShareLink } from "@/components/public/ShareLink";
+import { ShelfLinkButton } from "@/components/public/ShelfLinkButton";
 import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
 import { setProfilePublic, setShelfPublic } from "@/lib/actions/profile";
@@ -90,36 +91,48 @@ export function SharingCard({ username, isPublic, shelves, link }: SharingCardPr
         </div>
       )}
 
-      <ul aria-label="Shelves to share" className={cn("mt-4 flex flex-col border-t border-border pt-1.5 transition-opacity", !on && "opacity-60")}>
+      <ul aria-label="Shelves to share" className="mt-4 flex flex-col border-t border-border pt-1.5">
         {shelves.map((shelf) => {
           const style = categoryStyle(shelf.color);
           const lit = shared.has(shelf.id);
+          const switchId = `share-${shelf.id}`;
           return (
-            <li key={shelf.id}>
-              <label className="relative isolate flex min-h-13 cursor-pointer items-center gap-3 rounded-card px-2 md:min-h-11">
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute inset-0 -z-10 rounded-[inherit] bg-linear-to-r to-transparent to-70% transition-opacity duration-300 ease-cinematic",
-                    style.wash,
-                    lit ? "opacity-100" : "opacity-0",
-                  )}
-                />
+            <li key={shelf.id} className="relative isolate flex min-h-13 items-center gap-1.5 rounded-card px-2 md:min-h-11">
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute inset-0 -z-10 rounded-[inherit] bg-linear-to-r to-transparent to-70% transition-opacity duration-300 ease-cinematic",
+                  style.wash,
+                  lit ? (on ? "opacity-100" : "opacity-60") : "opacity-0",
+                )}
+              />
+              {/* The public switch is dimmed with the profile off; a link works either way, so it isn't. */}
+              <label
+                htmlFor={switchId}
+                className={cn("flex min-w-0 flex-1 cursor-pointer items-center gap-3 self-stretch transition-opacity", !on && "opacity-60")}
+              >
                 <CategoryIcon name={shelf.icon} className={cn("size-4.25 transition-colors", lit ? style.text : "text-text-muted")} />
                 <span className="min-w-0 flex-1 truncate text-14">{shelf.name}</span>
                 <span className="font-mono text-[11px] text-text-muted">
                   {shelf.itemCount}
                   <span className="sr-only"> titles</span>
                 </span>
-                <Switch checked={lit} onCheckedChange={(next) => flipShelf(shelf.id, next)} />
               </label>
+              <ShelfLinkButton categoryId={shelf.id} shelfName={shelf.name} initialToken={shelf.linkToken} look="row" />
+              <Switch
+                id={switchId}
+                checked={lit}
+                onCheckedChange={(next) => flipShelf(shelf.id, next)}
+                className={cn("transition-opacity", !on && "opacity-60")}
+              />
             </li>
           );
         })}
       </ul>
-      {!on && shared.size > 0 && (
-        <p className="mt-2 text-12 text-text-muted">Your picks are kept. They show again when the profile is on.</p>
-      )}
+      <p className="mt-2 text-12 text-pretty text-text-muted">
+        {!on && shared.size > 0 && "Your picks are kept. They show again when the profile is on. "}
+        The link button shares one shelf on its own, with your profile on or off.
+      </p>
     </section>
   );
 }

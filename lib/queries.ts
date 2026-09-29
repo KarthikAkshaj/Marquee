@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { hasPassword } from "@/lib/auth/password";
 import { USERNAME_PATTERN } from "@/lib/profile";
-import { publicPageSchema, publicProfileSchema } from "@/lib/public-profile";
+import { LINK_TOKEN, linkPageSchema, publicPageSchema, publicProfileSchema } from "@/lib/public-profile";
 import type { Dismissed, TasteItem } from "@/lib/recommend";
 import { createClient } from "@/lib/supabase/server";
 import type { StatsItem } from "@/lib/stats";
@@ -53,13 +53,16 @@ export const getCategoryBySlug = cache(async (slug: string) => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, name, slug, kind, color, icon, position")
+    .select("id, name, slug, kind, color, icon, position, shelf_links(token, created_at)")
     .eq("slug", slug)
+    .order("created_at", { referencedTable: "shelf_links", ascending: false })
     .maybeSingle();
 
   if (error) throw new Error(`Couldn't load this category: ${error.message}`);
   if (!data) notFound();
-  return data;
+  const { shelf_links, ...category } = data;
+  // Its link, for the Share button; the newest, if a shelf ever has several.
+  return { ...category, linkToken: shelf_links.at(0)?.token ?? null };
 });
 
 /** Every item on a shelf. Status tabs, favourites and sort are applied in lib/items. */
@@ -115,7 +118,11 @@ export const getSharing = cache(async () => {
   const supabase = await createClient();
   const [profile, shelves] = await Promise.all([
     supabase.from("profiles").select("is_public").eq("id", viewer.id).single(),
-    supabase.from("categories").select("id, name, slug, color, icon, is_public, items(count)").order("position"),
+    supabase
+      .from("categories")
+      .select("id, name, slug, color, icon, is_public, items(count), shelf_links(token, created_at)")
+      .order("position")
+      .order("created_at", { referencedTable: "shelf_links", ascending: false }),
   ]);
 
   if (profile.error || shelves.error) throw new Error("Couldn't load what you share.");
@@ -123,7 +130,12 @@ export const getSharing = cache(async () => {
   return {
     username: viewer.profile?.username ?? null,
     isPublic: profile.data.is_public,
-    shelves: shelves.data.map(({ items, ...shelf }) => ({ ...shelf, itemCount: items[0]?.count ?? 0 })),
+    shelves: shelves.data.map(({ items, shelf_links, ...shelf }) => ({
+      ...shelf,
+      itemCount: items[0]?.count ?? 0,
+      // The newest, if a shelf ever has several.
+      linkToken: shelf_links.at(0)?.token ?? null,
+    })),
   };
 });
 
@@ -156,6 +168,19 @@ export const getPublicPage = cache(async (username: string, shelf: string | null
   const { data, error } = await supabase.rpc("public_page", { p_username: handle, p_slug: shelf ?? undefined });
   if (error) throw new Error(`Couldn't load this profile: ${error.message}`);
   return data === null ? null : publicPageSchema.parse(data);
+});
+
+/**
+ * One shelf by its secret link (SPEC §19), in one trip: the owner's name and
+ * photo, the shelf and its titles, and a signed-in visitor's side. Null for a
+ * link that's gone or never was: the page can't tell them apart either.
+ */
+export const getLinkPage = cache(async (token: string) => {
+  if (!LINK_TOKEN.test(token)) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("link_page", { p_token: token });
+  if (error) throw new Error(`Couldn't load this shelf: ${error.message}`);
+  return data === null ? null : linkPageSchema.parse(data);
 });
 
 /** Whether anyone is signed in, for the public pages' top button. Unlike getViewer it never sends people to sign in. */

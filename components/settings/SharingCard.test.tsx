@@ -7,14 +7,22 @@ vi.mock("@/lib/actions/profile", () => ({
   setProfilePublic: (on: boolean) => setProfilePublic(on),
   setShelfPublic: (id: string, on: boolean) => setShelfPublic(id, on),
 }));
+const createShelfLink = vi.fn();
+const removeShelfLink = vi.fn();
+vi.mock("@/lib/actions/links", () => ({
+  createShelfLink: (id: string) => createShelfLink(id),
+  renewShelfLink: vi.fn(),
+  removeShelfLink: (id: string) => removeShelfLink(id),
+}));
 const error = vi.fn();
-vi.mock("sonner", () => ({ toast: { error: (message: string) => error(message) } }));
+vi.mock("sonner", () => ({ toast: { error: (message: string) => error(message), success: vi.fn() } }));
 
 const { SharingCard } = await import("./SharingCard");
 
+const TOKEN = "abcdefghijklmnopqrstuv";
 const shelves = [
-  { id: "s1", name: "Anime", slug: "anime", color: "violet", icon: "sparkles", is_public: false, itemCount: 120 },
-  { id: "s2", name: "Movies", slug: "movies", color: "amber", icon: "clapperboard", is_public: true, itemCount: 42 },
+  { id: "s1", name: "Anime", slug: "anime", color: "violet", icon: "sparkles", is_public: false, itemCount: 120, linkToken: null },
+  { id: "s2", name: "Movies", slug: "movies", color: "amber", icon: "clapperboard", is_public: true, itemCount: 42, linkToken: TOKEN },
 ];
 
 function setup(isPublic = false) {
@@ -58,6 +66,31 @@ describe("SharingCard", () => {
 
   it("keeps shelf picks while the profile is off, and says so", () => {
     setup(false);
-    expect(screen.getByText("Your picks are kept. They show again when the profile is on.")).toBeInTheDocument();
+    expect(screen.getByText(/Your picks are kept. They show again when the profile is on./)).toBeInTheDocument();
+  });
+
+  it("shows which shelves are shared by link, with the profile off too", () => {
+    setup(false);
+    expect(screen.getByRole("button", { name: "Share by link: Anime" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Link on: Movies" })).toBeEnabled();
+  });
+
+  it("makes a shelf's link from its row", async () => {
+    createShelfLink.mockResolvedValue({ ok: true, token: TOKEN });
+    setup(false);
+    fireEvent.click(screen.getByRole("button", { name: "Share by link: Anime" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Create link" }));
+    await waitFor(() => expect(createShelfLink).toHaveBeenCalledWith("s1"));
+    expect(await screen.findByText(new RegExp(`/s/${TOKEN}$`))).toBeInTheDocument();
+  });
+
+  it("asks before turning a link off", async () => {
+    removeShelfLink.mockResolvedValue({ ok: true, token: null });
+    setup(false);
+    fireEvent.click(screen.getByRole("button", { name: "Link on: Movies" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Turn off" }));
+    expect(removeShelfLink).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole("button", { name: "Turn off" }));
+    await waitFor(() => expect(removeShelfLink).toHaveBeenCalledWith("s2"));
   });
 });

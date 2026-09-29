@@ -33,6 +33,7 @@ export default async function ShelfLayout({ params, children }: LayoutProps<"/c/
           slug: category.slug,
           kind: category.kind,
           color: category.color,
+          linkToken: category.linkToken,
         }}
         categories={categories.map(({ id, name, slug, color }) => ({ id, name, slug, color }))}
         items={items}

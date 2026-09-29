@@ -3,13 +3,14 @@
 import { ImageUp } from "lucide-react";
 import Link from "next/link";
 import type { Ref } from "react";
+import { ShelfLinkButton } from "@/components/public/ShelfLinkButton";
 import { categoryStyle } from "@/lib/categories";
 import type { CategoryParams } from "@/lib/items";
 import { cn } from "@/lib/utils";
 import { CategoryToolbar } from "./CategoryToolbar";
 
 type CategoryHeaderProps = {
-  category: { name: string; slug: string; color: string };
+  category: { id: string; name: string; slug: string; color: string; linkToken?: string | null };
   count: number;
   params: CategoryParams;
   query: string;
@@ -36,16 +37,19 @@ export function CategoryHeader({ category, count, params, query, onQueryChange, 
             {count} {count === 1 ? "title" : "titles"}
           </p>
         </div>
-        {/* Its own line, so it never crowds the toolbar. */}
-        {unmatched > 0 && (
-          <Link
-            href={`/c/${encodeURIComponent(category.slug)}/match`}
-            className="-mb-2.5 flex min-h-11 w-fit items-center gap-1.5 text-12 text-accent transition-colors hover:text-accent-bright md:mt-1.5 md:mb-0 md:min-h-0 md:text-13"
-          >
-            <ImageUp aria-hidden className="size-3.5" strokeWidth={1.8} />
-            Find covers for {unmatched}
-          </Link>
-        )}
+        {/* Their own line, so they never crowd the toolbar. */}
+        <div className="-mb-2.5 flex flex-wrap items-center gap-x-4 md:mt-1.5 md:mb-0">
+          <ShelfLinkButton categoryId={category.id} shelfName={category.name} initialToken={category.linkToken ?? null} look="inline" />
+          {unmatched > 0 && (
+            <Link
+              href={`/c/${encodeURIComponent(category.slug)}/match`}
+              className="flex min-h-11 w-fit items-center gap-1.5 text-12 text-accent transition-colors hover:text-accent-bright md:min-h-0 md:text-13"
+            >
+              <ImageUp aria-hidden className="size-3.5" strokeWidth={1.8} />
+              Find covers for {unmatched}
+            </Link>
+          )}
+        </div>
       </div>
       <CategoryToolbar
         slug={category.slug}

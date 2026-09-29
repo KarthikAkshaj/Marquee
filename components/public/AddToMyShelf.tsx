@@ -7,16 +7,17 @@ import { useState, useTransition, type ReactNode } from "react";
 import { toast } from "sonner";
 import { StatusStepper } from "@/components/add/StatusStepper";
 import { Button } from "@/components/ui/Button";
-import { addSharedTitle } from "@/lib/actions/shared";
+import { copySharedTitles } from "@/lib/actions/shared";
 import { KIND_NAMES } from "@/lib/categories";
-import type { PublicTitle, ViewerCopy, ViewerShelf } from "@/lib/public-profile";
+import type { PublicTitle, ShelfAccess, ViewerCopy, ViewerShelf } from "@/lib/public-profile";
 import { labelKind, stepStatus, type CategoryKind, type ItemStatus } from "@/lib/status";
 import { cn } from "@/lib/utils";
+import { ShelfChoice } from "./ShelfChoice";
 
 type AddToMyShelfProps = {
   title: PublicTitle;
-  /** Whose shelf it's on. */
-  username: string;
+  /** How the visitor reached the shelf it's on. */
+  access: ShelfAccess;
   /** The kind of shelf it's on: it can only go on one of yours of the same kind. */
   kind: CategoryKind;
   /** Signed out: where signing in starts, coming back to this card. */
@@ -28,13 +29,13 @@ type AddToMyShelfProps = {
   onAdded: (copy: ViewerCopy) => void;
 };
 
-const itemHref = (shelf: ViewerShelf, item: string) => `/c/${encodeURIComponent(shelf.slug)}?item=${item}`;
+export const copyHref = (shelf: Pick<ViewerShelf, "slug">, item: string) => `/c/${encodeURIComponent(shelf.slug)}?item=${item}`;
 
 /**
  * The foot of a shared title's card (SPEC §19): put it on your own shelf in a
  * status you pick, or see that it's there already. Signed out, it's the way in.
  */
-export function AddToMyShelf({ title, username, kind, signInHref, shelves, copy, onAdded }: AddToMyShelfProps) {
+export function AddToMyShelf({ title, access, kind, signInHref, shelves, copy, onAdded }: AddToMyShelfProps) {
   const router = useRouter();
   const [shelfId, setShelfId] = useState(shelves[0]?.id ?? null);
   const [status, setStatus] = useState<ItemStatus>("planned");
@@ -61,7 +62,7 @@ export function AddToMyShelf({ title, username, kind, signInHref, shelves, copy,
           {home ? `On your ${home.name} shelf` : "On your shelves"}
         </p>
         {home && (
-          <Link href={itemHref(home, copy.item)} className="flex min-h-11 items-center text-13 text-accent underline-offset-3 hover:underline md:min-h-0">
+          <Link href={copyHref(home, copy.item)} className="flex min-h-11 items-center text-13 text-accent underline-offset-3 hover:underline md:min-h-0">
             Open <span className="sr-only">{title.title} on your shelf</span>
           </Link>
         )}
@@ -82,40 +83,20 @@ export function AddToMyShelf({ title, username, kind, signInHref, shelves, copy,
 
   function add(target: ViewerShelf) {
     startTransition(async () => {
-      const result = await addSharedTitle({ username, itemId: title.id, categoryId: target.id, status });
+      const result = await copySharedTitles({ access, itemIds: [title.id], categoryId: target.id, status });
       if (!result.ok) return void toast.error(result.message);
-      onAdded({ item: result.id, shelf: target.id });
+      const made = result.added[0];
+      if (!made) return void toast.message("That's on your shelves already.");
+      onAdded({ item: made.item, shelf: target.id });
       toast.success(`Added ${title.title} to your ${target.name}.`, {
-        action: { label: "Open", onClick: () => router.push(itemHref(target, result.id)) },
+        action: { label: "Open", onClick: () => router.push(copyHref(target, made.item)) },
       });
     });
   }
 
   return (
     <Box stacked>
-      {shelves.length > 1 && (
-        <div role="radiogroup" aria-label="Which shelf" className="flex flex-wrap gap-1.5">
-          {shelves.map((candidate) => (
-            <label
-              key={candidate.id}
-              className={cn(
-                "press flex h-11 cursor-pointer items-center rounded-full border px-3.5 text-[12.5px] has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent md:h-8",
-                candidate.id === shelf.id ? "border-accent/45 bg-accent/10 font-semibold text-text" : "border-white/8 bg-elevated text-text-muted hover:text-text",
-              )}
-            >
-              <input
-                type="radio"
-                name={`shelf-${title.id}`}
-                value={candidate.id}
-                checked={candidate.id === shelf.id}
-                onChange={() => setShelfId(candidate.id)}
-                className="sr-only"
-              />
-              {candidate.name}
-            </label>
-          ))}
-        </div>
-      )}
+      {shelves.length > 1 && <ShelfChoice shelves={shelves} value={shelf.id} onChange={setShelfId} name={`shelf-${title.id}`} />}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <StatusStepper kind={labelKind(kind, title.format)} value={status} onStep={(direction) => setStatus(stepStatus(status, direction))} />
         <Button onClick={() => add(shelf)} disabled={pending} aria-busy={pending} size="sm" className="h-11 grow gap-1.5 shadow-cta-sm sm:grow-0 md:h-9">

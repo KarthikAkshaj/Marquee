@@ -1,12 +1,12 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { PublicTitle, ViewerShelf } from "@/lib/public-profile";
+import type { PublicTitle, ShelfAccess, ViewerShelf } from "@/lib/public-profile";
 
-const addSharedTitle = vi.fn();
-vi.mock("@/lib/actions/shared", () => ({ addSharedTitle: (...args: unknown[]) => addSharedTitle(...args) }));
+const copySharedTitles = vi.fn();
+vi.mock("@/lib/actions/shared", () => ({ copySharedTitles: (...args: unknown[]) => copySharedTitles(...args) }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn(), message: vi.fn() } }));
 vi.mock("next/link", () => ({
   default: ({ href, children, ...props }: { href: string; children?: ReactNode }) => (
     <a href={href} {...props}>
@@ -36,8 +36,9 @@ const frieren: PublicTitle = {
 
 const anime: ViewerShelf = { id: "s1", name: "Anime", slug: "anime", kind: "anime", color: "crimson" };
 const donghua: ViewerShelf = { id: "s2", name: "Donghua", slug: "donghua", kind: "anime", color: "teal" };
+const access: ShelfAccess = { by: "profile", username: "flux" };
 
-const base = { title: frieren, username: "flux", kind: "anime" as const, signInHref: null, copy: null, onAdded: vi.fn() };
+const base = { title: frieren, access, kind: "anime" as const, signInHref: null, copy: null, onAdded: vi.fn() };
 
 describe("AddToMyShelf", () => {
   afterEach(() => {
@@ -64,29 +65,45 @@ describe("AddToMyShelf", () => {
   });
 
   it("adds it as planned to your only shelf of that kind, then says so", async () => {
-    addSharedTitle.mockResolvedValue({ ok: true, id: "new-id" });
+    copySharedTitles.mockResolvedValue({ ok: true, added: [{ shared: "t1", item: "new-id" }], already: 0 });
     render(<AddToMyShelf {...base} shelves={[anime]} />);
     expect(screen.queryByRole("radiogroup")).toBeNull();
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Add to Anime" })));
-    expect(addSharedTitle).toHaveBeenCalledWith({ username: "flux", itemId: "t1", categoryId: "s1", status: "planned" });
+    expect(copySharedTitles).toHaveBeenCalledWith({ access, itemIds: ["t1"], categoryId: "s1", status: "planned" });
     expect(base.onAdded).toHaveBeenCalledWith({ item: "new-id", shelf: "s1" });
     expect(toast.success).toHaveBeenCalledWith("Added Frieren to your Anime.", expect.anything());
   });
 
+  it("copies through a shelf's link the same way", async () => {
+    copySharedTitles.mockResolvedValue({ ok: true, added: [{ shared: "t1", item: "new-id" }], already: 0 });
+    const link: ShelfAccess = { by: "link", token: "abcdefghijklmnopqrstuv" };
+    render(<AddToMyShelf {...base} access={link} shelves={[anime]} />);
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Add to Anime" })));
+    expect(copySharedTitles).toHaveBeenCalledWith({ access: link, itemIds: ["t1"], categoryId: "s1", status: "planned" });
+  });
+
   it("lets you pick the shelf and the status", async () => {
-    addSharedTitle.mockResolvedValue({ ok: true, id: "new-id" });
+    copySharedTitles.mockResolvedValue({ ok: true, added: [{ shared: "t1", item: "new-id" }], already: 0 });
     render(<AddToMyShelf {...base} shelves={[anime, donghua]} />);
     fireEvent.click(screen.getByRole("radio", { name: "Donghua" }));
     fireEvent.click(screen.getByRole("button", { name: "Next status" }));
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Add to Donghua" })));
-    expect(addSharedTitle).toHaveBeenCalledWith({ username: "flux", itemId: "t1", categoryId: "s2", status: "in_progress" });
+    expect(copySharedTitles).toHaveBeenCalledWith({ access, itemIds: ["t1"], categoryId: "s2", status: "in_progress" });
+  });
+
+  it("says so when it turns out to be yours already", async () => {
+    copySharedTitles.mockResolvedValue({ ok: true, added: [], already: 1 });
+    render(<AddToMyShelf {...base} shelves={[anime]} />);
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: "Add to Anime" })));
+    expect(toast.message).toHaveBeenCalledWith("That's on your shelves already.");
+    expect(base.onAdded).not.toHaveBeenCalled();
   });
 
   it("keeps the offer open and says why when the add fails", async () => {
-    addSharedTitle.mockResolvedValue({ ok: false, message: "That title isn't shared anymore." });
+    copySharedTitles.mockResolvedValue({ ok: false, message: "That shelf isn't shared anymore." });
     render(<AddToMyShelf {...base} shelves={[anime]} />);
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Add to Anime" })));
-    expect(toast.error).toHaveBeenCalledWith("That title isn't shared anymore.");
+    expect(toast.error).toHaveBeenCalledWith("That shelf isn't shared anymore.");
     expect(base.onAdded).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Add to Anime" })).toBeTruthy();
   });
