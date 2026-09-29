@@ -10,6 +10,7 @@ import { isReading, type ItemStatus } from "@/lib/status";
 import { useReturnFocus } from "@/lib/use-return-focus";
 import { AddSearch } from "./AddSearch";
 import { AddTheRest } from "./AddTheRest";
+import { useCloseWatcher } from "@/lib/use-close-watcher";
 
 export type AddTitlePanelProps = {
   open: boolean;
@@ -67,6 +68,7 @@ function AddFlow({ onAdd, onAddMore, onClose, ...search }: FlowProps) {
 
 /** Search-as-you-add (SPEC §8.7, handoff §04): a glass panel floating over the shelf. */
 export function AddTitlePanel({ open, onOpenChange, ...flow }: AddTitlePanelProps) {
+  useCloseWatcher(open, () => onOpenChange(false));
   const returnFocus = useReturnFocus();
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>

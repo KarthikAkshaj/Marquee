@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { uploadAvatar } from "@/lib/actions/profile";
 import { cropAvatar } from "@/lib/image/crop-avatar";
 import { useReturnFocus } from "@/lib/use-return-focus";
+import { useCloseWatcher } from "@/lib/use-close-watcher";
 
 type AvatarCropDialogProps = {
   /** The picked photo as a data URL; null keeps the dialog closed. */
@@ -18,6 +19,7 @@ type AvatarCropDialogProps = {
 
 /** "Crop your photo" (handoff §07): drag to frame, zoom, then upload a 512px square. */
 export function AvatarCropDialog({ source, onClose }: AvatarCropDialogProps) {
+  useCloseWatcher(source !== null, onClose);
   const returnFocus = useReturnFocus();
   return (
     <Dialog.Root open={source !== null} onOpenChange={(open) => !open && onClose()}>

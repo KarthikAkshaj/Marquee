@@ -10,6 +10,7 @@ import { useReturnFocus } from "@/lib/use-return-focus";
 import { PaletteSearch } from "./PaletteSearch";
 import { usePaletteMorph } from "./usePaletteMorph";
 import { usePaletteTitles } from "./usePaletteTitles";
+import { useCloseWatcher } from "@/lib/use-close-watcher";
 
 type AppDialogs = {
   /** The ⌘K palette, grown from the control that opened it when there is one (U27). */
@@ -64,6 +65,11 @@ export function PaletteProvider({ categories, children }: { categories: PaletteC
   const panel = useRef<HTMLDivElement>(null);
   const morph = usePaletteMorph(panel);
   const { start: startMorph, reset: resetMorph } = morph;
+  // The phone's back button closes the palette rather than leaving the page.
+  useCloseWatcher(open, () => {
+    setOpen(false);
+    resetMorph();
+  });
 
   const show = useCallback(
     (source?: HTMLElement) => {

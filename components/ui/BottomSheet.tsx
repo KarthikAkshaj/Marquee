@@ -5,6 +5,7 @@ import { AnimatePresence, MotionConfig, motion, useDragControls } from "motion/r
 import { Dialog } from "radix-ui";
 import { useRef, type ReactNode } from "react";
 import { useReturnFocus } from "@/lib/use-return-focus";
+import { useCloseWatcher } from "@/lib/use-close-watcher";
 
 type BottomSheetProps = {
   open: boolean;
@@ -23,6 +24,7 @@ const spring = { type: "spring", stiffness: 380, damping: 36 } as const;
  * handle as the item sheet, pulled down or tapped outside to close.
  */
 export function BottomSheet({ open, onOpenChange, title, hideTitle = false, description, children }: BottomSheetProps) {
+  useCloseWatcher(open, () => onOpenChange(false));
   const returnFocus = useReturnFocus();
   const drag = useDragControls();
   const panel = useRef<HTMLDivElement>(null);

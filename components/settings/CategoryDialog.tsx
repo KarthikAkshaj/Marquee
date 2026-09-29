@@ -13,6 +13,7 @@ import { useReturnFocus } from "@/lib/use-return-focus";
 import { cn } from "@/lib/utils";
 import type { CategoryInput } from "@/lib/validators";
 import { SwatchPicker } from "./SwatchPicker";
+import { useCloseWatcher } from "@/lib/use-close-watcher";
 
 type CategoryDialogProps = {
   open: boolean;
@@ -27,6 +28,7 @@ const DEFAULTS: CategoryInput = { name: "", kind: "custom", color: "sky", icon: 
 
 /** New category, or name, type, colour and icon for an existing one (SPEC §8.10). */
 export function CategoryDialog({ open, initial, onClose, onSubmit }: CategoryDialogProps) {
+  useCloseWatcher(open, onClose);
   const returnFocus = useReturnFocus();
   return (
     <Dialog.Root open={open} onOpenChange={(next) => !next && onClose()}>

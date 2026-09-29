@@ -6,6 +6,7 @@ import { Dialog } from "radix-ui";
 import { categorySlugFromPath, type PaletteCategory, type PaletteTitle } from "@/lib/palette";
 import { useReturnFocus } from "@/lib/use-return-focus";
 import { SurpriseContent } from "./SurpriseContent";
+import { useCloseWatcher } from "@/lib/use-close-watcher";
 
 type SurpriseDialogProps = {
   open: boolean;
@@ -18,6 +19,7 @@ type SurpriseDialogProps = {
 
 /** The Surprise me panel (SPEC §10). On a shelf it starts on that shelf; anywhere else, anything goes. */
 export function SurpriseDialog({ open, onOpenChange, categories, titles, onAddTitle }: SurpriseDialogProps) {
+  useCloseWatcher(open, () => onOpenChange(false));
   const returnFocus = useReturnFocus();
   const slug = categorySlugFromPath(usePathname());
   const here = categories.find((category) => category.slug === slug)?.id ?? null;

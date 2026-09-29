@@ -10,6 +10,7 @@ import { exportData } from "@/lib/actions/data";
 import { downloadFile } from "@/lib/download";
 import { useReturnFocus } from "@/lib/use-return-focus";
 import { cn } from "@/lib/utils";
+import { useCloseWatcher } from "@/lib/use-close-watcher";
 
 type DeleteAccountDialogProps = {
   open: boolean;
@@ -28,6 +29,8 @@ export function DeleteAccountDialog({ open, onOpenChange, username, titleCount, 
   const [error, setError] = useState<string | null>(null);
   const [deleting, startDeleting] = useTransition();
   const [exporting, startExporting] = useTransition();
+  // Never mid-delete: the account is going either way, and the dialog says so.
+  useCloseWatcher(open, () => !deleting && onOpenChange(false));
   const ready = typed.trim() === username;
 
   const lines = [

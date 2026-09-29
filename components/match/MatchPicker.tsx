@@ -11,6 +11,7 @@ import { MatchCandidates } from "./MatchCandidates";
 import { MatchSearchForm } from "./MatchSearchForm";
 import { triggerId } from "./MatchRow";
 import type { MatchRowState } from "./useMatching";
+import { useCloseWatcher } from "@/lib/use-close-watcher";
 
 type MatchPickerProps = {
   /** The row being matched; null closes the picker. */
@@ -45,6 +46,7 @@ export function MatchPicker({ row: open, onClose, sourceName, categoryColor, con
   // Keep showing the last row while the picker closes, so Radix can hand focus back.
   const [last, setLast] = useState(open);
   if (open && open !== last) setLast(open);
+  useCloseWatcher(open !== null, onClose);
   const row = open ?? last;
   const pick = row && row.choice !== null ? row.candidates[row.choice] : null;
   const pickId = seriesKind && open ? pick?.externalId : undefined;

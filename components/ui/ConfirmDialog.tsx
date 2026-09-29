@@ -4,6 +4,7 @@ import { AlertDialog } from "radix-ui";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { useReturnFocus } from "@/lib/use-return-focus";
+import { useCloseWatcher } from "@/lib/use-close-watcher";
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -18,6 +19,7 @@ type ConfirmDialogProps = {
 
 /** The red-edged confirm every destructive action goes through. */
 export function ConfirmDialog({ open, title, description, cancelLabel, confirmLabel, onCancel, onConfirm }: ConfirmDialogProps) {
+  useCloseWatcher(open, onCancel);
   const returnFocus = useReturnFocus();
   return (
     <AlertDialog.Root open={open} onOpenChange={(next) => !next && onCancel()}>

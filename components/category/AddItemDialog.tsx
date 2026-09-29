@@ -11,6 +11,7 @@ import { progressUnit } from "@/lib/items";
 import type { CategoryKind, ItemStatus } from "@/lib/status";
 import { StatusSegmented } from "@/components/items/StatusSegmented";
 import { useReturnFocus } from "@/lib/use-return-focus";
+import { useCloseWatcher } from "@/lib/use-close-watcher";
 
 type AddItemDialogProps = {
   open: boolean;
@@ -23,6 +24,7 @@ type AddItemDialogProps = {
 
 /** Manual add (SPEC §8.7 "Add manually"): custom shelves, and anything search can't find. */
 export function AddItemDialog({ open, onOpenChange, category, defaultStatus, initialTitle = "" }: AddItemDialogProps) {
+  useCloseWatcher(open, () => onOpenChange(false));
   const returnFocus = useReturnFocus();
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
