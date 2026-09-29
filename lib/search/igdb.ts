@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { cleanGenres, fetchJson, toScore } from "./http";
-import { ProviderError, RESULT_LIMIT, type SearchResult } from "./types";
+import { ProviderError, RESULT_LIMIT, type SearchResult, type SeedSuggestions } from "./types";
 
 const GAMES = "https://api.igdb.com/v4/games";
 const TOKEN = "https://id.twitch.tv/oauth2/token";
@@ -120,7 +120,7 @@ export function igdbSearchBody(query: string): string {
 
 const gamesSchema = z.array(gameSchema);
 
-async function requestGames(query: string, token: AppToken) {
+async function requestGames<T extends z.ZodType>(body: string, schema: T, token: AppToken): Promise<z.infer<T>> {
   const { clientId } = credentials();
   return fetchJson(
     "igdb",
@@ -128,23 +128,86 @@ async function requestGames(query: string, token: AppToken) {
     {
       method: "POST",
       headers: { "Client-ID": clientId, Authorization: `Bearer ${token.value}`, "Content-Type": "text/plain" },
-      body: igdbSearchBody(query),
+      body,
     },
-    gamesSchema,
+    schema,
   );
 }
 
-export async function searchIgdb(query: string): Promise<SearchResult[]> {
-  let games: IgdbGame[];
+/** One query, with a fresh token and a second try if Twitch revoked the old one before it expired. */
+async function queryGames<T extends z.ZodType>(body: string, schema: T): Promise<z.infer<T>> {
   try {
-    games = await requestGames(query, await getAppToken());
+    return await requestGames(body, schema, await getAppToken());
   } catch (error) {
-    // Twitch can revoke a token before it expires; get a new one and try once more.
     if (!(error instanceof ProviderError && error.status === 401)) throw error;
-    games = await requestGames(query, await refreshAppToken());
+    return requestGames(body, schema, await refreshAppToken());
   }
+}
+
+export async function searchIgdb(query: string): Promise<SearchResult[]> {
+  const games = await queryGames(igdbSearchBody(query), gamesSchema);
   return rankGames(games, query)
     .map(normaliseIgdbGame)
     .filter((result) => result !== null)
     .slice(0, RESULT_LIMIT);
+}
+
+/** Most seed games one request asks about for For you (SPEC §20). */
+export const IGDB_SEED_BATCH = 10;
+const SUGGESTIONS_PER_SEED = 10;
+/** Fewer ratings than this, and a similar game is too obscure to put in front of someone. */
+const MIN_SUGGESTION_RATINGS = 10;
+
+const SIMILAR_FIELDS = [
+  "name",
+  "first_release_date",
+  "cover.image_id",
+  "artworks.image_id",
+  "screenshots.image_id",
+  "genres.name",
+  "platforms.abbreviation",
+  "total_rating",
+  "total_rating_count",
+  "game_type",
+  "version_parent",
+];
+
+export function igdbSimilarBody(ids: readonly number[]): string {
+  return [
+    `fields id,${SIMILAR_FIELDS.map((field) => `similar_games.${field}`).join(",")};`,
+    `where id = (${ids.join(",")});`,
+    `limit ${ids.length};`,
+  ].join(" ");
+}
+
+const similarSchema = gameSchema.extend({ game_type: z.number().nullish(), version_parent: z.number().nullish() });
+const seedsSchema = z.array(z.object({ id: z.number(), similar_games: z.array(similarSchema).nullish() }));
+
+export type IgdbSeed = z.infer<typeof seedsSchema>[number];
+
+/**
+ * IGDB's similar games for one of yours. It lists them in no useful order, so
+ * the most-rated come first. DLC, editions, anything not out yet and games
+ * hardly anyone has rated are dropped.
+ */
+export function normaliseSimilar(seed: IgdbSeed, now = Date.now()): SeedSuggestions {
+  const suggestions = (seed.similar_games ?? [])
+    .filter((game) => GAME_TYPES.includes(game.game_type ?? 0) && game.version_parent == null)
+    .filter((game) => (game.total_rating_count ?? 0) >= MIN_SUGGESTION_RATINGS)
+    .filter((game) => game.first_release_date != null && game.first_release_date * 1000 <= now)
+    .sort((a, b) => (b.total_rating_count ?? 0) - (a.total_rating_count ?? 0))
+    .map(normaliseIgdbGame)
+    .filter((result) => result !== null)
+    .slice(0, SUGGESTIONS_PER_SEED)
+    .map((result) => ({ result }));
+  return { seed: String(seed.id), suggestions };
+}
+
+/** Games like each of up to 10 of yours, in one request, for For you's new titles. */
+export async function getIgdbSuggestions(ids: readonly string[]): Promise<SeedSuggestions[]> {
+  const numeric = [...new Set(ids.map(Number).filter((id) => Number.isInteger(id) && id > 0))];
+  if (numeric.length === 0) return [];
+  if (numeric.length > IGDB_SEED_BATCH) throw new ProviderError("igdb", "too many seeds in one batch");
+  const seeds = await queryGames(igdbSimilarBody(numeric), seedsSchema);
+  return seeds.map((seed) => normaliseSimilar(seed));
 }

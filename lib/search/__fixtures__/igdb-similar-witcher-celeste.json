@@ -1,0 +1,1312 @@
+[
+  {
+    "id": 1942,
+    "similar_games": [
+      {
+        "id": 119133,
+        "artworks": [
+          {
+            "id": 168540,
+            "image_id": "ar3m1o"
+          }
+        ],
+        "cover": {
+          "id": 212094,
+          "image_id": "co4jni"
+        },
+        "first_release_date": 1645747200,
+        "genres": [
+          {
+            "id": 12,
+            "name": "Role-playing (RPG)"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          }
+        ],
+        "name": "Elden Ring",
+        "platforms": [
+          {
+            "id": 169,
+            "abbreviation": "Series X|S"
+          },
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 508,
+            "abbreviation": "Switch 2"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 167,
+            "abbreviation": "PS5"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 487788,
+            "image_id": "scagdo"
+          }
+        ],
+        "total_rating": 95.15495722539303,
+        "total_rating_count": 2306,
+        "game_type": 0
+      },
+      {
+        "id": 1887,
+        "artworks": [
+          {
+            "id": 2706,
+            "image_id": "evay7zekyrsiagfamafd"
+          }
+        ],
+        "cover": {
+          "id": 122974,
+          "image_id": "co2mvy"
+        },
+        "first_release_date": 1416268800,
+        "genres": [
+          {
+            "id": 12,
+            "name": "Role-playing (RPG)"
+          },
+          {
+            "id": 15,
+            "name": "Strategy"
+          },
+          {
+            "id": 24,
+            "name": "Tactical"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          }
+        ],
+        "name": "Dragon Age: Inquisition",
+        "platforms": [
+          {
+            "id": 9,
+            "abbreviation": "PS3"
+          },
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 12,
+            "abbreviation": "X360"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 414515,
+            "image_id": "sc8vub"
+          }
+        ],
+        "total_rating": 85.23812536886236,
+        "total_rating_count": 1095,
+        "game_type": 0
+      },
+      {
+        "id": 3025,
+        "artworks": [
+          {
+            "id": 4620,
+            "image_id": "hvokn4ka2d56z8fekexo"
+          }
+        ],
+        "cover": {
+          "id": 94225,
+          "image_id": "co20pd"
+        },
+        "first_release_date": 1412035200,
+        "genres": [
+          {
+            "id": 12,
+            "name": "Role-playing (RPG)"
+          },
+          {
+            "id": 25,
+            "name": "Hack and slash/Beat 'em up"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          }
+        ],
+        "name": "Middle-earth: Shadow of Mordor",
+        "platforms": [
+          {
+            "id": 9,
+            "abbreviation": "PS3"
+          },
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 3,
+            "abbreviation": "Linux"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 14,
+            "abbreviation": "Mac"
+          },
+          {
+            "id": 12,
+            "abbreviation": "X360"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 1371285,
+            "image_id": "scte39"
+          }
+        ],
+        "total_rating": 81.69183745616638,
+        "total_rating_count": 1411,
+        "game_type": 0
+      },
+      {
+        "id": 27421,
+        "artworks": [
+          {
+            "id": 462,
+            "image_id": "x6dqi0ysi0prnfiwypyt"
+          }
+        ],
+        "cover": {
+          "id": 94238,
+          "image_id": "co20pq"
+        },
+        "first_release_date": 1507593600,
+        "genres": [
+          {
+            "id": 12,
+            "name": "Role-playing (RPG)"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          }
+        ],
+        "name": "Middle-earth: Shadow of War",
+        "platforms": [
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 43024,
+            "image_id": "qfxnxpyj7dnjfxcfbhvg"
+          }
+        ],
+        "total_rating": 81.60892165005185,
+        "total_rating_count": 498,
+        "game_type": 0
+      },
+      {
+        "id": 5503,
+        "artworks": [
+          {
+            "id": 747,
+            "image_id": "nr77aejrms6l9ratykc0"
+          }
+        ],
+        "cover": {
+          "id": 487955,
+          "image_id": "coagib"
+        },
+        "first_release_date": 1435017600,
+        "genres": [
+          {
+            "id": 25,
+            "name": "Hack and slash/Beat 'em up"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          }
+        ],
+        "name": "Batman: Arkham Knight",
+        "platforms": [
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 1202016,
+            "image_id": "scprhc"
+          }
+        ],
+        "total_rating": 88.4030983125878,
+        "total_rating_count": 1537,
+        "game_type": 0
+      },
+      {
+        "id": 25076,
+        "artworks": [
+          {
+            "id": 5337,
+            "image_id": "l0kjrldascktx2kzqhbi"
+          }
+        ],
+        "cover": {
+          "id": 80403,
+          "image_id": "co1q1f"
+        },
+        "first_release_date": 1540512000,
+        "genres": [
+          {
+            "id": 5,
+            "name": "Shooter"
+          },
+          {
+            "id": 12,
+            "name": "Role-playing (RPG)"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          }
+        ],
+        "name": "Red Dead Redemption 2",
+        "platforms": [
+          {
+            "id": 170,
+            "abbreviation": "Stadia"
+          },
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 43482,
+            "image_id": "xegpfnsvlyeld0zkjnrc"
+          }
+        ],
+        "total_rating": 93.65127960370944,
+        "total_rating_count": 3876,
+        "game_type": 0
+      },
+      {
+        "id": 27384,
+        "artworks": [
+          {
+            "id": 15291,
+            "image_id": "arbsr"
+          }
+        ],
+        "cover": {
+          "id": 88311,
+          "image_id": "co1w53"
+        },
+        "first_release_date": 1534291200,
+        "genres": [
+          {
+            "id": 13,
+            "name": "Simulator"
+          },
+          {
+            "id": 15,
+            "name": "Strategy"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          }
+        ],
+        "name": "Graveyard Keeper",
+        "platforms": [
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 3,
+            "abbreviation": "Linux"
+          },
+          {
+            "id": 34,
+            "abbreviation": "Android"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 39,
+            "abbreviation": "iOS"
+          },
+          {
+            "id": 14,
+            "abbreviation": "Mac"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 256107,
+            "image_id": "gr5k1me8qjtz2rsneqaj"
+          }
+        ],
+        "total_rating": 74.16554343121373,
+        "total_rating_count": 107,
+        "game_type": 0
+      },
+      {
+        "id": 7346,
+        "artworks": [
+          {
+            "id": 3477,
+            "image_id": "ak6iozckwj322sjmxqd4"
+          }
+        ],
+        "cover": {
+          "id": 172453,
+          "image_id": "co3p2d"
+        },
+        "first_release_date": 1488499200,
+        "genres": [
+          {
+            "id": 9,
+            "name": "Puzzle"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          }
+        ],
+        "name": "The Legend of Zelda: Breath of the Wild",
+        "platforms": [
+          {
+            "id": 41,
+            "abbreviation": "WiiU"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 957969,
+            "image_id": "sckj69"
+          }
+        ],
+        "total_rating": 95.04506596756765,
+        "total_rating_count": 3006,
+        "game_type": 0
+      },
+      {
+        "id": 115289,
+        "artworks": [
+          {
+            "id": 220013,
+            "image_id": "ar4prh"
+          }
+        ],
+        "cover": {
+          "id": 531786,
+          "image_id": "cobebu"
+        },
+        "first_release_date": 1756944000,
+        "genres": [
+          {
+            "id": 8,
+            "name": "Platform"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          }
+        ],
+        "name": "Hollow Knight: Silksong",
+        "platforms": [
+          {
+            "id": 169,
+            "abbreviation": "Series X|S"
+          },
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 3,
+            "abbreviation": "Linux"
+          },
+          {
+            "id": 508,
+            "abbreviation": "Switch 2"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 167,
+            "abbreviation": "PS5"
+          },
+          {
+            "id": 14,
+            "abbreviation": "Mac"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 284194,
+            "image_id": "sc63aa"
+          }
+        ],
+        "total_rating": 90.98848978185048,
+        "total_rating_count": 511,
+        "game_type": 0
+      },
+      {
+        "id": 478,
+        "artworks": [
+          {
+            "id": 1644,
+            "image_id": "yltderfdqkouxiqwyrke"
+          }
+        ],
+        "cover": {
+          "id": 89356,
+          "image_id": "co1wy4"
+        },
+        "first_release_date": 1305590400,
+        "genres": [
+          {
+            "id": 12,
+            "name": "Role-playing (RPG)"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          }
+        ],
+        "name": "The Witcher 2: Assassins of Kings",
+        "platforms": [
+          {
+            "id": 3,
+            "abbreviation": "Linux"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 14,
+            "abbreviation": "Mac"
+          },
+          {
+            "id": 12,
+            "abbreviation": "X360"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 6520,
+            "image_id": "qelsfsxjgnkz5zuvaat4"
+          }
+        ],
+        "total_rating": 85.14352807047544,
+        "total_rating_count": 1398,
+        "game_type": 0
+      }
+    ]
+  },
+  {
+    "id": 26226,
+    "similar_games": [
+      {
+        "id": 191435,
+        "artworks": [
+          {
+            "id": 289570,
+            "image_id": "ar67fm"
+          }
+        ],
+        "cover": {
+          "id": 209141,
+          "image_id": "co4hdh"
+        },
+        "first_release_date": 1715212800,
+        "genres": [
+          {
+            "id": 8,
+            "name": "Platform"
+          },
+          {
+            "id": 9,
+            "name": "Puzzle"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          }
+        ],
+        "name": "Animal Well",
+        "platforms": [
+          {
+            "id": 169,
+            "abbreviation": "Series X|S"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 167,
+            "abbreviation": "PS5"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 738496,
+            "image_id": "scftts"
+          }
+        ],
+        "total_rating": 85.25755356880738,
+        "total_rating_count": 127,
+        "game_type": 0
+      },
+      {
+        "id": 115289,
+        "artworks": [
+          {
+            "id": 220013,
+            "image_id": "ar4prh"
+          }
+        ],
+        "cover": {
+          "id": 531786,
+          "image_id": "cobebu"
+        },
+        "first_release_date": 1756944000,
+        "genres": [
+          {
+            "id": 8,
+            "name": "Platform"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          }
+        ],
+        "name": "Hollow Knight: Silksong",
+        "platforms": [
+          {
+            "id": 169,
+            "abbreviation": "Series X|S"
+          },
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 3,
+            "abbreviation": "Linux"
+          },
+          {
+            "id": 508,
+            "abbreviation": "Switch 2"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 167,
+            "abbreviation": "PS5"
+          },
+          {
+            "id": 14,
+            "abbreviation": "Mac"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 284194,
+            "image_id": "sc63aa"
+          }
+        ],
+        "total_rating": 90.98848978185048,
+        "total_rating_count": 511,
+        "game_type": 0
+      },
+      {
+        "id": 22917,
+        "artworks": [
+          {
+            "id": 15350,
+            "image_id": "arbue"
+          }
+        ],
+        "cover": {
+          "id": 81473,
+          "image_id": "co1qv5"
+        },
+        "first_release_date": 1544659200,
+        "genres": [
+          {
+            "id": 8,
+            "name": "Platform"
+          },
+          {
+            "id": 9,
+            "name": "Puzzle"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          }
+        ],
+        "name": "Gris",
+        "platforms": [
+          {
+            "id": 169,
+            "abbreviation": "Series X|S"
+          },
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 34,
+            "abbreviation": "Android"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 39,
+            "abbreviation": "iOS"
+          },
+          {
+            "id": 167,
+            "abbreviation": "PS5"
+          },
+          {
+            "id": 14,
+            "abbreviation": "Mac"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 239786,
+            "image_id": "hyeif6sq4m6k68ifwv1r"
+          }
+        ],
+        "total_rating": 81.10839186858537,
+        "total_rating_count": 576,
+        "game_type": 0
+      },
+      {
+        "id": 80885,
+        "artworks": [
+          {
+            "id": 12561,
+            "image_id": "ar9ox"
+          }
+        ],
+        "cover": {
+          "id": 122060,
+          "image_id": "co2m6k"
+        },
+        "first_release_date": 1622592000,
+        "genres": [
+          {
+            "id": 8,
+            "name": "Platform"
+          },
+          {
+            "id": 9,
+            "name": "Puzzle"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          }
+        ],
+        "name": "Astalon: Tears of the Earth",
+        "platforms": [
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 3,
+            "abbreviation": "Linux"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 14,
+            "abbreviation": "Mac"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 421959,
+            "image_id": "sc91l3"
+          }
+        ],
+        "total_rating": 79.52434512119618,
+        "total_rating_count": 10,
+        "game_type": 0
+      },
+      {
+        "id": 71628,
+        "artworks": [
+          {
+            "id": 10982,
+            "image_id": "ar8h2"
+          }
+        ],
+        "cover": {
+          "id": 515573,
+          "image_id": "cob1th"
+        },
+        "first_release_date": 1535587200,
+        "genres": [
+          {
+            "id": 8,
+            "name": "Platform"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          },
+          {
+            "id": 33,
+            "name": "Arcade"
+          }
+        ],
+        "name": "The Messenger",
+        "platforms": [
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 167,
+            "abbreviation": "PS5"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 145593,
+            "image_id": "mutpqx4c4ad2vazojokp"
+          }
+        ],
+        "total_rating": 83.17114319169946,
+        "total_rating_count": 202,
+        "game_type": 0
+      },
+      {
+        "id": 26820,
+        "artworks": [
+          {
+            "id": 291102,
+            "image_id": "ar68m6"
+          }
+        ],
+        "cover": {
+          "id": 514423,
+          "image_id": "cob0xj"
+        },
+        "first_release_date": 1568073600,
+        "genres": [
+          {
+            "id": 8,
+            "name": "Platform"
+          },
+          {
+            "id": 12,
+            "name": "Role-playing (RPG)"
+          },
+          {
+            "id": 25,
+            "name": "Hack and slash/Beat 'em up"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          }
+        ],
+        "name": "Blasphemous",
+        "platforms": [
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 3,
+            "abbreviation": "Linux"
+          },
+          {
+            "id": 34,
+            "abbreviation": "Android"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 39,
+            "abbreviation": "iOS"
+          },
+          {
+            "id": 14,
+            "abbreviation": "Mac"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 322031,
+            "image_id": "sc6whb"
+          }
+        ],
+        "total_rating": 79.14575417117254,
+        "total_rating_count": 325,
+        "game_type": 0
+      },
+      {
+        "id": 8652,
+        "artworks": [
+          {
+            "id": 8995,
+            "image_id": "ar6xv"
+          }
+        ],
+        "cover": {
+          "id": 73389,
+          "image_id": "co1kml"
+        },
+        "first_release_date": 1427760000,
+        "genres": [
+          {
+            "id": 8,
+            "name": "Platform"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          }
+        ],
+        "name": "Axiom Verge",
+        "platforms": [
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 3,
+            "abbreviation": "Linux"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 14,
+            "abbreviation": "Mac"
+          },
+          {
+            "id": 41,
+            "abbreviation": "WiiU"
+          },
+          {
+            "id": 46,
+            "abbreviation": "Vita"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 40772,
+            "image_id": "ym91qnklxxx1kzxdk1nv"
+          }
+        ],
+        "total_rating": 80.16102499952214,
+        "total_rating_count": 170,
+        "game_type": 0
+      },
+      {
+        "id": 55042,
+        "artworks": [
+          {
+            "id": 7556,
+            "image_id": "ar5tw"
+          }
+        ],
+        "cover": {
+          "id": 82661,
+          "image_id": "co1rs5"
+        },
+        "first_release_date": 1562803200,
+        "genres": [
+          {
+            "id": 5,
+            "name": "Shooter"
+          },
+          {
+            "id": 8,
+            "name": "Platform"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          },
+          {
+            "id": 33,
+            "name": "Arcade"
+          }
+        ],
+        "name": "Blazing Chrome",
+        "platforms": [
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 214814,
+            "image_id": "l8hbcrm9pkzpkp7vqn2b"
+          }
+        ],
+        "total_rating": 78.27787867237785,
+        "total_rating_count": 53,
+        "game_type": 0
+      },
+      {
+        "id": 18182,
+        "artworks": [
+          {
+            "id": 17338,
+            "image_id": "arddm"
+          }
+        ],
+        "cover": {
+          "id": 137166,
+          "image_id": "co2xu6"
+        },
+        "first_release_date": 1457049600,
+        "genres": [
+          {
+            "id": 8,
+            "name": "Platform"
+          },
+          {
+            "id": 12,
+            "name": "Role-playing (RPG)"
+          },
+          {
+            "id": 31,
+            "name": "Adventure"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          }
+        ],
+        "name": "Momodora: Reverie Under the Moonlight",
+        "platforms": [
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 3,
+            "abbreviation": "Linux"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 14,
+            "abbreviation": "Mac"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 383987,
+            "image_id": "sc88ab"
+          }
+        ],
+        "total_rating": 83.62511527986024,
+        "total_rating_count": 133,
+        "game_type": 0
+      },
+      {
+        "id": 19728,
+        "artworks": [
+          {
+            "id": 9163,
+            "image_id": "ar72j"
+          }
+        ],
+        "cover": {
+          "id": 101799,
+          "image_id": "co26jr"
+        },
+        "first_release_date": 1589241600,
+        "genres": [
+          {
+            "id": 5,
+            "name": "Shooter"
+          },
+          {
+            "id": 8,
+            "name": "Platform"
+          },
+          {
+            "id": 32,
+            "name": "Indie"
+          },
+          {
+            "id": 33,
+            "name": "Arcade"
+          }
+        ],
+        "name": "Huntdown",
+        "platforms": [
+          {
+            "id": 48,
+            "abbreviation": "PS4"
+          },
+          {
+            "id": 3,
+            "abbreviation": "Linux"
+          },
+          {
+            "id": 34,
+            "abbreviation": "Android"
+          },
+          {
+            "id": 6,
+            "abbreviation": "PC"
+          },
+          {
+            "id": 39,
+            "abbreviation": "iOS"
+          },
+          {
+            "id": 14,
+            "abbreviation": "Mac"
+          },
+          {
+            "id": 49,
+            "abbreviation": "XONE"
+          },
+          {
+            "id": 130,
+            "abbreviation": "Switch"
+          }
+        ],
+        "screenshots": [
+          {
+            "id": 819177,
+            "image_id": "schk2x"
+          }
+        ],
+        "total_rating": 83.78169368582576,
+        "total_rating_count": 41,
+        "game_type": 0
+      }
+    ]
+  }
+]

@@ -1,7 +1,17 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import hades from "./__fixtures__/igdb-hades.json";
-import { igdbConfigured, igdbSearchBody, resetIgdbToken, searchIgdb } from "./igdb";
+import similar from "./__fixtures__/igdb-similar-witcher-celeste.json";
+import {
+  getIgdbSuggestions,
+  igdbConfigured,
+  igdbSearchBody,
+  igdbSimilarBody,
+  normaliseSimilar,
+  resetIgdbToken,
+  searchIgdb,
+  type IgdbSeed,
+} from "./igdb";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -82,5 +92,47 @@ describe("IGDB", () => {
     const body = igdbSearchBody('hades"; fields *; \\');
     expect(body).toMatch(/^search "hades ; fields \*;";/);
     expect(body).toContain("where version_parent = null & game_type = (0,2,4,8,9,10,11);");
+  });
+
+  it("asks for similar games in one request, most-rated first", async () => {
+    const fetch = vi.fn(async (input: string) =>
+      input.startsWith("https://id.twitch.tv/") ? json({ access_token: "token", expires_in: 5_000_000 }) : json(similar),
+    );
+    vi.stubGlobal("fetch", fetch);
+    const answers = await getIgdbSuggestions(["1942", "26226", "1942"]);
+    const body = String((fetch.mock.calls.find(([url]) => url.includes("igdb.com")) as unknown as [string, RequestInit])[1].body);
+    expect(body).toContain("where id = (1942,26226);");
+
+    const witcher = answers.find((answer) => answer.seed === "1942")!;
+    expect(witcher.suggestions.slice(0, 3).map(({ result }) => result.title)).toEqual([
+      "Red Dead Redemption 2",
+      "The Legend of Zelda: Breath of the Wild",
+      "Elden Ring",
+    ]);
+    expect(witcher.suggestions[0].result).toMatchObject({ source: "igdb", externalId: "25076", year: 2018 });
+  });
+
+  it("drops DLC, editions, unreleased and hardly-rated similar games", () => {
+    const game = (id: number, overrides: Record<string, unknown> = {}) => ({
+      id,
+      name: `Game ${id}`,
+      first_release_date: 1_600_000_000,
+      total_rating_count: 50,
+      game_type: 0,
+      ...overrides,
+    });
+    const seed: IgdbSeed = {
+      id: 1,
+      similar_games: [
+        game(2),
+        game(3, { game_type: 1 }),
+        game(4, { version_parent: 99 }),
+        game(5, { first_release_date: 4_000_000_000 }),
+        game(6, { first_release_date: null }),
+        game(7, { total_rating_count: 3 }),
+      ],
+    };
+    expect(normaliseSimilar(seed, 1_700_000_000_000).suggestions.map(({ result }) => result.externalId)).toEqual(["2"]);
+    expect(igdbSimilarBody([1, 2])).toMatch(/^fields id,similar_games\.name,.*; where id = \(1,2\); limit 2;$/);
   });
 });

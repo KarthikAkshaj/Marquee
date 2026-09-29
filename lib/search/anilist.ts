@@ -7,7 +7,9 @@ import {
   RESULT_LIMIT,
   type Release,
   type SearchResult,
+  type SeedSuggestions,
   type SeriesTitle,
+  type Suggestion,
   type TitleShape,
 } from "./types";
 
@@ -388,6 +390,92 @@ export async function getAniListSeries(id: number): Promise<SeriesTitle[]> {
       const result = normaliseAniList(media);
       return result ? [{ ...result, release: release(media.status) }] : [];
     });
+}
+
+/** Most seed titles one request asks about for For you (SPEC §20). */
+export const ANILIST_SEED_BATCH = 10;
+/** What each seed brings back, strongest first. */
+const SUGGESTIONS_PER_SEED = 10;
+/** Fewer net votes than this, and a recommendation is one person's hunch. */
+const MIN_RECOMMENDATION_VOTES = 3;
+
+const SUGGESTION_QUERY = `query ($ids: [Int]) {
+  Page(perPage: ${ANILIST_SEED_BATCH}) {
+    media(id_in: $ids, type: ANIME) {
+      id
+      recommendations(perPage: ${SUGGESTIONS_PER_SEED}, sort: [RATING_DESC, ID]) {
+        nodes {
+          rating
+          mediaRecommendation {
+            ${MEDIA_FIELDS} type isAdult
+            relations { edges { relationType(version: 2) node { id type format } } }
+          }
+        }
+      }
+    }
+  }
+}`;
+
+const prequelSchema = z.object({ id: z.number(), type: z.string().nullish(), format: z.string().nullish() });
+const recommendedSchema = mediaSchema.extend({
+  type: z.string().nullish(),
+  isAdult: z.boolean().nullish(),
+  relations: z.object({ edges: z.array(z.object({ relationType: z.string().nullish(), node: prequelSchema.nullish() })) }).nullish(),
+});
+
+/** What makes a title a later season: a TV run before it. A film listed as its prequel doesn't (Kino's Journey). */
+const SERIES_FORMATS = new Set(["TV", "TV_SHORT", "ONA"]);
+
+const seedSchema = z.object({
+  id: z.number(),
+  recommendations: z
+    .object({ nodes: z.array(z.object({ rating: z.number().nullish(), mediaRecommendation: recommendedSchema.nullish() })) })
+    .nullish(),
+});
+
+export type AniListSeed = z.infer<typeof seedSchema>;
+
+/**
+ * What AniList's users recommend alongside one anime, strongest first. Adult
+ * titles, promos, anything not out yet and one-vote hunches are dropped. A
+ * later season says which run it follows, so it can be skipped unless you've
+ * begun there.
+ */
+export function normaliseSeed(seed: AniListSeed): SeedSuggestions {
+  const suggestions = (seed.recommendations?.nodes ?? []).flatMap(({ rating, mediaRecommendation: media }): Suggestion[] => {
+    if (!media || media.isAdult || media.type !== "ANIME" || media.status === "NOT_YET_RELEASED") return [];
+    if ((rating ?? 0) < MIN_RECOMMENDATION_VOTES || isJunk(media)) return [];
+    const result = normaliseAniList(media);
+    if (!result) return [];
+    const follows = (media.relations?.edges ?? []).flatMap(({ relationType, node }) =>
+      relationType === "PREQUEL" && node?.type === "ANIME" && SERIES_FORMATS.has(node.format ?? "") ? [String(node.id)] : [],
+    );
+    return [follows.length ? { result, follows } : { result }];
+  });
+  return { seed: String(seed.id), suggestions };
+}
+
+/**
+ * What AniList's users recommend alongside each of up to 10 anime, in one
+ * request (about 80 KB), for For you's new titles.
+ */
+export async function getAniListSuggestions(ids: readonly string[]): Promise<SeedSuggestions[]> {
+  const numeric = [...new Set(ids.map(Number).filter((id) => Number.isInteger(id) && id > 0))];
+  if (numeric.length === 0) return [];
+  if (numeric.length > ANILIST_SEED_BATCH) throw new ProviderError("anilist", "too many seeds in one batch");
+
+  const schema = z.object({ data: z.object({ Page: z.object({ media: z.array(seedSchema) }) }) });
+  const body = await fetchJson(
+    "anilist",
+    ENDPOINT,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: SUGGESTION_QUERY, variables: { ids: numeric } }),
+    },
+    schema,
+  );
+  return body.data.Page.media.map(normaliseSeed);
 }
 
 export async function searchAniList(query: string): Promise<SearchResult[]> {

@@ -1,0 +1,1345 @@
+{
+  "data": {
+    "Page": {
+      "media": [
+        {
+          "id": 457,
+          "recommendations": {
+            "nodes": [
+              {
+                "rating": 359,
+                "mediaRecommendation": {
+                  "id": 4081,
+                  "title": {
+                    "english": "Natsume's Book of Friends Season 1",
+                    "romaji": "Natsume Yuujinchou"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 13,
+                  "duration": 24,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx4081-xi08naD69tjr.jpg",
+                    "color": "#86e450"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/4081-dbeE4uMExtgc.jpg",
+                  "genres": [
+                    "Drama",
+                    "Fantasy",
+                    "Slice of Life",
+                    "Supernatural"
+                  ],
+                  "averageScore": 80,
+                  "startDate": {
+                    "year": 2008
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 5300,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      },
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 31859,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 154978,
+                          "type": "ANIME",
+                          "format": "ONA"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 188619,
+                          "type": "ANIME",
+                          "format": "ONA"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 298,
+                "mediaRecommendation": {
+                  "id": 154587,
+                  "title": {
+                    "english": "Frieren: Beyond Journey’s End",
+                    "romaji": "Sousou no Frieren"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 28,
+                  "duration": 24,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx154587-qQTzQnEJJ3oB.jpg",
+                    "color": "#bbf1a1"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/154587-ivXNJ23SM1xB.jpg",
+                  "genres": [
+                    "Adventure",
+                    "Drama",
+                    "Fantasy"
+                  ],
+                  "averageScore": 91,
+                  "startDate": {
+                    "year": 2023
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 118586,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "CHARACTER",
+                        "node": {
+                          "id": 169811,
+                          "type": "ANIME",
+                          "format": "MUSIC"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 170068,
+                          "type": "ANIME",
+                          "format": "ONA"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 175691,
+                          "type": "ANIME",
+                          "format": "MUSIC"
+                        }
+                      },
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 182255,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 189513,
+                          "type": "ANIME",
+                          "format": "ONA"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 295,
+                "mediaRecommendation": {
+                  "id": 486,
+                  "title": {
+                    "english": "Kino's Journey",
+                    "romaji": "Kino no Tabi: the Beautiful World"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 13,
+                  "duration": 25,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx486-xXUgNOEBuxGs.jpg",
+                    "color": "#f1bb50"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/486-cDPgzYdzHNEq.jpg",
+                  "genres": [
+                    "Adventure",
+                    "Drama",
+                    "Fantasy",
+                    "Psychological",
+                    "Slice of Life"
+                  ],
+                  "averageScore": 81,
+                  "startDate": {
+                    "year": 2003
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "PREQUEL",
+                        "node": {
+                          "id": 1379,
+                          "type": "ANIME",
+                          "format": "MOVIE"
+                        }
+                      },
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 30399,
+                          "type": "MANGA",
+                          "format": "NOVEL"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 3466,
+                          "type": "ANIME",
+                          "format": "OVA"
+                        }
+                      },
+                      {
+                        "relationType": "CHARACTER",
+                        "node": {
+                          "id": 6628,
+                          "type": "ANIME",
+                          "format": "SPECIAL"
+                        }
+                      },
+                      {
+                        "relationType": "ALTERNATIVE",
+                        "node": {
+                          "id": 98448,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 2175,
+                          "type": "ANIME",
+                          "format": "MOVIE"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 262,
+                "mediaRecommendation": {
+                  "id": 2246,
+                  "title": {
+                    "english": "Mononoke",
+                    "romaji": "Mononoke"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 12,
+                  "duration": 22,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx2246-WHkSkgyuxfgD.jpg",
+                    "color": "#f1c928"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/2246-8DKsjLTMEFJq.png",
+                  "genres": [
+                    "Fantasy",
+                    "Horror",
+                    "Mystery",
+                    "Psychological",
+                    "Supernatural"
+                  ],
+                  "averageScore": 82,
+                  "startDate": {
+                    "year": 2007
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "CHARACTER",
+                        "node": {
+                          "id": 586,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      },
+                      {
+                        "relationType": "ADAPTATION",
+                        "node": {
+                          "id": 35158,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "ADAPTATION",
+                        "node": {
+                          "id": 109884,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "ADAPTATION",
+                        "node": {
+                          "id": 94624,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 151117,
+                          "type": "ANIME",
+                          "format": "MOVIE"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 213891,
+                          "type": "ANIME",
+                          "format": null
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 142,
+                "mediaRecommendation": {
+                  "id": 114535,
+                  "title": {
+                    "english": "To Your Eternity",
+                    "romaji": "Fumetsu no Anata e"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 20,
+                  "duration": 25,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx114535-y3NnjexcqKG1.jpg",
+                    "color": "#f1d6a1"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/114535-ASUprf4AsNwC.jpg",
+                  "genres": [
+                    "Adventure",
+                    "Drama",
+                    "Fantasy",
+                    "Psychological",
+                    "Supernatural"
+                  ],
+                  "averageScore": 81,
+                  "startDate": {
+                    "year": 2021
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 97830,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 138565,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 97,
+                "mediaRecommendation": {
+                  "id": 99420,
+                  "title": {
+                    "english": "Girls' Last Tour",
+                    "romaji": "Shoujo Shuumatsu Ryokou"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 12,
+                  "duration": 24,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx99420-k5Tel6yRMwA8.png",
+                    "color": null
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/99420-wwjSxDuLveEu.jpg",
+                  "genres": [
+                    "Adventure",
+                    "Sci-Fi",
+                    "Slice of Life"
+                  ],
+                  "averageScore": 81,
+                  "startDate": {
+                    "year": 2017
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 85412,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 100180,
+                          "type": "ANIME",
+                          "format": "ONA"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 163661,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 74,
+                "mediaRecommendation": {
+                  "id": 477,
+                  "title": {
+                    "english": "ARIA The ANIMATION",
+                    "romaji": "ARIA The ANIMATION"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 13,
+                  "duration": 24,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx477-CdKPHW7rGbUP.png",
+                    "color": "#5093c9"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/477.jpg",
+                  "genres": [
+                    "Fantasy",
+                    "Sci-Fi",
+                    "Slice of Life"
+                  ],
+                  "averageScore": 76,
+                  "startDate": {
+                    "year": 2005
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 962,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      },
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 30081,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 30124,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 66,
+                "mediaRecommendation": {
+                  "id": 387,
+                  "title": {
+                    "english": "Haibane Renmei",
+                    "romaji": "Haibane Renmei"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 13,
+                  "duration": 24,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx387-dS4aJivu0zPB.png",
+                    "color": "#e4bb86"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/387-2ogrNTbIYy2T.jpg",
+                  "genres": [
+                    "Drama",
+                    "Fantasy",
+                    "Mystery",
+                    "Psychological",
+                    "Slice of Life"
+                  ],
+                  "averageScore": 80,
+                  "startDate": {
+                    "year": 2002
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 35356,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 134953,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "ALTERNATIVE",
+                        "node": {
+                          "id": 64211,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 49,
+                "mediaRecommendation": {
+                  "id": 861,
+                  "title": {
+                    "english": "xxxHOLiC",
+                    "romaji": "xxxHOLiC"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 24,
+                  "duration": 24,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx861-rbZNhIXwS4JE.png",
+                    "color": "#864328"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/861-9LoNqdFERLvT.jpg",
+                  "genres": [
+                    "Comedy",
+                    "Drama",
+                    "Horror",
+                    "Mystery",
+                    "Psychological",
+                    "Supernatural"
+                  ],
+                  "averageScore": 76,
+                  "startDate": {
+                    "year": 2006
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 3091,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      },
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 30010,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 40183,
+                          "type": "MANGA",
+                          "format": "NOVEL"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 793,
+                          "type": "ANIME",
+                          "format": "MOVIE"
+                        }
+                      },
+                      {
+                        "relationType": "CHARACTER",
+                        "node": {
+                          "id": 177,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      },
+                      {
+                        "relationType": "CHARACTER",
+                        "node": {
+                          "id": 969,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      },
+                      {
+                        "relationType": "CHARACTER",
+                        "node": {
+                          "id": 10681,
+                          "type": "ANIME",
+                          "format": "MOVIE"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 10490,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      },
+                      {
+                        "relationType": "CHARACTER",
+                        "node": {
+                          "id": 2768,
+                          "type": "ANIME",
+                          "format": "MUSIC"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 48,
+                "mediaRecommendation": {
+                  "id": 10408,
+                  "title": {
+                    "english": "Into the Forest of Fireflies' Light",
+                    "romaji": "Hotarubi no Mori e"
+                  },
+                  "format": "MOVIE",
+                  "status": "FINISHED",
+                  "episodes": 1,
+                  "duration": 45,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx10408-PlKJ6DAyvMk2.png",
+                    "color": "#93d678"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/10408-kZhXe0uVrAd2.jpg",
+                  "genres": [
+                    "Drama",
+                    "Fantasy",
+                    "Romance",
+                    "Supernatural"
+                  ],
+                  "averageScore": 79,
+                  "startDate": {
+                    "year": 2011
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 33282,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 154587,
+          "recommendations": {
+            "nodes": [
+              {
+                "rating": 1190,
+                "mediaRecommendation": {
+                  "id": 21827,
+                  "title": {
+                    "english": "Violet Evergarden",
+                    "romaji": "Violet Evergarden"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 13,
+                  "duration": 24,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx21827-ubzq619ZA2E9.png",
+                    "color": "#3586e4"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/21827-ROucgYiiiSpR.jpg",
+                  "genres": [
+                    "Drama",
+                    "Fantasy",
+                    "Slice of Life"
+                  ],
+                  "averageScore": 85,
+                  "startDate": {
+                    "year": 2018
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 101432,
+                          "type": "ANIME",
+                          "format": "OVA"
+                        }
+                      },
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 97298,
+                          "type": "MANGA",
+                          "format": "NOVEL"
+                        }
+                      },
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 109190,
+                          "type": "ANIME",
+                          "format": "MOVIE"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 154164,
+                          "type": "ANIME",
+                          "format": "ONA"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 765,
+                "mediaRecommendation": {
+                  "id": 153518,
+                  "title": {
+                    "english": "Delicious in Dungeon",
+                    "romaji": "Dungeon Meshi"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 24,
+                  "duration": 25,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx153518-IVXPDY5ph3kO.jpg",
+                    "color": "#e48650"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/153518-7uRvV7SLqmHV.jpg",
+                  "genres": [
+                    "Adventure",
+                    "Comedy",
+                    "Fantasy"
+                  ],
+                  "averageScore": 85,
+                  "startDate": {
+                    "year": 2024
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 86082,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 111516,
+                          "type": "ANIME",
+                          "format": "ONA"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 158627,
+                          "type": "ANIME",
+                          "format": "ONA"
+                        }
+                      },
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 178031,
+                          "type": "ANIME",
+                          "format": "ONA"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 504,
+                "mediaRecommendation": {
+                  "id": 112609,
+                  "title": {
+                    "english": "Wandering Witch: The Journey of Elaina",
+                    "romaji": "Majo no Tabitabi"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 12,
+                  "duration": 24,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx112609-hBCbnYlEHluz.jpg",
+                    "color": "#50a1f1"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/112609-P969sQ0jIU6S.jpg",
+                  "genres": [
+                    "Adventure",
+                    "Fantasy",
+                    "Slice of Life"
+                  ],
+                  "averageScore": 74,
+                  "startDate": {
+                    "year": 2020
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "ALTERNATIVE",
+                        "node": {
+                          "id": 105913,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 98741,
+                          "type": "MANGA",
+                          "format": "NOVEL"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 129839,
+                          "type": "ANIME",
+                          "format": "MUSIC"
+                        }
+                      },
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 205444,
+                          "type": "ANIME",
+                          "format": "MOVIE"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 423,
+                "mediaRecommendation": {
+                  "id": 114535,
+                  "title": {
+                    "english": "To Your Eternity",
+                    "romaji": "Fumetsu no Anata e"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 20,
+                  "duration": 25,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx114535-y3NnjexcqKG1.jpg",
+                    "color": "#f1d6a1"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/114535-ASUprf4AsNwC.jpg",
+                  "genres": [
+                    "Adventure",
+                    "Drama",
+                    "Fantasy",
+                    "Psychological",
+                    "Supernatural"
+                  ],
+                  "averageScore": 81,
+                  "startDate": {
+                    "year": 2021
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 97830,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 138565,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 400,
+                "mediaRecommendation": {
+                  "id": 147105,
+                  "title": {
+                    "english": "Witch Hat Atelier",
+                    "romaji": "Tongari Boushi no Atelier"
+                  },
+                  "format": "ONA",
+                  "status": "FINISHED",
+                  "episodes": 13,
+                  "duration": 24,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx147105-rwOX8qyUy8gV.jpg",
+                    "color": "#0d8693"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/147105-fTjmRrILFixZ.jpg",
+                  "genres": [
+                    "Adventure",
+                    "Drama",
+                    "Fantasy"
+                  ],
+                  "averageScore": 85,
+                  "startDate": {
+                    "year": 2026
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 98263,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 211301,
+                          "type": "ANIME",
+                          "format": "MUSIC"
+                        }
+                      },
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 213702,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 298,
+                "mediaRecommendation": {
+                  "id": 457,
+                  "title": {
+                    "english": "MUSHI-SHI",
+                    "romaji": "Mushishi"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 26,
+                  "duration": 25,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx457-l6cTtNgI9Bi6.png",
+                    "color": "#d6bb78"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/n457-sWOJfqYC7s2I.jpg",
+                  "genres": [
+                    "Adventure",
+                    "Fantasy",
+                    "Mystery",
+                    "Psychological",
+                    "Slice of Life",
+                    "Supernatural"
+                  ],
+                  "averageScore": 85,
+                  "startDate": {
+                    "year": 2005
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 30418,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 20526,
+                          "type": "ANIME",
+                          "format": "SPECIAL"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 273,
+                "mediaRecommendation": {
+                  "id": 161645,
+                  "title": {
+                    "english": "The Apothecary Diaries",
+                    "romaji": "Kusuriya no Hitorigoto"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 24,
+                  "duration": 23,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx161645-QLbzHXiYRgV2.jpg",
+                    "color": "#f1865d"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/161645-oqzTZYIvviWI.jpg",
+                  "genres": [
+                    "Drama",
+                    "Mystery"
+                  ],
+                  "averageScore": 88,
+                  "startDate": {
+                    "year": 2023
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 99026,
+                          "type": "MANGA",
+                          "format": "NOVEL"
+                        }
+                      },
+                      {
+                        "relationType": "ALTERNATIVE",
+                        "node": {
+                          "id": 99022,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "ALTERNATIVE",
+                        "node": {
+                          "id": 113322,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 170508,
+                          "type": "ANIME",
+                          "format": "ONA"
+                        }
+                      },
+                      {
+                        "relationType": "SEQUEL",
+                        "node": {
+                          "id": 176301,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 256,
+                "mediaRecommendation": {
+                  "id": 486,
+                  "title": {
+                    "english": "Kino's Journey",
+                    "romaji": "Kino no Tabi: the Beautiful World"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 13,
+                  "duration": 25,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx486-xXUgNOEBuxGs.jpg",
+                    "color": "#f1bb50"
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/486-cDPgzYdzHNEq.jpg",
+                  "genres": [
+                    "Adventure",
+                    "Drama",
+                    "Fantasy",
+                    "Psychological",
+                    "Slice of Life"
+                  ],
+                  "averageScore": 81,
+                  "startDate": {
+                    "year": 2003
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "PREQUEL",
+                        "node": {
+                          "id": 1379,
+                          "type": "ANIME",
+                          "format": "MOVIE"
+                        }
+                      },
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 30399,
+                          "type": "MANGA",
+                          "format": "NOVEL"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 3466,
+                          "type": "ANIME",
+                          "format": "OVA"
+                        }
+                      },
+                      {
+                        "relationType": "CHARACTER",
+                        "node": {
+                          "id": 6628,
+                          "type": "ANIME",
+                          "format": "SPECIAL"
+                        }
+                      },
+                      {
+                        "relationType": "ALTERNATIVE",
+                        "node": {
+                          "id": 98448,
+                          "type": "ANIME",
+                          "format": "TV"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 2175,
+                          "type": "ANIME",
+                          "format": "MOVIE"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 256,
+                "mediaRecommendation": {
+                  "id": 99420,
+                  "title": {
+                    "english": "Girls' Last Tour",
+                    "romaji": "Shoujo Shuumatsu Ryokou"
+                  },
+                  "format": "TV",
+                  "status": "FINISHED",
+                  "episodes": 12,
+                  "duration": 24,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx99420-k5Tel6yRMwA8.png",
+                    "color": null
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/99420-wwjSxDuLveEu.jpg",
+                  "genres": [
+                    "Adventure",
+                    "Sci-Fi",
+                    "Slice of Life"
+                  ],
+                  "averageScore": 81,
+                  "startDate": {
+                    "year": 2017
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "SOURCE",
+                        "node": {
+                          "id": 85412,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 100180,
+                          "type": "ANIME",
+                          "format": "ONA"
+                        }
+                      },
+                      {
+                        "relationType": "SIDE_STORY",
+                        "node": {
+                          "id": 163661,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "rating": 233,
+                "mediaRecommendation": {
+                  "id": 99457,
+                  "title": {
+                    "english": "Maquia: When the Promised Flower Blooms",
+                    "romaji": "Sayonara no Asa ni Yakusoku no Hana wo Kazarou"
+                  },
+                  "format": "MOVIE",
+                  "status": "FINISHED",
+                  "episodes": 1,
+                  "duration": 115,
+                  "coverImage": {
+                    "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx99457-OD0xtM8NlHNQ.png",
+                    "color": null
+                  },
+                  "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/99457-OvX44AF17mEL.jpg",
+                  "genres": [
+                    "Drama",
+                    "Fantasy",
+                    "Psychological"
+                  ],
+                  "averageScore": 82,
+                  "startDate": {
+                    "year": 2018
+                  },
+                  "type": "ANIME",
+                  "isAdult": false,
+                  "relations": {
+                    "edges": [
+                      {
+                        "relationType": "ADAPTATION",
+                        "node": {
+                          "id": 105139,
+                          "type": "MANGA",
+                          "format": "MANGA"
+                        }
+                      },
+                      {
+                        "relationType": "OTHER",
+                        "node": {
+                          "id": 207886,
+                          "type": "ANIME",
+                          "format": "SPECIAL"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

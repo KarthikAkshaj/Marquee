@@ -1,10 +1,18 @@
 import { unstable_cache } from "next/cache";
-import { getAniListSeries, searchAniList, searchAniListMany, searchAniListReading, searchAniListReadingMany } from "./anilist";
-import { igdbConfigured, searchIgdb } from "./igdb";
+import {
+  getAniListSeries,
+  getAniListSuggestions,
+  searchAniList,
+  searchAniListMany,
+  searchAniListReading,
+  searchAniListReadingMany,
+} from "./anilist";
+import { getIgdbSuggestions, igdbConfigured, searchIgdb } from "./igdb";
 import {
   getTmdbCollection,
   getTmdbMovieDetails,
   getTmdbSeriesDetails,
+  getTmdbSuggestions,
   searchTmdbMovies,
   searchTmdbSeries,
   tmdbConfigured,
@@ -18,7 +26,9 @@ import {
   type SearchResponse,
   type SearchResult,
   type SearchType,
+  type SeedSuggestions,
   type SeriesResponse,
+  type SuggestionsResponse,
 } from "./types";
 
 export { RELATED_KINDS, SEARCH_KINDS, SEARCH_TYPES, isRelatedKind } from "./types";
@@ -30,8 +40,11 @@ export type {
   SearchResponse,
   SearchResult,
   SearchType,
+  SeedSuggestions,
   SeriesResponse,
   SeriesTitle,
+  Suggestion,
+  SuggestionsResponse,
 } from "./types";
 
 const DAY = 60 * 60 * 24;
@@ -249,5 +262,44 @@ export async function matchMetadata(kind: SearchKind, queries: readonly string[]
   } catch (error) {
     console.error("[search] match", kind, error instanceof ProviderError ? error.message : error);
     return { results: empty, error: "unavailable" };
+  }
+}
+
+const cachedAniListSuggestions = unstable_cache((ids: string[]) => getAniListSuggestions(ids), ["anilist-suggestions-v1"], {
+  revalidate: DAY,
+});
+
+const cachedTmdbSuggestions = unstable_cache(
+  (type: "movie" | "tv", id: string) => getTmdbSuggestions(type, id),
+  ["tmdb-suggestions-v1"],
+  { revalidate: DAY },
+);
+
+const cachedIgdbSuggestions = unstable_cache((ids: string[]) => getIgdbSuggestions(ids), ["igdb-suggestions-v1"], {
+  revalidate: DAY,
+});
+
+/**
+ * What each provider's users recommend alongside your best titles of one kind
+ * (SPEC §20), cached for a day. AniList and IGDB answer for every seed in one
+ * request; TMDB takes one per film or show, five at a time, and a seed it
+ * can't answer for is skipped rather than sinking the rest.
+ */
+export async function getSuggestions(kind: SearchKind, seeds: readonly string[]): Promise<SuggestionsResponse> {
+  if (seeds.length === 0) return { results: [] };
+  if (!PROVIDERS[kind].configured()) return { results: [], error: "not_configured" };
+  // Sorted, so the same seeds in another order share a cache entry.
+  const ids = [...new Set(seeds)].sort();
+
+  try {
+    if (kind === "anime") return { results: await cachedAniListSuggestions(ids) };
+    if (kind === "game") return { results: await cachedIgdbSuggestions(ids) };
+    const type = kind === "movie" ? "movie" : "tv";
+    const answers = await mapLimit(ids, 5, (id) => cachedTmdbSuggestions(type, id).catch(() => null));
+    const results = answers.filter((answer): answer is SeedSuggestions => answer !== null);
+    return results.length === 0 ? { results, error: "unavailable" } : { results };
+  } catch (error) {
+    console.error("[search] suggestions", kind, error instanceof ProviderError ? error.message : error);
+    return { results: [], error: "unavailable" };
   }
 }

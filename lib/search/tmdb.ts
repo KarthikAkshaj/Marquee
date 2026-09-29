@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { cleanGenres, fetchJson, toScore, yearFromDate } from "./http";
-import { ProviderError, RESULT_LIMIT, type Release, type SearchResult, type SeriesTitle } from "./types";
+import { ProviderError, RESULT_LIMIT, type Release, type SearchResult, type SeedSuggestions, type SeriesTitle } from "./types";
 
 const API = "https://api.themoviedb.org/3";
 const POSTER = "https://image.tmdb.org/t/p/w500";
@@ -229,6 +229,59 @@ export async function getTmdbCollection(id: number): Promise<MovieCollection> {
   if (!Number.isInteger(id) || id <= 0) throw new ProviderError("tmdb", "invalid collection id");
   const [collection, genres] = await Promise.all([request(`/collection/${id}?language=en-US`, collectionSchema), genreNames("movie")]);
   return normaliseCollection(collection, genres);
+}
+
+/** Fewer votes than this, and a recommended title is too obscure to put in front of someone. */
+const MIN_SUGGESTION_VOTES = 50;
+const SUGGESTIONS_PER_SEED = 10;
+
+const suggestedSchema = z.object({
+  results: z.array(
+    baseSchema.extend({
+      title: z.string().nullish(),
+      original_title: z.string().nullish(),
+      release_date: z.string().nullish(),
+      name: z.string().nullish(),
+      original_name: z.string().nullish(),
+      first_air_date: z.string().nullish(),
+      adult: z.boolean().nullish(),
+      softcore: z.boolean().nullish(),
+    }),
+  ),
+});
+
+export type TmdbSuggested = z.infer<typeof suggestedSchema>["results"][number];
+
+/**
+ * What TMDB recommends alongside one film or show, in its own order. Adult
+ * titles, anything not out yet and titles too few people have voted on are
+ * dropped.
+ */
+export function normaliseTmdbSuggestions(
+  seed: string,
+  type: "movie" | "tv",
+  results: readonly TmdbSuggested[],
+  genres: GenreNames,
+  today = new Date().toISOString().slice(0, 10),
+): SeedSuggestions {
+  const suggestions = results
+    .filter((entry) => !entry.adult && !entry.softcore && (entry.vote_count ?? 0) >= MIN_SUGGESTION_VOTES)
+    .filter((entry) => filmRelease(type === "movie" ? entry.release_date : entry.first_air_date, today) === "out")
+    .map((entry) => (type === "movie" ? normaliseTmdbMovie(entry, genres) : normaliseTmdbShow(entry, genres)))
+    .filter((result) => result !== null)
+    .slice(0, SUGGESTIONS_PER_SEED)
+    .map((result) => ({ result }));
+  return { seed, suggestions };
+}
+
+/** What TMDB recommends alongside one film (`movie`) or show (`tv`), for For you (SPEC §20). */
+export async function getTmdbSuggestions(type: "movie" | "tv", id: string): Promise<SeedSuggestions> {
+  if (!/^\d+$/.test(id)) throw new ProviderError("tmdb", `invalid ${type} id`);
+  const [page, genres] = await Promise.all([
+    request(`/${type}/${id}/recommendations?language=en-US&page=1`, suggestedSchema),
+    genreNames(type),
+  ]);
+  return normaliseTmdbSuggestions(id, type, page.results, genres);
 }
 
 export async function getTmdbSeriesDetails(id: string): Promise<SeriesDetails> {

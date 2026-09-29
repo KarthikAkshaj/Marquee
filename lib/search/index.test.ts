@@ -13,12 +13,15 @@ const searchTmdbMovies = vi.fn();
 const getTmdbSeriesDetails = vi.fn();
 const getTmdbMovieDetails = vi.fn();
 const getTmdbCollection = vi.fn();
+const getAniListSuggestions = vi.fn();
+const getTmdbSuggestions = vi.fn();
 vi.mock("./anilist", () => ({
   searchAniList: (q: string) => searchAniList(q),
   searchAniListMany: (queries: string[]) => searchAniListMany(queries),
   searchAniListReading: (q: string) => searchAniListReading(q),
   searchAniListReadingMany: (queries: string[]) => searchAniListReadingMany(queries),
   getAniListSeries: (id: number) => getAniListSeries(id),
+  getAniListSuggestions: (ids: string[]) => getAniListSuggestions(ids),
 }));
 vi.mock("./tmdb", () => ({
   tmdbConfigured: () => Boolean(process.env.TMDB_READ_TOKEN),
@@ -27,10 +30,12 @@ vi.mock("./tmdb", () => ({
   getTmdbSeriesDetails: (id: string) => getTmdbSeriesDetails(id),
   getTmdbMovieDetails: (id: string) => getTmdbMovieDetails(id),
   getTmdbCollection: (id: number) => getTmdbCollection(id),
+  getTmdbSuggestions: (type: string, id: string) => getTmdbSuggestions(type, id),
 }));
-vi.mock("./igdb", () => ({ igdbConfigured: () => false, searchIgdb: vi.fn() }));
+vi.mock("./igdb", () => ({ igdbConfigured: () => false, searchIgdb: vi.fn(), getIgdbSuggestions: vi.fn() }));
 
-const { getAnimeSeries, getRelated, getSeriesDetails, matchMetadata, normaliseQuery, possessiveVariant, searchMetadata } = await import("./index");
+const { getAnimeSeries, getRelated, getSeriesDetails, getSuggestions, matchMetadata, normaliseQuery, possessiveVariant, searchMetadata } =
+  await import("./index");
 const { ProviderError } = await import("./types");
 
 describe("searchMetadata", () => {
@@ -211,5 +216,55 @@ describe("getRelated for films", () => {
     getAniListSeries.mockResolvedValueOnce([]);
     expect(await getRelated("anime", "113415")).toEqual({ results: [] });
     expect(getAniListSeries).toHaveBeenLastCalledWith(113415);
+  });
+});
+
+describe("getSuggestions (SPEC §20)", () => {
+  beforeEach(() => {
+    vi.stubEnv("TMDB_READ_TOKEN", "token");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+    getAniListSuggestions.mockReset();
+    getTmdbSuggestions.mockReset();
+  });
+
+  it("asks AniList once for every anime seed, in a steady order", async () => {
+    getAniListSuggestions.mockResolvedValue([{ seed: "1", suggestions: [] }]);
+    expect(await getSuggestions("anime", ["9", "1", "9"])).toEqual({ results: [{ seed: "1", suggestions: [] }] });
+    expect(getAniListSuggestions).toHaveBeenCalledExactlyOnceWith(["1", "9"]);
+  });
+
+  it("asks TMDB once per film, and skips a seed it can't answer for", async () => {
+    getTmdbSuggestions.mockImplementation(async (type: string, id: string) => {
+      if (id === "2") throw new ProviderError("tmdb", "HTTP 500", 500);
+      return { seed: id, suggestions: [] };
+    });
+    expect(await getSuggestions("movie", ["1", "2"])).toEqual({ results: [{ seed: "1", suggestions: [] }] });
+    expect(getTmdbSuggestions.mock.calls).toEqual([
+      ["movie", "1"],
+      ["movie", "2"],
+    ]);
+
+    getTmdbSuggestions.mockClear();
+    await getSuggestions("series", ["5"]);
+    expect(getTmdbSuggestions).toHaveBeenCalledExactlyOnceWith("tv", "5");
+  });
+
+  it("says unavailable when nothing answers, and not configured without keys", async () => {
+    getTmdbSuggestions.mockRejectedValue(new ProviderError("tmdb", "timed out"));
+    expect(await getSuggestions("movie", ["1"])).toEqual({ results: [], error: "unavailable" });
+
+    getAniListSuggestions.mockRejectedValue(new ProviderError("anilist", "HTTP 429", 429));
+    expect(await getSuggestions("anime", ["1"])).toEqual({ results: [], error: "unavailable" });
+
+    expect(await getSuggestions("game", ["1"])).toEqual({ results: [], error: "not_configured" });
+  });
+
+  it("asks nobody without seeds", async () => {
+    expect(await getSuggestions("anime", [])).toEqual({ results: [] });
+    expect(getAniListSuggestions).not.toHaveBeenCalled();
   });
 });

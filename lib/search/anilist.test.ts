@@ -3,10 +3,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import frieren from "./__fixtures__/anilist-frieren.json";
 import onePiece from "./__fixtures__/anilist-one-piece.json";
 import mushoku from "./__fixtures__/anilist-reading-mushoku-tensei.json";
+import suggested from "./__fixtures__/anilist-suggestions-frieren-mushishi.json";
 import {
   getAniListSeries,
+  getAniListSuggestions,
   normaliseAniList,
   normaliseAniListReading,
+  normaliseSeed,
+  type AniListSeed,
   readingFormat,
   searchAniList,
   searchAniListMany,
@@ -292,5 +296,67 @@ describe("junk and series", () => {
     const [matches, onlyJunk] = await searchAniListMany(["frieren", "frieren pv"]);
     expect(matches.map((result) => result.externalId)).toEqual(["154587"]);
     expect(onlyJunk.map((result) => result.externalId)).toEqual(["1"]);
+  });
+});
+
+describe("suggestions for For you (SPEC §20)", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("asks about every seed in one request and keeps AniList's order", async () => {
+    const fetch = reply(suggested);
+    vi.stubGlobal("fetch", fetch);
+    const answers = await getAniListSuggestions(["154587", "457", "154587", "nope"]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    const sent = JSON.parse(String((fetch.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    expect(sent.variables).toEqual({ ids: [154587, 457] });
+
+    const frieren = answers.find((answer) => answer.seed === "154587")!;
+    expect(frieren.suggestions.slice(0, 3).map(({ result }) => result.title)).toEqual([
+      "Violet Evergarden",
+      "Delicious in Dungeon",
+      "Wandering Witch: The Journey of Elaina",
+    ]);
+    expect(frieren.suggestions[0].result).toMatchObject({ source: "anilist", externalId: "21827", genres: expect.arrayContaining(["Drama"]) });
+  });
+
+  it("doesn't call a title a later season because a film comes before it", () => {
+    const [mushishi] = (suggested.data.Page.media as AniListSeed[]).filter((seed) => seed.id === 457);
+    const kino = normaliseSeed(mushishi).suggestions.find(({ result }) => result.title === "Kino's Journey")!;
+    expect(kino.follows).toBeUndefined();
+  });
+
+  it("marks a later season of a TV run, and drops adult, unreleased and one-vote picks", () => {
+    const node = (id: number, overrides: Record<string, unknown> = {}) => ({
+      rating: 50,
+      mediaRecommendation: { id, type: "ANIME", status: "FINISHED", isAdult: false, title: { english: `Show ${id}` }, ...overrides },
+    });
+    const seed: AniListSeed = {
+      id: 1,
+      recommendations: {
+        nodes: [
+          node(2, { relations: { edges: [{ relationType: "PREQUEL", node: { id: 9, type: "ANIME", format: "TV" } }] } }),
+          node(3, { isAdult: true }),
+          node(4, { status: "NOT_YET_RELEASED" }),
+          { ...node(5), rating: 1 },
+          node(6, { type: "MANGA" }),
+          node(7),
+        ],
+      },
+    };
+    expect(normaliseSeed(seed)).toEqual({
+      seed: "1",
+      suggestions: [
+        { result: expect.objectContaining({ externalId: "2" }), follows: ["9"] },
+        { result: expect.objectContaining({ externalId: "7" }) },
+      ],
+    });
+  });
+
+  it("asks for nothing without seeds, and refuses more than a batch", async () => {
+    const fetch = reply(suggested);
+    vi.stubGlobal("fetch", fetch);
+    expect(await getAniListSuggestions([])).toEqual([]);
+    await expect(getAniListSuggestions(Array.from({ length: 11 }, (_, index) => String(index + 1)))).rejects.toBeInstanceOf(ProviderError);
+    expect(fetch).not.toHaveBeenCalled();
   });
 });

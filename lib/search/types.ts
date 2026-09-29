@@ -68,6 +68,19 @@ export type SearchError = "signed_out" | "invalid_query" | "rate_limited" | "not
 
 export type SearchResponse = { results: SearchResult[]; error?: SearchError };
 
+/**
+ * A title a provider's users recommend alongside one of yours (SPEC §20).
+ * `follows` holds the provider ids of what it's a sequel to, when the provider
+ * says (AniList), so a later season of something you haven't started can be
+ * left out.
+ */
+export type Suggestion = { result: SearchResult; follows?: string[] };
+
+/** What a provider recommends alongside one seed title, strongest first. */
+export type SeedSuggestions = { seed: string; suggestions: Suggestion[] };
+
+export type SuggestionsResponse = { results: SeedSuggestions[]; error?: SearchError };
+
 export type SeriesResponse = {
   results: SeriesTitle[];
   /** What the provider calls the run, when it names one ("Dune Collection"). */

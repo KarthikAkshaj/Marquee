@@ -8,12 +8,15 @@ import dune from "./__fixtures__/tmdb-search-movie-dune.json";
 import severanceSearch from "./__fixtures__/tmdb-search-tv-severance.json";
 import severance from "./__fixtures__/tmdb-tv-severance.json";
 import unauthorized from "./__fixtures__/tmdb-unauthorized.json";
+import duneRecommendations from "./__fixtures__/tmdb-recommendations-dune.json";
 import {
   getTmdbCollection,
   getTmdbSeriesDetails,
+  getTmdbSuggestions,
   normaliseCollection,
   normaliseMovieDetails,
   normaliseShowDetails,
+  normaliseTmdbSuggestions,
   resetTmdbGenres,
   searchTmdbMovies,
   searchTmdbSeries,
@@ -165,6 +168,39 @@ describe("TMDB", () => {
     expect(titles.map((title) => title.title)).toEqual(["Dune", "Dune: Part Two", "Dune: Part Three"]);
     expect(titles[1].genres).toEqual(["Science Fiction", "Adventure"]);
     await expect(getTmdbCollection(0)).rejects.toThrow("invalid collection id");
+  });
+
+  it("fetches what TMDB recommends alongside a film, in its order, with genre names", async () => {
+    vi.stubGlobal("fetch", tmdb({ "/movie/438631/recommendations": duneRecommendations, "/genre/movie/list": movieGenres }));
+    const answer = await getTmdbSuggestions("movie", "438631");
+    expect(answer.seed).toBe("438631");
+    expect(answer.suggestions).toHaveLength(10);
+    expect(answer.suggestions.slice(0, 3).map(({ result }) => result.title)).toEqual(["Dune: Part Two", "Chaos Walking", "Ender's Game"]);
+    expect(answer.suggestions[0].result).toMatchObject({ source: "tmdb", externalId: "693134", year: 2024, format: "movie", communityScore: 81 });
+    expect(answer.suggestions[0].result.genres).toContain("Science Fiction");
+    await expect(getTmdbSuggestions("movie", "1; drop")).rejects.toThrow("invalid movie id");
+  });
+
+  it("drops adult, unreleased and hardly-voted recommendations", () => {
+    const entry = (id: number, overrides: Record<string, unknown> = {}) => ({
+      id,
+      title: `Film ${id}`,
+      release_date: "2020-01-01",
+      vote_count: 500,
+      vote_average: 7,
+      ...overrides,
+    });
+    const answer = normaliseTmdbSuggestions(
+      "1",
+      "movie",
+      [entry(2), entry(3, { adult: true }), entry(4, { release_date: "2031-01-01" }), entry(5, { release_date: "" }), entry(6, { vote_count: 12 })],
+      new Map(),
+      "2026-09-29",
+    );
+    expect(answer.suggestions.map(({ result }) => result.externalId)).toEqual(["2"]);
+
+    const show = normaliseTmdbSuggestions("1", "tv", [{ id: 7, name: "Show", first_air_date: "2019-05-01", vote_count: 90 }], new Map(), "2026-09-29");
+    expect(show.suggestions[0].result).toMatchObject({ title: "Show", format: "tv", year: 2019 });
   });
 
   it("reports a bad token as a provider error, and retries genres after a failure", async () => {
