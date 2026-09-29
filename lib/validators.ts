@@ -215,6 +215,7 @@ const searchResultSchema = z.object({
   backdropUrl: z.string().max(500).regex(PROVIDER_IMAGE).optional().catch(undefined),
   progressTotal: z.number().int().min(1).max(100_000).optional().catch(undefined),
   genres: z.array(z.string().trim().min(1).max(40)).max(12).optional().catch(undefined),
+  tags: z.array(z.string().trim().min(1).max(60)).max(12).optional().catch(undefined),
   communityScore: z.number().int().min(0).max(100).optional().catch(undefined),
   accentColor: hexColorSchema.optional().catch(undefined),
   runtimeMinutes: z.number().int().min(1).max(2000).optional().catch(undefined),
@@ -235,6 +236,18 @@ export const pickKeySchema = z.object({
 });
 
 export type PickKey = z.infer<typeof pickKeySchema>;
+
+/**
+ * "Not for me", with what the title was about, so it can nudge those genres
+ * and tags down. Who it is must be exact; what it was about is a snapshot, so
+ * anything odd is dropped rather than refusing the dismissal.
+ */
+export const dismissPickSchema = pickKeySchema.extend({
+  genres: z.array(z.string().trim().min(1).max(40)).max(12).catch([]).default([]),
+  tags: z.array(z.string().trim().min(1).max(60)).max(12).catch([]).default([]),
+});
+
+export type DismissPick = z.input<typeof dismissPickSchema>;
 
 /** Most extra seasons one save carries (they go in through `import_titles`, max 100). */
 export const EXTRAS_PER_SAVE = 50;

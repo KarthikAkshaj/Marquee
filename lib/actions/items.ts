@@ -337,6 +337,7 @@ function searchRow({ id, status, result }: SearchPick, userId: string, categoryI
     source: result.source,
     external_id: result.externalId,
     genres: details?.genres ?? result.genres ?? [],
+    tags: result.tags ?? null,
     community_score: result.communityScore ?? null,
     runtime_minutes: details?.runtimeMinutes ?? result.runtimeMinutes ?? null,
     format: result.format ?? null,

@@ -3,11 +3,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import hades from "./__fixtures__/igdb-hades.json";
 import similar from "./__fixtures__/igdb-similar-witcher-celeste.json";
 import warfare from "./__fixtures__/igdb-discover-warfare.json";
+import themed from "./__fixtures__/igdb-tags.json";
 import {
   discoverIgdb,
   findIgdbKeywords,
   getIgdbSuggestions,
+  getIgdbTags,
   getIgdbVocabulary,
+  normaliseIgdbGame,
   igdbDiscoverBody,
   igdbConfigured,
   igdbSearchBody,
@@ -66,6 +69,7 @@ describe("IGDB", () => {
       backdropUrl: expect.stringMatching(/^https:\/\/images\.igdb\.com\/igdb\/image\/upload\/t_1080p\/\w+\.jpg$/),
       subtitle: "Series X|S, PS4, PC +5",
       genres: ["Role-playing (RPG)", "Hack and slash/Beat 'em up", "Adventure", "Indie"],
+      tags: [],
       communityScore: 91,
     });
     expect(results.length).toBeLessThanOrEqual(8);
@@ -179,5 +183,16 @@ describe("IGDB", () => {
       body: 'fields id,name; where name = "heists" | name = "heist; fields *"; limit 10;',
     });
     expect(await findIgdbKeywords([])).toEqual([]);
+  });
+
+  it("keeps a game's themes as its tags, and looks up many games' themes at once", async () => {
+    expect(normaliseIgdbGame({ id: 1, name: "Game", themes: [{ name: "Warfare" }, { name: "Erotic" }, { name: "Warfare" }] })?.tags).toEqual(["Warfare"]);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: string) => (input.startsWith("https://id.twitch.tv/") ? json({ access_token: "token", expires_in: 5_000_000 }) : json(themed))),
+    );
+    const tags = await getIgdbTags(["1942", "26226", "113112"]);
+    expect(tags.get("1942")).toEqual(["Action", "Fantasy", "Open world"]);
+    expect(tags.get("113112")).toEqual(["Action", "Fantasy", "Drama"]);
   });
 });

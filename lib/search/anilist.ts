@@ -29,6 +29,7 @@ const QUERY = `query ($search: String, $perPage: Int) {
       coverImage { extraLarge color }
       bannerImage
       genres
+      tags { name rank category isMediaSpoiler isAdult }
       averageScore
     }
   }
@@ -45,6 +46,17 @@ const mediaSchema = z.object({
   coverImage: z.object({ extraLarge: z.string().nullish(), color: z.string().nullish() }).nullish(),
   bannerImage: z.string().nullish(),
   genres: z.array(z.string().nullish()).nullish(),
+  tags: z
+    .array(
+      z.object({
+        name: z.string(),
+        rank: z.number().nullish(),
+        category: z.string().nullish(),
+        isMediaSpoiler: z.boolean().nullish(),
+        isAdult: z.boolean().nullish(),
+      }),
+    )
+    .nullish(),
   averageScore: z.number().nullish(),
 });
 
@@ -87,6 +99,29 @@ function subtitle(media: AniListMedia): string | undefined {
   return [format, detail].filter(Boolean).join(" · ") || undefined;
 }
 
+/** How much of a show a tag has to be about to count: AniList ranks each tag 0 to 100. */
+const TAG_RANK = 60;
+/** The most tags a title keeps. */
+const TAGS_KEPT = 8;
+
+/**
+ * Tag categories about who's in it or how it was made ("Male Protagonist",
+ * "Primarily Teen Cast", "Full Color"), not what it's about: no use to taste.
+ */
+const OFF_TOPIC = /^(Cast|Demographic|Technical)\b/;
+
+/**
+ * The tags a show is mostly about, most central first. Spoiler tags ("Time
+ * Skip" can give a twist away), adult ones and off-topic ones are never kept.
+ */
+export function mainTags(tags: AniListMedia["tags"]): string[] {
+  return (tags ?? [])
+    .filter((tag) => !tag.isMediaSpoiler && !tag.isAdult && (tag.rank ?? 0) >= TAG_RANK && !OFF_TOPIC.test(tag.category ?? ""))
+    .sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0))
+    .slice(0, TAGS_KEPT)
+    .map((tag) => tag.name);
+}
+
 export function normaliseAniList(media: AniListMedia): SearchResult | null {
   const title = media.title.english?.trim() || media.title.romaji?.trim();
   if (!title) return null;
@@ -103,6 +138,7 @@ export function normaliseAniList(media: AniListMedia): SearchResult | null {
     progressTotal: media.status && UNFINISHED.has(media.status) ? undefined : (media.episodes ?? undefined),
     subtitle: subtitle(media),
     genres: cleanGenres(media.genres ?? []),
+    tags: mainTags(media.tags),
     communityScore: toScore(media.averageScore),
     accentColor: color && /^#[0-9a-f]{6}$/i.test(color) ? color.toLowerCase() : undefined,
     // For a film this is the whole thing; for a run it is one episode.
@@ -114,7 +150,8 @@ export function normaliseAniList(media: AniListMedia): SearchResult | null {
 /** Most searches one AniList request carries when matching a list. */
 export const ANILIST_BATCH = 10;
 
-const BASE_FIELDS = "id title { english romaji } format status episodes duration coverImage { extraLarge color } bannerImage genres averageScore";
+const BASE_FIELDS =
+  "id title { english romaji } format status episodes duration coverImage { extraLarge color } bannerImage genres tags { name rank category isMediaSpoiler isAdult } averageScore";
 const MEDIA_FIELDS = `${BASE_FIELDS} startDate { year }`;
 
 /** Promo videos, music videos and recaps: never what someone means by a title they typed. */
@@ -588,4 +625,29 @@ export async function searchAniList(query: string): Promise<SearchResult[]> {
     responseSchema,
   );
   return body.data.Page.media.map(normaliseAniList).filter((result) => result !== null);
+}
+
+const TAGS_QUERY = `query ($ids: [Int]) {
+  Page(perPage: ${ANILIST_SHAPE_BATCH}) {
+    media(id_in: $ids) { id tags { name rank category isMediaSpoiler isAdult } }
+  }
+}`;
+
+/**
+ * The main tags of up to 50 titles by AniList id, anime and comics alike, for
+ * filling in titles added before tags were kept. Ids AniList no longer knows
+ * are simply absent from the answer.
+ */
+export async function getAniListTags(ids: readonly string[]): Promise<Map<string, string[]>> {
+  const numeric = [...new Set(ids.map(Number).filter((id) => Number.isInteger(id) && id > 0))];
+  if (numeric.length === 0) return new Map();
+  if (numeric.length > ANILIST_SHAPE_BATCH) throw new ProviderError("anilist", "too many ids in one batch");
+  const schema = z.object({ data: z.object({ Page: z.object({ media: z.array(z.object({ id: z.number(), tags: mediaSchema.shape.tags })) }) }) });
+  const body = await fetchJson(
+    "anilist",
+    ENDPOINT,
+    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: TAGS_QUERY, variables: { ids: numeric } }) },
+    schema,
+  );
+  return new Map(body.data.Page.media.map((media) => [String(media.id), mainTags(media.tags)]));
 }

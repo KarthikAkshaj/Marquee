@@ -66,6 +66,7 @@ const gameSchema = z.object({
   artworks: z.array(imageSchema).nullish(),
   screenshots: z.array(imageSchema).nullish(),
   genres: z.array(z.object({ name: z.string().nullish() })).nullish(),
+  themes: z.array(z.object({ name: z.string().nullish() })).nullish(),
   platforms: z.array(z.object({ abbreviation: z.string().nullish() })).nullish(),
   total_rating: z.number().nullish(),
   total_rating_count: z.number().nullish(),
@@ -94,6 +95,7 @@ export function normaliseIgdbGame(game: IgdbGame): SearchResult | null {
     backdropUrl: backdrop ? `${IMAGE}/t_1080p/${backdrop.image_id}.jpg` : undefined,
     subtitle: platforms(game),
     genres: cleanGenres((game.genres ?? []).map((genre) => genre.name)),
+    tags: themesOf(game),
     communityScore: toScore(game.total_rating),
   };
 }
@@ -111,6 +113,11 @@ export function rankGames(games: readonly IgdbGame[], query: string): IgdbGame[]
 }
 
 /** What a game needs to be shown and added. */
+/** A game's IGDB themes, which serve as its tags. Erotic is never kept. */
+function themesOf(game: Pick<IgdbGame, "themes">): string[] {
+  return (cleanGenres((game.themes ?? []).map((theme) => theme.name)) ?? []).filter((name) => name !== "Erotic");
+}
+
 const GAME_FIELDS = [
   "name",
   "first_release_date",
@@ -118,6 +125,7 @@ const GAME_FIELDS = [
   "artworks.image_id",
   "screenshots.image_id",
   "genres.name",
+  "themes.name",
   "platforms.abbreviation",
   "total_rating",
   "total_rating_count",
@@ -278,4 +286,17 @@ export async function findIgdbKeywords(forms: readonly string[]): Promise<number
   if (names.length === 0) return [];
   const where = names.map((name) => `name = "${name}"`).join(" | ");
   return (await queryGames(`fields id,name; where ${where}; limit 10;`, namesSchema, KEYWORDS)).map((keyword) => keyword.id);
+}
+
+/** Most games one tag lookup asks about. */
+export const IGDB_TAG_BATCH = 50;
+
+/** The themes of up to 50 games by IGDB id, for filling in games added before tags were kept. */
+export async function getIgdbTags(ids: readonly string[]): Promise<Map<string, string[]>> {
+  const numeric = [...new Set(ids.map(Number).filter((id) => Number.isInteger(id) && id > 0))];
+  if (numeric.length === 0) return new Map();
+  if (numeric.length > IGDB_TAG_BATCH) throw new ProviderError("igdb", "too many ids in one batch");
+  const schema = z.array(gameSchema.pick({ id: true, themes: true }));
+  const games = await queryGames(`fields id,themes.name; where id = (${numeric.join(",")}); limit ${numeric.length};`, schema);
+  return new Map(games.map((game) => [String(game.id), themesOf(game)]));
 }

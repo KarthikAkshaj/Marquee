@@ -1,0 +1,49 @@
+[
+  {
+    "id": 1942,
+    "themes": [
+      {
+        "id": 1,
+        "name": "Action"
+      },
+      {
+        "id": 17,
+        "name": "Fantasy"
+      },
+      {
+        "id": 38,
+        "name": "Open world"
+      }
+    ]
+  },
+  {
+    "id": 26226,
+    "themes": [
+      {
+        "id": 1,
+        "name": "Action"
+      },
+      {
+        "id": 17,
+        "name": "Fantasy"
+      }
+    ]
+  },
+  {
+    "id": 113112,
+    "themes": [
+      {
+        "id": 1,
+        "name": "Action"
+      },
+      {
+        "id": 17,
+        "name": "Fantasy"
+      },
+      {
+        "id": 31,
+        "name": "Drama"
+      }
+    ]
+  }
+]

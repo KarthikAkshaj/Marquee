@@ -57,19 +57,25 @@ export type Database = {
         Row: {
           created_at: string
           external_id: string
+          genres: string[]
           source: Database["public"]["Enums"]["meta_source"]
+          tags: string[]
           user_id: string
         }
         Insert: {
           created_at?: string
           external_id: string
+          genres?: string[]
           source: Database["public"]["Enums"]["meta_source"]
+          tags?: string[]
           user_id?: string
         }
         Update: {
           created_at?: string
           external_id?: string
+          genres?: string[]
           source?: Database["public"]["Enums"]["meta_source"]
+          tags?: string[]
           user_id?: string
         }
         Relationships: []
@@ -96,6 +102,7 @@ export type Database = {
           source: Database["public"]["Enums"]["meta_source"]
           started_at: string | null
           status: Database["public"]["Enums"]["item_status"]
+          tags: string[] | null
           title: string
           updated_at: string
           user_id: string
@@ -122,6 +129,7 @@ export type Database = {
           source?: Database["public"]["Enums"]["meta_source"]
           started_at?: string | null
           status?: Database["public"]["Enums"]["item_status"]
+          tags?: string[] | null
           title: string
           updated_at?: string
           user_id: string
@@ -148,6 +156,7 @@ export type Database = {
           source?: Database["public"]["Enums"]["meta_source"]
           started_at?: string | null
           status?: Database["public"]["Enums"]["item_status"]
+          tags?: string[] | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -203,6 +212,7 @@ export type Database = {
     Functions: {
       delete_account: { Args: never; Returns: undefined }
       fill_item_runtimes: { Args: { rows: Json }; Returns: number }
+      fill_item_tags: { Args: { rows: Json }; Returns: number }
       import_titles: {
         Args: { batch_started: string; target_category: string; titles: Json }
         Returns: number

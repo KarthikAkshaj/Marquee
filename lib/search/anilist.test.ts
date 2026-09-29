@@ -5,10 +5,13 @@ import onePiece from "./__fixtures__/anilist-one-piece.json";
 import mushoku from "./__fixtures__/anilist-reading-mushoku-tensei.json";
 import suggested from "./__fixtures__/anilist-suggestions-frieren-mushishi.json";
 import military from "./__fixtures__/anilist-discover-military.json";
+import tagged from "./__fixtures__/anilist-tags.json";
 import {
   LATER_SEASON,
   discoverAniList,
+  getAniListTags,
   getAniListVocabulary,
+  mainTags,
   getAniListSeries,
   getAniListSuggestions,
   normaliseAniList,
@@ -70,6 +73,7 @@ describe("searchAniList", () => {
       progressTotal: 28,
       subtitle: "TV · 28 eps",
       genres: ["Adventure", "Drama", "Fantasy"],
+      tags: [],
       communityScore: 91,
       accentColor: "#bbf1a1",
       runtimeMinutes: 24,
@@ -440,5 +444,28 @@ describe("getAniListVocabulary", () => {
       }),
     );
     expect(await getAniListVocabulary()).toEqual({ genres: ["Action", "Romance"], tags: ["Military", "Iyashikei"] });
+  });
+});
+
+describe("tags (SPEC §20)", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("keeps what a show is mostly about: no spoilers, nothing adult, nothing about the cast or the drawing", () => {
+    const frieren = tagged.data.Page.media.find((media) => media.id === 154587)!;
+    const kept = mainTags(frieren.tags);
+    expect(kept).toEqual(["Travel", "Magic", "Philosophy", "Medieval", "Found Family", "Foreign", "Iyashikei", "Adoption"]);
+    expect(kept).not.toContain("Time Skip");
+    expect(kept).not.toContain("Female Protagonist");
+    expect(mainTags(null)).toEqual([]);
+  });
+
+  it("looks up the tags of many titles in one request", async () => {
+    const fetch = reply(tagged);
+    vi.stubGlobal("fetch", fetch);
+    const tags = await getAniListTags(["154587", "16498", "105398", "x"]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(tags.get("16498")).toEqual(expect.arrayContaining(["Military", "Survival"]));
+    expect(tags.get("16498")).not.toContain("Memory Manipulation");
+    expect(await getAniListTags([])).toEqual(new Map());
   });
 });

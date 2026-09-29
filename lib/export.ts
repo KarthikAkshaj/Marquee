@@ -32,6 +32,7 @@ function exportItem(item: Row<"items">): ExportItem {
     backdrop_url: item.backdrop_url,
     accent_color: item.accent_color,
     genres: item.genres,
+    tags: item.tags,
     community_score: item.community_score,
     runtime_minutes: item.runtime_minutes,
     format: item.format,

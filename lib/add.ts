@@ -90,6 +90,8 @@ export function itemFromResult({ id, categoryId, status, result }: AddFromSearch
     source: result.source,
     external_id: result.externalId,
     genres: result.genres ?? [],
+    // Null for a film or show: TMDB has no tags to look up.
+    tags: result.tags ?? null,
     community_score: result.communityScore ?? null,
     runtime_minutes: result.runtimeMinutes ?? null,
     format: result.format ?? null,

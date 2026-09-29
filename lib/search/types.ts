@@ -34,6 +34,12 @@ export type SearchResult = {
   /** e.g. "TV · 24 eps" or "PC, PS5". The UI prefixes the year. */
   subtitle?: string;
   genres?: string[];
+  /**
+   * Finer than genres: an anime's main AniList tags ("Iyashikei"), a game's
+   * IGDB themes ("Warfare"). What For you's taste learns from (SPEC §20).
+   * Films and shows have none: TMDB would need a request per title.
+   */
+  tags?: string[];
   /** 0–100. */
   communityScore?: number;
   /** Dominant cover colour when the provider supplies one (AniList). */

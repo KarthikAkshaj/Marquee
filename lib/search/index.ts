@@ -79,11 +79,11 @@ export function normaliseQuery(query: string): string {
  */
 const cachedSearch = unstable_cache(
   (kind: SearchKind, query: string) => PROVIDERS[kind].search(query),
-  ["metadata-search-v2"],
+  ["metadata-search-v3"],
   { revalidate: DAY },
 );
 
-const cachedReading = unstable_cache((query: string) => searchAniListReading(query), ["anilist-reading-search-v1"], {
+const cachedReading = unstable_cache((query: string) => searchAniListReading(query), ["anilist-reading-search-v2"], {
   revalidate: DAY,
 });
 
@@ -184,7 +184,7 @@ export type MatchResponse = {
   error?: SearchResponse["error"];
 };
 
-const cachedSeries = unstable_cache((id: string) => getAniListSeries(Number(id)), ["anilist-series-v1"], { revalidate: DAY });
+const cachedSeries = unstable_cache((id: string) => getAniListSeries(Number(id)), ["anilist-series-v2"], { revalidate: DAY });
 
 /**
  * An anime's seasons, films and specials in release order, for adding the rest
@@ -279,7 +279,7 @@ export async function matchMetadata(kind: SearchKind, queries: readonly string[]
 
 // These cache what the normalisers made of an answer, so a change to what
 // counts as a later season needs a new key, or the old verdicts stay a day.
-const cachedAniListSuggestions = unstable_cache((ids: string[]) => getAniListSuggestions(ids), ["anilist-suggestions-v3"], {
+const cachedAniListSuggestions = unstable_cache((ids: string[]) => getAniListSuggestions(ids), ["anilist-suggestions-v4"], {
   revalidate: DAY,
 });
 
@@ -289,7 +289,7 @@ const cachedTmdbSuggestions = unstable_cache(
   { revalidate: DAY },
 );
 
-const cachedIgdbSuggestions = unstable_cache((ids: string[]) => getIgdbSuggestions(ids), ["igdb-suggestions-v1"], {
+const cachedIgdbSuggestions = unstable_cache((ids: string[]) => getIgdbSuggestions(ids), ["igdb-suggestions-v2"], {
   revalidate: DAY,
 });
 
@@ -332,7 +332,7 @@ function discover(filter: DiscoverFilter) {
   }
 }
 
-const cachedDiscover = unstable_cache(discover, ["discover-v3"], { revalidate: DAY });
+const cachedDiscover = unstable_cache(discover, ["discover-v4"], { revalidate: DAY });
 
 /**
  * A provider's best-rated titles for a mood (SPEC §20), cached for a day. The

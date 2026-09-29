@@ -1,0 +1,639 @@
+{
+  "data": {
+    "Page": {
+      "media": [
+        {
+          "id": 16498,
+          "tags": [
+            {
+              "name": "Kaiju",
+              "rank": 93,
+              "category": "Theme-Fantasy",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Revenge",
+              "rank": 93,
+              "category": "Theme-Drama",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Tragedy",
+              "rank": 89,
+              "category": "Theme-Drama",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Military",
+              "rank": 88,
+              "category": "Theme-Other-Organisations",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Henshin",
+              "rank": 88,
+              "category": "Theme-Fantasy",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Male Protagonist",
+              "rank": 86,
+              "category": "Cast-Main Cast",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Primarily Teen Cast",
+              "rank": 86,
+              "category": "Cast-Main Cast",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Survival",
+              "rank": 84,
+              "category": "Theme-Other",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Post-Apocalyptic",
+              "rank": 84,
+              "category": "Setting-Universe",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Super Power",
+              "rank": 81,
+              "category": "Theme-Fantasy",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Steampunk",
+              "rank": 77,
+              "category": "Theme-Fantasy",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Gore",
+              "rank": 77,
+              "category": "Theme-Other",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Memory Manipulation",
+              "rank": 77,
+              "category": "Theme-Other",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Dystopian",
+              "rank": 77,
+              "category": "Setting-Time",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Swordplay",
+              "rank": 74,
+              "category": "Theme-Action",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Ensemble Cast",
+              "rank": 74,
+              "category": "Cast-Main Cast",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Kuudere",
+              "rank": 70,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Cannibalism",
+              "rank": 69,
+              "category": "Theme-Other",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Espionage",
+              "rank": 68,
+              "category": "Theme-Action",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Orphan",
+              "rank": 67,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Shounen",
+              "rank": 63,
+              "category": "Demographic",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Coming of Age",
+              "rank": 60,
+              "category": "Theme-Drama",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Amnesia",
+              "rank": 60,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Medieval",
+              "rank": 60,
+              "category": "Setting-Time",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Time Skip",
+              "rank": 60,
+              "category": "Setting-Time",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Suicide",
+              "rank": 55,
+              "category": "Theme-Drama",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Rural",
+              "rank": 50,
+              "category": "Setting-Scene",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Primarily Male Cast",
+              "rank": 33,
+              "category": "Cast-Main Cast",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Adoption",
+              "rank": 31,
+              "category": "Theme-Other",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            }
+          ]
+        },
+        {
+          "id": 105398,
+          "tags": [
+            {
+              "name": "Dungeon",
+              "rank": 95,
+              "category": "Setting-Scene",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Male Protagonist",
+              "rank": 93,
+              "category": "Cast-Main Cast",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Super Power",
+              "rank": 92,
+              "category": "Theme-Fantasy",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "War",
+              "rank": 90,
+              "category": "Theme-Other",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Full Color",
+              "rank": 89,
+              "category": "Technical",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Necromancy",
+              "rank": 87,
+              "category": "Theme-Fantasy",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Magic",
+              "rank": 86,
+              "category": "Theme-Fantasy",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Urban Fantasy",
+              "rank": 84,
+              "category": "Setting-Universe",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Gods",
+              "rank": 79,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Creature Taming",
+              "rank": 79,
+              "category": "Theme-Other",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Primarily Adult Cast",
+              "rank": 68,
+              "category": "Cast-Main Cast",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Long Strip",
+              "rank": 66,
+              "category": "Technical",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Politics",
+              "rank": 65,
+              "category": "Theme-Other",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Post-Apocalyptic",
+              "rank": 64,
+              "category": "Setting-Universe",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Demons",
+              "rank": 64,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Video Games",
+              "rank": 62,
+              "category": "Theme-Game",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Tragedy",
+              "rank": 60,
+              "category": "Theme-Drama",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Foreign",
+              "rank": 59,
+              "category": "Setting-Scene",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Memory Manipulation",
+              "rank": 59,
+              "category": "Theme-Other",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Time Manipulation",
+              "rank": 57,
+              "category": "Theme-Sci-Fi",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Anti-Hero",
+              "rank": 57,
+              "category": "Cast-Main Cast",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Age Regression",
+              "rank": 56,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Heterosexual",
+              "rank": 56,
+              "category": "Theme-Romance",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Assassins",
+              "rank": 54,
+              "category": "Theme-Other-Organisations",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Chimera",
+              "rank": 53,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Estranged Family",
+              "rank": 53,
+              "category": "Cast-Main Cast",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Language Barrier",
+              "rank": 47,
+              "category": "Theme-Other",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Time Skip",
+              "rank": 46,
+              "category": "Setting-Time",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Bullying",
+              "rank": 44,
+              "category": "Theme-Drama",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Snowscape",
+              "rank": 20,
+              "category": "Setting-Scene",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Marriage",
+              "rank": 16,
+              "category": "Theme-Other",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            }
+          ]
+        },
+        {
+          "id": 154587,
+          "tags": [
+            {
+              "name": "Travel",
+              "rank": 96,
+              "category": "Theme-Other",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Magic",
+              "rank": 95,
+              "category": "Theme-Fantasy",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Elf",
+              "rank": 91,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Female Protagonist",
+              "rank": 85,
+              "category": "Cast-Main Cast",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Philosophy",
+              "rank": 84,
+              "category": "Theme-Other",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Medieval",
+              "rank": 82,
+              "category": "Setting-Time",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Time Skip",
+              "rank": 82,
+              "category": "Setting-Time",
+              "isMediaSpoiler": true,
+              "isAdult": false
+            },
+            {
+              "name": "Found Family",
+              "rank": 79,
+              "category": "Theme-Other",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Kuudere",
+              "rank": 75,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Demons",
+              "rank": 71,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Shounen",
+              "rank": 71,
+              "category": "Demographic",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Foreign",
+              "rank": 69,
+              "category": "Setting-Scene",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Iyashikei",
+              "rank": 63,
+              "category": "Theme-Slice of Life",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Adoption",
+              "rank": 61,
+              "category": "Theme-Other",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Rural",
+              "rank": 60,
+              "category": "Setting-Scene",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Aromantic",
+              "rank": 58,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Heterosexual",
+              "rank": 58,
+              "category": "Theme-Romance",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Dungeon",
+              "rank": 56,
+              "category": "Setting-Scene",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Asexual",
+              "rank": 55,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Episodic",
+              "rank": 54,
+              "category": "Technical",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Religion",
+              "rank": 47,
+              "category": "Theme-Other",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Rotoscoping",
+              "rank": 47,
+              "category": "Technical",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Snowscape",
+              "rank": 43,
+              "category": "Setting-Scene",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Spearplay",
+              "rank": 42,
+              "category": "Theme-Action",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Dragons",
+              "rank": 38,
+              "category": "Cast-Traits",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "CGI",
+              "rank": 37,
+              "category": "Technical",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Food",
+              "rank": 36,
+              "category": "Theme-Arts",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            },
+            {
+              "name": "Horticulture",
+              "rank": 30,
+              "category": "Theme-Slice of Life",
+              "isMediaSpoiler": false,
+              "isAdult": false
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
