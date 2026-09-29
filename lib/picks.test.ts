@@ -43,9 +43,11 @@ vi.mock("@/lib/queries", () => ({
 
 const getSuggestions = vi.fn();
 const discoverTitles = vi.fn();
+const resolveWord = vi.fn();
 vi.mock("@/lib/search", () => ({
   getSuggestions: (...args: unknown[]) => getSuggestions(...args),
   discoverTitles: (filter: DiscoverFilter) => discoverTitles(filter),
+  resolveWord: (...args: unknown[]) => resolveWord(...args),
 }));
 
 const { loadPickContext, moodPicksFor, recommendedPicks } = await import("./picks");
@@ -56,6 +58,8 @@ const anime = (id: string, title = `Anime ${id}`) => ({ result: { source: "anili
 beforeEach(() => {
   getSuggestions.mockReset();
   discoverTitles.mockReset();
+  resolveWord.mockReset();
+  resolveWord.mockResolvedValue({ filter: null });
   getSuggestions.mockResolvedValue({ results: [{ seed: "154587", suggestions: [anime("21827", "Violet Evergarden"), anime("99")] }] });
 });
 
@@ -109,6 +113,25 @@ describe("moodPicksFor", () => {
     expect(picks).toEqual([]);
     expect(notices.a).toBe("AniList isn't answering right now. Try again in a bit.");
     expect(notices.f).toBe("Nothing new here for this mood. You've seen the lot.");
+  });
+
+  it("looks a typed word up on each shelf's provider, and asks for what it means there", async () => {
+    resolveWord.mockImplementation(async (kind: string) =>
+      kind === "movie" ? { filter: { kind: "movie", tmdb: { keywords: [10051] } } } : { filter: null },
+    );
+    discoverTitles.mockResolvedValue({ results: [{ result: { source: "tmdb", externalId: "27205", title: "Inception" } }] });
+    const { picks, notices } = await moodPicksFor(await loadPickContext(), readMood("heist")!);
+    expect(resolveWord).toHaveBeenCalledWith("anime", "heist");
+    expect(resolveWord).toHaveBeenCalledWith("movie", "heist");
+    expect(discoverTitles).toHaveBeenCalledExactlyOnceWith({ kind: "movie", tmdb: { keywords: [10051] } });
+    expect(picks.map((pick) => [pick.result.title, pick.categoryId])).toEqual([["Inception", "f"]]);
+    expect(notices.a).toBe("Nothing on AniList matches “heist”.");
+  });
+
+  it("says when looking a typed word up fails", async () => {
+    resolveWord.mockResolvedValue({ filter: null, error: "unavailable" });
+    const { notices } = await moodPicksFor(await loadPickContext(), readMood("heist")!);
+    expect(notices.f).toBe("TMDB isn't answering right now. Try again in a bit.");
   });
 
   it("says plainly when a typed word matches nothing", async () => {

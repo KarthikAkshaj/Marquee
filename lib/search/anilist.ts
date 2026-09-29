@@ -549,6 +549,33 @@ export async function discoverAniList(filter: AniListFilter): Promise<Suggestion
   return body.data.Page.media.flatMap((media) => toSuggestion(media) ?? []);
 }
 
+/** Genres nobody should be handed as a mood. */
+const ADULT_GENRES = new Set(["Hentai", "Ecchi"]);
+
+const VOCABULARY_QUERY = "{ GenreCollection MediaTagCollection { name isAdult } }";
+
+export type AniListVocabulary = { genres: string[]; tags: string[] };
+
+/** Every genre and tag AniList files anime under, adult ones left out: what a typed mood is matched against. */
+export async function getAniListVocabulary(): Promise<AniListVocabulary> {
+  const schema = z.object({
+    data: z.object({
+      GenreCollection: z.array(z.string()),
+      MediaTagCollection: z.array(z.object({ name: z.string(), isAdult: z.boolean().nullish() })),
+    }),
+  });
+  const body = await fetchJson(
+    "anilist",
+    ENDPOINT,
+    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: VOCABULARY_QUERY }) },
+    schema,
+  );
+  return {
+    genres: body.data.GenreCollection.filter((genre) => !ADULT_GENRES.has(genre)),
+    tags: body.data.MediaTagCollection.filter((tag) => !tag.isAdult).map((tag) => tag.name),
+  };
+}
+
 export async function searchAniList(query: string): Promise<SearchResult[]> {
   const body = await fetchJson(
     "anilist",

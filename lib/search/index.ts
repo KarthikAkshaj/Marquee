@@ -2,22 +2,25 @@ import { unstable_cache } from "next/cache";
 import {
   discoverAniList,
   getAniListSeries,
+  getAniListVocabulary,
   getAniListSuggestions,
   searchAniList,
   searchAniListMany,
   searchAniListReading,
   searchAniListReadingMany,
 } from "./anilist";
-import { discoverIgdb, getIgdbSuggestions, igdbConfigured, searchIgdb } from "./igdb";
+import { discoverIgdb, findIgdbKeywords, getIgdbSuggestions, getIgdbVocabulary, igdbConfigured, searchIgdb } from "./igdb";
 import {
   discoverTmdb,
   getTmdbCollection,
   getTmdbMovieDetails,
   getTmdbSeriesDetails,
   getTmdbSuggestions,
+  searchTmdbKeywords,
   searchTmdbMovies,
   searchTmdbSeries,
   tmdbConfigured,
+  tmdbGenreList,
   type MovieDetails,
   type SeriesDetails,
 } from "./tmdb";
@@ -26,6 +29,7 @@ import {
   type DiscoverFilter,
   type DiscoverResponse,
   type RelatedKind,
+  type SearchError,
   type SearchKind,
   type SearchResponse,
   type SearchResult,
@@ -34,6 +38,7 @@ import {
   type SeriesResponse,
   type SuggestionsResponse,
 } from "./types";
+import { namesContaining, namesMatching, wordForms } from "./words";
 
 export { RELATED_KINDS, SEARCH_KINDS, SEARCH_TYPES, isRelatedKind } from "./types";
 export type {
@@ -54,6 +59,7 @@ export type {
 } from "./types";
 
 const DAY = 60 * 60 * 24;
+const WEEK = DAY * 7;
 
 const PROVIDERS: Record<SearchKind, { configured: () => boolean; search: (query: string) => Promise<SearchResult[]> }> = {
   anime: { configured: () => true, search: searchAniList },
@@ -339,5 +345,67 @@ export async function discoverTitles(filter: DiscoverFilter): Promise<DiscoverRe
   } catch (error) {
     console.error("[search] discover", filter.kind, error instanceof ProviderError ? error.message : error);
     return { results: [], error: "unavailable" };
+  }
+}
+
+// The lists a typed mood is matched against hardly ever change.
+const cachedAniListVocabulary = unstable_cache(() => getAniListVocabulary(), ["anilist-vocabulary-v1"], { revalidate: WEEK });
+const cachedIgdbVocabulary = unstable_cache(() => getIgdbVocabulary(), ["igdb-vocabulary-v1"], { revalidate: WEEK });
+const cachedTmdbKeywords = unstable_cache((word: string) => searchTmdbKeywords(word), ["tmdb-keywords-v1"], { revalidate: WEEK });
+const cachedIgdbKeywords = unstable_cache((forms: string[]) => findIgdbKeywords(forms), ["igdb-keywords-v1"], { revalidate: WEEK });
+
+/** Most keywords one typed word stands for: a word and its plural, and the odd duplicate. */
+const KEYWORDS_PER_WORD = 3;
+
+/**
+ * What a typed word means to the provider behind a kind of shelf, or null
+ * when it means nothing there. A genre beats a tag or keyword ("western" is
+ * a TMDB genre, and only four films as a keyword); only exact names count,
+ * give or take a plural, except that AniList's tags may contain the word
+ * ("loop" is Time Loop) when nothing is named it outright.
+ */
+async function wordFilter(kind: SearchKind, word: string): Promise<DiscoverFilter | null> {
+  switch (kind) {
+    case "anime": {
+      const vocabulary = await cachedAniListVocabulary();
+      const named = (names: string[]) => namesMatching(names.map((name) => ({ name })), word).map((entry) => entry.name);
+      const genres = named(vocabulary.genres);
+      if (genres.length > 0) return { kind, anilist: { genres } };
+      const tags = named(vocabulary.tags);
+      const near = tags.length > 0 ? tags : namesContaining(vocabulary.tags, word);
+      return near.length > 0 ? { kind, anilist: { tags: near } } : null;
+    }
+    case "movie":
+    case "series": {
+      const [genres, keywords] = await Promise.all([tmdbGenreList(kind === "movie" ? "movie" : "tv"), cachedTmdbKeywords(word)]);
+      const genreIds = namesMatching(genres, word).map((genre) => genre.id);
+      if (genreIds.length > 0) return { kind, tmdb: { genres: genreIds } };
+      const keywordIds = namesMatching(keywords, word).map((keyword) => keyword.id).slice(0, KEYWORDS_PER_WORD);
+      return keywordIds.length > 0 ? { kind, tmdb: { keywords: keywordIds } } : null;
+    }
+    case "game": {
+      const [vocabulary, keywords] = await Promise.all([cachedIgdbVocabulary(), cachedIgdbKeywords(wordForms(word))]);
+      const themes = namesMatching(vocabulary.themes, word).map((theme) => theme.id);
+      const genres = namesMatching(vocabulary.genres, word).map((genre) => genre.id);
+      const keywordIds = keywords.slice(0, KEYWORDS_PER_WORD);
+      if (themes.length + genres.length + keywordIds.length === 0) return null;
+      return { kind, igdb: { themes, genres, keywords: keywordIds } };
+    }
+  }
+}
+
+export type WordResponse = { filter: DiscoverFilter | null; error?: SearchError };
+
+/**
+ * A typed mood, looked up for one kind of shelf (SPEC §20). Cached a day per
+ * word; the vocabularies behind it for a week.
+ */
+export async function resolveWord(kind: SearchKind, word: string): Promise<WordResponse> {
+  if (!PROVIDERS[kind].configured()) return { filter: null, error: "not_configured" };
+  try {
+    return { filter: await wordFilter(kind, word.trim().toLowerCase()) };
+  } catch (error) {
+    console.error("[search] word", kind, error instanceof ProviderError ? error.message : error);
+    return { filter: null, error: "unavailable" };
   }
 }

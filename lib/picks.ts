@@ -22,7 +22,7 @@ import {
   type Taste,
   type TasteItem,
 } from "@/lib/recommend";
-import { discoverTitles, getSuggestions, type SearchError, type SearchKind } from "@/lib/search";
+import { discoverTitles, getSuggestions, resolveWord, type DiscoverResponse, type SearchError, type SearchKind } from "@/lib/search";
 
 export type PickContext = {
   shelves: PickShelf[];
@@ -84,16 +84,27 @@ export async function recommendedPicks(ctx: PickContext): Promise<PicksPayload> 
 }
 
 /**
- * "New to you" for a mood: each shelf's provider's best-rated titles for it,
- * reordered for you. Needs no favourites, so even a shelf you've never rated
- * gets some. A typed word that isn't one of the moods matches nothing yet.
+ * A kind's best-rated titles for a mood, or for a typed word once it's been
+ * matched to the provider's own genres, tags or keywords. Null when the word
+ * means nothing to that provider.
+ */
+async function discoverFor(kind: SearchKind, choice: NonNullable<MoodChoice>): Promise<DiscoverResponse | null> {
+  if (choice.mood) return discoverTitles(moodFilter(choice.mood, kind));
+  const word = await resolveWord(kind, choice.word);
+  if (word.error) return { results: [], error: word.error };
+  return word.filter ? discoverTitles(word.filter) : null;
+}
+
+/**
+ * "New to you" for a mood or a typed word: each shelf's provider's
+ * best-rated titles for it, reordered for you. Needs no favourites, so even a
+ * shelf you've never rated gets some.
  */
 export async function moodPicksFor(ctx: PickContext, choice: NonNullable<MoodChoice>): Promise<PicksPayload> {
   const kinds = [...new Set(ctx.offered.flatMap((shelf) => searchKindOf(shelf.kind) ?? []))];
-  const mood = choice.mood;
   const [recommended, found] = await Promise.all([
     recommendedByKind(ctx, Infinity),
-    Promise.all(kinds.map((kind) => (mood ? discoverTitles(moodFilter(mood, kind)) : Promise.resolve(null)))),
+    Promise.all(kinds.map((kind) => discoverFor(kind, choice))),
   ]);
   const foundByKind = new Map(kinds.map((kind, index) => [kind, found[index]]));
 

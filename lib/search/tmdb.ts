@@ -334,6 +334,21 @@ export async function discoverTmdb(type: "movie" | "tv", filter: TmdbFilter): Pr
   return offerable(type, results, genres, today);
 }
 
+export type TmdbName = { id: number; name: string };
+
+/** TMDB's film or TV genres by name, for matching a typed mood. */
+export async function tmdbGenreList(type: "movie" | "tv"): Promise<TmdbName[]> {
+  return [...(await genreNames(type)).entries()].map(([id, name]) => ({ id, name }));
+}
+
+const keywordsSchema = z.object({ results: z.array(z.object({ id: z.number(), name: z.string() })) });
+
+/** TMDB's keywords with this word in them, for matching a typed mood. The caller keeps the exact ones. */
+export async function searchTmdbKeywords(word: string): Promise<TmdbName[]> {
+  const params = new URLSearchParams({ query: word, page: "1" });
+  return (await request(`/search/keyword?${params}`, keywordsSchema)).results;
+}
+
 export async function getTmdbSeriesDetails(id: string): Promise<SeriesDetails> {
   if (!/^\d+$/.test(id)) throw new ProviderError("tmdb", "invalid series id");
   return normaliseShowDetails(await request(`/tv/${id}?language=en-US`, showDetailsSchema));

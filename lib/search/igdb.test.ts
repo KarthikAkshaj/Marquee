@@ -5,7 +5,9 @@ import similar from "./__fixtures__/igdb-similar-witcher-celeste.json";
 import warfare from "./__fixtures__/igdb-discover-warfare.json";
 import {
   discoverIgdb,
+  findIgdbKeywords,
   getIgdbSuggestions,
+  getIgdbVocabulary,
   igdbDiscoverBody,
   igdbConfigured,
   igdbSearchBody,
@@ -156,5 +158,26 @@ describe("IGDB", () => {
     expect(found.slice(0, 2).map(({ result }) => result.title)).toEqual(["Advance Wars", "TimeSplitters 2"]);
     expect(found[0].result.source).toBe("igdb");
     expect(await discoverIgdb({})).toEqual([]);
+  });
+
+  it("reads IGDB's themes and genres, and finds keywords by exact name", async () => {
+    const calls: { url: string; body: string }[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: string, init?: RequestInit) => {
+        if (input.startsWith("https://id.twitch.tv/")) return json({ access_token: "token", expires_in: 5_000_000 });
+        calls.push({ url: input, body: String(init?.body) });
+        if (input.endsWith("/themes")) return json([{ id: 39, name: "Warfare" }, { id: 42, name: "Erotic" }]);
+        if (input.endsWith("/genres")) return json([{ id: 14, name: "Sport" }]);
+        return json([{ id: 243, name: "heist" }]);
+      }),
+    );
+    expect(await getIgdbVocabulary()).toEqual({ themes: [{ id: 39, name: "Warfare" }], genres: [{ id: 14, name: "Sport" }] });
+    expect(await findIgdbKeywords(["heists", 'heist"; fields *'])).toEqual([243]);
+    expect(calls.at(-1)).toEqual({
+      url: "https://api.igdb.com/v4/keywords",
+      body: 'fields id,name; where name = "heists" | name = "heist; fields *"; limit 10;',
+    });
+    expect(await findIgdbKeywords([])).toEqual([]);
   });
 });

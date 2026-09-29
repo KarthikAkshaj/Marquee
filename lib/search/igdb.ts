@@ -3,6 +3,9 @@ import { cleanGenres, fetchJson, toScore } from "./http";
 import { ProviderError, RESULT_LIMIT, type IgdbFilter, type SearchResult, type SeedSuggestions, type Suggestion } from "./types";
 
 const GAMES = "https://api.igdb.com/v4/games";
+const THEMES = "https://api.igdb.com/v4/themes";
+const GENRES = "https://api.igdb.com/v4/genres";
+const KEYWORDS = "https://api.igdb.com/v4/keywords";
 const TOKEN = "https://id.twitch.tv/oauth2/token";
 const IMAGE = "https://images.igdb.com/igdb/image/upload";
 /** Refresh the app token a minute early rather than racing its expiry. */
@@ -133,11 +136,11 @@ export function igdbSearchBody(query: string): string {
 
 const gamesSchema = z.array(gameSchema);
 
-async function requestGames<T extends z.ZodType>(body: string, schema: T, token: AppToken): Promise<z.infer<T>> {
+async function requestGames<T extends z.ZodType>(body: string, schema: T, token: AppToken, endpoint: string): Promise<z.infer<T>> {
   const { clientId } = credentials();
   return fetchJson(
     "igdb",
-    GAMES,
+    endpoint,
     {
       method: "POST",
       headers: { "Client-ID": clientId, Authorization: `Bearer ${token.value}`, "Content-Type": "text/plain" },
@@ -147,13 +150,16 @@ async function requestGames<T extends z.ZodType>(body: string, schema: T, token:
   );
 }
 
-/** One query, with a fresh token and a second try if Twitch revoked the old one before it expired. */
-async function queryGames<T extends z.ZodType>(body: string, schema: T): Promise<z.infer<T>> {
+/**
+ * One query (games, unless another endpoint is named), with a fresh token and
+ * a second try if Twitch revoked the old one before it expired.
+ */
+async function queryGames<T extends z.ZodType>(body: string, schema: T, endpoint = GAMES): Promise<z.infer<T>> {
   try {
-    return await requestGames(body, schema, await getAppToken());
+    return await requestGames(body, schema, await getAppToken(), endpoint);
   } catch (error) {
     if (!(error instanceof ProviderError && error.status === 401)) throw error;
-    return requestGames(body, schema, await refreshAppToken());
+    return requestGames(body, schema, await refreshAppToken(), endpoint);
   }
 }
 
@@ -246,4 +252,30 @@ export async function discoverIgdb(filter: IgdbFilter): Promise<Suggestion[]> {
     const result = normaliseIgdbGame(game);
     return result ? [{ result }] : [];
   });
+}
+
+const namesSchema = z.array(z.object({ id: z.number(), name: z.string() }));
+
+export type IgdbName = z.infer<typeof namesSchema>[number];
+export type IgdbVocabulary = { themes: IgdbName[]; genres: IgdbName[] };
+
+/** Every theme and genre IGDB has (a few dozen each), for matching a typed mood. Erotic is left out. */
+export async function getIgdbVocabulary(): Promise<IgdbVocabulary> {
+  const [themes, genres] = await Promise.all([
+    queryGames("fields id,name; limit 100;", namesSchema, THEMES),
+    queryGames("fields id,name; limit 100;", namesSchema, GENRES),
+  ]);
+  return { themes: themes.filter((theme) => theme.name !== "Erotic"), genres };
+}
+
+/**
+ * IGDB's keywords named exactly one of these (a word and its plural). The
+ * words come from the mood box, which only lets letters, digits, spaces and
+ * a little punctuation through; quotes are stripped anyway.
+ */
+export async function findIgdbKeywords(forms: readonly string[]): Promise<number[]> {
+  const names = forms.map((form) => form.replace(/["\\]/g, "").trim()).filter(Boolean);
+  if (names.length === 0) return [];
+  const where = names.map((name) => `name = "${name}"`).join(" | ");
+  return (await queryGames(`fields id,name; where ${where}; limit 10;`, namesSchema, KEYWORDS)).map((keyword) => keyword.id);
 }

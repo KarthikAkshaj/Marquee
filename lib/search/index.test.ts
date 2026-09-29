@@ -17,6 +17,8 @@ const getAniListSuggestions = vi.fn();
 const getTmdbSuggestions = vi.fn();
 const discoverAniList = vi.fn();
 const discoverTmdb = vi.fn();
+const getAniListVocabulary = vi.fn();
+const searchTmdbKeywords = vi.fn();
 vi.mock("./anilist", () => ({
   searchAniList: (q: string) => searchAniList(q),
   searchAniListMany: (queries: string[]) => searchAniListMany(queries),
@@ -25,6 +27,7 @@ vi.mock("./anilist", () => ({
   getAniListSeries: (id: number) => getAniListSeries(id),
   getAniListSuggestions: (ids: string[]) => getAniListSuggestions(ids),
   discoverAniList: (filter: unknown) => discoverAniList(filter),
+  getAniListVocabulary: () => getAniListVocabulary(),
 }));
 vi.mock("./tmdb", () => ({
   tmdbConfigured: () => Boolean(process.env.TMDB_READ_TOKEN),
@@ -35,11 +38,22 @@ vi.mock("./tmdb", () => ({
   getTmdbCollection: (id: number) => getTmdbCollection(id),
   getTmdbSuggestions: (type: string, id: string) => getTmdbSuggestions(type, id),
   discoverTmdb: (type: string, filter: unknown) => discoverTmdb(type, filter),
+  searchTmdbKeywords: (word: string) => searchTmdbKeywords(word),
+  tmdbGenreList: async (type: string) =>
+    type === "movie" ? [{ id: 37, name: "Western" }, { id: 28, name: "Action" }] : [{ id: 10765, name: "Sci-Fi & Fantasy" }],
 }));
-vi.mock("./igdb", () => ({ igdbConfigured: () => false, searchIgdb: vi.fn(), getIgdbSuggestions: vi.fn(), discoverIgdb: vi.fn() }));
+vi.mock("./igdb", () => ({
+  igdbConfigured: () => false,
+  searchIgdb: vi.fn(),
+  getIgdbSuggestions: vi.fn(),
+  discoverIgdb: vi.fn(),
+  getIgdbVocabulary: vi.fn(),
+  findIgdbKeywords: vi.fn(),
+}));
 
 const {
   discoverTitles,
+  resolveWord,
   getAnimeSeries,
   getRelated,
   getSeriesDetails,
@@ -309,5 +323,44 @@ describe("discoverTitles (SPEC §20)", () => {
     discoverTmdb.mockRejectedValue(new ProviderError("tmdb", "timed out"));
     expect(await discoverTitles({ kind: "movie", tmdb: { genres: [28] } })).toEqual({ results: [], error: "unavailable" });
     expect(await discoverTitles({ kind: "game", igdb: { themes: [1] } })).toEqual({ results: [], error: "not_configured" });
+  });
+});
+
+describe("resolveWord (SPEC §20)", () => {
+  beforeEach(() => {
+    vi.stubEnv("TMDB_READ_TOKEN", "token");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    getAniListVocabulary.mockResolvedValue({
+      genres: ["Sports", "Romance"],
+      tags: ["Samurai", "Time Loop", "Time Skip", "E-Sports", "Zombie"],
+    });
+    searchTmdbKeywords.mockResolvedValue([
+      { id: 10051, name: "heist" },
+      { id: 191845, name: "bank heist" },
+      { id: 305941, name: "western" },
+    ]);
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+  });
+
+  it("prefers an AniList genre, then an exact tag, then tags with the word in them", async () => {
+    expect(await resolveWord("anime", "Sports")).toEqual({ filter: { kind: "anime", anilist: { genres: ["Sports"] } } });
+    expect(await resolveWord("anime", "zombies")).toEqual({ filter: { kind: "anime", anilist: { tags: ["Zombie"] } } });
+    expect(await resolveWord("anime", "loop")).toEqual({ filter: { kind: "anime", anilist: { tags: ["Time Loop"] } } });
+    expect(await resolveWord("anime", "heist")).toEqual({ filter: null });
+  });
+
+  it("prefers a TMDB genre over a keyword, and takes only exact keywords", async () => {
+    expect(await resolveWord("movie", "western")).toEqual({ filter: { kind: "movie", tmdb: { genres: [37] } } });
+    expect(await resolveWord("movie", "Heist")).toEqual({ filter: { kind: "movie", tmdb: { keywords: [10051] } } });
+    expect(await resolveWord("series", "fantasy")).toEqual({ filter: { kind: "series", tmdb: { genres: [10765] } } });
+  });
+
+  it("says unavailable when a vocabulary can't be read, and not configured without keys", async () => {
+    getAniListVocabulary.mockRejectedValue(new ProviderError("anilist", "HTTP 429", 429));
+    expect(await resolveWord("anime", "samurai")).toEqual({ filter: null, error: "unavailable" });
+    expect(await resolveWord("game", "heist")).toEqual({ filter: null, error: "not_configured" });
   });
 });

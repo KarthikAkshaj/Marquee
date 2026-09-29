@@ -14,6 +14,8 @@ import warPage2 from "./__fixtures__/tmdb-discover-war-2.json";
 import {
   discoverPath,
   discoverTmdb,
+  searchTmdbKeywords,
+  tmdbGenreList,
   getTmdbCollection,
   getTmdbSeriesDetails,
   getTmdbSuggestions,
@@ -239,6 +241,22 @@ describe("TMDB", () => {
     expect(found).toHaveLength(40);
     expect(found[0].result).toMatchObject({ source: "tmdb", format: "movie", genres: expect.arrayContaining(["War"]) });
     expect(await discoverTmdb("movie", {})).toEqual([]);
+  });
+
+  it("looks up keywords and lists genres by name, for typed moods", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: string) => {
+        const url = new URL(input);
+        if (url.pathname.endsWith("/search/keyword")) {
+          expect(url.searchParams.get("query")).toBe("time travel");
+          return json({ page: 1, results: [{ id: 4379, name: "time travel" }], total_results: 1 });
+        }
+        return json(movieGenres);
+      }),
+    );
+    expect(await searchTmdbKeywords("time travel")).toEqual([{ id: 4379, name: "time travel" }]);
+    expect(await tmdbGenreList("movie")).toContainEqual({ id: 10752, name: "War" });
   });
 
   it("reports a bad token as a provider error, and retries genres after a failure", async () => {

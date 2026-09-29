@@ -8,6 +8,7 @@ import military from "./__fixtures__/anilist-discover-military.json";
 import {
   LATER_SEASON,
   discoverAniList,
+  getAniListVocabulary,
   getAniListSeries,
   getAniListSuggestions,
   normaliseAniList,
@@ -418,5 +419,26 @@ describe("LATER_SEASON", () => {
     for (const name of ["86 EIGHTY-SIX", "Mob Psycho 100", "Seasons of Love", "Part-Timer", "The Final Countdown"]) {
       expect(LATER_SEASON.test(name), name).toBe(false);
     }
+  });
+});
+
+describe("getAniListVocabulary", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("keeps every genre and tag a mood can be, and leaves the adult ones out", async () => {
+    vi.stubGlobal(
+      "fetch",
+      reply({
+        data: {
+          GenreCollection: ["Action", "Ecchi", "Hentai", "Romance"],
+          MediaTagCollection: [
+            { name: "Military", isAdult: false },
+            { name: "Nudity", isAdult: true },
+            { name: "Iyashikei", isAdult: false },
+          ],
+        },
+      }),
+    );
+    expect(await getAniListVocabulary()).toEqual({ genres: ["Action", "Romance"], tags: ["Military", "Iyashikei"] });
   });
 });
