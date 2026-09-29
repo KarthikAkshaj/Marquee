@@ -47,7 +47,9 @@ export function SpotlightArt({ item, wash }: SpotlightArtProps) {
   }
 
   return (
-    <div aria-hidden className="absolute inset-0 -z-1 overflow-hidden">
+    // On a phone the block starts right under the top bar, which sits on the
+    // room's light; fading its top edge in keeps the two from meeting in a line.
+    <div aria-hidden className="absolute inset-0 -z-1 overflow-hidden mask-[linear-gradient(to_bottom,transparent,black_5rem)] md:mask-none">
       <div className="absolute inset-0" style={{ background: wash }} />
       {/* On a phone the art starts below the greeting, fading in from the wash, so the greeting reads clean. */}
       <div
