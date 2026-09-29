@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/Button";
 import { midFlightLine, statTiles } from "@/lib/home";
 import { backlogPicks, tasteOf } from "@/lib/recommend";
 import { ENOUGH_TITLES, wrappedInSeason, wrappedYear } from "@/lib/wrapped";
-import { getCategories, getHome, getTasteItems, getViewer } from "@/lib/queries";
+import { getCategories, getDismissedPicks, getHome, getTasteItems, getViewer } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Home" };
 
@@ -57,8 +57,8 @@ export default async function HomePage() {
     );
   }
 
-  const [home, library] = await Promise.all([getHome(), getTasteItems()]);
-  const picks = backlogPicks(library, tasteOf(library)).slice(0, HOME_PICKS);
+  const [home, library, dismissed] = await Promise.all([getHome(), getTasteItems(), getDismissedPicks()]);
+  const picks = backlogPicks(library, tasteOf(library, { dismissed: dismissed.about })).slice(0, HOME_PICKS);
   const shelves = categories.map(({ id, name, slug, color, icon, kind }) => ({ id, name, slug, color, icon, kind }));
   const inProgress = [...home.counts.values()].reduce((sum, count) => sum + count.inProgress, 0);
   const tiles = statTiles(

@@ -3,7 +3,7 @@ import { cache } from "react";
 import { hasPassword } from "@/lib/auth/password";
 import { USERNAME_PATTERN } from "@/lib/profile";
 import { publicPageSchema, publicProfileSchema } from "@/lib/public-profile";
-import type { TasteItem } from "@/lib/recommend";
+import type { Dismissed, TasteItem } from "@/lib/recommend";
 import { createClient } from "@/lib/supabase/server";
 import type { StatsItem } from "@/lib/stats";
 import type { WrappedItem } from "@/lib/wrapped";
@@ -385,7 +385,7 @@ export const getTasteItems = cache(async (): Promise<TasteItem[]> => {
       supabase
         .from("items")
         .select(
-          "id, title, category_id, status, rating, genres, community_score, source, external_id, is_favorite, format, cover_url, accent_color, year, created_at, updated_at",
+          "id, title, category_id, status, rating, genres, tags, community_score, source, external_id, is_favorite, format, cover_url, accent_color, year, created_at, updated_at, finished_at",
         )
         .order("created_at", { ascending: true })
         .order("id", { ascending: true })
@@ -394,18 +394,25 @@ export const getTasteItems = cache(async (): Promise<TasteItem[]> => {
   );
 });
 
-/** Every title you've said isn't for you (SPEC §20), as `source:external_id`. */
-export const getDismissedPicks = cache(async (): Promise<Set<string>> => {
+/**
+ * Every title you've said isn't for you (SPEC §20): `keys` as
+ * `source:external_id` so they're never offered again, and what each was
+ * about, which your taste counts a little against.
+ */
+export const getDismissedPicks = cache(async (): Promise<{ keys: Set<string>; about: Dismissed[] }> => {
   const supabase = await createClient();
   const rows = await readAll(
     (from, to) =>
       supabase
         .from("dismissed_picks")
-        .select("source, external_id")
+        .select("source, external_id, genres, tags")
         .order("source", { ascending: true })
         .order("external_id", { ascending: true })
         .range(from, to),
     "the picks you waved away",
   );
-  return new Set(rows.map((row) => `${row.source}:${row.external_id}`));
+  return {
+    keys: new Set(rows.map((row) => `${row.source}:${row.external_id}`)),
+    about: rows.map((row) => ({ genres: row.genres, tags: row.tags })),
+  };
 });

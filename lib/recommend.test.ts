@@ -6,6 +6,7 @@ import {
   becauseLine,
   crowdLean,
   fitOf,
+  recencyWeight,
   knowsTaste,
   moodPicks,
   newPicks,
@@ -38,6 +39,8 @@ function item(overrides: Partial<TasteItem> = {}): TasteItem {
     year: null,
     created_at: `2026-01-${String((counter % 28) + 1).padStart(2, "0")}T00:00:00Z`,
     updated_at: "2026-09-01T00:00:00Z",
+    finished_at: null,
+    tags: null,
     ...overrides,
   };
 }
@@ -80,7 +83,7 @@ describe("tasteOf", () => {
   });
 
   it("has nothing to say with nothing rated", () => {
-    expect(tasteOf([item(), item({ genres: ["Action"] })])).toEqual({ rated: 0, average: null, genres: new Map() });
+    expect(tasteOf([item(), item({ genres: ["Action"] })])).toEqual({ rated: 0, average: null, genres: new Map(), tags: new Map() });
   });
 
   it(`only calls it taste from ${TASTE_MIN_RATED} rated titles`, () => {
@@ -93,20 +96,88 @@ describe("fitOf", () => {
   const taste = tasteOf(ratedLibrary);
 
   it("names the genre you rate highest when enough titles back it", () => {
-    const fit = fitOf(["Mystery", "Drama"], taste);
+    const fit = fitOf({ genres: ["Mystery", "Drama"] }, taste);
     expect(fit.score).toBeGreaterThan(0);
-    expect(fit.genre).toEqual({ name: "Mystery", average: 9 });
+    expect(fit.strongest).toEqual({ name: "Mystery", average: 9 });
   });
 
   it("names nothing on a genre too few titles back, or one you rate low", () => {
-    expect(fitOf(["Drama"], taste).genre).toBeNull();
-    expect(fitOf(["Romance"], taste).genre).toBeNull();
-    expect(fitOf(["Romance"], taste).score).toBeLessThan(0);
+    expect(fitOf({ genres: ["Drama"] }, taste).strongest).toBeNull();
+    expect(fitOf({ genres: ["Romance"] }, taste).strongest).toBeNull();
+    expect(fitOf({ genres: ["Romance"] }, taste).score).toBeLessThan(0);
   });
 
   it("counts genres you've never rated as neutral", () => {
-    expect(fitOf(["Mystery", "Sports"], taste).score).toBeCloseTo(fitOf(["Mystery"], taste).score / 2);
-    expect(fitOf([], taste)).toEqual({ score: 0, genre: null });
+    expect(fitOf({ genres: ["Mystery", "Sports"] }, taste).score).toBeCloseTo(fitOf({ genres: ["Mystery"] }, taste).score / 2);
+    expect(fitOf({ genres: [] }, taste)).toEqual({ score: 0, strongest: null });
+  });
+});
+
+describe("recency", () => {
+  const today = new Date("2026-09-29T00:00:00Z");
+
+  it("counts a rating in full for a year, then fades it toward 40%", () => {
+    expect(recencyWeight("2026-01-01", today)).toBe(1);
+    expect(recencyWeight("2024-09-29", today)).toBeCloseTo(0.7, 2);
+    expect(recencyWeight("2020-09-29", today)).toBeCloseTo(0.42, 2);
+    expect(recencyWeight(null, today)).toBe(1);
+  });
+
+  it("lets what you rate now outweigh what you rated years ago", () => {
+    const old = Array.from({ length: 3 }, () => item({ rating: 10, genres: ["Romance"], finished_at: "2019-01-01" }));
+    const recent = Array.from({ length: 3 }, () => item({ rating: 4, genres: ["Romance"], finished_at: "2026-08-01" }));
+    const others = Array.from({ length: 3 }, () => item({ rating: 7, genres: ["Drama"], finished_at: "2026-08-01" }));
+    const taste = tasteOf([...old, ...recent, ...others], { today });
+    // Six Romance ratings average 7, but the recent 4s count for more than the old 10s.
+    expect(taste.genres.get("Romance")).toMatchObject({ average: 7, rated: 6 });
+    expect(taste.genres.get("Romance")!.lean).toBeLessThan(0);
+  });
+});
+
+describe("tags", () => {
+  const tagged = [
+    item({ rating: 9, genres: ["Adventure"], tags: ["Iyashikei"] }),
+    item({ rating: 10, genres: ["Adventure"], tags: ["Iyashikei"] }),
+    item({ rating: 9, genres: ["Drama"], tags: ["Iyashikei", "Travel"] }),
+    item({ rating: 5, genres: ["Adventure"], tags: ["Battle Royale"] }),
+    item({ rating: 5, genres: ["Drama"], tags: ["Battle Royale"] }),
+  ];
+  const taste = tasteOf(tagged);
+
+  it("learns how you rate tags, not just genres", () => {
+    expect(taste.tags.get("Iyashikei")).toMatchObject({ rated: 3 });
+    expect(taste.tags.get("Iyashikei")!.lean).toBeGreaterThan(0);
+    expect(taste.tags.get("Battle Royale")!.lean).toBeLessThan(0);
+  });
+
+  it("tells two titles of the same genres apart by their tags, and names the tag", () => {
+    const calm = fitOf({ genres: ["Adventure"], tags: ["Iyashikei"] }, taste);
+    const brutal = fitOf({ genres: ["Adventure"], tags: ["Battle Royale"] }, taste);
+    expect(calm.score).toBeGreaterThan(brutal.score);
+    expect(calm.strongest).toEqual({ name: "Iyashikei", average: expect.closeTo(9.33, 2) });
+  });
+
+  it("ignores tags you have no view on, rather than thinning the fit", () => {
+    expect(fitOf({ genres: ["Adventure"], tags: ["Unheard Of"] }, taste).score).toBe(fitOf({ genres: ["Adventure"] }, taste).score);
+  });
+});
+
+describe("Not for me", () => {
+  it("nudges the genres and tags of titles you waved away down", () => {
+    const before = tasteOf(ratedLibrary);
+    const after = tasteOf(ratedLibrary, {
+      dismissed: [
+        { genres: ["Mystery"], tags: ["Harem"] },
+        { genres: ["Mystery"], tags: ["Harem"] },
+      ],
+    });
+    expect(after.genres.get("Mystery")!.lean).toBeLessThan(before.genres.get("Mystery")!.lean);
+    // Your own average for it doesn't change: a dismissal isn't a rating.
+    expect(after.genres.get("Mystery")).toMatchObject({ average: 9, rated: 3 });
+    expect(after.tags.get("Harem")).toMatchObject({ rated: 0 });
+    expect(after.tags.get("Harem")!.lean).toBeLessThan(0);
+    // A tag known only from dismissals never becomes a reason.
+    expect(fitOf({ genres: [], tags: ["Harem"] }, after).strongest).toBeNull();
   });
 });
 

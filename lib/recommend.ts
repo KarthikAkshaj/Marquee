@@ -2,10 +2,13 @@
  * The picks behind For you (SPEC §20). Pure, like lib/stats: rows in, picks
  * out, so every rule is testable.
  *
- * Your taste is how you rate each genre against your own average. A genre
- * counts for little until a few titles back it, so one 10 doesn't make you a
- * horror fan. Under `TASTE_MIN_RATED` rated titles there's no taste to speak
- * of, and the picks go by the crowd's score instead and say so.
+ * Your taste is how you rate each genre, and each tag (AniList's
+ * "Iyashikei", IGDB's "Warfare"), against your own average. A genre counts
+ * for little until a few titles back it, so one 10 doesn't make you a horror
+ * fan. Recent ratings count more than old ones, and a title you've said
+ * isn't for you counts like a low rating at half weight. Under
+ * `TASTE_MIN_RATED` rated titles there's no taste to speak of, and the picks
+ * go by the crowd's score instead and say so.
  */
 import { SOURCE_FOR_KIND, SOURCE_NAMES, searchKindOf } from "@/lib/add";
 import type { Item } from "@/lib/items";
@@ -31,6 +34,8 @@ export type TasteItem = Pick<
   | "year"
   | "created_at"
   | "updated_at"
+  | "finished_at"
+  | "tags"
 >;
 
 export type PickShelf = { id: string; name: string; slug: string; kind: CategoryKind; color: string };
@@ -43,6 +48,22 @@ export const TASTE_MIN_RATED = 5;
  * counts a quarter of its difference, nine count three quarters.
  */
 const LEAN_SHRINK = 3;
+
+/**
+ * How a rating fades: in full for a year, then its pull above the floor
+ * halves every year after, so one from two years ago counts 70% and one
+ * from six years ago about 40%.
+ */
+const RECENCY_FLOOR = 0.4;
+const RECENCY_HALF_LIFE = 1;
+const YEAR_MS = 365.25 * 24 * 60 * 60 * 1000;
+
+/** "Not for me" counts like a rating this far under your average, at this weight. */
+const DISMISS_DROP = 3;
+const DISMISS_WEIGHT = 0.5;
+
+/** Tags are many and specific, so they share a title's fit with its genres rather than take it over. */
+const TAG_SHARE = 0.4;
 
 /** How much your taste weighs against the crowd's score. */
 const FIT_WEIGHT = 1.5;
@@ -57,38 +78,83 @@ export const SEEDS_PER_KIND = 10;
 /** New titles offered per shelf. */
 export const NEW_PICKS_SHOWN = 24;
 
-export type GenreTaste = { average: number; rated: number; lean: number };
+/** How you rate one genre or tag, against your own average. */
+export type Lean = {
+  /** Your plain average for it, the number a reason shows. */
+  average: number;
+  /** How many titles you've rated with it. */
+  rated: number;
+  /** Positive when you rate it above your own average, shrunk while few titles back it. */
+  lean: number;
+};
 
 export type Taste = {
   /** How many titles you've rated. */
   rated: number;
   average: number | null;
-  genres: ReadonlyMap<string, GenreTaste>;
+  genres: ReadonlyMap<string, Lean>;
+  tags: ReadonlyMap<string, Lean>;
 };
 
-function mean(values: readonly number[]): number {
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
+/** What a title you waved away was about. */
+export type Dismissed = { genres: readonly string[]; tags: readonly string[] };
+
+export type TasteOptions = { dismissed?: readonly Dismissed[]; today?: Date };
+
+/** How much a rating still counts: in full for a year after it was given, then fading to `RECENCY_FLOOR`. */
+export function recencyWeight(date: string | null | undefined, today: Date): number {
+  const years = date ? (today.getTime() - Date.parse(date)) / YEAR_MS : 0;
+  if (!Number.isFinite(years) || years <= 1) return 1;
+  return RECENCY_FLOOR + (1 - RECENCY_FLOOR) * 0.5 ** ((years - 1) / RECENCY_HALF_LIFE);
 }
 
-export function tasteOf(items: readonly Pick<TasteItem, "rating" | "genres">[]): Taste {
-  const rated = items.filter((item): item is typeof item & { rating: number } => item.rating !== null);
-  if (rated.length === 0) return { rated: 0, average: null, genres: new Map() };
+type Vote = { value: number; weight: number; real: boolean };
 
-  const average = mean(rated.map((item) => item.rating));
-  const tally = new Map<string, number[]>();
-  for (const item of rated) {
-    for (const name of new Set(item.genres.flatMap(genreNames))) {
-      tally.set(name, [...(tally.get(name) ?? []), item.rating]);
-    }
-  }
-  const genres = new Map(
-    [...tally.entries()].map(([name, ratings]) => {
-      const genreAverage = mean(ratings);
-      const lean = (genreAverage - average) * (ratings.length / (ratings.length + LEAN_SHRINK));
-      return [name, { average: genreAverage, rated: ratings.length, lean }] as const;
+const sum = (values: readonly number[]) => values.reduce((total, value) => total + value, 0);
+
+function mean(values: readonly number[]): number {
+  return sum(values) / values.length;
+}
+
+function leansOf(votes: ReadonlyMap<string, Vote[]>, average: number): Map<string, Lean> {
+  return new Map(
+    [...votes.entries()].map(([name, list]) => {
+      const weight = sum(list.map((vote) => vote.weight));
+      const leaning = sum(list.map((vote) => vote.value * vote.weight)) / weight;
+      const real = list.filter((vote) => vote.real).map((vote) => vote.value);
+      const lean = (leaning - average) * (weight / (weight + LEAN_SHRINK));
+      return [name, { average: real.length > 0 ? mean(real) : leaning, rated: real.length, lean }] as const;
     }),
   );
-  return { rated: rated.length, average, genres };
+}
+
+export function tasteOf(
+  items: readonly Pick<TasteItem, "rating" | "genres" | "tags" | "finished_at" | "updated_at">[],
+  { dismissed = [], today = new Date() }: TasteOptions = {},
+): Taste {
+  const rated = items.flatMap((item) => (item.rating === null ? [] : [{ item, rating: item.rating }]));
+  if (rated.length === 0) return { rated: 0, average: null, genres: new Map(), tags: new Map() };
+
+  // A finish is when the rating was most likely given; otherwise the last time the title changed.
+  const weighted = rated.map(({ item, rating }) => ({ item, rating, weight: recencyWeight(item.finished_at ?? item.updated_at, today) }));
+  const average = sum(weighted.map(({ rating, weight }) => rating * weight)) / sum(weighted.map(({ weight }) => weight));
+
+  const genres = new Map<string, Vote[]>();
+  const tags = new Map<string, Vote[]>();
+  const add = (into: Map<string, Vote[]>, names: readonly string[], vote: Vote) => {
+    for (const name of new Set(names)) into.set(name, [...(into.get(name) ?? []), vote]);
+  };
+  for (const { item, rating, weight } of weighted) {
+    add(genres, item.genres.flatMap(genreNames), { value: rating, weight, real: true });
+    add(tags, item.tags ?? [], { value: rating, weight, real: true });
+  }
+  for (const title of dismissed) {
+    const vote = { value: average - DISMISS_DROP, weight: DISMISS_WEIGHT, real: false };
+    add(genres, title.genres.flatMap(genreNames), vote);
+    add(tags, title.tags, vote);
+  }
+
+  return { rated: rated.length, average, genres: leansOf(genres, average), tags: leansOf(tags, average) };
 }
 
 /** Enough ratings to call it taste. */
@@ -97,25 +163,35 @@ export function knowsTaste(taste: Taste): boolean {
 }
 
 export type Fit = {
-  /** Positive when it's made of genres you rate above your own average. */
+  /** Positive when it's made of genres and tags you rate above your own average. */
   score: number;
-  /** The genre pulling hardest for it, when you rate it above average on enough titles. */
-  genre: { name: string; average: number } | null;
+  /** The genre or tag pulling hardest for it, when you rate it above average on enough titles. */
+  strongest: { name: string; average: number } | null;
 };
 
-export function fitOf(genres: readonly string[], taste: Taste): Fit {
-  const names = [...new Set(genres.flatMap(genreNames))];
-  if (names.length === 0) return { score: 0, genre: null };
-  const known = names.flatMap((name) => {
-    const entry = taste.genres.get(name);
-    return entry ? [{ name, ...entry }] : [];
-  });
+/** What a title is made of, as far as taste goes. */
+export type Makeup = { genres?: readonly string[] | null; tags?: readonly string[] | null };
+
+export function fitOf(title: Makeup, taste: Taste): Fit {
+  const names = [...new Set((title.genres ?? []).flatMap(genreNames))];
+  const known = (leans: ReadonlyMap<string, Lean>, list: readonly string[]) =>
+    list.flatMap((name) => {
+      const entry = leans.get(name);
+      return entry ? [{ name, ...entry }] : [];
+    });
+  const genres = known(taste.genres, names);
+  const tags = known(taste.tags, [...new Set(title.tags ?? [])]);
+
   // Genres you've never rated count as neutral, so they thin the fit out.
-  const score = known.reduce((sum, entry) => sum + entry.lean, 0) / names.length;
-  const best = known
+  const genreScore = names.length > 0 ? sum(genres.map((entry) => entry.lean)) / names.length : 0;
+  // Tags are many, so only the ones you have a view on count.
+  const score =
+    tags.length > 0 ? (1 - TAG_SHARE) * genreScore + TAG_SHARE * (sum(tags.map((entry) => entry.lean)) / tags.length) : genreScore;
+
+  const strongest = [...genres, ...tags]
     .filter((entry) => entry.rated >= GENRE_MIN_RATED && entry.lean > 0)
     .sort((a, b) => b.lean - a.lean || b.rated - a.rated || a.name.localeCompare(b.name))[0];
-  return { score, genre: best ? { name: best.name, average: best.average } : null };
+  return { score, strongest: strongest ? { name: strongest.name, average: strongest.average } : null };
 }
 
 /**
@@ -142,7 +218,7 @@ export function backlogPicks(items: readonly TasteItem[], taste: Taste): Backlog
   return items
     .filter((item) => item.status === "planned")
     .map((item) => {
-      const fit = personal ? fitOf(item.genres, taste) : { score: 0, genre: null };
+      const fit = personal ? fitOf(item, taste) : { score: 0, strongest: null };
       const score = FIT_WEIGHT * fit.score + CROWD_WEIGHT * crowdLean(item.community_score);
       return { item, score, reason: backlogReason(item, fit) };
     })
@@ -161,9 +237,9 @@ function backlogReason(item: TasteItem, fit: Fit): string | null {
   return tasteReason(fit) ?? (item.source === "manual" ? null : crowdReason(item.source, item.community_score));
 }
 
-/** "You rate Mystery 8.6", when a genre of it is one you rate above your own average. */
+/** "You rate Mystery 8.6" or "You rate Iyashikei 9.1", when it's one you rate above your own average. */
 function tasteReason(fit: Fit): string | null {
-  return fit.genre ? `You rate ${fit.genre.name} ${formatAverage(fit.genre.average)}` : null;
+  return fit.strongest ? `You rate ${fit.strongest.name} ${formatAverage(fit.strongest.average)}` : null;
 }
 
 /** "AniList 88", when the crowd's score is worth naming. */
@@ -296,7 +372,7 @@ export function newPicks({ seeds, answers, library, dismissed, taste, limit = NE
 
   return [...found.values()]
     .map(({ result, support, from }) => {
-      const fit = personal ? fitOf(result.genres ?? [], taste).score : 0;
+      const fit = personal ? fitOf(result, taste).score : 0;
       const score = SUPPORT_WEIGHT * support + FIT_WEIGHT * fit + CROWD_WEIGHT * crowdLean(result.communityScore);
       const backers = [...from.entries()].sort((a, b) => b[1] - a[1] || a[0].item.title.localeCompare(b[0].item.title));
       const because = backers.map(([seed]) => seed.item.title);
@@ -342,7 +418,7 @@ export function moodPicks({ found, recommended, categoryId, library, dismissed, 
       seen.add(key);
       const { result } = suggestion;
       const backer = backed.get(key);
-      const fit: Fit = personal ? fitOf(result.genres ?? [], taste) : { score: 0, genre: null };
+      const fit: Fit = personal ? fitOf(result, taste) : { score: 0, strongest: null };
       const rank = rankStrength(index, found.length);
       const score =
         RANK_WEIGHT * rank + SUPPORT_WEIGHT * (backer?.support ?? 0) + FIT_WEIGHT * fit.score + CROWD_WEIGHT * crowdLean(result.communityScore);
@@ -375,4 +451,9 @@ export function toView(pick: NewPick): PickView {
 export function offeredShelves(shelves: readonly PickShelf[], backlog: readonly BacklogPick[], seeds: ReadonlyMap<SearchKind, Seed[]>): PickShelf[] {
   const seeded = new Set([...seeds.values()].flat().map((seed) => seed.item.category_id));
   return shelves.filter((shelf) => seeded.has(shelf.id) || backlog.some((pick) => pick.item.category_id === shelf.id));
+}
+
+/** Anime and games whose tags have never been looked up: what For you fills in on a visit. */
+export function tagGaps(library: readonly Pick<TasteItem, "tags" | "external_id" | "source">[]): number {
+  return library.filter((item) => item.tags === null && item.external_id && (item.source === "anilist" || item.source === "igdb")).length;
 }

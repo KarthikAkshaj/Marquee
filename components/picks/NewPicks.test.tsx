@@ -114,7 +114,8 @@ describe("NewPicks", () => {
     fireEvent.click(screen.getByRole("button", { name: "Not for me: Dune: Part Two" }));
     expect(screen.queryByText("Dune: Part Two")).not.toBeInTheDocument();
 
-    await waitFor(() => expect(dismissPick).toHaveBeenCalledWith({ source: "tmdb", externalId: "90" }));
+    // What it was about goes too, so the picks can learn from it.
+    await waitFor(() => expect(dismissPick).toHaveBeenCalledWith({ source: "tmdb", externalId: "90", genres: [], tags: [] }));
     const [, options] = toastSuccess.mock.calls[0] as [string, { action: { onClick: () => void } }];
     expect(toastSuccess.mock.calls[0][0]).toBe("Dune: Part Two won't come up again.");
     options.action.onClick();

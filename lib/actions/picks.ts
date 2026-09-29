@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { pickKeySchema, type PickKey } from "@/lib/validators";
+import { dismissPickSchema, pickKeySchema, type DismissPick, type PickKey } from "@/lib/validators";
 
 export type PickActionResult = { ok: true } | { ok: false; message: string };
 
@@ -16,12 +16,13 @@ async function requireUserId() {
 }
 
 /**
- * "Not for me" on For you (SPEC §20): the title is never offered again. Saying
- * it twice is fine. Nothing is revalidated: the card has already gone, and the
- * page reads the list afresh on the next visit.
+ * "Not for me" on For you (SPEC §20): the title is never offered again, and
+ * its genres and tags count a little against similar titles. Saying it twice
+ * is fine. Nothing is revalidated: the card has already gone, and the page
+ * reads the list afresh on the next visit.
  */
-export async function dismissPick(key: PickKey): Promise<PickActionResult> {
-  const parsed = pickKeySchema.safeParse(key);
+export async function dismissPick(pick: DismissPick): Promise<PickActionResult> {
+  const parsed = dismissPickSchema.safeParse(pick);
   if (!parsed.success) return NOT_SAVED;
 
   const { supabase, userId } = await requireUserId();
@@ -29,7 +30,16 @@ export async function dismissPick(key: PickKey): Promise<PickActionResult> {
 
   const { error } = await supabase
     .from("dismissed_picks")
-    .upsert({ user_id: userId, source: parsed.data.source, external_id: parsed.data.externalId }, { ignoreDuplicates: true });
+    .upsert(
+      {
+        user_id: userId,
+        source: parsed.data.source,
+        external_id: parsed.data.externalId,
+        genres: parsed.data.genres,
+        tags: parsed.data.tags,
+      },
+      { ignoreDuplicates: true },
+    );
   return error ? NOT_SAVED : { ok: true };
 }
 

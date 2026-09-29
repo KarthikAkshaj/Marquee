@@ -39,10 +39,10 @@ export type PickContext = {
 export async function loadPickContext(): Promise<PickContext> {
   const [categories, library, dismissed] = await Promise.all([getCategories(), getTasteItems(), getDismissedPicks()]);
   const shelves: PickShelf[] = categories.map(({ id, name, slug, kind, color }) => ({ id, name, slug, kind, color }));
-  const taste = tasteOf(library);
+  const taste = tasteOf(library, { dismissed: dismissed.about });
   const backlog = backlogPicks(library, taste);
   const seeds = seedsOf(library, shelves);
-  return { shelves, offered: offeredShelves(shelves, backlog, seeds), library, dismissed, taste, backlog, seeds };
+  return { shelves, offered: offeredShelves(shelves, backlog, seeds), library, dismissed: dismissed.keys, taste, backlog, seeds };
 }
 
 const CUSTOM_SHELF = "A shelf of your own has nobody to ask for new titles, so your list above is the lot.";

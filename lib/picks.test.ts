@@ -16,6 +16,8 @@ const row = (overrides: Partial<TasteItem>): TasteItem => ({
   status: "completed",
   rating: null,
   genres: [],
+  tags: null,
+  finished_at: null,
   community_score: null,
   source: "manual",
   external_id: null,
@@ -38,7 +40,7 @@ const library = [
 vi.mock("@/lib/queries", () => ({
   getCategories: async () => categories,
   getTasteItems: async () => library,
-  getDismissedPicks: async () => new Set(["anilist:99"]),
+  getDismissedPicks: async () => ({ keys: new Set(["anilist:99"]), about: [{ genres: ["Horror"], tags: ["Gore"] }] }),
 }));
 
 const getSuggestions = vi.fn();

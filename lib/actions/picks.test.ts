@@ -38,11 +38,18 @@ describe("dismissPick", () => {
       {
         table: "dismissed_picks",
         op: "upsert",
-        value: { user_id: "user-1", source: "anilist", external_id: "21827" },
+        value: { user_id: "user-1", source: "anilist", external_id: "21827", genres: [], tags: [] },
         options: { ignoreDuplicates: true },
         filters: [],
       },
     ]);
+  });
+
+  it("keeps what the title was about, and drops anything odd rather than refusing", async () => {
+    expect(await dismissPick({ source: "anilist", externalId: "1", genres: ["Romance"], tags: ["Harem"] })).toEqual({ ok: true });
+    expect(calls[0].value).toMatchObject({ genres: ["Romance"], tags: ["Harem"] });
+    expect(await dismissPick({ source: "anilist", externalId: "2", genres: ["x".repeat(80)] as string[], tags: "Harem" as never })).toEqual({ ok: true });
+    expect(calls[1].value).toMatchObject({ genres: [], tags: [] });
   });
 
   it("needs a session and a real provider id", async () => {

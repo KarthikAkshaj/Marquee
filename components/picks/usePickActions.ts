@@ -53,7 +53,7 @@ export function usePickActions() {
   async function dismiss(pick: PickView) {
     const key = { source: pick.result.source, externalId: pick.result.externalId };
     hide(pick.key, true);
-    const saved = await dismissPick(key);
+    const saved = await dismissPick({ ...key, genres: pick.result.genres ?? [], tags: pick.result.tags ?? [] });
     if (!saved.ok) {
       hide(pick.key, false);
       toast.error(saved.message);
