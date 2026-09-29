@@ -4,7 +4,10 @@ import frieren from "./__fixtures__/anilist-frieren.json";
 import onePiece from "./__fixtures__/anilist-one-piece.json";
 import mushoku from "./__fixtures__/anilist-reading-mushoku-tensei.json";
 import suggested from "./__fixtures__/anilist-suggestions-frieren-mushishi.json";
+import military from "./__fixtures__/anilist-discover-military.json";
 import {
+  LATER_SEASON,
+  discoverAniList,
   getAniListSeries,
   getAniListSuggestions,
   normaliseAniList,
@@ -325,7 +328,7 @@ describe("suggestions for For you (SPEC §20)", () => {
     expect(kino.follows).toBeUndefined();
   });
 
-  it("marks a later season of a TV run, and drops adult, unreleased and one-vote picks", () => {
+  it("marks what continues something, and drops adult, unreleased and one-vote picks", () => {
     const node = (id: number, overrides: Record<string, unknown> = {}) => ({
       rating: 50,
       mediaRecommendation: { id, type: "ANIME", status: "FINISHED", isAdult: false, title: { english: `Show ${id}` }, ...overrides },
@@ -340,6 +343,16 @@ describe("suggestions for For you (SPEC §20)", () => {
           { ...node(5), rating: 1 },
           node(6, { type: "MANGA" }),
           node(7),
+          node(8, { format: "MOVIE", relations: { edges: [{ relationType: "PREQUEL", node: { id: 10, type: "ANIME", format: "MOVIE" } }] } }),
+          node(11, { format: "TV", relations: { edges: [{ relationType: "PREQUEL", node: { id: 12, type: "ANIME", format: "MOVIE" } }] } }),
+          node(13, { format: "OVA", relations: { edges: [{ relationType: "PARENT", node: { id: 14, type: "ANIME", format: "TV" } }] } }),
+          node(15, { format: "TV", relations: { edges: [{ relationType: "PARENT", node: { id: 16, type: "ANIME", format: "TV" } }] } }),
+          node(17, { format: "OVA", episodes: 110, relations: { edges: [{ relationType: "PREQUEL", node: { id: 18, type: "ANIME", format: "MOVIE" } }] } }),
+          node(19, {
+            format: "TV",
+            title: { english: "Saga of Tanya the Evil Season 2" },
+            relations: { edges: [{ relationType: "PREQUEL", node: { id: 20, type: "ANIME", format: "MOVIE" } }] },
+          }),
         ],
       },
     };
@@ -348,6 +361,16 @@ describe("suggestions for For you (SPEC §20)", () => {
       suggestions: [
         { result: expect.objectContaining({ externalId: "2" }), follows: ["9"] },
         { result: expect.objectContaining({ externalId: "7" }) },
+        // A film after a film continues it; a TV run after a film doesn't.
+        { result: expect.objectContaining({ externalId: "8" }), follows: ["10"] },
+        { result: expect.objectContaining({ externalId: "11" }) },
+        // A special hangs off its series; a TV run with a parent is its own show.
+        { result: expect.objectContaining({ externalId: "13" }), follows: ["14"] },
+        { result: expect.objectContaining({ externalId: "15" }) },
+        // A 110-episode OVA is a series of its own (Legend of the Galactic Heroes).
+        { result: expect.objectContaining({ externalId: "17" }) },
+        // Named as a later season, so it continues whatever is listed before it.
+        { result: expect.objectContaining({ externalId: "19" }), follows: ["20"] },
       ],
     });
   });
@@ -358,5 +381,42 @@ describe("suggestions for For you (SPEC §20)", () => {
     expect(await getAniListSuggestions([])).toEqual([]);
     await expect(getAniListSuggestions(Array.from({ length: 11 }, (_, index) => String(index + 1)))).rejects.toBeInstanceOf(ProviderError);
     expect(fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("moods (SPEC §20)", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("asks for a mood's tags, and marks the later seasons among the best-scored", async () => {
+    const fetch = reply(military);
+    vi.stubGlobal("fetch", fetch);
+    const found = await discoverAniList({ tags: ["Military", "War"] });
+    const sent = JSON.parse(String((fetch.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    expect(sent.variables).toEqual({ tags: ["Military", "War"] });
+    expect(sent.query).toContain("minimumTagRank: 60");
+
+    expect(found[0].result).toMatchObject({ source: "anilist", title: "Fullmetal Alchemist: Brotherhood" });
+    expect(found[0].follows).toBeUndefined();
+    const aot = found.find(({ result }) => result.title === "Attack on Titan Season 3 Part 2")!;
+    expect(aot.follows).toHaveLength(1);
+    expect(found.filter((entry) => entry.follows).length).toBeGreaterThan(10);
+  });
+
+  it("asks nothing for an empty filter", async () => {
+    const fetch = reply(military);
+    vi.stubGlobal("fetch", fetch);
+    expect(await discoverAniList({})).toEqual([]);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("LATER_SEASON", () => {
+  it("knows a later season by its name, and leaves standalone names alone", () => {
+    for (const name of ["Saga of Tanya the Evil Season 2", "Attack on Titan Final Season", "Vinland Saga Season 2", "Kaguya-sama 2nd Season", "Re:ZERO Part 2", "Season II", "Mob Psycho 100 III Cour 2"]) {
+      expect(LATER_SEASON.test(name), name).toBe(true);
+    }
+    for (const name of ["86 EIGHTY-SIX", "Mob Psycho 100", "Seasons of Love", "Part-Timer", "The Final Countdown"]) {
+      expect(LATER_SEASON.test(name), name).toBe(false);
+    }
   });
 });

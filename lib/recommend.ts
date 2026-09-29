@@ -9,7 +9,7 @@
  */
 import { SOURCE_FOR_KIND, SOURCE_NAMES, searchKindOf } from "@/lib/add";
 import type { Item } from "@/lib/items";
-import type { SearchKind, SearchResult, SeedSuggestions } from "@/lib/search/types";
+import type { SearchKind, SearchResult, SearchSource, SeedSuggestions, Suggestion } from "@/lib/search/types";
 import { formatAverage, GENRE_MIN_RATED, genreNames } from "@/lib/stats";
 import { isReading, type CategoryKind } from "@/lib/status";
 
@@ -158,11 +158,17 @@ export function backlogPicks(items: readonly TasteItem[], taste: Taste): Backlog
 }
 
 function backlogReason(item: TasteItem, fit: Fit): string | null {
-  if (fit.genre) return `You rate ${fit.genre.name} ${formatAverage(fit.genre.average)}`;
-  if (item.source !== "manual" && item.community_score !== null && item.community_score >= CROWD_PRAISE) {
-    return `${SOURCE_NAMES[item.source]} ${item.community_score}`;
-  }
-  return null;
+  return tasteReason(fit) ?? (item.source === "manual" ? null : crowdReason(item.source, item.community_score));
+}
+
+/** "You rate Mystery 8.6", when a genre of it is one you rate above your own average. */
+function tasteReason(fit: Fit): string | null {
+  return fit.genre ? `You rate ${fit.genre.name} ${formatAverage(fit.genre.average)}` : null;
+}
+
+/** "AniList 88", when the crowd's score is worth naming. */
+function crowdReason(source: SearchSource, score: number | null | undefined): string | null {
+  return score !== null && score !== undefined && score >= CROWD_PRAISE ? `${SOURCE_NAMES[source]} ${score}` : null;
 }
 
 export type Seed = { item: TasteItem; weight: number };
@@ -201,6 +207,8 @@ const titleKey = (title: string) => title.trim().replace(/\s+/g, " ").toLocaleLo
 
 export type NewPick = {
   result: SearchResult;
+  /** How hard your favourites point at it; nothing for a mood's title they don't. */
+  support: number;
   /** The shelf it goes on: the one holding the favourite that points at it hardest. */
   categoryId: string;
   /** Your titles that point at it, strongest first. */
@@ -220,16 +228,13 @@ type NewPicksInput = {
 };
 
 /**
- * Titles from outside your shelves that the providers' users recommend
- * alongside your favourites. A title several favourites point at beats one
- * that only one does; your genre taste and the crowd's score break it from
- * there. Left out: anything you have (by provider id, or by name when it came
- * from somewhere else or was typed in), anything you've waved away, and a
- * later season of something you haven't started (only planning it doesn't count).
+ * What neither the picks nor a mood offers: anything you have (by provider
+ * id, or by name when it came from somewhere else or was typed in), anything
+ * you've waved away, and a later season of something you haven't started
+ * (only planning it doesn't count).
  */
-export function newPicks({ seeds, answers, library, dismissed, taste, limit = NEW_PICKS_SHOWN }: NewPicksInput): NewPick[] {
+function leftOut(library: readonly TasteItem[], dismissed: ReadonlySet<string>): (suggestion: Suggestion) => boolean {
   const owned = new Set(library.flatMap((item) => (item.external_id ? [`${item.source}:${item.external_id}`] : [])));
-  // A later season is only worth offering once you've started what it follows.
   const begun = new Set(
     library.flatMap((item) => (item.external_id && item.status !== "planned" ? [`${item.source}:${item.external_id}`] : [])),
   );
@@ -245,6 +250,31 @@ export function newPicks({ seeds, answers, library, dismissed, taste, limit = NE
       return sources !== undefined && [...sources].some((source) => source !== result.source);
     });
 
+  return ({ result, follows }) => {
+    const key = pickKey(result);
+    if (owned.has(key) || dismissed.has(key) || ownedByName(result)) return true;
+    return Boolean(follows?.length) && !follows!.some((id) => begun.has(`${result.source}:${id}`));
+  };
+}
+
+/** How a provider's title is known across picks, dismissals and the page: `anilist:21827`. */
+export function pickKey(result: Pick<SearchResult, "source" | "externalId">): string {
+  return `${result.source}:${result.externalId}`;
+}
+
+/** A provider's first answer counts in full, its last half. */
+function rankStrength(index: number, count: number): number {
+  return 1 - (0.5 * index) / Math.max(count - 1, 1);
+}
+
+/**
+ * Titles from outside your shelves that the providers' users recommend
+ * alongside your favourites. A title several favourites point at beats one
+ * that only one does; your genre taste and the crowd's score break it from
+ * there. What's left out is `leftOut`'s to say.
+ */
+export function newPicks({ seeds, answers, library, dismissed, taste, limit = NEW_PICKS_SHOWN }: NewPicksInput): NewPick[] {
+  const skip = leftOut(library, dismissed);
   const seedsById = new Map(seeds.map((seed) => [seed.item.external_id, seed]));
   const personal = knowsTaste(taste);
   const found = new Map<string, { result: SearchResult; support: number; from: Map<Seed, number> }>();
@@ -252,14 +282,12 @@ export function newPicks({ seeds, answers, library, dismissed, taste, limit = NE
   for (const answer of answers) {
     const seed = seedsById.get(answer.seed);
     if (!seed) continue;
-    answer.suggestions.forEach(({ result, follows }, index) => {
-      const key = `${result.source}:${result.externalId}`;
-      if (owned.has(key) || dismissed.has(key) || ownedByName(result)) return;
-      if (follows?.length && !follows.some((id) => begun.has(`${result.source}:${id}`))) return;
-      // The provider's first pick for a seed counts in full, its tenth half.
-      const strength = 1 - (0.5 * index) / Math.max(answer.suggestions.length - 1, 1);
+    answer.suggestions.forEach((suggestion, index) => {
+      if (skip(suggestion)) return;
+      const { result } = suggestion;
+      const key = pickKey(result);
       const entry = found.get(key) ?? { result, support: 0, from: new Map<Seed, number>() };
-      const share = seed.weight * strength;
+      const share = seed.weight * rankStrength(index, answer.suggestions.length);
       entry.support += share;
       entry.from.set(seed, (entry.from.get(seed) ?? 0) + share);
       found.set(key, entry);
@@ -276,7 +304,54 @@ export function newPicks({ seeds, answers, library, dismissed, taste, limit = NE
     })
     .sort((a, b) => b.score - a.score || b.support - a.support || a.result.title.localeCompare(b.result.title))
     .slice(0, limit)
-    .map(({ result, categoryId, because, reason }) => ({ result, categoryId, because, reason }));
+    .map(({ result, support, categoryId, because, reason }) => ({ result, support, categoryId, because, reason }));
+}
+
+/** How much a provider's own order weighs in a mood's list. */
+const RANK_WEIGHT = 1;
+
+type MoodPicksInput = {
+  /** The provider's best-rated titles for the mood, in its order. */
+  found: readonly Suggestion[];
+  /** This kind's usual picks: one of your favourites pointing at a title lifts it, and gives it its reason. */
+  recommended: readonly NewPick[];
+  /** The shelf they'd go on. */
+  categoryId: string;
+  library: readonly TasteItem[];
+  dismissed: ReadonlySet<string>;
+  taste: Taste;
+  limit?: number;
+};
+
+/**
+ * A mood's titles, best fit for you first (SPEC §20). The provider's list is
+ * already the best rated for the mood; your favourites pointing at a title,
+ * your genre taste and the crowd's score reorder it. The reason is why it's
+ * near the top: your favourites, else a genre you rate, else the crowd.
+ */
+export function moodPicks({ found, recommended, categoryId, library, dismissed, taste, limit = NEW_PICKS_SHOWN }: MoodPicksInput): NewPick[] {
+  const skip = leftOut(library, dismissed);
+  const backed = new Map(recommended.map((pick) => [pickKey(pick.result), pick]));
+  const personal = knowsTaste(taste);
+  const seen = new Set<string>();
+
+  return found
+    .flatMap((suggestion, index) => {
+      const key = pickKey(suggestion.result);
+      if (seen.has(key) || skip(suggestion)) return [];
+      seen.add(key);
+      const { result } = suggestion;
+      const backer = backed.get(key);
+      const fit: Fit = personal ? fitOf(result.genres ?? [], taste) : { score: 0, genre: null };
+      const rank = rankStrength(index, found.length);
+      const score =
+        RANK_WEIGHT * rank + SUPPORT_WEIGHT * (backer?.support ?? 0) + FIT_WEIGHT * fit.score + CROWD_WEIGHT * crowdLean(result.communityScore);
+      const reason = backer?.reason ?? tasteReason(fit) ?? crowdReason(result.source, result.communityScore) ?? "One of the best rated";
+      return [{ result, score, rank, support: backer?.support ?? 0, categoryId, because: backer?.because ?? [], reason }];
+    })
+    .sort((a, b) => b.score - a.score || b.rank - a.rank)
+    .slice(0, limit)
+    .map(({ result, support, categoryId: shelf, because, reason }) => ({ result, support, categoryId: shelf, because, reason }));
 }
 
 /** "Because you loved Frieren", "... Frieren and Mushishi", "... Frieren and 2 more". */
@@ -284,4 +359,20 @@ export function becauseLine(titles: readonly string[]): string {
   if (titles.length <= 1) return `Because you loved ${titles[0] ?? "something like it"}`;
   if (titles.length === 2) return `Because you loved ${titles[0]} and ${titles[1]}`;
   return `Because you loved ${titles[0]} and ${titles.length - 1} more`;
+}
+
+/** A new title as the page shows it: what the provider said, where it would go, and why. */
+export type PickView = { key: string; result: SearchResult; categoryId: string; reason: string };
+
+/** What For you's "New to you" shows: the titles, and why a shelf has none, by shelf id. */
+export type PicksPayload = { picks: PickView[]; notices: Record<string, string> };
+
+export function toView(pick: NewPick): PickView {
+  return { key: pickKey(pick.result), result: pick.result, categoryId: pick.categoryId, reason: pick.reason };
+}
+
+/** The shelves For you offers: ones with a Planned title, or a favourite to ask about. */
+export function offeredShelves(shelves: readonly PickShelf[], backlog: readonly BacklogPick[], seeds: ReadonlyMap<SearchKind, Seed[]>): PickShelf[] {
+  const seeded = new Set([...seeds.values()].flat().map((seed) => seed.item.category_id));
+  return shelves.filter((shelf) => seeded.has(shelf.id) || backlog.some((pick) => pick.item.category_id === shelf.id));
 }

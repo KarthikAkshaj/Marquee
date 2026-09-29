@@ -1,6 +1,15 @@
 import { z } from "zod";
 import { cleanGenres, fetchJson, toScore, yearFromDate } from "./http";
-import { ProviderError, RESULT_LIMIT, type Release, type SearchResult, type SeedSuggestions, type SeriesTitle } from "./types";
+import {
+  ProviderError,
+  RESULT_LIMIT,
+  type Release,
+  type SearchResult,
+  type SeedSuggestions,
+  type SeriesTitle,
+  type Suggestion,
+  type TmdbFilter,
+} from "./types";
 
 const API = "https://api.themoviedb.org/3";
 const POSTER = "https://image.tmdb.org/t/p/w500";
@@ -264,14 +273,17 @@ export function normaliseTmdbSuggestions(
   genres: GenreNames,
   today = new Date().toISOString().slice(0, 10),
 ): SeedSuggestions {
-  const suggestions = results
+  return { seed, suggestions: offerable(type, results, genres, today).slice(0, SUGGESTIONS_PER_SEED) };
+}
+
+/** Titles worth putting in front of someone: out already, not adult, and voted on by enough people. */
+function offerable(type: "movie" | "tv", results: readonly TmdbSuggested[], genres: GenreNames, today: string): Suggestion[] {
+  return results
     .filter((entry) => !entry.adult && !entry.softcore && (entry.vote_count ?? 0) >= MIN_SUGGESTION_VOTES)
     .filter((entry) => filmRelease(type === "movie" ? entry.release_date : entry.first_air_date, today) === "out")
     .map((entry) => (type === "movie" ? normaliseTmdbMovie(entry, genres) : normaliseTmdbShow(entry, genres)))
     .filter((result) => result !== null)
-    .slice(0, SUGGESTIONS_PER_SEED)
     .map((result) => ({ result }));
-  return { seed, suggestions };
 }
 
 /** What TMDB recommends alongside one film (`movie`) or show (`tv`), for For you (SPEC §20). */
@@ -282,6 +294,44 @@ export async function getTmdbSuggestions(type: "movie" | "tv", id: string): Prom
     genreNames(type),
   ]);
   return normaliseTmdbSuggestions(id, type, page.results, genres);
+}
+
+/**
+ * Fewest votes for a title in a mood's list. Sorted by rating, anything
+ * lower lets in films a dozen people love.
+ */
+const DISCOVER_VOTES = { movie: 300, tv: 150 } as const;
+
+/** TMDB's discover query for a mood: any of the genres, any of the keywords, best rated first. */
+export function discoverPath(type: "movie" | "tv", filter: TmdbFilter, page: number, today: string): string {
+  const params = new URLSearchParams({
+    include_adult: "false",
+    language: "en-US",
+    sort_by: "vote_average.desc",
+    "vote_count.gte": String(DISCOVER_VOTES[type]),
+    [type === "movie" ? "primary_release_date.lte" : "first_air_date.lte"]: today,
+    page: String(page),
+  });
+  const ids = (list: readonly number[] | undefined) => (list ?? []).filter((id) => Number.isInteger(id) && id > 0).join("|");
+  if (ids(filter.genres)) params.set("with_genres", ids(filter.genres));
+  if (ids(filter.keywords)) params.set("with_keywords", ids(filter.keywords));
+  // Anime lives on AniList shelves; on a Series shelf it would only be a namesake.
+  if (type === "tv") params.set("without_genres", "16");
+  return `/discover/${type}?${params}`;
+}
+
+/** TMDB's best-rated films or shows for a mood (SPEC §20): two pages, forty titles. */
+export async function discoverTmdb(type: "movie" | "tv", filter: TmdbFilter): Promise<Suggestion[]> {
+  if (!filter.genres?.length && !filter.keywords?.length) return [];
+  const today = new Date().toISOString().slice(0, 10);
+  const [first, second, genres] = await Promise.all([
+    request(discoverPath(type, filter, 1, today), suggestedSchema),
+    request(discoverPath(type, filter, 2, today), suggestedSchema),
+    genreNames(type),
+  ]);
+  const seen = new Set<number>();
+  const results = [...first.results, ...second.results].filter((entry) => !seen.has(entry.id) && seen.add(entry.id));
+  return offerable(type, results, genres, today);
 }
 
 export async function getTmdbSeriesDetails(id: string): Promise<SeriesDetails> {

@@ -2,26 +2,33 @@
 
 import { PosterTile, type PosterItem } from "@/components/home/PosterTile";
 import { SectionHeader } from "@/components/home/SectionHeader";
+import { fitsMood, moodLabel } from "@/lib/moods";
 import { rise } from "@/lib/motion";
 import type { PickShelf } from "@/lib/recommend";
-import { useShelfParam } from "./useShelfParam";
+import { useMoodParam, useShelfParam } from "./useShelfParam";
 
 /** How many Planned titles show: a few rows across everything, more for one shelf. */
 const SHOWN_EVERYWHERE = 12;
 const SHOWN_ON_A_SHELF = 24;
 
 type BacklogPicksProps = {
-  picks: readonly { item: PosterItem; reason: string | null }[];
+  /** Genres ride along so a mood can narrow the list in the browser. */
+  picks: readonly { item: PosterItem; genres: readonly string[]; reason: string | null }[];
   shelves: readonly PickShelf[];
   /** Enough ratings to sort by your taste, rather than by the crowd. */
   personal: boolean;
 };
 
-/** "Next from your list" (SPEC §20): your Planned titles, best fit first, each with its reason. */
+/**
+ * "Next from your list" (SPEC §20): your Planned titles, best fit first, each
+ * with its reason. A mood narrows it by genre, since that's all your titles
+ * keep.
+ */
 export function BacklogPicks({ picks, shelves, personal }: BacklogPicksProps) {
   const shelf = useShelfParam(shelves);
+  const choice = useMoodParam();
   const byId = new Map(shelves.map((entry) => [entry.id, entry]));
-  const inView = shelf ? picks.filter((pick) => pick.item.category_id === shelf.id) : picks;
+  const inView = picks.filter((pick) => (!shelf || pick.item.category_id === shelf.id) && fitsMood(pick.genres, choice));
   const shown = inView.slice(0, shelf ? SHOWN_ON_A_SHELF : SHOWN_EVERYWHERE);
   const more = inView.length - shown.length;
 
@@ -40,7 +47,9 @@ export function BacklogPicks({ picks, shelves, personal }: BacklogPicksProps) {
       />
       {shown.length === 0 ? (
         <p className="text-13 text-text-muted">
-          Nothing planned {shelf ? `on ${shelf.name}` : "yet"}. The new picks below can fix that.
+          {choice
+            ? `Nothing planned for ${moodLabel(choice)}${shelf ? ` on ${shelf.name}` : ""}. Your list is matched by genre, so the new picks below may find more.`
+            : `Nothing planned ${shelf ? `on ${shelf.name}` : "yet"}. The new picks below can fix that.`}
         </p>
       ) : (
         <>

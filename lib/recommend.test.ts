@@ -7,7 +7,9 @@ import {
   crowdLean,
   fitOf,
   knowsTaste,
+  moodPicks,
   newPicks,
+  pickKey,
   seedsOf,
   tasteOf,
   type PickShelf,
@@ -288,6 +290,68 @@ describe("newPicks", () => {
       limit: 2,
     });
     expect(picks.map((pick) => pick.result.externalId)).toEqual(["1", "2"]);
+  });
+});
+
+describe("moodPicks", () => {
+  const shelf = "film-shelf";
+  const film = (id: string, overrides: Partial<SearchResult> = {}) => ({ result: result(id, { source: "tmdb", ...overrides }) });
+
+  it("keeps the provider's order when nothing else speaks", () => {
+    const picks = moodPicks({
+      found: [film("1"), film("2"), film("3")],
+      recommended: [],
+      categoryId: shelf,
+      library: [],
+      dismissed: new Set(),
+      taste: tasteOf([]),
+    });
+    expect(picks.map((pick) => pick.result.externalId)).toEqual(["1", "2", "3"]);
+    expect(picks.every((pick) => pick.categoryId === shelf && pick.support === 0)).toBe(true);
+    expect(picks[0].reason).toBe("One of the best rated");
+  });
+
+  it("lifts a title your favourites point at, with their reason", () => {
+    const backed = newPicks({
+      seeds: [{ item: item({ title: "Dune", source: "tmdb", external_id: "438631" }), weight: 1 }],
+      answers: [{ seed: "438631", suggestions: [film("3")] }],
+      library: [],
+      dismissed: new Set(),
+      taste: tasteOf([]),
+    });
+    const picks = moodPicks({ found: [film("1"), film("2"), film("3")], recommended: backed, categoryId: shelf, library: [], dismissed: new Set(), taste: tasteOf([]) });
+    expect(picks[0]).toMatchObject({ result: { externalId: "3" }, reason: "Because you loved Dune", because: ["Dune"] });
+    expect(picks[0].support).toBeGreaterThan(0);
+  });
+
+  it("gives a genre you rate, else the crowd, as the reason", () => {
+    const picks = moodPicks({
+      found: [film("1", { genres: ["Mystery"], communityScore: 70 }), film("2", { communityScore: 91 })],
+      recommended: [],
+      categoryId: shelf,
+      library: ratedLibrary,
+      dismissed: new Set(),
+      taste: tasteOf(ratedLibrary),
+    });
+    expect(picks.map((pick) => pick.reason)).toEqual(["You rate Mystery 9", "TMDB 91"]);
+  });
+
+  it("leaves out what you have, what you waved away and repeats, and later seasons you haven't started", () => {
+    const owned = item({ title: "Owned", source: "tmdb", external_id: "1" });
+    const picks = moodPicks({
+      found: [film("1"), film("2"), film("3"), film("3"), { result: result("4"), follows: ["404"] }, film("5")],
+      recommended: [],
+      categoryId: shelf,
+      library: [owned],
+      dismissed: new Set([pickKey({ source: "tmdb", externalId: "2" })]),
+      taste: tasteOf([]),
+    });
+    expect(picks.map((pick) => pick.result.externalId)).toEqual(["3", "5"]);
+  });
+
+  it("stops at the limit", () => {
+    const found = Array.from({ length: 30 }, (_, index) => film(String(index)));
+    expect(moodPicks({ found, recommended: [], categoryId: shelf, library: [], dismissed: new Set(), taste: tasteOf([]), limit: 5 })).toHaveLength(5);
   });
 });
 

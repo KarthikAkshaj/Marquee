@@ -81,6 +81,23 @@ export type SeedSuggestions = { seed: string; suggestions: Suggestion[] };
 
 export type SuggestionsResponse = { results: SeedSuggestions[]; error?: SearchError };
 
+/**
+ * What a mood asks each provider for (SPEC §20). AniList ANDs genres with
+ * tags, so a filter uses one or the other; TMDB and IGDB match any of the ids.
+ */
+export type AniListFilter = { genres?: string[]; tags?: string[] };
+export type TmdbFilter = { genres?: number[]; keywords?: number[] };
+export type IgdbFilter = { themes?: number[]; genres?: number[]; keywords?: number[] };
+
+/** One provider's filter, by the kind of shelf it fills. */
+export type DiscoverFilter =
+  | { kind: "anime"; anilist: AniListFilter }
+  | { kind: "movie" | "series"; tmdb: TmdbFilter }
+  | { kind: "game"; igdb: IgdbFilter };
+
+/** The best-rated titles a provider has for a filter, strongest first. */
+export type DiscoverResponse = { results: Suggestion[]; error?: SearchError };
+
 export type SeriesResponse = {
   results: SeriesTitle[];
   /** What the provider calls the run, when it names one ("Dune Collection"). */

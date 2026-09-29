@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { cleanGenres, fetchJson, toScore } from "./http";
-import { ProviderError, RESULT_LIMIT, type SearchResult, type SeedSuggestions } from "./types";
+import { ProviderError, RESULT_LIMIT, type IgdbFilter, type SearchResult, type SeedSuggestions, type Suggestion } from "./types";
 
 const GAMES = "https://api.igdb.com/v4/games";
 const TOKEN = "https://id.twitch.tv/oauth2/token";
@@ -107,12 +107,25 @@ export function rankGames(games: readonly IgdbGame[], query: string): IgdbGame[]
   );
 }
 
+/** What a game needs to be shown and added. */
+const GAME_FIELDS = [
+  "name",
+  "first_release_date",
+  "cover.image_id",
+  "artworks.image_id",
+  "screenshots.image_id",
+  "genres.name",
+  "platforms.abbreviation",
+  "total_rating",
+  "total_rating_count",
+];
+
 /** Apicalypse has no parameter binding; keep the term from closing its quotes. */
 export function igdbSearchBody(query: string): string {
   const term = query.replace(/["\\]/g, " ").replace(/\s+/g, " ").trim();
   return [
     `search "${term}";`,
-    "fields name,first_release_date,cover.image_id,artworks.image_id,screenshots.image_id,genres.name,platforms.abbreviation,total_rating,total_rating_count;",
+    `fields ${GAME_FIELDS.join(",")};`,
     `where version_parent = null & game_type = (${GAME_TYPES.join(",")});`,
     "limit 20;",
   ].join(" ");
@@ -158,19 +171,7 @@ const SUGGESTIONS_PER_SEED = 10;
 /** Fewer ratings than this, and a similar game is too obscure to put in front of someone. */
 const MIN_SUGGESTION_RATINGS = 10;
 
-const SIMILAR_FIELDS = [
-  "name",
-  "first_release_date",
-  "cover.image_id",
-  "artworks.image_id",
-  "screenshots.image_id",
-  "genres.name",
-  "platforms.abbreviation",
-  "total_rating",
-  "total_rating_count",
-  "game_type",
-  "version_parent",
-];
+const SIMILAR_FIELDS = [...GAME_FIELDS, "game_type", "version_parent"];
 
 export function igdbSimilarBody(ids: readonly number[]): string {
   return [
@@ -210,4 +211,39 @@ export async function getIgdbSuggestions(ids: readonly string[]): Promise<SeedSu
   if (numeric.length > IGDB_SEED_BATCH) throw new ProviderError("igdb", "too many seeds in one batch");
   const seeds = await queryGames(igdbSimilarBody(numeric), seedsSchema);
   return seeds.map((seed) => normaliseSimilar(seed));
+}
+
+/** Fewest ratings for a game in a mood's list, so it isn't a row of curiosities. */
+const DISCOVER_RATINGS = 100;
+const DISCOVER_LIMIT = 50;
+
+/**
+ * IGDB's query for a mood: any of the themes, genres or keywords, main games
+ * only, out already, best rated first. Ids only ever come from our own lists
+ * or IGDB's, and are checked to be whole numbers anyway.
+ */
+export function igdbDiscoverBody(filter: IgdbFilter, now = Date.now()): string | null {
+  const ids = (list: readonly number[] | undefined) => (list ?? []).filter((id) => Number.isInteger(id) && id > 0);
+  const any = (["themes", "genres", "keywords"] as const)
+    .filter((field) => ids(filter[field]).length > 0)
+    .map((field) => `${field} = (${ids(filter[field]).join(",")})`);
+  if (any.length === 0) return null;
+  return [
+    `fields ${GAME_FIELDS.join(",")};`,
+    `where (${any.join(" | ")}) & game_type = (${GAME_TYPES.join(",")}) & version_parent = null`,
+    `& total_rating_count >= ${DISCOVER_RATINGS} & first_release_date < ${Math.floor(now / 1000)};`,
+    "sort total_rating desc;",
+    `limit ${DISCOVER_LIMIT};`,
+  ].join(" ");
+}
+
+/** IGDB's best-rated games for a mood (SPEC §20). */
+export async function discoverIgdb(filter: IgdbFilter): Promise<Suggestion[]> {
+  const body = igdbDiscoverBody(filter);
+  if (!body) return [];
+  const games = await queryGames(body, gamesSchema);
+  return games.flatMap((game) => {
+    const result = normaliseIgdbGame(game);
+    return result ? [{ result }] : [];
+  });
 }

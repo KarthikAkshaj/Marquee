@@ -8,16 +8,12 @@ import { Button } from "@/components/ui/Button";
 import { resultMeta } from "@/lib/add";
 import { titleHref } from "@/lib/palette";
 import { generatedCover } from "@/lib/poster-art";
-import type { PickShelf } from "@/lib/recommend";
-import type { SearchResult } from "@/lib/search/types";
-
-/** A new title as the page shows it: what the provider said, where it would go, and why. */
-export type NewPickView = { key: string; result: SearchResult; categoryId: string; reason: string };
+import type { PickShelf, PickView } from "@/lib/recommend";
 
 export type PlanState = { status: "idle" } | { status: "adding" } | { status: "planned"; id: string };
 
 type NewPickCardProps = {
-  pick: NewPickView;
+  pick: PickView;
   shelf: PickShelf;
   state: PlanState;
   onPlan: () => void;

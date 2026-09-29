@@ -5,6 +5,7 @@ import { cleanGenres, fetchJson, toScore } from "./http";
 import {
   ProviderError,
   RESULT_LIMIT,
+  type AniListFilter,
   type Release,
   type SearchResult,
   type SeedSuggestions,
@@ -423,7 +424,13 @@ const recommendedSchema = mediaSchema.extend({
   relations: z.object({ edges: z.array(z.object({ relationType: z.string().nullish(), node: prequelSchema.nullish() })) }).nullish(),
 });
 
-/** What makes a title a later season: a TV run before it. A film listed as its prequel doesn't (Kino's Journey). */
+/** Episodes past which an OVA is a series in its own right rather than an extra. */
+const LONG_OVA = 6;
+
+/** A name that says it continues something: "Season 2", "2nd Season", "Part 2", "Final Season". */
+export const LATER_SEASON = /\b(season|part|cour)\s*(\d+|ii|iii|iv|v)\b|\b\d+(st|nd|rd|th)\s+season\b|\bfinal\s+season\b/i;
+
+/** The formats that make a run: what a TV show has to follow to be a later season. */
 const SERIES_FORMATS = new Set(["TV", "TV_SHORT", "ONA"]);
 
 const seedSchema = z.object({
@@ -442,17 +449,40 @@ export type AniListSeed = z.infer<typeof seedSchema>;
  * begun there.
  */
 export function normaliseSeed(seed: AniListSeed): SeedSuggestions {
-  const suggestions = (seed.recommendations?.nodes ?? []).flatMap(({ rating, mediaRecommendation: media }): Suggestion[] => {
-    if (!media || media.isAdult || media.type !== "ANIME" || media.status === "NOT_YET_RELEASED") return [];
-    if ((rating ?? 0) < MIN_RECOMMENDATION_VOTES || isJunk(media)) return [];
-    const result = normaliseAniList(media);
-    if (!result) return [];
-    const follows = (media.relations?.edges ?? []).flatMap(({ relationType, node }) =>
-      relationType === "PREQUEL" && node?.type === "ANIME" && SERIES_FORMATS.has(node.format ?? "") ? [String(node.id)] : [],
-    );
-    return [follows.length ? { result, follows } : { result }];
+  const suggestions = (seed.recommendations?.nodes ?? []).flatMap(({ rating, mediaRecommendation: media }) => {
+    if (!media || (rating ?? 0) < MIN_RECOMMENDATION_VOTES) return [];
+    const suggestion = toSuggestion(media);
+    return suggestion ? [suggestion] : [];
   });
   return { seed: String(seed.id), suggestions };
+}
+
+type RecommendedMedia = z.infer<typeof recommendedSchema>;
+
+/**
+ * An anime worth offering, saying what it continues; null for adult titles,
+ * promos and anything not out yet. A film, OVA or special that follows
+ * anything, or hangs off a series, continues it (Violet Evergarden: the
+ * Movie, Violet Evergarden: Special). A TV run only
+ * continues another run: a film listed before it doesn't make it a sequel
+ * (Kino's Journey).
+ */
+function toSuggestion(media: RecommendedMedia): Suggestion | null {
+  if (media.isAdult || media.type !== "ANIME" || media.status === "NOT_YET_RELEASED" || isJunk(media)) return null;
+  const result = normaliseAniList(media);
+  if (!result) return null;
+  // A long OVA is a run of its own (Legend of the Galactic Heroes, 110 episodes).
+  const run = SERIES_FORMATS.has(media.format ?? "") || (media.format === "OVA" && (media.episodes ?? 0) > LONG_OVA);
+  // So is a TV show, unless its name says it's a later season: Saga of Tanya
+  // the Evil Season 2 lists the film, not the first season, before it.
+  const continuation = !run || LATER_SEASON.test(`${media.title.english ?? ""} ${media.title.romaji ?? ""}`);
+  const follows = (media.relations?.edges ?? []).flatMap(({ relationType, node }) => {
+    if (node?.type !== "ANIME") return [];
+    // A special or film hangs off its PARENT series as much as off a PREQUEL.
+    const before = relationType === "PREQUEL" || (continuation && relationType === "PARENT");
+    return before && (continuation || SERIES_FORMATS.has(node.format ?? "")) ? [String(node.id)] : [];
+  });
+  return follows.length ? { result, follows } : { result };
 }
 
 /**
@@ -476,6 +506,47 @@ export async function getAniListSuggestions(ids: readonly string[]): Promise<See
     schema,
   );
   return body.data.Page.media.map(normaliseSeed);
+}
+
+/**
+ * How many a mood asks AniList for. Its best-scored lists are full of later
+ * seasons, which are dropped unless you've started the run, so it asks for
+ * plenty.
+ */
+const DISCOVER_LIMIT = 50;
+
+const DISCOVER_QUERY = `query ($genres: [String], $tags: [String]) {
+  Page(perPage: ${DISCOVER_LIMIT}) {
+    media(
+      type: ANIME, isAdult: false, genre_in: $genres, tag_in: $tags, minimumTagRank: 60,
+      sort: [SCORE_DESC, ID], popularity_greater: 5000,
+      format_in: [TV, TV_SHORT, MOVIE, ONA, OVA], status_not: NOT_YET_RELEASED
+    ) {
+      ${MEDIA_FIELDS} type isAdult
+      relations { edges { relationType(version: 2) node { id type format } } }
+    }
+  }
+}`;
+
+/**
+ * AniList's best-scored anime for a mood (SPEC §20): any of its genres, or any
+ * of its tags where the tag is at least 60% of what the show is about. Only
+ * titles enough people have seen, so the list isn't a row of curiosities.
+ */
+export async function discoverAniList(filter: AniListFilter): Promise<Suggestion[]> {
+  if (!filter.genres?.length && !filter.tags?.length) return [];
+  const schema = z.object({ data: z.object({ Page: z.object({ media: z.array(recommendedSchema) }) }) });
+  const body = await fetchJson(
+    "anilist",
+    ENDPOINT,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: DISCOVER_QUERY, variables: { genres: filter.genres, tags: filter.tags } }),
+    },
+    schema,
+  );
+  return body.data.Page.media.flatMap((media) => toSuggestion(media) ?? []);
 }
 
 export async function searchAniList(query: string): Promise<SearchResult[]> {

@@ -1,0 +1,389 @@
+{
+  "page": 2,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/tt1YwEB5UVDKxCYwZEtpNUaDJIi.jpg",
+      "genre_ids": [
+        18,
+        10752
+      ],
+      "id": 307,
+      "title": "Rome, Open City",
+      "original_language": "it",
+      "original_title": "Roma città aperta",
+      "poster_path": "/ijGV4v8JxgbNzgEhqKdzHdaZn8a.jpg",
+      "release_date": "1945-10-08",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.01,
+      "vote_count": 1004
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/eULrEMwgXnWmzdowUfegaw2YYgD.jpg",
+      "genre_ids": [
+        12,
+        36,
+        10752
+      ],
+      "id": 947,
+      "title": "Lawrence of Arabia",
+      "original_language": "en",
+      "original_title": "Lawrence of Arabia",
+      "poster_path": "/AiAm0EtDvyGqNpVoieRw4u65vD1.jpg",
+      "release_date": "1962-12-11",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.999,
+      "vote_count": 3599
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/oqaKsofz49zjNhi48sxQIq8U73X.jpg",
+      "genre_ids": [
+        28,
+        12,
+        18,
+        36,
+        10752
+      ],
+      "id": 11658,
+      "title": "Tae Guk Gi: The Brotherhood of War",
+      "original_language": "ko",
+      "original_title": "태극기 휘날리며",
+      "poster_path": "/efc2MwDwvQsYsbxLXaXtlmOJ7LZ.jpg",
+      "release_date": "2004-02-05",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.985,
+      "vote_count": 801
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/2lBOQK06tltt8SQaswgb8d657Mv.jpg",
+      "genre_ids": [
+        10752,
+        18,
+        36
+      ],
+      "id": 530915,
+      "title": "1917",
+      "original_language": "en",
+      "original_title": "1917",
+      "poster_path": "/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+      "release_date": "2019-12-25",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.983,
+      "vote_count": 13953
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/8FCHJ21JBQOgATY2WI8vwYAiXg8.jpg",
+      "genre_ids": [
+        36,
+        18,
+        53,
+        10752
+      ],
+      "id": 205596,
+      "title": "The Imitation Game",
+      "original_language": "en",
+      "original_title": "The Imitation Game",
+      "poster_path": "/zSqJ1qFq8NXFfi7JeIYMlzyR0dx.jpg",
+      "release_date": "2014-11-14",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.979,
+      "vote_count": 18458
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/lTyikzfGgRX5ZqIfVeT26APYfRL.jpg",
+      "genre_ids": [
+        35,
+        10752,
+        18
+      ],
+      "id": 515001,
+      "title": "Jojo Rabbit",
+      "original_language": "en",
+      "original_title": "Jojo Rabbit",
+      "poster_path": "/1mqL7VG4Ix8wmxwypmCA1HTHBky.jpg",
+      "release_date": "2019-10-18",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.974,
+      "vote_count": 10721
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/a5zBQfXmLk3qqRYF7AioWpiAxk2.jpg",
+      "genre_ids": [
+        18,
+        10752
+      ],
+      "id": 11778,
+      "title": "The Deer Hunter",
+      "original_language": "en",
+      "original_title": "The Deer Hunter",
+      "poster_path": "/bbGtogDZOg09bm42KIpCXUXICkh.jpg",
+      "release_date": "1978-12-08",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8,
+      "vote_count": 4403
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/1m1c5gIWWkb1FEC9lzsoXHhhs7b.jpg",
+      "genre_ids": [
+        18,
+        36,
+        10752
+      ],
+      "id": 197,
+      "title": "Braveheart",
+      "original_language": "en",
+      "original_title": "Braveheart",
+      "poster_path": "/or1gBugydmjToAEq7OZY0owwFk.jpg",
+      "release_date": "1995-05-24",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.9,
+      "vote_count": 11466
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/bh5jnK2SeUw7iTbg9QHIi24S01Q.jpg",
+      "genre_ids": [
+        16,
+        18,
+        10752,
+        36
+      ],
+      "id": 378108,
+      "title": "In This Corner of the World",
+      "original_language": "ja",
+      "original_title": "この世界の片隅に",
+      "poster_path": "/9Z4H4M2F8OQTB04YC1Opds8MFBb.jpg",
+      "release_date": "2016-11-12",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.933,
+      "vote_count": 653
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/lb87H6BFXXKMJlUnDHvPOMGfh8z.jpg",
+      "genre_ids": [
+        12,
+        18,
+        10752
+      ],
+      "id": 5925,
+      "title": "The Great Escape",
+      "original_language": "en",
+      "original_title": "The Great Escape",
+      "poster_path": "/gBH4H8UMFxl139HaLz6lRuvsel8.jpg",
+      "release_date": "1963-07-03",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.925,
+      "vote_count": 2954
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/bodTQ7K68AopK2uQumsrSVT9g4A.jpg",
+      "genre_ids": [
+        35,
+        10752
+      ],
+      "id": 8290,
+      "title": "Don't Look Now... We're Being Shot At!",
+      "original_language": "fr",
+      "original_title": "La Grande Vadrouille",
+      "poster_path": "/91l4Sf3WJwrb0tSVPsOqnBXG8E6.jpg",
+      "release_date": "1966-12-08",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.918,
+      "vote_count": 1498
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/r6bIGLFJ2ml9L970RNpuwDyb4Af.jpg",
+      "genre_ids": [
+        18,
+        10749,
+        10752
+      ],
+      "id": 38360,
+      "title": "The Cranes Are Flying",
+      "original_language": "ru",
+      "original_title": "Летят журавли",
+      "poster_path": "/foXYOdXEJ0rvtTDo4LLnsUnvPLB.jpg",
+      "release_date": "1957-10-12",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.921,
+      "vote_count": 475
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/mzox4HbcV9W42MH2dB1QsdDVGo3.jpg",
+      "genre_ids": [
+        35,
+        10752,
+        10749
+      ],
+      "id": 961,
+      "title": "The General",
+      "original_language": "en",
+      "original_title": "The General",
+      "poster_path": "/4NmV1Wei4LxT2lpjViCAScgCZLq.jpg",
+      "release_date": "1926-12-25",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.914,
+      "vote_count": 1467
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/4QHF7kAYjIpZ5U8A0amvhRkHlZ1.jpg",
+      "genre_ids": [
+        18,
+        28,
+        36,
+        10752
+      ],
+      "id": 94047,
+      "title": "My Way",
+      "original_language": "ko",
+      "original_title": "마이웨이",
+      "poster_path": "/3moPqIC1EBFilLI3YJNa5Nfel3e.jpg",
+      "release_date": "2011-12-21",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.9,
+      "vote_count": 465
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/ze7GsNSv418o7pzqc9fb00LWWDk.jpg",
+      "genre_ids": [
+        18,
+        10752,
+        36
+      ],
+      "id": 17295,
+      "title": "The Battle of Algiers",
+      "original_language": "it",
+      "original_title": "La battaglia di Algeri",
+      "poster_path": "/2p3AFtOHFvP6OeVMqlnL1zLKOqL.jpg",
+      "release_date": "1966-09-08",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.906,
+      "vote_count": 934
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/4FHcxMtVruMr7ltU2cItWssLjTP.jpg",
+      "genre_ids": [
+        18,
+        10752,
+        10749
+      ],
+      "id": 770,
+      "title": "Gone with the Wind",
+      "original_language": "en",
+      "original_title": "Gone with the Wind",
+      "poster_path": "/lNz2Ow0wGCAvzckW7EOjE03KcYv.jpg",
+      "release_date": "1939-12-15",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.904,
+      "vote_count": 4494
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/2reDfi3bl3givTawULOVvjEF1rR.jpg",
+      "genre_ids": [
+        10752,
+        18,
+        10749
+      ],
+      "id": 426618,
+      "title": "Where Hands Touch",
+      "original_language": "en",
+      "original_title": "Where Hands Touch",
+      "poster_path": "/omKzydOrom9kpdfQUE0G9Y9sPl0.jpg",
+      "release_date": "2018-09-14",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.9,
+      "vote_count": 543
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/cT80aGpjWZLn8rd7cLtsbktFMhf.jpg",
+      "genre_ids": [
+        18,
+        36,
+        10752
+      ],
+      "id": 613,
+      "title": "Downfall",
+      "original_language": "de",
+      "original_title": "Der Untergang",
+      "poster_path": "/cP1ElGjBhbZAAqmueXjHDKlSwiP.jpg",
+      "release_date": "2004-09-16",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.864,
+      "vote_count": 4474
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/9eHg5qX7LkjW2Zrejvap2RmFGlD.jpg",
+      "genre_ids": [
+        18,
+        36,
+        10752
+      ],
+      "id": 777,
+      "title": "Grand Illusion",
+      "original_language": "fr",
+      "original_title": "La Grande Illusion",
+      "poster_path": "/lWg41zE0FVixkNsFgxnlRyvDYv9.jpg",
+      "release_date": "1937-06-18",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.861,
+      "vote_count": 806
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/fRtQdiESAdt9rjXCvZhvkmprvac.jpg",
+      "genre_ids": [
+        16,
+        10752,
+        18
+      ],
+      "id": 435129,
+      "title": "The Breadwinner",
+      "original_language": "en",
+      "original_title": "The Breadwinner",
+      "poster_path": "/2d6qmkJz9AWqmk9wBWtd2uFX89t.jpg",
+      "release_date": "2017-11-17",
+      "softcore": false,
+      "video": false,
+      "vote_average": 7.844,
+      "vote_count": 957
+    }
+  ],
+  "total_pages": 19,
+  "total_results": 362
+}

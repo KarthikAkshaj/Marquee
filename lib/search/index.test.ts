@@ -15,6 +15,8 @@ const getTmdbMovieDetails = vi.fn();
 const getTmdbCollection = vi.fn();
 const getAniListSuggestions = vi.fn();
 const getTmdbSuggestions = vi.fn();
+const discoverAniList = vi.fn();
+const discoverTmdb = vi.fn();
 vi.mock("./anilist", () => ({
   searchAniList: (q: string) => searchAniList(q),
   searchAniListMany: (queries: string[]) => searchAniListMany(queries),
@@ -22,6 +24,7 @@ vi.mock("./anilist", () => ({
   searchAniListReadingMany: (queries: string[]) => searchAniListReadingMany(queries),
   getAniListSeries: (id: number) => getAniListSeries(id),
   getAniListSuggestions: (ids: string[]) => getAniListSuggestions(ids),
+  discoverAniList: (filter: unknown) => discoverAniList(filter),
 }));
 vi.mock("./tmdb", () => ({
   tmdbConfigured: () => Boolean(process.env.TMDB_READ_TOKEN),
@@ -31,11 +34,21 @@ vi.mock("./tmdb", () => ({
   getTmdbMovieDetails: (id: string) => getTmdbMovieDetails(id),
   getTmdbCollection: (id: number) => getTmdbCollection(id),
   getTmdbSuggestions: (type: string, id: string) => getTmdbSuggestions(type, id),
+  discoverTmdb: (type: string, filter: unknown) => discoverTmdb(type, filter),
 }));
-vi.mock("./igdb", () => ({ igdbConfigured: () => false, searchIgdb: vi.fn(), getIgdbSuggestions: vi.fn() }));
+vi.mock("./igdb", () => ({ igdbConfigured: () => false, searchIgdb: vi.fn(), getIgdbSuggestions: vi.fn(), discoverIgdb: vi.fn() }));
 
-const { getAnimeSeries, getRelated, getSeriesDetails, getSuggestions, matchMetadata, normaliseQuery, possessiveVariant, searchMetadata } =
-  await import("./index");
+const {
+  discoverTitles,
+  getAnimeSeries,
+  getRelated,
+  getSeriesDetails,
+  getSuggestions,
+  matchMetadata,
+  normaliseQuery,
+  possessiveVariant,
+  searchMetadata,
+} = await import("./index");
 const { ProviderError } = await import("./types");
 
 describe("searchMetadata", () => {
@@ -266,5 +279,35 @@ describe("getSuggestions (SPEC §20)", () => {
   it("asks nobody without seeds", async () => {
     expect(await getSuggestions("anime", [])).toEqual({ results: [] });
     expect(getAniListSuggestions).not.toHaveBeenCalled();
+  });
+});
+
+describe("discoverTitles (SPEC §20)", () => {
+  beforeEach(() => {
+    vi.stubEnv("TMDB_READ_TOKEN", "token");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+    discoverAniList.mockReset();
+    discoverTmdb.mockReset();
+  });
+
+  it("sends each kind to its provider: a series shelf asks TMDB for TV", async () => {
+    discoverAniList.mockResolvedValue([]);
+    discoverTmdb.mockResolvedValue([{ result: { source: "tmdb", externalId: "1", title: "Band of Brothers" } }]);
+    await discoverTitles({ kind: "anime", anilist: { tags: ["Military"] } });
+    expect(discoverAniList).toHaveBeenCalledWith({ tags: ["Military"] });
+    expect(await discoverTitles({ kind: "series", tmdb: { genres: [10768] } })).toEqual({
+      results: [{ result: { source: "tmdb", externalId: "1", title: "Band of Brothers" } }],
+    });
+    expect(discoverTmdb).toHaveBeenCalledWith("tv", { genres: [10768] });
+  });
+
+  it("says unavailable when the provider fails, and not configured without keys", async () => {
+    discoverTmdb.mockRejectedValue(new ProviderError("tmdb", "timed out"));
+    expect(await discoverTitles({ kind: "movie", tmdb: { genres: [28] } })).toEqual({ results: [], error: "unavailable" });
+    expect(await discoverTitles({ kind: "game", igdb: { themes: [1] } })).toEqual({ results: [], error: "not_configured" });
   });
 });

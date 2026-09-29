@@ -2,8 +2,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import hades from "./__fixtures__/igdb-hades.json";
 import similar from "./__fixtures__/igdb-similar-witcher-celeste.json";
+import warfare from "./__fixtures__/igdb-discover-warfare.json";
 import {
+  discoverIgdb,
   getIgdbSuggestions,
+  igdbDiscoverBody,
   igdbConfigured,
   igdbSearchBody,
   igdbSimilarBody,
@@ -134,5 +137,24 @@ describe("IGDB", () => {
     };
     expect(normaliseSimilar(seed, 1_700_000_000_000).suggestions.map(({ result }) => result.externalId)).toEqual(["2"]);
     expect(igdbSimilarBody([1, 2])).toMatch(/^fields id,similar_games\.name,.*; where id = \(1,2\); limit 2;$/);
+  });
+
+  it("asks for any of a mood's themes, genres or keywords, main games that are out, best rated first", () => {
+    const body = igdbDiscoverBody({ themes: [39], keywords: [24685, 23931] }, 1_700_000_000_000)!;
+    expect(body).toContain("where (themes = (39) | keywords = (24685,23931)) & game_type = (0,2,4,8,9,10,11) & version_parent = null");
+    expect(body).toContain("& total_rating_count >= 100 & first_release_date < 1700000000;");
+    expect(body).toContain("sort total_rating desc;");
+    expect(igdbDiscoverBody({ themes: [], genres: [1.5] })).toBeNull();
+  });
+
+  it("returns a mood's games in IGDB's order", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: string) => (input.startsWith("https://id.twitch.tv/") ? json({ access_token: "token", expires_in: 5_000_000 }) : json(warfare))),
+    );
+    const found = await discoverIgdb({ themes: [39] });
+    expect(found.slice(0, 2).map(({ result }) => result.title)).toEqual(["Advance Wars", "TimeSplitters 2"]);
+    expect(found[0].result.source).toBe("igdb");
+    expect(await discoverIgdb({})).toEqual([]);
   });
 });

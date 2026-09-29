@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import {
+  discoverAniList,
   getAniListSeries,
   getAniListSuggestions,
   searchAniList,
@@ -7,8 +8,9 @@ import {
   searchAniListReading,
   searchAniListReadingMany,
 } from "./anilist";
-import { getIgdbSuggestions, igdbConfigured, searchIgdb } from "./igdb";
+import { discoverIgdb, getIgdbSuggestions, igdbConfigured, searchIgdb } from "./igdb";
 import {
+  discoverTmdb,
   getTmdbCollection,
   getTmdbMovieDetails,
   getTmdbSeriesDetails,
@@ -21,6 +23,8 @@ import {
 } from "./tmdb";
 import {
   ProviderError,
+  type DiscoverFilter,
+  type DiscoverResponse,
   type RelatedKind,
   type SearchKind,
   type SearchResponse,
@@ -33,6 +37,8 @@ import {
 
 export { RELATED_KINDS, SEARCH_KINDS, SEARCH_TYPES, isRelatedKind } from "./types";
 export type {
+  DiscoverFilter,
+  DiscoverResponse,
   RelatedKind,
   Release,
   SearchError,
@@ -265,7 +271,9 @@ export async function matchMetadata(kind: SearchKind, queries: readonly string[]
   }
 }
 
-const cachedAniListSuggestions = unstable_cache((ids: string[]) => getAniListSuggestions(ids), ["anilist-suggestions-v1"], {
+// These cache what the normalisers made of an answer, so a change to what
+// counts as a later season needs a new key, or the old verdicts stay a day.
+const cachedAniListSuggestions = unstable_cache((ids: string[]) => getAniListSuggestions(ids), ["anilist-suggestions-v3"], {
   revalidate: DAY,
 });
 
@@ -300,6 +308,36 @@ export async function getSuggestions(kind: SearchKind, seeds: readonly string[])
     return results.length === 0 ? { results, error: "unavailable" } : { results };
   } catch (error) {
     console.error("[search] suggestions", kind, error instanceof ProviderError ? error.message : error);
+    return { results: [], error: "unavailable" };
+  }
+}
+
+/** Kept apart from the provider calls so the cache key is just the filter. */
+function discover(filter: DiscoverFilter) {
+  switch (filter.kind) {
+    case "anime":
+      return discoverAniList(filter.anilist);
+    case "movie":
+      return discoverTmdb("movie", filter.tmdb);
+    case "series":
+      return discoverTmdb("tv", filter.tmdb);
+    case "game":
+      return discoverIgdb(filter.igdb);
+  }
+}
+
+const cachedDiscover = unstable_cache(discover, ["discover-v3"], { revalidate: DAY });
+
+/**
+ * A provider's best-rated titles for a mood (SPEC §20), cached for a day. The
+ * moods are a short fixed list, so most of these are shared by everyone.
+ */
+export async function discoverTitles(filter: DiscoverFilter): Promise<DiscoverResponse> {
+  if (!PROVIDERS[filter.kind].configured()) return { results: [], error: "not_configured" };
+  try {
+    return { results: await cachedDiscover(filter) };
+  } catch (error) {
+    console.error("[search] discover", filter.kind, error instanceof ProviderError ? error.message : error);
     return { results: [], error: "unavailable" };
   }
 }

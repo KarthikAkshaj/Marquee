@@ -9,7 +9,11 @@ import severanceSearch from "./__fixtures__/tmdb-search-tv-severance.json";
 import severance from "./__fixtures__/tmdb-tv-severance.json";
 import unauthorized from "./__fixtures__/tmdb-unauthorized.json";
 import duneRecommendations from "./__fixtures__/tmdb-recommendations-dune.json";
+import warPage1 from "./__fixtures__/tmdb-discover-war-1.json";
+import warPage2 from "./__fixtures__/tmdb-discover-war-2.json";
 import {
+  discoverPath,
+  discoverTmdb,
   getTmdbCollection,
   getTmdbSeriesDetails,
   getTmdbSuggestions,
@@ -201,6 +205,40 @@ describe("TMDB", () => {
 
     const show = normaliseTmdbSuggestions("1", "tv", [{ id: 7, name: "Show", first_air_date: "2019-05-01", vote_count: 90 }], new Map(), "2026-09-29");
     expect(show.suggestions[0].result).toMatchObject({ title: "Show", format: "tv", year: 2019 });
+  });
+
+  it("builds a mood's discover query: best rated, enough votes, out already", () => {
+    const path = new URL(`https://x${discoverPath("movie", { genres: [10752] }, 2, "2026-09-29")}`);
+    expect(path.pathname).toBe("/discover/movie");
+    expect(Object.fromEntries(path.searchParams)).toEqual({
+      include_adult: "false",
+      language: "en-US",
+      sort_by: "vote_average.desc",
+      "vote_count.gte": "300",
+      "primary_release_date.lte": "2026-09-29",
+      page: "2",
+      with_genres: "10752",
+    });
+
+    const tv = new URL(`https://x${discoverPath("tv", { keywords: [383896, 275276] }, 1, "2026-09-29")}`).searchParams;
+    expect(tv.get("with_keywords")).toBe("383896|275276");
+    expect(tv.get("first_air_date.lte")).toBe("2026-09-29");
+    // Anime belongs on AniList shelves.
+    expect(tv.get("without_genres")).toBe("16");
+  });
+
+  it("fetches two pages of a mood and keeps each title once", async () => {
+    const fetch = vi.fn(async (input: string) => {
+      const url = new URL(input);
+      if (url.pathname.endsWith("/genre/movie/list")) return json(movieGenres);
+      return json(url.searchParams.get("page") === "1" ? warPage1 : { ...warPage2, results: [...warPage2.results, warPage1.results[0]] });
+    });
+    vi.stubGlobal("fetch", fetch);
+    const found = await discoverTmdb("movie", { genres: [10752] });
+    expect(found.slice(0, 3).map(({ result }) => result.title)).toEqual(["Schindler's List", "Grave of the Fireflies", "The Pianist"]);
+    expect(found).toHaveLength(40);
+    expect(found[0].result).toMatchObject({ source: "tmdb", format: "movie", genres: expect.arrayContaining(["War"]) });
+    expect(await discoverTmdb("movie", {})).toEqual([]);
   });
 
   it("reports a bad token as a provider error, and retries genres after a failure", async () => {

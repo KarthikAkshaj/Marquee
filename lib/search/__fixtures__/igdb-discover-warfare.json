@@ -1,0 +1,2374 @@
+[
+  {
+    "id": 1691,
+    "artworks": [
+      {
+        "id": 73614,
+        "image_id": "ar1ksu"
+      }
+    ],
+    "cover": {
+      "id": 525738,
+      "image_id": "cob9nu"
+    },
+    "first_release_date": 1000080000,
+    "genres": [
+      {
+        "id": 13,
+        "name": "Simulator"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "Advance Wars",
+    "platforms": [
+      {
+        "id": 41,
+        "abbreviation": "WiiU"
+      },
+      {
+        "id": 24,
+        "abbreviation": "GBA"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 20227,
+        "image_id": "xhhyrgwo9z1ebf0qy9gs"
+      }
+    ],
+    "total_rating": 92.06066187661521,
+    "total_rating_count": 141
+  },
+  {
+    "id": 2143,
+    "artworks": [
+      {
+        "id": 261904,
+        "image_id": "ar5m34"
+      }
+    ],
+    "cover": {
+      "id": 515651,
+      "image_id": "cob1vn"
+    },
+    "first_release_date": 1034121600,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "TimeSplitters 2",
+    "platforms": [
+      {
+        "id": 11,
+        "abbreviation": "XBOX"
+      },
+      {
+        "id": 21,
+        "abbreviation": "NGC"
+      },
+      {
+        "id": 8,
+        "abbreviation": "PS2"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 181886,
+        "image_id": "pezzyqpe1m4lgisfkwdv"
+      }
+    ],
+    "total_rating": 90.66331535787016,
+    "total_rating_count": 141
+  },
+  {
+    "id": 132,
+    "cover": {
+      "id": 90530,
+      "image_id": "co1xuq"
+    },
+    "first_release_date": 1025654400,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "Warcraft III: Reign of Chaos",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 130336,
+        "image_id": "fkl6jtwogmphqkudqguz"
+      }
+    ],
+    "total_rating": 90.66209892881359,
+    "total_rating_count": 1678
+  },
+  {
+    "id": 654,
+    "artworks": [
+      {
+        "id": 21384,
+        "image_id": "argi0"
+      }
+    ],
+    "cover": {
+      "id": 116395,
+      "image_id": "co2ht7"
+    },
+    "first_release_date": 1158019200,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "Company of Heroes",
+    "platforms": [
+      {
+        "id": 34,
+        "abbreviation": "Android"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 39,
+        "abbreviation": "iOS"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 779,
+        "image_id": "spzerwnrod4fkwgafk3p"
+      }
+    ],
+    "total_rating": 90.1485107445643,
+    "total_rating_count": 254
+  },
+  {
+    "id": 26845,
+    "artworks": [
+      {
+        "id": 268579,
+        "image_id": "ar5r8j"
+      }
+    ],
+    "cover": {
+      "id": 76781,
+      "image_id": "co1n8t"
+    },
+    "first_release_date": 1564099200,
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      },
+      {
+        "id": 31,
+        "name": "Adventure"
+      }
+    ],
+    "name": "Fire Emblem: Three Houses",
+    "platforms": [
+      {
+        "id": 130,
+        "abbreviation": "Switch"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 214040,
+        "image_id": "wgoxfasbgocvjf6wvxoj"
+      }
+    ],
+    "total_rating": 89.32295209941866,
+    "total_rating_count": 336
+  },
+  {
+    "id": 1439,
+    "artworks": [
+      {
+        "id": 95868,
+        "image_id": "ar21z0"
+      }
+    ],
+    "cover": {
+      "id": 528291,
+      "image_id": "cobbmr"
+    },
+    "first_release_date": 1051228800,
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "Fire Emblem",
+    "platforms": [
+      {
+        "id": 41,
+        "abbreviation": "WiiU"
+      },
+      {
+        "id": 24,
+        "abbreviation": "GBA"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 356844,
+        "image_id": "sc7ncc"
+      }
+    ],
+    "total_rating": 88.36220573466223,
+    "total_rating_count": 146
+  },
+  {
+    "id": 133,
+    "cover": {
+      "id": 90643,
+      "image_id": "co1xxv"
+    },
+    "first_release_date": 1057017600,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "Warcraft III: The Frozen Throne",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 320929,
+        "image_id": "sc6vmp"
+      }
+    ],
+    "total_rating": 88.21745792483955,
+    "total_rating_count": 588
+  },
+  {
+    "id": 239,
+    "artworks": [
+      {
+        "id": 4363,
+        "image_id": "rchvtoqmrqxldczm19gy"
+      }
+    ],
+    "cover": {
+      "id": 85091,
+      "image_id": "co1tnn"
+    },
+    "first_release_date": 1280188800,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "StarCraft II: Wings of Liberty",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 598,
+        "image_id": "aj9xp0caenpve0v4qav8"
+      }
+    ],
+    "total_rating": 88.15081039928666,
+    "total_rating_count": 1141
+  },
+  {
+    "id": 440,
+    "artworks": [
+      {
+        "id": 20807,
+        "image_id": "arg1z"
+      }
+    ],
+    "cover": {
+      "id": 416714,
+      "image_id": "co8xje"
+    },
+    "first_release_date": 1163116800,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 13,
+        "name": "Simulator"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "Medieval II: Total War",
+    "platforms": [
+      {
+        "id": 3,
+        "abbreviation": "Linux"
+      },
+      {
+        "id": 34,
+        "abbreviation": "Android"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 39,
+        "abbreviation": "iOS"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 705,
+        "image_id": "wwnwcw9hxavmh877wfxz"
+      }
+    ],
+    "total_rating": 88.06606800355054,
+    "total_rating_count": 254
+  },
+  {
+    "id": 987,
+    "artworks": [
+      {
+        "id": 3058,
+        "image_id": "gbkhvfsgkpysj2yepuuq"
+      }
+    ],
+    "cover": {
+      "id": 90048,
+      "image_id": "co1xhc"
+    },
+    "first_release_date": 1190678400,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Halo 3",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 12,
+        "abbreviation": "X360"
+      },
+      {
+        "id": 49,
+        "abbreviation": "XONE"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 9079,
+        "image_id": "qly3lqrhwefbray4gh0w"
+      }
+    ],
+    "total_rating": 88.00934183058791,
+    "total_rating_count": 853
+  },
+  {
+    "id": 458,
+    "cover": {
+      "id": 236706,
+      "image_id": "co52n6"
+    },
+    "first_release_date": 1447113600,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "StarCraft II: Legacy of the Void",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 17676,
+        "image_id": "ryrjm2ejileej8oiiazx"
+      }
+    ],
+    "total_rating": 87.99814630246473,
+    "total_rating_count": 215
+  },
+  {
+    "id": 230,
+    "artworks": [
+      {
+        "id": 295324,
+        "image_id": "ar6bvg"
+      }
+    ],
+    "cover": {
+      "id": 449950,
+      "image_id": "co9n6m"
+    },
+    "first_release_date": 891302400,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "StarCraft",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 320893,
+        "image_id": "sc6vlp"
+      }
+    ],
+    "total_rating": 87.96238719215327,
+    "total_rating_count": 1260
+  },
+  {
+    "id": 653,
+    "artworks": [
+      {
+        "id": 24938,
+        "image_id": "arj8q"
+      }
+    ],
+    "cover": {
+      "id": 78829,
+      "image_id": "co1otp"
+    },
+    "first_release_date": 1000944000,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      },
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      },
+      {
+        "id": 31,
+        "name": "Adventure"
+      }
+    ],
+    "name": "Commandos 2: Men of Courage",
+    "platforms": [
+      {
+        "id": 11,
+        "abbreviation": "XBOX"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      },
+      {
+        "id": 8,
+        "abbreviation": "PS2"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 987,
+        "image_id": "i3dei28qiwsnjjywhh4g"
+      }
+    ],
+    "total_rating": 87.7953173553455,
+    "total_rating_count": 183
+  },
+  {
+    "id": 1443,
+    "artworks": [
+      {
+        "id": 3018,
+        "image_id": "yx87w1enyokq9fjlt8fu"
+      }
+    ],
+    "cover": {
+      "id": 529512,
+      "image_id": "cobcko"
+    },
+    "first_release_date": 1334793600,
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "Fire Emblem Awakening",
+    "platforms": [
+      {
+        "id": 37,
+        "abbreviation": "3DS"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1487,
+        "image_id": "af5mzwwwmdnjmghqfjdi"
+      }
+    ],
+    "total_rating": 87.73775788805405,
+    "total_rating_count": 281
+  },
+  {
+    "id": 6739,
+    "artworks": [
+      {
+        "id": 20487,
+        "image_id": "arft3"
+      }
+    ],
+    "cover": {
+      "id": 94144,
+      "image_id": "co20n4"
+    },
+    "first_release_date": 1583452800,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      },
+      {
+        "id": 8,
+        "name": "Platform"
+      },
+      {
+        "id": 31,
+        "name": "Adventure"
+      },
+      {
+        "id": 32,
+        "name": "Indie"
+      }
+    ],
+    "name": "Black Mesa",
+    "platforms": [
+      {
+        "id": 3,
+        "abbreviation": "Linux"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1380669,
+        "image_id": "sctlbx"
+      }
+    ],
+    "total_rating": 87.68522131650522,
+    "total_rating_count": 556
+  },
+  {
+    "id": 7477,
+    "artworks": [
+      {
+        "id": 3881,
+        "image_id": "d5u1zguowlmubexbebiw"
+      }
+    ],
+    "cover": {
+      "id": 29822,
+      "image_id": "bvmjjiorjpcclmdorauw"
+    },
+    "first_release_date": 1208995200,
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "Valkyria Chronicles",
+    "platforms": [
+      {
+        "id": 9,
+        "abbreviation": "PS3"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 399305,
+        "image_id": "sc8k3t"
+      }
+    ],
+    "total_rating": 87.64896649156877,
+    "total_rating_count": 144
+  },
+  {
+    "id": 457,
+    "cover": {
+      "id": 236705,
+      "image_id": "co52n5"
+    },
+    "first_release_date": 1363046400,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "StarCraft II: Heart of the Swarm",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1668,
+        "image_id": "g8spbmpb4dfquceafjes"
+      }
+    ],
+    "total_rating": 87.20990662604198,
+    "total_rating_count": 307
+  },
+  {
+    "id": 848,
+    "cover": {
+      "id": 107506,
+      "image_id": "co2aya"
+    },
+    "first_release_date": 1053388800,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "Rise of Nations",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 13903,
+        "image_id": "vkdvw9i4wlcwjmymbiz7"
+      }
+    ],
+    "total_rating": 87.2020844221837,
+    "total_rating_count": 196
+  },
+  {
+    "id": 277,
+    "artworks": [
+      {
+        "id": 171863,
+        "image_id": "ar3olz"
+      }
+    ],
+    "cover": {
+      "id": 123501,
+      "image_id": "co2nal"
+    },
+    "first_release_date": 1119312000,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Battlefield 2",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 632,
+        "image_id": "s0moeyvaasjdhtzlzqjm"
+      }
+    ],
+    "total_rating": 87.17452592543181,
+    "total_rating_count": 361
+  },
+  {
+    "id": 124954,
+    "artworks": [
+      {
+        "id": 297366,
+        "image_id": "ar6dg6"
+      }
+    ],
+    "cover": {
+      "id": 587609,
+      "image_id": "cocleh"
+    },
+    "first_release_date": 1598918400,
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 13,
+        "name": "Simulator"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "Crusader Kings III",
+    "platforms": [
+      {
+        "id": 169,
+        "abbreviation": "Series X|S"
+      },
+      {
+        "id": 3,
+        "abbreviation": "Linux"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 167,
+        "abbreviation": "PS5"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 354098,
+        "image_id": "sc7l82"
+      }
+    ],
+    "total_rating": 87.11682858235596,
+    "total_rating_count": 202
+  },
+  {
+    "id": 438,
+    "cover": {
+      "id": 93069,
+      "image_id": "co1zt9"
+    },
+    "first_release_date": 1095811200,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 13,
+        "name": "Simulator"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "Rome: Total War",
+    "platforms": [
+      {
+        "id": 34,
+        "abbreviation": "Android"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 39,
+        "abbreviation": "iOS"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 827,
+        "image_id": "tm4yardv53tbpq5erhib"
+      }
+    ],
+    "total_rating": 87.04231574267129,
+    "total_rating_count": 325
+  },
+  {
+    "id": 990,
+    "artworks": [
+      {
+        "id": 10550,
+        "image_id": "ar852"
+      }
+    ],
+    "cover": {
+      "id": 90046,
+      "image_id": "co1xha"
+    },
+    "first_release_date": 1284422400,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Halo: Reach",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 12,
+        "abbreviation": "X360"
+      },
+      {
+        "id": 49,
+        "abbreviation": "XONE"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 9041,
+        "image_id": "oo0qmrx5unwv2klud3ww"
+      }
+    ],
+    "total_rating": 86.5653728507097,
+    "total_rating_count": 685
+  },
+  {
+    "id": 1904,
+    "artworks": [
+      {
+        "id": 8491,
+        "image_id": "ar6jv"
+      }
+    ],
+    "cover": {
+      "id": 480523,
+      "image_id": "coaarv"
+    },
+    "first_release_date": 1376352000,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 13,
+        "name": "Simulator"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "Europa Universalis IV",
+    "platforms": [
+      {
+        "id": 3,
+        "abbreviation": "Linux"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 320964,
+        "image_id": "sc6vno"
+      }
+    ],
+    "total_rating": 86.22399272354734,
+    "total_rating_count": 263
+  },
+  {
+    "id": 623,
+    "artworks": [
+      {
+        "id": 258081,
+        "image_id": "ar5j4x"
+      }
+    ],
+    "cover": {
+      "id": 88872,
+      "image_id": "co1wko"
+    },
+    "first_release_date": 1194220800,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      },
+      {
+        "id": 13,
+        "name": "Simulator"
+      }
+    ],
+    "name": "Call of Duty 4: Modern Warfare",
+    "platforms": [
+      {
+        "id": 9,
+        "abbreviation": "PS3"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      },
+      {
+        "id": 12,
+        "abbreviation": "X360"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 655,
+        "image_id": "q5pt64ftgqf8f2wmb9rd"
+      }
+    ],
+    "total_rating": 86.0903859922857,
+    "total_rating_count": 1850
+  },
+  {
+    "id": 866,
+    "artworks": [
+      {
+        "id": 30990,
+        "image_id": "arnwu"
+      }
+    ],
+    "cover": {
+      "id": 94417,
+      "image_id": "co20up"
+    },
+    "first_release_date": 1285027200,
+    "genres": [
+      {
+        "id": 13,
+        "name": "Simulator"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      }
+    ],
+    "name": "Sid Meier's Civilization V",
+    "platforms": [
+      {
+        "id": 3,
+        "abbreviation": "Linux"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 2011,
+        "image_id": "kxy47kwvh2rhvkossqdr"
+      }
+    ],
+    "total_rating": 85.87171013292456,
+    "total_rating_count": 1171
+  },
+  {
+    "id": 432,
+    "artworks": [
+      {
+        "id": 20219,
+        "image_id": "arfln"
+      }
+    ],
+    "cover": {
+      "id": 129238,
+      "image_id": "co2rpy"
+    },
+    "first_release_date": 1300147200,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 13,
+        "name": "Simulator"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "Total War: Shogun 2",
+    "platforms": [
+      {
+        "id": 3,
+        "abbreviation": "Linux"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 146778,
+        "image_id": "doptlzredmrjtvf3lexd"
+      }
+    ],
+    "total_rating": 85.7586067090768,
+    "total_rating_count": 211
+  },
+  {
+    "id": 1318,
+    "artworks": [
+      {
+        "id": 1414,
+        "image_id": "lban07qq23rrgnvv82jv"
+      }
+    ],
+    "cover": {
+      "id": 105626,
+      "image_id": "co29i2"
+    },
+    "first_release_date": 1349740800,
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 13,
+        "name": "Simulator"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "XCOM: Enemy Unknown",
+    "platforms": [
+      {
+        "id": 9,
+        "abbreviation": "PS3"
+      },
+      {
+        "id": 3,
+        "abbreviation": "Linux"
+      },
+      {
+        "id": 34,
+        "abbreviation": "Android"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 39,
+        "abbreviation": "iOS"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      },
+      {
+        "id": 12,
+        "abbreviation": "X360"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1415,
+        "image_id": "q7ldl6prsm0x1bcsyqiy"
+      }
+    ],
+    "total_rating": 85.52411953463357,
+    "total_rating_count": 572
+  },
+  {
+    "id": 103298,
+    "artworks": [
+      {
+        "id": 5676,
+        "image_id": "ar4do"
+      }
+    ],
+    "cover": {
+      "id": 172571,
+      "image_id": "co3p5n"
+    },
+    "first_release_date": 1584576000,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Doom Eternal",
+    "platforms": [
+      {
+        "id": 170,
+        "abbreviation": "Stadia"
+      },
+      {
+        "id": 169,
+        "abbreviation": "Series X|S"
+      },
+      {
+        "id": 48,
+        "abbreviation": "PS4"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 167,
+        "abbreviation": "PS5"
+      },
+      {
+        "id": 49,
+        "abbreviation": "XONE"
+      },
+      {
+        "id": 130,
+        "abbreviation": "Switch"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 251171,
+        "image_id": "iuqr5hhkgfphav8x4uda"
+      }
+    ],
+    "total_rating": 85.39176171262375,
+    "total_rating_count": 776
+  },
+  {
+    "id": 24220,
+    "cover": {
+      "id": 526574,
+      "image_id": "cobab2"
+    },
+    "first_release_date": 1435190400,
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "Fire Emblem Fates: Birthright",
+    "platforms": [
+      {
+        "id": 37,
+        "abbreviation": "3DS"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 106494,
+        "image_id": "jfc9txtxjjhpuoud5w3v"
+      }
+    ],
+    "total_rating": 85.30800958313098,
+    "total_rating_count": 111
+  },
+  {
+    "id": 240,
+    "cover": {
+      "id": 89822,
+      "image_id": "co1xb2"
+    },
+    "first_release_date": 1031616000,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Battlefield 1942",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1813152,
+        "image_id": "sc12v1c"
+      }
+    ],
+    "total_rating": 85.15665787568079,
+    "total_rating_count": 276
+  },
+  {
+    "id": 1309,
+    "cover": {
+      "id": 140996,
+      "image_id": "co30sk"
+    },
+    "first_release_date": 1022544000,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Medal of Honor: Frontline",
+    "platforms": [
+      {
+        "id": 11,
+        "abbreviation": "XBOX"
+      },
+      {
+        "id": 21,
+        "abbreviation": "NGC"
+      },
+      {
+        "id": 8,
+        "abbreviation": "PS2"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1409,
+        "image_id": "sbbvxjeoaexxiccjblcr"
+      }
+    ],
+    "total_rating": 85.02455975001953,
+    "total_rating_count": 130
+  },
+  {
+    "id": 9898,
+    "artworks": [
+      {
+        "id": 22759,
+        "image_id": "arhk7"
+      }
+    ],
+    "cover": {
+      "id": 129240,
+      "image_id": "co2rq0"
+    },
+    "first_release_date": 1464048000,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      }
+    ],
+    "name": "Total War: Warhammer",
+    "platforms": [
+      {
+        "id": 3,
+        "abbreviation": "Linux"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 18866,
+        "image_id": "acdizxsx0dw023jvwor3"
+      }
+    ],
+    "total_rating": 85.00580082303617,
+    "total_rating_count": 141
+  },
+  {
+    "id": 123,
+    "artworks": [
+      {
+        "id": 243769,
+        "image_id": "ar583d"
+      }
+    ],
+    "cover": {
+      "id": 120815,
+      "image_id": "co2l7z"
+    },
+    "first_release_date": 1101168000,
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 31,
+        "name": "Adventure"
+      }
+    ],
+    "name": "World of Warcraft",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1454,
+        "image_id": "kqkixazzsokqgoxmuish"
+      }
+    ],
+    "total_rating": 84.9703328078499,
+    "total_rating_count": 902
+  },
+  {
+    "id": 740,
+    "artworks": [
+      {
+        "id": 259032,
+        "image_id": "ar5jvc"
+      }
+    ],
+    "cover": {
+      "id": 128403,
+      "image_id": "co2r2r"
+    },
+    "first_release_date": 1005782400,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Halo: Combat Evolved",
+    "platforms": [
+      {
+        "id": 11,
+        "abbreviation": "XBOX"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      },
+      {
+        "id": 12,
+        "abbreviation": "X360"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 9070,
+        "image_id": "exkvyg7tunws33xpqv9i"
+      }
+    ],
+    "total_rating": 84.94469746094327,
+    "total_rating_count": 930
+  },
+  {
+    "id": 2963,
+    "artworks": [
+      {
+        "id": 243416,
+        "image_id": "ar57tk"
+      }
+    ],
+    "cover": {
+      "id": 533380,
+      "image_id": "cobfk4"
+    },
+    "first_release_date": 1373328000,
+    "genres": [
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 36,
+        "name": "MOBA"
+      }
+    ],
+    "name": "Dota 2",
+    "platforms": [
+      {
+        "id": 3,
+        "abbreviation": "Linux"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1353405,
+        "image_id": "sct0al"
+      }
+    ],
+    "total_rating": 84.88448082408232,
+    "total_rating_count": 775
+  },
+  {
+    "id": 24,
+    "artworks": [
+      {
+        "id": 257946,
+        "image_id": "ar5j16"
+      }
+    ],
+    "cover": {
+      "id": 547861,
+      "image_id": "cobqqd"
+    },
+    "first_release_date": 762480000,
+    "genres": [
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "X-COM: UFO Defense",
+    "platforms": [
+      {
+        "id": 114,
+        "abbreviation": "Amiga CD32"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 13,
+        "abbreviation": "DOS"
+      },
+      {
+        "id": 16,
+        "abbreviation": "Amiga"
+      },
+      {
+        "id": 7,
+        "abbreviation": "PS1"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 46406,
+        "image_id": "szos32d4va6wqpci2k9a"
+      }
+    ],
+    "total_rating": 84.82637725901166,
+    "total_rating_count": 137
+  },
+  {
+    "id": 4115,
+    "cover": {
+      "id": 90991,
+      "image_id": "co1y7j"
+    },
+    "first_release_date": 919209600,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Syphon Filter",
+    "platforms": [
+      {
+        "id": 9,
+        "abbreviation": "PS3"
+      },
+      {
+        "id": 46,
+        "abbreviation": "Vita"
+      },
+      {
+        "id": 7,
+        "abbreviation": "PS1"
+      },
+      {
+        "id": 38,
+        "abbreviation": "PSP"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 10935,
+        "image_id": "rfnuz5zbjzccpurzmrwm"
+      }
+    ],
+    "total_rating": 84.6855171717421,
+    "total_rating_count": 119
+  },
+  {
+    "id": 21863,
+    "cover": {
+      "id": 526555,
+      "image_id": "cobaaj"
+    },
+    "first_release_date": 1435190400,
+    "genres": [
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 16,
+        "name": "Turn-based strategy (TBS)"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "Fire Emblem Fates: Conquest",
+    "platforms": [
+      {
+        "id": 37,
+        "abbreviation": "3DS"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 29564,
+        "image_id": "tyjprdlluhfhj6cqezlp"
+      }
+    ],
+    "total_rating": 84.67256593369629,
+    "total_rating_count": 107
+  },
+  {
+    "id": 495,
+    "artworks": [
+      {
+        "id": 349,
+        "image_id": "tfyizheuyjojmucjfpho"
+      }
+    ],
+    "cover": {
+      "id": 598341,
+      "image_id": "coctol"
+    },
+    "first_release_date": 1268697600,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      },
+      {
+        "id": 12,
+        "name": "Role-playing (RPG)"
+      }
+    ],
+    "name": "Metro 2033",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 12,
+        "abbreviation": "X360"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1930132,
+        "image_id": "sc15das"
+      }
+    ],
+    "total_rating": 84.6387167759561,
+    "total_rating_count": 894
+  },
+  {
+    "id": 295,
+    "cover": {
+      "id": 592428,
+      "image_id": "cocp4c"
+    },
+    "first_release_date": 848620800,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "Command & Conquer: Red Alert",
+    "platforms": [
+      {
+        "id": 9,
+        "abbreviation": "PS3"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 13,
+        "abbreviation": "DOS"
+      },
+      {
+        "id": 7,
+        "abbreviation": "PS1"
+      },
+      {
+        "id": 38,
+        "abbreviation": "PSP"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 337126,
+        "image_id": "sc784m"
+      }
+    ],
+    "total_rating": 84.63412421412076,
+    "total_rating_count": 373
+  },
+  {
+    "id": 879,
+    "artworks": [
+      {
+        "id": 24100,
+        "image_id": "arilg"
+      }
+    ],
+    "cover": {
+      "id": 501591,
+      "image_id": "coar13"
+    },
+    "first_release_date": 901843200,
+    "genres": [
+      {
+        "id": 9,
+        "name": "Puzzle"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 24,
+        "name": "Tactical"
+      }
+    ],
+    "name": "Commandos: Behind Enemy Lines",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1936,
+        "image_id": "dxpltugwnhpjsikurghb"
+      }
+    ],
+    "total_rating": 84.54324070511277,
+    "total_rating_count": 224
+  },
+  {
+    "id": 231,
+    "artworks": [
+      {
+        "id": 33268,
+        "image_id": "arpo4"
+      }
+    ],
+    "cover": {
+      "id": 562978,
+      "image_id": "coc2ea"
+    },
+    "first_release_date": 911433600,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      },
+      {
+        "id": 9,
+        "name": "Puzzle"
+      },
+      {
+        "id": 31,
+        "name": "Adventure"
+      }
+    ],
+    "name": "Half-Life",
+    "platforms": [
+      {
+        "id": 3,
+        "abbreviation": "Linux"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1136,
+        "image_id": "bpyqlfhfbnhxf2jl5qao"
+      }
+    ],
+    "total_rating": 84.24026900787285,
+    "total_rating_count": 2930
+  },
+  {
+    "id": 1866,
+    "artworks": [
+      {
+        "id": 3316,
+        "image_id": "jlyrtcyi2wzkly6gv5vs"
+      }
+    ],
+    "cover": {
+      "id": 164951,
+      "image_id": "co3j9z"
+    },
+    "first_release_date": 1235520000,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Killzone 2",
+    "platforms": [
+      {
+        "id": 9,
+        "abbreviation": "PS3"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 795824,
+        "image_id": "sch228"
+      }
+    ],
+    "total_rating": 84.23271126185075,
+    "total_rating_count": 173
+  },
+  {
+    "id": 103281,
+    "artworks": [
+      {
+        "id": 294419,
+        "image_id": "ar6b6b"
+      }
+    ],
+    "cover": {
+      "id": 111228,
+      "image_id": "co2dto"
+    },
+    "first_release_date": 1638921600,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      },
+      {
+        "id": 31,
+        "name": "Adventure"
+      }
+    ],
+    "name": "Halo Infinite",
+    "platforms": [
+      {
+        "id": 169,
+        "abbreviation": "Series X|S"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 49,
+        "abbreviation": "XONE"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 214074,
+        "image_id": "tlwczv6q5r6o4uuryxgt"
+      }
+    ],
+    "total_rating": 84.13484628801302,
+    "total_rating_count": 313
+  },
+  {
+    "id": 647,
+    "cover": {
+      "id": 384415,
+      "image_id": "co88m7"
+    },
+    "first_release_date": 812073600,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "Command & Conquer",
+    "platforms": [
+      {
+        "id": 9,
+        "abbreviation": "PS3"
+      },
+      {
+        "id": 4,
+        "abbreviation": "N64"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      },
+      {
+        "id": 13,
+        "abbreviation": "DOS"
+      },
+      {
+        "id": 32,
+        "abbreviation": "Saturn"
+      },
+      {
+        "id": 7,
+        "abbreviation": "PS1"
+      },
+      {
+        "id": 38,
+        "abbreviation": "PSP"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 149025,
+        "image_id": "xeskgryidexo1st73gjn"
+      }
+    ],
+    "total_rating": 83.91927774119264,
+    "total_rating_count": 340
+  },
+  {
+    "id": 352,
+    "artworks": [
+      {
+        "id": 10169,
+        "image_id": "ar7uh"
+      }
+    ],
+    "cover": {
+      "id": 89838,
+      "image_id": "co1xbi"
+    },
+    "first_release_date": 1267488000,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      },
+      {
+        "id": 31,
+        "name": "Adventure"
+      }
+    ],
+    "name": "Battlefield: Bad Company 2",
+    "platforms": [
+      {
+        "id": 9,
+        "abbreviation": "PS3"
+      },
+      {
+        "id": 34,
+        "abbreviation": "Android"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 39,
+        "abbreviation": "iOS"
+      },
+      {
+        "id": 12,
+        "abbreviation": "X360"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 8936,
+        "image_id": "vwz16porcwbakzekm13u"
+      }
+    ],
+    "total_rating": 83.89880974831556,
+    "total_rating_count": 659
+  },
+  {
+    "id": 621,
+    "artworks": [
+      {
+        "id": 18841,
+        "image_id": "arejd"
+      }
+    ],
+    "cover": {
+      "id": 123165,
+      "image_id": "co2n19"
+    },
+    "first_release_date": 1067385600,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Call of Duty",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 1926305,
+        "image_id": "sc15ach"
+      }
+    ],
+    "total_rating": 83.8597124146514,
+    "total_rating_count": 854
+  },
+  {
+    "id": 622,
+    "artworks": [
+      {
+        "id": 9404,
+        "image_id": "ar798"
+      }
+    ],
+    "cover": {
+      "id": 153375,
+      "image_id": "co3acf"
+    },
+    "first_release_date": 1130198400,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Call of Duty 2",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      },
+      {
+        "id": 12,
+        "abbreviation": "X360"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 763,
+        "image_id": "ywxmvg0b9puzo0eigzb9"
+      }
+    ],
+    "total_rating": 83.64217501325999,
+    "total_rating_count": 1081
+  },
+  {
+    "id": 18320,
+    "artworks": [
+      {
+        "id": 301845,
+        "image_id": "ar6gwl"
+      }
+    ],
+    "cover": {
+      "id": 123457,
+      "image_id": "co2n9d"
+    },
+    "first_release_date": 1477008000,
+    "genres": [
+      {
+        "id": 5,
+        "name": "Shooter"
+      }
+    ],
+    "name": "Battlefield 1",
+    "platforms": [
+      {
+        "id": 48,
+        "abbreviation": "PS4"
+      },
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 49,
+        "abbreviation": "XONE"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 23501,
+        "image_id": "ez6qfdwknjwshjkf5cvo"
+      }
+    ],
+    "total_rating": 83.58790350139026,
+    "total_rating_count": 914
+  },
+  {
+    "id": 650,
+    "artworks": [
+      {
+        "id": 130505,
+        "image_id": "ar2sp5"
+      }
+    ],
+    "cover": {
+      "id": 77702,
+      "image_id": "co1nye"
+    },
+    "first_release_date": 1062374400,
+    "genres": [
+      {
+        "id": 11,
+        "name": "Real Time Strategy (RTS)"
+      },
+      {
+        "id": 15,
+        "name": "Strategy"
+      }
+    ],
+    "name": "Command & Conquer: Generals - Zero Hour",
+    "platforms": [
+      {
+        "id": 6,
+        "abbreviation": "PC"
+      },
+      {
+        "id": 14,
+        "abbreviation": "Mac"
+      }
+    ],
+    "screenshots": [
+      {
+        "id": 110819,
+        "image_id": "y2xpowwfxfalpy7szoa5"
+      }
+    ],
+    "total_rating": 83.498722330368,
+    "total_rating_count": 136
+  }
+]

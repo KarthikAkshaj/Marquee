@@ -1,0 +1,3541 @@
+{
+  "data": {
+    "Page": {
+      "media": [
+        {
+          "id": 5114,
+          "title": {
+            "english": "Fullmetal Alchemist: Brotherhood",
+            "romaji": "Hagane no Renkinjutsushi: FULLMETAL ALCHEMIST"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 64,
+          "duration": 25,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx5114-nSWCgQlmOMtj.jpg",
+            "color": "#e4c993"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/5114-q0V5URebphSG.jpg",
+          "genres": [
+            "Action",
+            "Adventure",
+            "Drama",
+            "Fantasy"
+          ],
+          "averageScore": 90,
+          "startDate": {
+            "year": 2009
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 30025,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 6421,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 9135,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 121,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SPIN_OFF",
+                "node": {
+                  "id": 7902,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 195600,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 104578,
+          "title": {
+            "english": "Attack on Titan Season 3 Part 2",
+            "romaji": "Shingeki no Kyojin Season 3 Part 2"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 10,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx104578-k61nx3LPjvgd.jpg",
+            "color": "#e49350"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/104578-z7SadpYEuAsy.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Fantasy",
+            "Mystery"
+          ],
+          "averageScore": 89,
+          "startDate": {
+            "year": 2019
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 53390,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 99147,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 110277,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SUMMARY",
+                "node": {
+                  "id": 119113,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 120257,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 820,
+          "title": {
+            "english": "Legend of the Galactic Heroes",
+            "romaji": "Ginga Eiyuu Densetsu"
+          },
+          "format": "OVA",
+          "status": "FINISHED",
+          "episodes": 110,
+          "duration": 26,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx820-x5dNLNFeKb8B.png",
+            "color": "#bb8628"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/820-FcKc3kvg60z8.jpg",
+          "genres": [
+            "Drama",
+            "Sci-Fi"
+          ],
+          "averageScore": 88,
+          "startDate": {
+            "year": 1988
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 41941,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 3016,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 3014,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 20628,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 100780,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 87134,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 124032,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 148970,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 170816,
+                  "type": "ANIME",
+                  "format": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 101348,
+          "title": {
+            "english": "Vinland Saga",
+            "romaji": "VINLAND SAGA"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 24,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101348-2fhDFPCuMNiz.jpg",
+            "color": "#f16b5d"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/101348-pivKKffCAwAY.jpg",
+          "genres": [
+            "Action",
+            "Adventure",
+            "Drama"
+          ],
+          "averageScore": 87,
+          "startDate": {
+            "year": 2019
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 30642,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 136430,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 145902,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 2904,
+          "title": {
+            "english": "Code Geass: Lelouch of the Rebellion R2",
+            "romaji": "Code Geass: Hangyaku no Lelouch R2"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 25,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx2904-Fet9Q33suC7G.jpg",
+            "color": "#e4bb50"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/2904-X71fcvE83n3s.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Mecha",
+            "Sci-Fi",
+            "Thriller"
+          ],
+          "averageScore": 87,
+          "startDate": {
+            "year": 2008
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 1575,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 31528,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 5163,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 8728,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 9591,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 108187,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 112900,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 97880,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 132317,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 133106,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 12685,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 103047,
+          "title": {
+            "english": "Violet Evergarden: the Movie",
+            "romaji": "Violet Evergarden Movie"
+          },
+          "format": "MOVIE",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 140,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx103047-odblDHHEdehK.jpg",
+            "color": "#1a86d6"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/103047-Tjvsh5w1XZP4.jpg",
+          "genres": [
+            "Drama",
+            "Fantasy",
+            "Slice of Life"
+          ],
+          "averageScore": 87,
+          "startDate": {
+            "year": 2020
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 97298,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 109190,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 110277,
+          "title": {
+            "english": "Attack on Titan Final Season",
+            "romaji": "Shingeki no Kyojin: The Final Season"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 16,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx110277-sKUNXAsWMNFw.jpg",
+            "color": "#ae6b35"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/110277-iuGn6F5bK1U1.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Fantasy",
+            "Mystery"
+          ],
+          "averageScore": 87,
+          "startDate": {
+            "year": 2020
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 104578,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 53390,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 131681,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 139754,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 131586,
+          "title": {
+            "english": "86 EIGHTY-SIX Part 2",
+            "romaji": "86: Eighty Six Part 2"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 12,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx131586-JhC0wcBi09EZ.jpg",
+            "color": "#e4501a"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/131586-TQED17cUhGnT.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 87,
+          "startDate": {
+            "year": 2021
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 116589,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 98610,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 140168,
+                  "type": "ANIME",
+                  "format": "MUSIC"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 128949,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 131681,
+          "title": {
+            "english": "Attack on Titan Final Season Part 2",
+            "romaji": "Shingeki no Kyojin: The Final Season Part 2"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 12,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx131681-5ooUqvqNtee1.jpg",
+            "color": "#35a1e4"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/131681-3tNurPRsqsfz.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Fantasy",
+            "Mystery",
+            "Psychological"
+          ],
+          "averageScore": 86,
+          "startDate": {
+            "year": 2022
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 110277,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 53390,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 146984,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 113108,
+          "title": {
+            "english": "Kingdom Season 3",
+            "romaji": "Kingdom 3rd Season"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 26,
+          "duration": 25,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx113108-ArjAmFLubVyu.jpg",
+            "color": "#5d93e4"
+          },
+          "bannerImage": null,
+          "genres": [
+            "Action"
+          ],
+          "averageScore": 86,
+          "startDate": {
+            "year": 2020
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 46765,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 17389,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 140350,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 21827,
+          "title": {
+            "english": "Violet Evergarden",
+            "romaji": "Violet Evergarden"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 13,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx21827-ubzq619ZA2E9.png",
+            "color": "#3586e4"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/21827-ROucgYiiiSpR.jpg",
+          "genres": [
+            "Drama",
+            "Fantasy",
+            "Slice of Life"
+          ],
+          "averageScore": 85,
+          "startDate": {
+            "year": 2018
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 101432,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 97298,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 109190,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 154164,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 155227,
+          "title": {
+            "english": "Kingdom Season 5",
+            "romaji": "Kingdom 5th Season"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 13,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx155227-ZEAyBcZjSeet.jpg",
+            "color": "#50a1e4"
+          },
+          "bannerImage": null,
+          "genres": [
+            "Action"
+          ],
+          "averageScore": 85,
+          "startDate": {
+            "year": 2024
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 140350,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 46765,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 190840,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 1575,
+          "title": {
+            "english": "Code Geass: Lelouch of the Rebellion",
+            "romaji": "Code Geass: Hangyaku no Lelouch"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 25,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx1575-hsmWM2ydNm1m.jpg",
+            "color": "#c9d678"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/1575.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Mecha",
+            "Sci-Fi",
+            "Thriller"
+          ],
+          "averageScore": 85,
+          "startDate": {
+            "year": 2006
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 2904,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 1953,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 8888,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 101811,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 31528,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 41496,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 108187,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 110253,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 42042,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 126169,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 126416,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 126830,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "SPIN_OFF",
+                "node": {
+                  "id": 72381,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 144050,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 139044,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "SPIN_OFF",
+                "node": {
+                  "id": 17277,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 41968,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 202993,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 203651,
+                  "type": "ANIME",
+                  "format": null
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 215181,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 190840,
+          "title": {
+            "english": "Kingdom Season 6",
+            "romaji": "Kingdom 6th Season"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 13,
+          "duration": 25,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx190840-CvKAz6aWHB21.png",
+            "color": "#50aee4"
+          },
+          "bannerImage": null,
+          "genres": [
+            "Action"
+          ],
+          "averageScore": 84,
+          "startDate": {
+            "year": 2025
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 155227,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 46765,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 204688,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 33,
+          "title": {
+            "english": "Berserk",
+            "romaji": "Kenpuu Denki Berserk"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 25,
+          "duration": 25,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx33-PSwfE5B0gejI.jpg",
+            "color": "#e49350"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/33-g7HwYRVm0ZkN.jpg",
+          "genres": [
+            "Action",
+            "Adventure",
+            "Drama",
+            "Fantasy",
+            "Horror",
+            "Supernatural"
+          ],
+          "averageScore": 84,
+          "startDate": {
+            "year": 1997
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 30002,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 10218,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 12113,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 12115,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 155011,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 206914,
+          "title": {
+            "english": "NIPPON SANGOKU: The Three Nations of the Crimson Sun",
+            "romaji": "Nippon Sangoku"
+          },
+          "format": "ONA",
+          "status": "FINISHED",
+          "episodes": 12,
+          "duration": 26,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx206914-SHKX08LarRzB.jpg",
+            "color": "#35c9e4"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/206914-owssGq2CGhRZ.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Sci-Fi"
+          ],
+          "averageScore": 84,
+          "startDate": {
+            "year": 2026
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 142098,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 216346,
+                  "type": "ANIME",
+                  "format": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 116589,
+          "title": {
+            "english": "86 EIGHTY-SIX",
+            "romaji": "86: Eighty Six"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 11,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx116589-KawXHB6sApFt.jpg",
+            "color": "#bbd6f1"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/116589-SqwYWzaZCdD5.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 83,
+          "startDate": {
+            "year": 2021
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 98610,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 101606,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 131586,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SPIN_OFF",
+                "node": {
+                  "id": 164583,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 101432,
+          "title": {
+            "english": "Violet Evergarden: Special",
+            "romaji": "Violet Evergarden: Kitto \"Ai\" wo Shiru Hi ga Kuru no Darou"
+          },
+          "format": "OVA",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 34,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101432-NQSedsCDQ6dP.png",
+            "color": "#d6ae6b"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/n101432-kUA3US0cumo4.jpg",
+          "genres": [
+            "Drama",
+            "Fantasy",
+            "Romance",
+            "Slice of Life"
+          ],
+          "averageScore": 82,
+          "startDate": {
+            "year": 2018
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PARENT",
+                "node": {
+                  "id": 21827,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 97298,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 172019,
+          "title": {
+            "english": "Dr. STONE SCIENCE FUTURE",
+            "romaji": "Dr. STONE: SCIENCE FUTURE"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 12,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx172019-3cfZbrYBmV23.jpg",
+            "color": null
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/172019-qchFwdk8OM4m.jpg",
+          "genres": [
+            "Action",
+            "Adventure",
+            "Comedy",
+            "Sci-Fi"
+          ],
+          "averageScore": 82,
+          "startDate": {
+            "year": 2025
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 98416,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 162670,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 189117,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 177937,
+          "title": {
+            "english": "SPY x FAMILY Season 3",
+            "romaji": "SPY×FAMILY Season 3"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 13,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx177937-Tzgg6rAdhCoH.jpg",
+            "color": "#e4935d"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/177937-jty4x7qBWG5n.jpg",
+          "genres": [
+            "Action",
+            "Comedy",
+            "Slice of Life",
+            "Supernatural"
+          ],
+          "averageScore": 82,
+          "startDate": {
+            "year": 2025
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 108556,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 158927,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 338,
+          "title": {
+            "english": "Lady Oscar: The Rose of Versailles",
+            "romaji": "Versailles no Bara"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 40,
+          "duration": 23,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx338-dyRsnLdTLZGM.png",
+            "color": "#e4ae43"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/338-XTxJzUNXqTVo.jpg",
+          "genres": [
+            "Adventure",
+            "Drama",
+            "Romance"
+          ],
+          "averageScore": 81,
+          "startDate": {
+            "year": 1979
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 30660,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SUMMARY",
+                "node": {
+                  "id": 3868,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "SUMMARY",
+                "node": {
+                  "id": 5415,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 1425,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 154392,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 168557,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 572,
+          "title": {
+            "english": "Nausicaä of the Valley of the Wind",
+            "romaji": "Kaze no Tani no Nausicaä"
+          },
+          "format": "MOVIE",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 117,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx572-ZE3kHBA6U0X1.jpg",
+            "color": "#e4785d"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/572-8Lz6Wwy3ySHE.jpg",
+          "genres": [
+            "Action",
+            "Adventure",
+            "Drama",
+            "Fantasy",
+            "Sci-Fi"
+          ],
+          "averageScore": 81,
+          "startDate": {
+            "year": 1984
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 30651,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 2761,
+          "title": {
+            "english": "The Ideon: Be Invoked",
+            "romaji": "THE IDEON: Hatsudou-hen"
+          },
+          "format": "MOVIE",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 98,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/nx2761-3hWAkJ69gBKL.jpg",
+            "color": "#e4785d"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/2761-SYo9ltVd1OiG.jpg",
+          "genres": [
+            "Drama",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 81,
+          "startDate": {
+            "year": 1982
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 930,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 2760,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 10937,
+          "title": {
+            "english": "Mobile Suit Gundam: The Origin",
+            "romaji": "Kidou Senshi Gundam: THE ORIGIN"
+          },
+          "format": "OVA",
+          "status": "FINISHED",
+          "episodes": 6,
+          "duration": 71,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx10937-yNrI4MUsigat.png",
+            "color": "#e46b5d"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/10937-lDNqjeiCjcmO.jpg",
+          "genres": [
+            "Action",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 81,
+          "startDate": {
+            "year": 2015
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 30214,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 80,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 108039,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 1090,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 84123,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 212323,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 777,
+          "title": {
+            "english": "Hellsing Ultimate",
+            "romaji": "HELLSING OVA"
+          },
+          "format": "OVA",
+          "status": "FINISHED",
+          "episodes": 10,
+          "duration": 50,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx777-F6547pSAR2Zd.jpg",
+            "color": "#e4431a"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/777-XzPjBZdSRtDT.jpg",
+          "genres": [
+            "Action",
+            "Horror",
+            "Supernatural"
+          ],
+          "averageScore": 81,
+          "startDate": {
+            "year": 2006
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 11077,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 30267,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 270,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 15227,
+          "title": {
+            "english": "In This Corner of the World",
+            "romaji": "Kono Sekai no Katasumi ni"
+          },
+          "format": "MOVIE",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 130,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx15227-1tG3lhprG0A9.jpg",
+            "color": "#e4e428"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/15227-yQXL90tfOpRO.jpg",
+          "genres": [
+            "Drama",
+            "Slice of Life"
+          ],
+          "averageScore": 81,
+          "startDate": {
+            "year": 2016
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 41243,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 112135,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 100878,
+          "title": {
+            "english": "Saga of Tanya the Evil - the Movie -",
+            "romaji": "Youjo Senki Movie"
+          },
+          "format": "MOVIE",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 98,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx100878-npKVJvggmK6a.jpg",
+            "color": "#f1e4c9"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/100878-Lslq3VqoNanU.jpg",
+          "genres": [
+            "Action",
+            "Fantasy"
+          ],
+          "averageScore": 81,
+          "startDate": {
+            "year": 2019
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 94846,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 21613,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 135865,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 97216,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 135866,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 148970,
+          "title": {
+            "english": "Legend of the Galactic Heroes: Die Neue These - Intrigue",
+            "romaji": "Ginga Eiyuu Densetsu: Die Neue These - Sakubou"
+          },
+          "format": "ONA",
+          "status": "FINISHED",
+          "episodes": 12,
+          "duration": 25,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/b148970-2gLwQ9Bso5r7.png",
+            "color": null
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/148970-m7zWb5ywBsEd.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Sci-Fi"
+          ],
+          "averageScore": 81,
+          "startDate": {
+            "year": 2022
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 124032,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 820,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 170816,
+                  "type": "ANIME",
+                  "format": null
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 158928,
+          "title": {
+            "english": "SPY x FAMILY CODE: White",
+            "romaji": "SPY×FAMILY CODE: White"
+          },
+          "format": "MOVIE",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 110,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx158928-xqE0euKlQMnY.jpg",
+            "color": "#5078e4"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/158928-7j4JK7pGvZnZ.jpg",
+          "genres": [
+            "Action",
+            "Adventure",
+            "Comedy",
+            "Slice of Life",
+            "Supernatural"
+          ],
+          "averageScore": 81,
+          "startDate": {
+            "year": 2023
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PARENT",
+                "node": {
+                  "id": 158927,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 177098,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 12029,
+          "title": {
+            "english": "Star Blazers: Space Battleship Yamato 2199",
+            "romaji": "Uchuu Senkan Yamato 2199"
+          },
+          "format": "OVA",
+          "status": "FINISHED",
+          "episodes": 26,
+          "duration": 25,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx12029-qIY5Bkh4sFKx.png",
+            "color": "#e4c95d"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/12029-iAyPj5JOcvsp.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Sci-Fi"
+          ],
+          "averageScore": 80,
+          "startDate": {
+            "year": 2012
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 1650,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 21730,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "SUMMARY",
+                "node": {
+                  "id": 110732,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 82803,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 20690,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 124032,
+          "title": {
+            "english": "Legend of the Galactic Heroes: Die Neue These - Collision",
+            "romaji": "Ginga Eiyuu Densetsu: Die Neue These - Gekitotsu"
+          },
+          "format": "ONA",
+          "status": "FINISHED",
+          "episodes": 12,
+          "duration": 25,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx124032-li8JjJdJvDVb.png",
+            "color": "#5daee4"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/124032-jnU1bPCnKUF2.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Fantasy",
+            "Sci-Fi"
+          ],
+          "averageScore": 80,
+          "startDate": {
+            "year": 2022
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 100780,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 41941,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 820,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 148970,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 135865,
+          "title": {
+            "english": "Saga of Tanya the Evil Season 2",
+            "romaji": "Youjo Senki II"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 12,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx135865-T7XIPMAbqcxN.png",
+            "color": "#e46b28"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/135865-Ws3e7BhBkFxd.jpg",
+          "genres": [
+            "Action",
+            "Fantasy"
+          ],
+          "averageScore": 80,
+          "startDate": {
+            "year": 2026
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 94846,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 97216,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 100878,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 213961,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 17389,
+          "title": {
+            "english": "Kingdom Season 2",
+            "romaji": "Kingdom 2nd Season"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 39,
+          "duration": 25,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx17389-KcR0AiBMuvzg.png",
+            "color": "#e4c9ae"
+          },
+          "bannerImage": null,
+          "genres": [
+            "Action"
+          ],
+          "averageScore": 80,
+          "startDate": {
+            "year": 2013
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 12031,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 46765,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 113108,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 82,
+          "title": {
+            "english": "Mobile Suit Gundam 0080: War in the Pocket",
+            "romaji": "Kidou Senshi Gundam 0080: Pocket no Naka no Sensou"
+          },
+          "format": "OVA",
+          "status": "FINISHED",
+          "episodes": 6,
+          "duration": 27,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx82-aw5fvnBOYuNw.png",
+            "color": "#e4935d"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/82-1Nw88oF9L4Pt.jpg",
+          "genres": [
+            "Adventure",
+            "Drama",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 80,
+          "startDate": {
+            "year": 1989
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PARENT",
+                "node": {
+                  "id": 80,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 5270,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 53869,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 7113,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 147489,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 82163,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 212323,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 136712,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 21749,
+          "title": {
+            "english": "Mobile Suit GUNDAM Iron Blooded Orphans 2",
+            "romaji": "Kidou Senshi Gundam: Tekketsu no Orphans 2"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 25,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx21749-tO6zfDKFesgl.jpg",
+            "color": null
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/21749-vh7IR0lNbQYR.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 80,
+          "startDate": {
+            "year": 2016
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 21268,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 124525,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 121,
+          "title": {
+            "english": "Fullmetal Alchemist",
+            "romaji": "Hagane no Renkinjutsushi"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 51,
+          "duration": 25,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx121-zjmixZ428Mwv.png",
+            "color": "#e4bb43"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/121-t5K7c8WRuPWl.jpg",
+          "genres": [
+            "Action",
+            "Adventure",
+            "Drama",
+            "Fantasy"
+          ],
+          "averageScore": 79,
+          "startDate": {
+            "year": 2003
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 430,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 30025,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 908,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "SUMMARY",
+                "node": {
+                  "id": 664,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 5114,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 34658,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 108039,
+          "title": {
+            "english": "Mobile Suit Gundam: The Origin - Advent of the Red Comet",
+            "romaji": "Kidou Senshi Gundam: THE ORIGIN - Zenya Akai Suisei"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 13,
+          "duration": 25,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx108039-EjKfj3FepUic.jpg",
+            "color": "#e4bb43"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/108039-SNRIPFyyFAWV.jpg",
+          "genres": [
+            "Action",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 79,
+          "startDate": {
+            "year": 2019
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 10937,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 30214,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 80,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 1090,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 100780,
+          "title": {
+            "english": "Legend of the Galactic Heroes: Die Neue These Second",
+            "romaji": "Ginga Eiyuu Densetsu: Die Neue These - Seiran"
+          },
+          "format": "ONA",
+          "status": "FINISHED",
+          "episodes": 12,
+          "duration": 25,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx100780-0umTIigEolK8.jpg",
+            "color": "#ff7843"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/100780-KdLpklET0Yh3.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Sci-Fi"
+          ],
+          "averageScore": 79,
+          "startDate": {
+            "year": 2019
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 20628,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 41941,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 820,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 124032,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 4901,
+          "title": {
+            "english": "Black Lagoon: Roberta's Blood Trail",
+            "romaji": "BLACK LAGOON: Roberta's Blood Trail"
+          },
+          "format": "OVA",
+          "status": "FINISHED",
+          "episodes": 5,
+          "duration": 33,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx4901-evMxxc1A8pCF.jpg",
+            "color": "#e4bba1"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/4901-F5KERZpTwS3T.jpg",
+          "genres": [
+            "Action",
+            "Adventure",
+            "Drama",
+            "Thriller"
+          ],
+          "averageScore": 79,
+          "startDate": {
+            "year": 2010
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 1519,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 30735,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 416,
+          "title": {
+            "english": "Porco Rosso",
+            "romaji": "Kurenai no Buta"
+          },
+          "format": "MOVIE",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 93,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx416-oO8Tts2dQtuv.jpg",
+            "color": "#f1ae5d"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/416-EGpl89C7nYoP.jpg",
+          "genres": [
+            "Action",
+            "Adventure",
+            "Comedy",
+            "Drama",
+            "Romance"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 1992
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 54979,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 21268,
+          "title": {
+            "english": "Mobile Suit GUNDAM Iron Blooded Orphans",
+            "romaji": "Kidou Senshi Gundam: Tekketsu no Orphans"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 25,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/nx21268-6dKrz26PPUvk.jpg",
+            "color": "#f1d6bb"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/21268-mCEvAuBxsu7N.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 2015
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 21749,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 86575,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "PARENT",
+                "node": {
+                  "id": 80,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 114842,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 117779,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 212323,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 85,
+          "title": {
+            "english": "Mobile Suit Zeta Gundam",
+            "romaji": "Kidou Senshi Z Gundam"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 50,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx85-zdvoyoXDpjSs.jpg",
+            "color": "#d6501a"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/85-DcFgPYUElRVu.jpg",
+          "genres": [
+            "Drama",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 1985
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 80,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 84,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 86,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 8839,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 1967,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 1968,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 1969,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 5270,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "SUMMARY",
+                "node": {
+                  "id": 14007,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 7113,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 3288,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 1092,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "SUMMARY",
+                "node": {
+                  "id": 112450,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 93727,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 59391,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 126624,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 61441,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 147460,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 147800,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 176468,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 129287,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 82163,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 147192,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 138344,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 212323,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 155158,
+          "title": {
+            "english": "Mobile Suit Gundam: The Witch from Mercury Season 2",
+            "romaji": "Kidou Senshi Gundam: Suisei no Majo Season 2"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 12,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx155158-4MO3TP5plLSm.jpg",
+            "color": "#5d93d6"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/155158-6iox6U8TO4BQ.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 2023
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 139274,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 165285,
+                  "type": "ANIME",
+                  "format": "MUSIC"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 3016,
+          "title": {
+            "english": "Legend of the Galactic Heroes: Overture to a New War",
+            "romaji": "Ginga Eiyuu Densetsu: Arata Naru Tatakai no Overture"
+          },
+          "format": "MOVIE",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 90,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx3016-ubCyMga7qCq6.png",
+            "color": "#d61a1a"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/3016-dfK5ZHC7tBWe.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Sci-Fi"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 1993
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 3014,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 820,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 2581,
+          "title": {
+            "english": "Mobile Suit Gundam 00",
+            "romaji": "Kidou Senshi Gundam 00"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 25,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx2581-MLEf00dNAfqY.jpg",
+            "color": "#f19335"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/2581-YJ1YJmB8QRJj.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 2007
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 3927,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "PARENT",
+                "node": {
+                  "id": 80,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SUMMARY",
+                "node": {
+                  "id": 5351,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "SUMMARY",
+                "node": {
+                  "id": 7270,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 7113,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 36732,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 41561,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 50467,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 146488,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 34404,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 84123,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 117779,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 212323,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 21893,
+          "title": {
+            "english": "Mobile Suit Gundam Thunderbolt: December Sky",
+            "romaji": "Kidou Senshi Gundam Thunderbolt: December Sky"
+          },
+          "format": "MOVIE",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 69,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx21893-iuu8D51Go2oI.png",
+            "color": "#864328"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/21893-UYCpw0NbnTFf.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Mecha",
+            "Sci-Fi"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 2016
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 21458,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 67683,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 99547,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "PARENT",
+                "node": {
+                  "id": 80,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 212323,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 101813,
+          "title": {
+            "english": "Code Geass: Lelouch of the Rebellion III - Glorification",
+            "romaji": "Code Geass: Hangyaku no Lelouch III - Oudou"
+          },
+          "format": "MOVIE",
+          "status": "FINISHED",
+          "episodes": 1,
+          "duration": 141,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx101813-ckCNyMkU2Kkc.png",
+            "color": "#f1e435"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/101813-dZkqZAD4FOoO.jpg",
+          "genres": [
+            "Action",
+            "Drama",
+            "Mecha",
+            "Sci-Fi",
+            "Thriller"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 2018
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "PREQUEL",
+                "node": {
+                  "id": 101812,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 97880,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 21613,
+          "title": {
+            "english": "Saga of Tanya the Evil",
+            "romaji": "Youjo Senki"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 12,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx21613-qT3NiwYP5dYc.png",
+            "color": null
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/21613-FGAqKSTvfxuA.png",
+          "genres": [
+            "Action",
+            "Fantasy"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 2017
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SOURCE",
+                "node": {
+                  "id": 94846,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 98186,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 100878,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 104454,
+                  "type": "ANIME",
+                  "format": "TV_SHORT"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 110178,
+                  "type": "ANIME",
+                  "format": "TV_SHORT"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 97216,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 135866,
+                  "type": "ANIME",
+                  "format": "ONA"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 117074,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "CHARACTER",
+                "node": {
+                  "id": 194447,
+                  "type": "ANIME",
+                  "format": "TV_SHORT"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 237,
+          "title": {
+            "english": "Eureka Seven",
+            "romaji": "Koukyoushihen Eureka Seven"
+          },
+          "format": "TV",
+          "status": "FINISHED",
+          "episodes": 50,
+          "duration": 24,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx237-P1YEQQFqZ1An.jpg",
+            "color": null
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/237-2w9hQ1THtj3C.jpg",
+          "genres": [
+            "Action",
+            "Adventure",
+            "Drama",
+            "Mecha",
+            "Romance",
+            "Sci-Fi"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 2005
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 12471,
+                  "type": "ANIME",
+                  "format": "TV"
+                }
+              },
+              {
+                "relationType": "SUMMARY",
+                "node": {
+                  "id": 13731,
+                  "type": "ANIME",
+                  "format": "SPECIAL"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 4246,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 98469,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 31037,
+                  "type": "MANGA",
+                  "format": "MANGA"
+                }
+              },
+              {
+                "relationType": "ADAPTATION",
+                "node": {
+                  "id": 53550,
+                  "type": "MANGA",
+                  "format": "NOVEL"
+                }
+              },
+              {
+                "relationType": "OTHER",
+                "node": {
+                  "id": 158925,
+                  "type": "ANIME",
+                  "format": "MUSIC"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": 3371,
+          "title": {
+            "english": "Legend of the Galactic Heroes Gaiden: A Hundred Billion Stars",
+            "romaji": "Ginga Eiyuu Densetsu Gaiden: Senoku no Hoshi, Senoku no Hikari"
+          },
+          "format": "OVA",
+          "status": "FINISHED",
+          "episodes": 24,
+          "duration": 26,
+          "coverImage": {
+            "extraLarge": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/n3371-rgefk9MUco58.png",
+            "color": "#f1bb50"
+          },
+          "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/n3371-z1z3S9dkuGV6.jpg",
+          "genres": [
+            "Action",
+            "Sci-Fi"
+          ],
+          "averageScore": 78,
+          "startDate": {
+            "year": 1998
+          },
+          "type": "ANIME",
+          "isAdult": false,
+          "relations": {
+            "edges": [
+              {
+                "relationType": "SIDE_STORY",
+                "node": {
+                  "id": 3665,
+                  "type": "ANIME",
+                  "format": "OVA"
+                }
+              },
+              {
+                "relationType": "ALTERNATIVE",
+                "node": {
+                  "id": 3015,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              },
+              {
+                "relationType": "SEQUEL",
+                "node": {
+                  "id": 3014,
+                  "type": "ANIME",
+                  "format": "MOVIE"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

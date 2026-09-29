@@ -1,0 +1,379 @@
+{
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/zb6fM1CX41D9rF9hdgclu0peUmy.jpg",
+      "genre_ids": [
+        18,
+        36,
+        10752
+      ],
+      "id": 424,
+      "title": "Schindler's List",
+      "original_language": "en",
+      "original_title": "Schindler's List",
+      "poster_path": "/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg",
+      "release_date": "1993-12-15",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.569,
+      "vote_count": 17963
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/aHaqZpOL7UyVu0nKqp3SMz0o2E1.jpg",
+      "genre_ids": [
+        16,
+        18,
+        10752
+      ],
+      "id": 12477,
+      "title": "Grave of the Fireflies",
+      "original_language": "ja",
+      "original_title": "火垂るの墓",
+      "poster_path": "/k9tv1rXZbOhH7eiCk378x61kNQ1.jpg",
+      "release_date": "1988-04-16",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.45,
+      "vote_count": 6840
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/c0fB9xk7D1aVb3Bg2rk2SVJcGn.jpg",
+      "genre_ids": [
+        18,
+        10752
+      ],
+      "id": 423,
+      "title": "The Pianist",
+      "original_language": "en",
+      "original_title": "The Pianist",
+      "poster_path": "/2hFvxCCWrTmCYwfy7yum0GKRi3Y.jpg",
+      "release_date": "2002-09-17",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.371,
+      "vote_count": 10481
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/c8Pi8F1FzpNebtgXcSjC9nWCdSW.jpg",
+      "genre_ids": [
+        35,
+        10752
+      ],
+      "id": 914,
+      "title": "The Great Dictator",
+      "original_language": "en",
+      "original_title": "The Great Dictator",
+      "poster_path": "/nhMXB8GTdswYMCL9nepDZymJCOr.jpg",
+      "release_date": "1940-10-15",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.285,
+      "vote_count": 3818
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/49fzLedFVKgGgFChLMuulDJBY1c.jpg",
+      "genre_ids": [
+        18,
+        10752
+      ],
+      "id": 28,
+      "title": "Apocalypse Now",
+      "original_language": "en",
+      "original_title": "Apocalypse Now",
+      "poster_path": "/gQB8Y5RCMkv2zwzFHbUJX3kAhvA.jpg",
+      "release_date": "1979-05-19",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.261,
+      "vote_count": 9408
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/nbMY2UcNnaAr3jrrowzN0NaxQyr.jpg",
+      "genre_ids": [
+        10752,
+        18
+      ],
+      "id": 975,
+      "title": "Paths of Glory",
+      "original_language": "en",
+      "original_title": "Paths of Glory",
+      "poster_path": "/hGg1UCQSHlXfv2HI9bDHT2OQBam.jpg",
+      "release_date": "1957-10-25",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.252,
+      "vote_count": 3391
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/bdD39MpSVhKjxarTxLSfX6baoMP.jpg",
+      "genre_ids": [
+        10752,
+        18,
+        36
+      ],
+      "id": 857,
+      "title": "Saving Private Ryan",
+      "original_language": "en",
+      "original_title": "Saving Private Ryan",
+      "poster_path": "/uqx37cS8cpHg8U35f9U5IBlrCV3.jpg",
+      "release_date": "1998-07-24",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.232,
+      "vote_count": 17833
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/hiqB5fFZ230MeFAGLPahoy06UOE.jpg",
+      "genre_ids": [
+        99,
+        10752
+      ],
+      "id": 576017,
+      "title": "For Sama",
+      "original_language": "en",
+      "original_title": "For Sama",
+      "poster_path": "/mDna51F8QfrJFZOgPGQUz3VKqsB.jpg",
+      "release_date": "2019-07-26",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.2,
+      "vote_count": 319
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/hwNtEmmugU5Yd7hpfprNWI0DGIn.jpg",
+      "genre_ids": [
+        18,
+        53,
+        10752
+      ],
+      "id": 16869,
+      "title": "Inglourious Basterds",
+      "original_language": "en",
+      "original_title": "Inglourious Basterds",
+      "poster_path": "/aupnPtagH9JVBuMrGEanf4iqXEQ.jpg",
+      "release_date": "2009-08-02",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.217,
+      "vote_count": 24840
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/vDKRMZGFTKP9nQolzeSB1rB1w6p.jpg",
+      "genre_ids": [
+        18,
+        36,
+        10752
+      ],
+      "id": 324786,
+      "title": "Hacksaw Ridge",
+      "original_language": "en",
+      "original_title": "Hacksaw Ridge",
+      "poster_path": "/fnOMP6mjmOmZwmlC1n0K7ivrzt1.jpg",
+      "release_date": "2016-10-07",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.193,
+      "vote_count": 15345
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/3Na31ta8vDuKOgQuPLdSZLs8bCB.jpg",
+      "genre_ids": [
+        18,
+        10752,
+        27,
+        36
+      ],
+      "id": 25237,
+      "title": "Come and See",
+      "original_language": "ru",
+      "original_title": "Иди и смотри",
+      "poster_path": "/qNbMsKVzigERgJUbwf8pKyZogpb.jpg",
+      "release_date": "1985-10-17",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.193,
+      "vote_count": 1973
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/oaUWMPGxpb4OsVCrppmlhQA2bwb.jpg",
+      "genre_ids": [
+        18,
+        10752
+      ],
+      "id": 20941,
+      "title": "Innocent Voices",
+      "original_language": "es",
+      "original_title": "Voces inocentes",
+      "poster_path": "/hvwB4LdMCLzqXsk5ZjR77vzPkGk.jpg",
+      "release_date": "2005-01-28",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.2,
+      "vote_count": 534
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/7i0L2ee4Iy0aXV6vR5u1ZmblOrx.jpg",
+      "genre_ids": [
+        35,
+        10752
+      ],
+      "id": 935,
+      "title": "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb",
+      "original_language": "en",
+      "original_title": "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb",
+      "poster_path": "/gHm96BRW4GoI339rF1vYoYTB6Qe.jpg",
+      "release_date": "1964-01-29",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.122,
+      "vote_count": 6346
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/3k2TRmqMjgt7tcwkYwZQdctnty3.jpg",
+      "genre_ids": [
+        18,
+        10752
+      ],
+      "id": 600,
+      "title": "Full Metal Jacket",
+      "original_language": "en",
+      "original_title": "Full Metal Jacket",
+      "poster_path": "/kMKyx1k8hWWscYFnPbnxxN4Eqo4.jpg",
+      "release_date": "1987-06-26",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.1,
+      "vote_count": 11785
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/f3ATwil5vmUeTsogBaMEKbBYBth.jpg",
+      "genre_ids": [
+        18,
+        10752,
+        9648
+      ],
+      "id": 46738,
+      "title": "Incendies",
+      "original_language": "fr",
+      "original_title": "Incendies",
+      "poster_path": "/yH6DAQVgbyj72S66gN4WWVoTjuf.jpg",
+      "release_date": "2010-09-17",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.104,
+      "vote_count": 3492
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/986n9SAXsuxpPJzFAWK3azPknX0.jpg",
+      "genre_ids": [
+        99,
+        10752
+      ],
+      "id": 1058616,
+      "title": "20 Days in Mariupol",
+      "original_language": "en",
+      "original_title": "20 Days in Mariupol",
+      "poster_path": "/zIRp1IeuPh4GgqFCH3y0DQuY9xP.jpg",
+      "release_date": "2023-07-14",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.1,
+      "vote_count": 320
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/zzzhbZnSPMOON9uGt0LsdUJWYoC.jpg",
+      "genre_ids": [
+        18,
+        36,
+        10752
+      ],
+      "id": 387,
+      "title": "Das Boot",
+      "original_language": "de",
+      "original_title": "Das Boot",
+      "poster_path": "/u8FhQPncOAkwcei2OI9orPWhV6K.jpg",
+      "release_date": "1981-09-17",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.084,
+      "vote_count": 2647
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/s7xVB5OPWw6GO40VBeEJcX9EwNt.jpg",
+      "genre_ids": [
+        18,
+        10749,
+        10752
+      ],
+      "id": 31439,
+      "title": "To Live",
+      "original_language": "zh",
+      "original_title": "活着",
+      "poster_path": "/bv0qREWTw8TPAtgt22ELp1UlKVl.jpg",
+      "release_date": "1994-05-18",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.08,
+      "vote_count": 395
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/fcH7FM74GoHgOUnKjpGAoKOxWvY.jpg",
+      "genre_ids": [
+        35,
+        10752,
+        18
+      ],
+      "id": 55823,
+      "title": "The Great War",
+      "original_language": "it",
+      "original_title": "La grande guerra",
+      "poster_path": "/aDvKsUb5y7GMNMz2HHNtuGww5t8.jpg",
+      "release_date": "1959-10-28",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8.077,
+      "vote_count": 379
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/6EbxuGgAjizKqd9CmG5HG0m0t23.jpg",
+      "genre_ids": [
+        18,
+        10752,
+        36
+      ],
+      "id": 472454,
+      "title": "Ayla: The Daughter of War",
+      "original_language": "tr",
+      "original_title": "Ayla",
+      "poster_path": "/8RELLU0RK9hRIteLzHFZ0dK8YSi.jpg",
+      "release_date": "2017-10-27",
+      "softcore": false,
+      "video": false,
+      "vote_average": 8,
+      "vote_count": 405
+    }
+  ],
+  "total_pages": 19,
+  "total_results": 362
+}

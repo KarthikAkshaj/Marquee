@@ -5,27 +5,21 @@ import { ForYouEmpty } from "@/components/picks/ForYouEmpty";
 import { NewPicksSection } from "@/components/picks/NewPicksSection";
 import { NewPicksSkeleton } from "@/components/picks/NewPicksSkeleton";
 import { PickShelves } from "@/components/picks/PickShelves";
-import { getCategories, getTasteItems } from "@/lib/queries";
-import { backlogPicks, knowsTaste, seedsOf, tasteOf, type PickShelf } from "@/lib/recommend";
+import { loadPickContext } from "@/lib/picks";
+import { knowsTaste } from "@/lib/recommend";
 
 export const metadata: Metadata = { title: "For you" };
 
 /**
  * For you (SPEC §20): what to start next from your own list, then titles from
  * outside it that fans of your favourites love. The first is instant; the
- * second streams in while the providers answer. `?shelf=` scopes both.
+ * second streams in while the providers answer. `?shelf=` and `?mood=` scope
+ * both, and switch in the browser after the page has loaded.
  */
-export default async function ForYouPage() {
-  const [categories, library] = await Promise.all([getCategories(), getTasteItems()]);
-  if (library.length === 0) return <ForYouEmpty />;
-
-  const shelves: PickShelf[] = categories.map(({ id, name, slug, kind, color }) => ({ id, name, slug, kind, color }));
-  const taste = tasteOf(library);
-  const backlog = backlogPicks(library, taste);
-  const seeds = seedsOf(library, shelves);
-  // The chips offer shelves with something to show: a Planned title, or a favourite to ask about.
-  const seeded = new Set([...seeds.values()].flat().map((seed) => seed.item.category_id));
-  const offered = shelves.filter((shelf) => seeded.has(shelf.id) || backlog.some((pick) => pick.item.category_id === shelf.id));
+export default async function ForYouPage({ searchParams }: { searchParams: Promise<{ mood?: string | string[] }> }) {
+  const [context, params] = await Promise.all([loadPickContext(), searchParams]);
+  if (context.library.length === 0) return <ForYouEmpty />;
+  const mood = typeof params.mood === "string" ? params.mood : null;
 
   return (
     <div className="flex flex-col">
@@ -37,18 +31,19 @@ export default async function ForYouPage() {
           What to start next, and what fans of your favourites can&apos;t stop talking about.
         </p>
       </header>
-      <PickShelves shelves={offered} />
+      <PickShelves shelves={context.offered} />
       <BacklogPicks
-        // Only what a poster needs goes to the browser.
-        picks={backlog.map(({ item: { id, title, category_id, cover_url, accent_color, rating }, reason }) => ({
+        // Only what a poster needs goes to the browser, and genres for the mood chips.
+        picks={context.backlog.map(({ item: { id, title, category_id, cover_url, accent_color, rating, genres }, reason }) => ({
           item: { id, title, category_id, cover_url, accent_color, rating },
+          genres,
           reason,
         }))}
-        shelves={offered}
-        personal={knowsTaste(taste)}
+        shelves={context.offered}
+        personal={knowsTaste(context.taste)}
       />
       <Suspense fallback={<NewPicksSkeleton />}>
-        <NewPicksSection shelves={offered} seeds={seeds} library={library} taste={taste} />
+        <NewPicksSection context={context} mood={mood} />
       </Suspense>
     </div>
   );

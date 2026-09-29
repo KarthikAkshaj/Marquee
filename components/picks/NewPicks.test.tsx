@@ -68,7 +68,7 @@ afterEach(() => {
 
 describe("NewPicks", () => {
   it("groups everything by shelf, six each, with the way to the rest", () => {
-    render(<NewPicks picks={picks} shelves={[anime, films]} notices={{}} />);
+    render(<NewPicks initial={{ picks: picks, notices: {}, mood: "" }} shelves={[anime, films]} />);
     const animeGroup = screen.getByRole("heading", { name: "Anime" }).parentElement!.parentElement!;
     expect(within(animeGroup).getAllByRole("button", { name: /^Plan it/ })).toHaveLength(6);
     expect(within(animeGroup).getByRole("link", { name: "All 8 Anime picks" })).toHaveAttribute("href", "/for-you?shelf=anime");
@@ -79,14 +79,14 @@ describe("NewPicks", () => {
 
   it("shows all of one shelf's picks when it's chosen", () => {
     params = new URLSearchParams("shelf=anime");
-    render(<NewPicks picks={picks} shelves={[anime, films]} notices={{}} />);
+    render(<NewPicks initial={{ picks: picks, notices: {}, mood: "" }} shelves={[anime, films]} />);
     expect(screen.getAllByRole("button", { name: /^Plan it/ })).toHaveLength(8);
     expect(screen.queryByText("Dune: Part Two")).not.toBeInTheDocument();
     expect(screen.queryByText(/uses the TMDB API/)).not.toBeInTheDocument();
   });
 
   it("plans a title onto its shelf, then links to it there", async () => {
-    render(<NewPicks picks={picks} shelves={[anime, films]} notices={{}} />);
+    render(<NewPicks initial={{ picks: picks, notices: {}, mood: "" }} shelves={[anime, films]} />);
     fireEvent.click(screen.getByRole("button", { name: "Plan it: Dune: Part Two" }));
 
     const link = await screen.findByRole("link", { name: "On Movies" });
@@ -103,14 +103,14 @@ describe("NewPicks", () => {
 
   it("puts the button back and says why when the add fails", async () => {
     addFromSearch.mockResolvedValue({ ok: false, message: "That shelf isn't there anymore." });
-    render(<NewPicks picks={picks} shelves={[anime, films]} notices={{}} />);
+    render(<NewPicks initial={{ picks: picks, notices: {}, mood: "" }} shelves={[anime, films]} />);
     fireEvent.click(screen.getByRole("button", { name: "Plan it: Dune: Part Two" }));
     await waitFor(() => expect(toastError).toHaveBeenCalledWith("That shelf isn't there anymore."));
     expect(screen.getByRole("button", { name: "Plan it: Dune: Part Two" })).toBeEnabled();
   });
 
   it("takes a title away at once for 'not for me', with Undo", async () => {
-    render(<NewPicks picks={picks} shelves={[anime, films]} notices={{}} />);
+    render(<NewPicks initial={{ picks: picks, notices: {}, mood: "" }} shelves={[anime, films]} />);
     fireEvent.click(screen.getByRole("button", { name: "Not for me: Dune: Part Two" }));
     expect(screen.queryByText("Dune: Part Two")).not.toBeInTheDocument();
 
@@ -124,17 +124,58 @@ describe("NewPicks", () => {
 
   it("brings the card back if 'not for me' couldn't be saved", async () => {
     dismissPick.mockResolvedValue({ ok: false, message: "Couldn't save that. Try again." });
-    render(<NewPicks picks={picks} shelves={[anime, films]} notices={{}} />);
+    render(<NewPicks initial={{ picks: picks, notices: {}, mood: "" }} shelves={[anime, films]} />);
     fireEvent.click(screen.getByRole("button", { name: "Not for me: Dune: Part Two" }));
     expect(await screen.findByText("Dune: Part Two")).toBeInTheDocument();
     expect(toastError).toHaveBeenCalledWith("Couldn't save that. Try again.");
   });
 
   it("explains an empty shelf, and says what to do with nothing at all", () => {
-    render(<NewPicks picks={[]} shelves={[anime, films]} notices={{ f: "TMDB isn't answering right now. Try again in a bit." }} />);
+    render(<NewPicks initial={{ picks: [], notices: { f: "TMDB isn't answering right now. Try again in a bit." }, mood: "" }} shelves={[anime, films]} />);
     expect(screen.getByText("TMDB isn't answering right now. Try again in a bit.")).toBeInTheDocument();
     cleanup();
-    render(<NewPicks picks={[]} shelves={[anime]} notices={{}} />);
+    render(<NewPicks initial={{ picks: [], notices: {}, mood: "" }} shelves={[anime]} />);
     expect(screen.getByText(/Rate a few titles 8 or more/)).toBeInTheDocument();
+  });
+
+  it("keeps the mood in the way to a shelf's other picks", () => {
+    params = new URLSearchParams("mood=war");
+    render(<NewPicks initial={{ picks, notices: {}, mood: "war" }} shelves={[anime, films]} />);
+    expect(screen.getByRole("link", { name: "All 8 Anime picks" })).toHaveAttribute("href", "/for-you?shelf=anime&mood=war");
+    expect(screen.getByText("War & military, best fit first")).toBeInTheDocument();
+  });
+
+  it("fetches a mood the page didn't open with, then keeps it", async () => {
+    const fetch = vi.fn(async () => Response.json({ picks: [pick("77", films, { title: "Band of Brothers" })], notices: {} }));
+    vi.stubGlobal("fetch", fetch);
+    params = new URLSearchParams("mood=military");
+    const { rerender } = render(<NewPicks initial={{ picks, notices: {}, mood: "" }} shelves={[anime, films]} />);
+    expect(screen.getByText("Finding the best War & military for you…")).toBeInTheDocument();
+    expect(await screen.findByText("Band of Brothers")).toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledWith("/api/picks?mood=war", expect.objectContaining({ signal: expect.any(AbortSignal) }));
+
+    // Back to no mood: what the page opened with, with no fetch.
+    params = new URLSearchParams();
+    rerender(<NewPicks initial={{ picks, notices: {}, mood: "" }} shelves={[anime, films]} />);
+    expect(screen.getByText("Dune: Part Two")).toBeInTheDocument();
+    params = new URLSearchParams("mood=war");
+    rerender(<NewPicks initial={{ picks, notices: {}, mood: "" }} shelves={[anime, films]} />);
+    expect(screen.getByText("Band of Brothers")).toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+  });
+
+  it("says why a mood couldn't load, and tries again", async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response("{}", { status: 429 }))
+      .mockResolvedValueOnce(Response.json({ picks: [], notices: { f: "Nothing new here for this mood. You've seen the lot." } }));
+    vi.stubGlobal("fetch", fetch);
+    params = new URLSearchParams("mood=romance");
+    render(<NewPicks initial={{ picks, notices: {}, mood: "" }} shelves={[anime, films]} />);
+    expect(await screen.findByText("That's a lot of switching. Give it a few seconds.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await screen.findByText("Nothing new here for this mood. You've seen the lot.")).toBeInTheDocument();
+    vi.unstubAllGlobals();
   });
 });
