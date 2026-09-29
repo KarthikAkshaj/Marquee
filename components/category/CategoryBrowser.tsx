@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AddTitlePanel } from "@/components/add/AddTitlePanel";
 import { useAddHandler } from "@/components/palette/PaletteProvider";
 import { DeleteItemDialog } from "@/components/items/DeleteItemDialog";
 import { ItemSheet } from "@/components/items/ItemSheet";
+import type { ItemQuickActions } from "@/components/items/QuickActions";
 import { RoomLight } from "@/components/shell/RoomLight";
 import { useItemActions, type ShelfCategory } from "@/components/items/useItemActions";
 import { searchKindOf } from "@/lib/add";
@@ -41,14 +42,46 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
   const defaultStatus = params.status === "all" ? "planned" : params.status;
   const startAdding = () => setAdding(searchKind ? { mode: "search" } : { mode: "manual", title: "" });
   const sheet = useOpenItem(category.slug, params);
+  // Closing starts at once: the sheet leaves on the tap or the drag's release, not when the address
+  // catches up a moment later. Forgotten as soon as the address moves on.
+  const [closing, setClosing] = useState<string | null>(null);
+  if (closing !== null && sheet.itemId !== closing) setClosing(null);
+  const openId = sheet.itemId !== closing ? sheet.itemId : null;
   // Looked up across the whole shelf, so a status change that moves it out of the tab keeps it open.
-  const openItem = shelf.items.find((item) => item.id === sheet.itemId) ?? null;
+  const openItem = shelf.items.find((item) => item.id === openId) ?? null;
+  const openTitle = (id: string) => {
+    setClosing(null);
+    sheet.open(id);
+  };
+  const closeTitle = () => {
+    setClosing(sheet.itemId);
+    sheet.close();
+  };
+
+  // The grid is remembered (ShelfItems is memo'd), so opening or closing a title doesn't redraw
+  // every poster, which froze phones for a second on a big shelf. Its handlers stay the same
+  // object for good and reach the latest shelf through this ref when they're used.
+  const latest = useRef({ shelf, openTitle });
+  useLayoutEffect(() => {
+    latest.current = { shelf, openTitle };
+  });
+  const gridActions = useMemo<ItemQuickActions>(
+    () => ({
+      onOpen: (item) => latest.current.openTitle(item.id),
+      onStatusChange: (item, status) => latest.current.shelf.setStatus(item, status),
+      onIncrement: (item) => latest.current.shelf.increment(item),
+      onToggleFavorite: (item) => latest.current.shelf.toggleFavorite(item),
+      onDelete: (item) => setDeleting(item),
+    }),
+    [],
+  );
+  const endStamp = useCallback((id: string) => latest.current.shelf.endStamp(id), []);
 
   useShelfShortcuts(filterRef, startAdding, !openItem && !adding && !deleting);
   useAddHandler(startAdding);
 
   const counts = countByStatus(shelf.items);
-  const visible = filterByTitle(selectItems(shelf.items, params), query);
+  const visible = useMemo(() => filterByTitle(selectItems(shelf.items, params), query), [shelf.items, params, query]);
   const reason = emptyReason(visible.length, query, counts.all, params);
 
   return (
@@ -86,15 +119,9 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
             category={category}
             params={params}
             items={visible}
-            actions={{
-              onOpen: (item) => sheet.open(item.id),
-              onStatusChange: shelf.setStatus,
-              onIncrement: shelf.increment,
-              onToggleFavorite: shelf.toggleFavorite,
-              onDelete: setDeleting,
-            }}
+            actions={gridActions}
             stamps={shelf.stamps}
-            onStamped={shelf.endStamp}
+            onStamped={endStamp}
           />
         )}
       </section>
@@ -110,12 +137,12 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
           // The panel closes itself: for anime and films it first offers the rest of the run.
           onAdd={(result, status, openAfter) => {
             const item = shelf.addFromSearch(category, result, status);
-            if (openAfter) sheet.open(item.id);
+            if (openAfter) openTitle(item.id);
           }}
           onAddMore={(extras) => shelf.addAllFromSearch(category, extras)}
           onOpenExisting={(id) => {
             setAdding(null);
-            sheet.open(id);
+            openTitle(id);
           }}
           onManual={(title) => setAdding({ mode: "manual", title })}
         />
@@ -132,7 +159,7 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
         category={category}
         categories={categories}
         actions={shelf}
-        onClose={sheet.close}
+        onClose={closeTitle}
         onDelete={setDeleting}
       />
       <DeleteItemDialog
@@ -140,7 +167,7 @@ export function CategoryBrowser({ category, categories, params, items }: Categor
         onCancel={() => setDeleting(null)}
         onConfirm={() => {
           if (deleting) {
-            if (deleting.id === openItem?.id) sheet.close();
+            if (deleting.id === openItem?.id) closeTitle();
             shelf.remove(deleting);
           }
           setDeleting(null);

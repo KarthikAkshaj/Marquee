@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { ItemRow } from "@/components/items/ItemRow";
 import { PosterCard } from "@/components/items/PosterCard";
 import { usePosterTilt } from "@/components/items/usePosterTilt";
@@ -17,7 +18,7 @@ type ShelfItemsProps = {
 };
 
 /** The titles on a shelf, as posters or dense rows (SPEC §8.5). */
-export function ShelfItems({ category, params, items, actions, stamps, onStamped }: ShelfItemsProps) {
+function ShelfItemsView({ category, params, items, actions, stamps, onStamped }: ShelfItemsProps) {
   const hrefFor = (item: Item) => itemHref(category.slug, params, item.id);
   const tilt = usePosterTilt<HTMLUListElement>(params.view === "grid");
 
@@ -25,7 +26,7 @@ export function ShelfItems({ category, params, items, actions, stamps, onStamped
     return (
       <ul ref={tilt} className="grid grid-cols-2 gap-x-4 gap-y-4.5 sm:grid-cols-3 md:grid-cols-4 md:gap-5 xl:grid-cols-6">
         {items.map((item, index) => (
-          <li key={item.id} {...rise(index)}>
+          <li key={item.id} {...rise(index, "skip-offscreen")}>
             {/* rise() plays on load; this rises in whatever comes into view as you scroll. */}
             <div className="reveal">
               <PosterCard
@@ -62,7 +63,7 @@ export function ShelfItems({ category, params, items, actions, stamps, onStamped
       </div>
       <ul className="divide-y divide-border">
         {items.map((item, index) => (
-          <li key={item.id} {...rise(index)}>
+          <li key={item.id} {...rise(index, "skip-offscreen-row")}>
             <div className="reveal">
               <ItemRow
                 item={item}
@@ -78,3 +79,6 @@ export function ShelfItems({ category, params, items, actions, stamps, onStamped
     </div>
   );
 }
+
+/** Remembered between renders: opening a title changes the address, not the shelf, so the posters stay put. */
+export const ShelfItems = memo(ShelfItemsView);

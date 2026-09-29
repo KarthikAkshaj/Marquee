@@ -427,6 +427,36 @@
   }
 }
 
+/* Long shelves on touch screens: a poster off screen skips style and layout
+   until it scrolls near. Opening a title restyles the whole page (the dialog
+   locks scrolling), and on a 160-title shelf that froze phones for about a
+   second; skipping the ones out of view cut it by two thirds. `auto` remembers
+   each card's real height once drawn; the number is only a first guess.
+   The skip also clips each card to its box, which would cut off the hover
+   lift and glow, so it stays off where there's a mouse. On touch, a margin of
+   invisible room (padding, cancelled by the negative margin) keeps the resting
+   glow and the tap glow whole, and never reaches past the page's gutter. */
+@utility skip-offscreen {
+  @media (hover: none) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 310px;
+    margin: -1rem -1rem -2rem;
+    padding: 1rem 1rem 2rem;
+    pointer-events: none;
+
+    & > * {
+      pointer-events: auto;
+    }
+  }
+}
+
+@utility skip-offscreen-row {
+  @media (hover: none) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 68px;
+  }
+}
+
 @utility reveal-art {
   @supports (animation-timeline: view()) {
     animation: reveal-art both cubic-bezier(0.25, 0.5, 0.4, 1);

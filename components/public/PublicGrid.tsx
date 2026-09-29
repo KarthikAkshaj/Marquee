@@ -19,7 +19,7 @@ export function PublicGrid({ titles, shelf, hrefFor, onOpen }: PublicGridProps) 
   return (
     <ul ref={tilt} className="grid grid-cols-2 gap-x-4 gap-y-4.5 sm:grid-cols-3 md:grid-cols-4 md:gap-5 xl:grid-cols-6">
       {titles.map((title, index) => (
-        <li key={title.id} {...rise(index)}>
+        <li key={title.id} {...rise(index, "skip-offscreen")}>
           <div className="reveal">
             <PublicPosterCard
               title={title}

@@ -8,4 +8,9 @@ describe("rise", () => {
     expect(rise(STAGGER_LIMIT - 1).style).toEqual({ animationDelay: "690ms" });
     expect(rise(STAGGER_LIMIT)).toEqual({});
   });
+
+  it("keeps the item's own class, rising or not", () => {
+    expect(rise(0, "skip-offscreen").className).toBe("animate-rise skip-offscreen");
+    expect(rise(STAGGER_LIMIT, "skip-offscreen").className).toBe("skip-offscreen");
+  });
 });
