@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 import type { CategoryKind } from "./status";
-import { ANY, lengthLine, pickSurprise, reelFrames, surpriseCandidates, surpriseWeight, type SurpriseTitle } from "./surprise";
+import {
+  ANY,
+  lengthLine,
+  nothingLine,
+  pickSurprise,
+  reelFrames,
+  surpriseCandidates,
+  surpriseWeight,
+  type LengthSlug,
+  type SurpriseTitle,
+} from "./surprise";
 
 const title = (id: string, extra: Partial<SurpriseTitle> = {}): SurpriseTitle => ({
   id,
@@ -91,23 +101,28 @@ describe("How long have you got?", () => {
     title("berserk", { format: "manga", progress_total: 380 }),
     title("one-piece", { format: "tv", progress_total: 1100, runtime_minutes: 24 }),
   ];
-  const lasting = (length: "hour" | "evening" | "weekend") => ids(surpriseCandidates(library, { ...ANY, length }, kinds));
+  const lasting = (length: LengthSlug) => ids(surpriseCandidates(library, { ...ANY, length }, kinds));
 
-  it("an hour: one episode of anything, or a short film", () => {
-    expect(lasting("hour")).toEqual(["frieren", "mushishi-special", "cyberpunk", "short-film", "the-bear", "one-piece"]);
+  it("an hour: only what you can finish in an hour, never one episode of something long", () => {
+    // Cyberpunk is 10 episodes of 25 minutes: over four hours in all, so not an hour.
+    expect(lasting("hour")).toEqual(["short-film"]);
   });
 
-  it("an evening: a film, or a run short enough to finish tonight", () => {
-    expect(lasting("evening")).toEqual(["mushishi-special", "your-name", "short-film"]);
+  it("an evening: a film of any length, or a run of one to three hours", () => {
+    expect(lasting("evening")).toEqual(["mushishi-special", "your-name", "oppenheimer"]);
   });
 
-  it("a weekend: a series you could finish in two days (up to 12 hours), not a long one", () => {
+  it("a weekend: a series you could finish in two days (3 to 12 hours), not a long one", () => {
     // Frieren's 28 episodes are about 11 hours; One Piece is 440.
     expect(lasting("weekend")).toEqual(["frieren", "cyberpunk", "the-bear"]);
   });
 
+  it("just an episode: one episode of any show, however long the show runs", () => {
+    expect(lasting("episode")).toEqual(["frieren", "mushishi-special", "cyberpunk", "the-bear", "one-piece"]);
+  });
+
   it("leaves what no clock can time to Any length", () => {
-    for (const length of ["hour", "evening", "weekend"] as const) {
+    for (const length of ["hour", "evening", "weekend", "episode"] as const) {
       expect(lasting(length)).not.toContain("hades");
       expect(lasting(length)).not.toContain("berserk");
     }
@@ -117,6 +132,14 @@ describe("How long have you got?", () => {
     const moody = [title("monster", { genres: ["Mystery", "Thriller"] }), title("k-on", { genres: ["Slice of Life", "Comedy"] })];
     expect(ids(surpriseCandidates(moody, { ...ANY, mood: "mystery" }, kinds))).toEqual(["monster"]);
     expect(ids(surpriseCandidates(moody, { ...ANY, mood: "feel-good" }, kinds))).toEqual(["k-on"]);
+  });
+});
+
+describe("nothingLine", () => {
+  it("says which choice leaves nothing, in words", () => {
+    expect(nothingLine({ ...ANY, length: "hour" }, null)).toBe("Nothing on your list can be finished in an hour.");
+    expect(nothingLine({ shelf: "a", length: "evening", mood: "horror" }, "Anime")).toBe("No Horror on your Anime shelf runs one to three hours.");
+    expect(nothingLine({ ...ANY, mood: "romance" }, "Games")).toBe("No Romance on your Games shelf.");
   });
 });
 

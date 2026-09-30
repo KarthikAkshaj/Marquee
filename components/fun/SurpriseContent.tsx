@@ -9,6 +9,7 @@ import { titleHref, type PaletteCategory } from "@/lib/palette";
 import { ANY, pickSurprise, reelFrames, surpriseCandidates, type SurpriseFilter, type SurprisePool, type SurpriseTitle } from "@/lib/surprise";
 import { cn } from "@/lib/utils";
 import { SurpriseChoices } from "./SurpriseChoices";
+import { SurpriseNothing } from "./SurpriseNothing";
 import { SurpriseReel } from "./SurpriseReel";
 import { SurpriseResult } from "./SurpriseResult";
 
@@ -38,6 +39,7 @@ export function SurpriseContent({ categories, pool, initialCategoryId, onClose, 
     ...ANY,
     shelf: waiting.some((shelf) => shelf.id === initialCategoryId) ? initialCategoryId : null,
   }));
+  const leaves = (patch: Partial<SurpriseFilter>) => candidatesFor({ ...filter, ...patch }).length > 0;
   const spin = (next: SurpriseFilter, previous: Spin): Spin => {
     const candidates = candidatesFor(next);
     const pick = pickSurprise(candidates, previous?.pick.id ?? null);
@@ -84,12 +86,7 @@ export function SurpriseContent({ categories, pool, initialCategoryId, onClose, 
 
   return (
     <div className="flex flex-col gap-5 px-4 pt-4 pb-5 md:px-6 md:pt-5 md:pb-6">
-      <SurpriseChoices
-        shelves={waiting}
-        filter={filter}
-        leaves={(patch) => candidatesFor({ ...filter, ...patch }).length > 0}
-        onChange={again}
-      />
+      <SurpriseChoices shelves={waiting} filter={filter} leaves={leaves} onChange={again} />
 
       {current && pick ? (
         <>
@@ -115,13 +112,12 @@ export function SurpriseContent({ categories, pool, initialCategoryId, onClose, 
           </div>
         </>
       ) : (
-        // The chips grey out anything that would leave nothing, so this is only a safety net.
-        <div className="flex flex-col items-center gap-3 py-8 text-center">
-          <p className="font-display text-[26px] leading-[1.1]">Nothing fits all that.</p>
-          <Button variant="secondary" onClick={() => again(ANY)} className="h-11 px-4.5">
-            Clear the choices
-          </Button>
-        </div>
+        <SurpriseNothing
+          filter={filter}
+          shelfName={filter.shelf ? (shelves.get(filter.shelf)?.name ?? null) : null}
+          leaves={leaves}
+          onChange={again}
+        />
       )}
     </div>
   );

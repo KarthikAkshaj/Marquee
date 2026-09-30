@@ -22,20 +22,42 @@ export type SurpriseTitle = Pick<
 /** Everything Surprise me needs, and whether your taste is known well enough to lean on. */
 export type SurprisePool = { titles: SurpriseTitle[]; personal: boolean };
 
-/** "How long have you got?": each answer, and which lengths fit it. */
+/**
+ * "How long have you got?": each answer, and which lengths fit it. The first
+ * three are bands of the whole title, so what comes up both fits the time and
+ * fills it: an evening doesn't land on a 20 minute special. `nothing` finishes
+ * "Nothing on your list ..." when a choice leaves nothing to spin.
+ */
 export const LENGTHS = [
-  { slug: "hour", label: "An hour", hint: "One episode, or a short film", fits: (length: Length) => length.sitting <= 60 },
+  {
+    slug: "hour",
+    label: "An hour",
+    hint: "Something you can finish in an hour",
+    nothing: "can be finished in an hour",
+    fits: (length: Length) => length.whole !== null && length.whole <= 60,
+  },
   {
     slug: "evening",
     label: "An evening",
-    hint: "A film, or something short enough to finish tonight",
-    fits: (length: Length) => (length.feature ? length.sitting <= 180 : length.whole !== null && length.whole <= 180),
+    hint: "A film, or a short run: one to three hours in all",
+    nothing: "runs one to three hours",
+    // A film is an evening whatever it runs; a three hour epic isn't a weekend binge.
+    fits: (length: Length) => length.whole !== null && length.whole > 60 && (length.feature || length.whole <= 180),
   },
   {
     slug: "weekend",
     label: "A weekend",
-    hint: "A series you could finish in two days",
+    hint: "A series you could finish in two days: three to twelve hours",
+    nothing: "has a series of three to twelve hours",
     fits: (length: Length) => !length.feature && length.whole !== null && length.whole > 180 && length.whole <= 720,
+  },
+  // Not how long it all takes: just starting something longer, one episode tonight.
+  {
+    slug: "episode",
+    label: "Just an episode",
+    hint: "One episode of any show, however long it runs",
+    nothing: "comes in episodes of an hour or less",
+    fits: (length: Length) => !length.feature && length.sitting <= 60,
   },
 ] as const;
 
@@ -65,6 +87,18 @@ export function surpriseCandidates<T extends SurpriseTitle>(
     const timed = kind ? lengthOf({ ...title, kind }) : null;
     return timed !== null && length.fits(timed);
   });
+}
+
+/**
+ * Why there's nothing to spin, in words: "Nothing on your list can be
+ * finished in an hour.", "No Horror on your Anime shelf runs one to three hours."
+ */
+export function nothingLine(filter: SurpriseFilter, shelfName: string | null): string {
+  const mood = MOODS.find((entry) => entry.slug === filter.mood);
+  const length = LENGTHS.find((entry) => entry.slug === filter.length);
+  const what = mood ? `No ${mood.label}` : "Nothing";
+  const where = shelfName ? `on your ${shelfName} shelf` : "on your list";
+  return `${what} ${where}${length ? ` ${length.nothing}` : ""}.`;
 }
 
 /**

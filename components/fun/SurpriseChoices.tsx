@@ -15,18 +15,19 @@ type SurpriseChoicesProps = {
   onChange: (patch: Partial<SurpriseFilter>) => void;
 };
 
-type Choice = { key: string; label: string; on: boolean; open: boolean; hint?: string; dot?: string; pick: () => void };
+type Choice = { key: string; label: string; on: boolean; empty: boolean; hint?: string; dot?: string; pick: () => void };
 
 /**
  * Surprise me's three questions (SPEC §10): which shelf, how long you've got,
- * and the mood. A choice that would leave nothing to spin is greyed out.
+ * and the mood. A choice that would leave nothing to spin is dimmed but can
+ * still be picked, and then the panel says in words why nothing fits.
  */
 export function SurpriseChoices({ shelves, filter, leaves, onChange }: SurpriseChoicesProps) {
   const hint = LENGTHS.find((length) => length.slug === filter.length)?.hint;
   const row = <K extends keyof SurpriseFilter>(key: K, value: SurpriseFilter[K]) => ({
     on: filter[key] === value,
-    // "Any" is always open; so is whatever is chosen now.
-    open: value === null || filter[key] === value || leaves({ [key]: value } as Partial<SurpriseFilter>),
+    // "Any" always leaves something; what's chosen now says so itself.
+    empty: value !== null && filter[key] !== value && !leaves({ [key]: value } as Partial<SurpriseFilter>),
     pick: () => onChange({ [key]: value } as Partial<SurpriseFilter>),
   });
 
@@ -69,16 +70,18 @@ function ChoiceRow({ label, choices }: { label: string; choices: Choice[] }) {
             key={choice.key}
             type="button"
             aria-pressed={choice.on}
-            disabled={!choice.open}
-            title={choice.hint}
+            title={choice.empty ? "Nothing on your list fits this with your other choices" : choice.hint}
             onClick={choice.pick}
             className={cn(
-              "press flex h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 text-[12.5px] disabled:cursor-not-allowed disabled:opacity-35 md:h-8.5",
-              choice.on ? "border-accent/45 bg-accent/10 font-semibold text-text" : "border-white/8 bg-elevated text-text-muted enabled:hover:text-text",
+              "press flex h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 text-[12.5px] md:h-8.5",
+              choice.on ? "border-accent/45 bg-accent/10 font-semibold text-text" : "border-white/8 bg-elevated text-text-muted hover:text-text",
+              // Hollow and dashed, not faded: it can still be picked, so its words stay readable (AA).
+              choice.empty && "border-dashed border-white/14 bg-transparent",
             )}
           >
             {choice.dot && <span aria-hidden className={cn("size-1.5 rounded-full", choice.dot)} />}
             {choice.label}
+            {choice.empty && <span className="sr-only">, nothing fits</span>}
           </button>
         ))}
       </div>

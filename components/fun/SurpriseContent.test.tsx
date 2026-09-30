@@ -101,14 +101,26 @@ describe("SurpriseContent", () => {
       title("Hades", "g", { genres: ["Action"] }),
     ]);
     fireEvent.click(group("How long have you got?").getByRole("button", { name: "An evening" }));
-    expect(screen.getByText("A film, or something short enough to finish tonight.")).toBeInTheDocument();
+    expect(screen.getByText("A film, or a short run: one to three hours in all.")).toBeInTheDocument();
     expect(await screen.findByText("Your Name")).toBeInTheDocument();
     expect(screen.getByText("You rate Romance 8.9 · 1h 46m")).toBeInTheDocument();
 
-    // Nothing romantic that's also long, and games have no length: those choices can't be made.
-    expect(group("What's the mood?").getByRole("button", { name: "Action" })).toBeDisabled();
-    expect(group("Pick from").getByRole("button", { name: "Games" })).toBeDisabled();
+    // No action film for an evening, and games have no length: marked, but still there to pick.
+    expect(group("What's the mood?").getByRole("button", { name: "Action, nothing fits" })).toBeEnabled();
+    expect(group("Pick from").getByRole("button", { name: "Games, nothing fits" })).toBeEnabled();
     expect(group("What's the mood?").getByRole("button", { name: "Romance" })).toBeEnabled();
+  });
+
+  it("says so in words when nothing can be finished in the time, and offers a way out", async () => {
+    // Eleven episodes is over four hours: not something to finish in an hour.
+    setup([title("Alicization", "a", { format: "tv", progress_total: 11, runtime_minutes: 24 }), title("Your Name", "m", { format: "movie", runtime_minutes: 106 })]);
+    fireEvent.click(group("How long have you got?").getByRole("button", { name: "An hour, nothing fits" }));
+    expect(screen.getByText("Nothing on your list can be finished in an hour.")).toBeInTheDocument();
+    expect(screen.queryByText(/Tonight:/)).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Just an episode instead" }));
+    expect(await screen.findByText("Alicization")).toBeInTheDocument();
+    expect(group("How long have you got?").getByRole("button", { name: "Just an episode" })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("says the queue is empty and offers to add something", () => {
