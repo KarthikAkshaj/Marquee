@@ -3,11 +3,13 @@
 import { categoryStyle } from "@/lib/categories";
 import { MOODS } from "@/lib/moods";
 import type { PaletteCategory } from "@/lib/palette";
-import { LENGTHS, type SurpriseFilter } from "@/lib/surprise";
+import { LENGTHS, type SurpriseFilter, type SurpriseSource } from "@/lib/surprise";
 import { cn } from "@/lib/utils";
 
 type SurpriseChoicesProps = {
-  /** Shelves with anything planned. */
+  source: SurpriseSource;
+  onSource: (source: SurpriseSource) => void;
+  /** Your list: shelves with anything planned. Something new: shelves a provider fills. */
   shelves: PaletteCategory[];
   filter: SurpriseFilter;
   /** Whether a change would leave anything to spin through. */
@@ -22,7 +24,7 @@ type Choice = { key: string; label: string; on: boolean; empty: boolean; hint?: 
  * and the mood. A choice that would leave nothing to spin is dimmed but can
  * still be picked, and then the panel says in words why nothing fits.
  */
-export function SurpriseChoices({ shelves, filter, leaves, onChange }: SurpriseChoicesProps) {
+export function SurpriseChoices({ source, onSource, shelves, filter, leaves, onChange }: SurpriseChoicesProps) {
   const hint = LENGTHS.find((length) => length.slug === filter.length)?.hint;
   const row = <K extends keyof SurpriseFilter>(key: K, value: SurpriseFilter[K]) => ({
     on: filter[key] === value,
@@ -33,6 +35,13 @@ export function SurpriseChoices({ shelves, filter, leaves, onChange }: SurpriseC
 
   return (
     <div className="flex flex-col gap-2.5">
+      <ChoiceRow
+        label="Look in"
+        choices={[
+          { key: "list", label: "Your list", on: source === "list", empty: false, pick: () => onSource("list") },
+          { key: "new", label: "Something new", on: source === "new", empty: false, hint: "Titles you don't have yet", pick: () => onSource("new") },
+        ]}
+      />
       <ChoiceRow
         label="Pick from"
         choices={[

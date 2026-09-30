@@ -24,9 +24,11 @@ import {
   type MovieDetails,
   type SeriesDetails,
 } from "./tmdb";
+import { fitsLength } from "@/lib/lengths";
 import {
   ProviderError,
   type DiscoverFilter,
+  type DiscoverLength,
   type DiscoverResponse,
   type RelatedKind,
   type SearchError,
@@ -36,6 +38,7 @@ import {
   type SearchType,
   type SeedSuggestions,
   type SeriesResponse,
+  type Suggestion,
   type SuggestionsResponse,
 } from "./types";
 import { namesContaining, namesMatching, wordForms } from "./words";
@@ -43,6 +46,8 @@ import { namesContaining, namesMatching, wordForms } from "./words";
 export { RELATED_KINDS, SEARCH_KINDS, SEARCH_TYPES, isRelatedKind } from "./types";
 export type {
   DiscoverFilter,
+  DiscoverLength,
+  DiscoverOptions,
   DiscoverResponse,
   RelatedKind,
   Release,
@@ -318,17 +323,59 @@ export async function getSuggestions(kind: SearchKind, seeds: readonly string[])
   }
 }
 
+/** How many of TMDB's best a length looks up in full: enough for a reel, few enough to answer quickly. */
+const LENGTH_LOOKUPS = 20;
+
+/**
+ * TMDB's lists carry neither a film's running time nor a show's episode
+ * count, so a length looks the best few up (each cached a day, like adds do)
+ * and keeps only those it could time.
+ */
+async function withRunningTimes(kind: "movie" | "series", found: Suggestion[]): Promise<Suggestion[]> {
+  const top = found.slice(0, LENGTH_LOOKUPS);
+  const details = await Promise.all(top.map(({ result }) => getAddDetails(kind, result.externalId)));
+  return top.flatMap((suggestion, index) => {
+    const detail = details[index];
+    if (!detail) return [];
+    const { result } = suggestion;
+    return [
+      {
+        ...suggestion,
+        result: {
+          ...result,
+          runtimeMinutes: detail.runtimeMinutes ?? result.runtimeMinutes,
+          progressTotal: detail.progressTotal ?? result.progressTotal,
+        },
+      },
+    ];
+  });
+}
+
+/** Only what really fits the time: the providers' filters are the rough cut, lib/lengths the exact one. */
+function fitting(kind: SearchKind, found: Suggestion[], length: DiscoverLength): Suggestion[] {
+  return found.filter(({ result }) =>
+    fitsLength(
+      { kind, format: result.format ?? null, progress_total: result.progressTotal ?? null, runtime_minutes: result.runtimeMinutes ?? null },
+      length,
+    ),
+  );
+}
+
 /** Kept apart from the provider calls so the cache key is just the filter. */
-function discover(filter: DiscoverFilter) {
+async function discover(filter: DiscoverFilter): Promise<Suggestion[]> {
+  const options = { length: filter.length, anyMood: filter.anyMood };
   switch (filter.kind) {
-    case "anime":
-      return discoverAniList(filter.anilist);
+    case "anime": {
+      const found = await discoverAniList(filter.anilist, options);
+      return filter.length ? fitting("anime", found, filter.length) : found;
+    }
     case "movie":
-      return discoverTmdb("movie", filter.tmdb);
-    case "series":
-      return discoverTmdb("tv", filter.tmdb);
+    case "series": {
+      const found = await discoverTmdb(filter.kind === "movie" ? "movie" : "tv", filter.tmdb, options);
+      return filter.length ? fitting(filter.kind, await withRunningTimes(filter.kind, found), filter.length) : found;
+    }
     case "game":
-      return discoverIgdb(filter.igdb);
+      return discoverIgdb(filter.igdb, options);
   }
 }
 

@@ -324,6 +324,29 @@ describe("discoverTitles (SPEC §20)", () => {
     expect(await discoverTitles({ kind: "movie", tmdb: { genres: [28] } })).toEqual({ results: [], error: "unavailable" });
     expect(await discoverTitles({ kind: "game", igdb: { themes: [1] } })).toEqual({ results: [], error: "not_configured" });
   });
+
+  it("keeps only anime that really fit the time: AniList's filters are the rough cut", async () => {
+    const anime = (title: string, extra: object) => ({ result: { source: "anilist", externalId: title, title, ...extra } });
+    discoverAniList.mockResolvedValue([
+      anime("Look Back", { format: "movie", progressTotal: 1, runtimeMinutes: 58 }),
+      // Six 23 minute episodes is over two hours: not an hour.
+      anime("Takopi", { format: "ona", progressTotal: 6, runtimeMinutes: 23 }),
+      anime("Kotonoha", { format: "movie", progressTotal: 1, runtimeMinutes: 46 }),
+    ]);
+    const found = await discoverTitles({ kind: "anime", anilist: {}, anyMood: true, length: "hour" });
+    expect(found.results.map(({ result }) => result.title)).toEqual(["Look Back", "Kotonoha"]);
+  });
+
+  it("looks up a film's running time before trusting it with a length", async () => {
+    discoverTmdb.mockResolvedValue([
+      { result: { source: "tmdb", externalId: "1", title: "Classmates", format: "movie" } },
+      { result: { source: "tmdb", externalId: "2", title: "Short One", format: "movie" } },
+    ]);
+    // TMDB's list said an hour or less; the film itself runs 61 minutes.
+    getTmdbMovieDetails.mockImplementation(async (id: string) => ({ runtimeMinutes: id === "1" ? 61 : 40 }));
+    const found = await discoverTitles({ kind: "movie", tmdb: {}, anyMood: true, length: "hour" });
+    expect(found.results.map(({ result }) => [result.title, result.runtimeMinutes])).toEqual([["Short One", 40]]);
+  });
 });
 
 describe("resolveWord (SPEC §20)", () => {

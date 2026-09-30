@@ -153,6 +153,12 @@ describe("IGDB", () => {
     expect(igdbDiscoverBody({ themes: [], genres: [1.5] })).toBeNull();
   });
 
+  it("asks for the best rated of all when there's no mood (Surprise me)", () => {
+    const body = igdbDiscoverBody({}, 1_700_000_000_000, true)!;
+    expect(body).toContain("where game_type = (0,2,4,8,9,10,11) & version_parent = null");
+    expect(body).not.toContain("themes =");
+  });
+
   it("returns a mood's games in IGDB's order", async () => {
     vi.stubGlobal(
       "fetch",

@@ -95,11 +95,22 @@ export type AniListFilter = { genres?: string[]; tags?: string[] };
 export type TmdbFilter = { genres?: number[]; keywords?: number[] };
 export type IgdbFilter = { themes?: number[]; genres?: number[]; keywords?: number[] };
 
+/** How long a title runs, as Surprise me asks (lib/lengths): bands of the whole title, or one episode. */
+export type DiscoverLength = "hour" | "evening" | "weekend" | "episode";
+
+/**
+ * What a discovery asks for on top of a mood: a length, and `anyMood` for
+ * the best rated with no mood at all (an empty filter otherwise finds nothing).
+ */
+export type DiscoverOptions = { length?: DiscoverLength; anyMood?: boolean };
+
 /** One provider's filter, by the kind of shelf it fills. */
-export type DiscoverFilter =
+export type DiscoverFilter = (
   | { kind: "anime"; anilist: AniListFilter }
   | { kind: "movie" | "series"; tmdb: TmdbFilter }
-  | { kind: "game"; igdb: IgdbFilter };
+  | { kind: "game"; igdb: IgdbFilter }
+) &
+  DiscoverOptions;
 
 /** The best-rated titles a provider has for a filter, strongest first. */
 export type DiscoverResponse = { results: Suggestion[]; error?: SearchError };

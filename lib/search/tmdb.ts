@@ -4,6 +4,8 @@ import { rankNamesakes, readTmdbHint } from "./tmdb-query";
 import {
   ProviderError,
   RESULT_LIMIT,
+  type DiscoverLength,
+  type DiscoverOptions,
   type Release,
   type SearchResult,
   type SeedSuggestions,
@@ -346,8 +348,20 @@ export async function getTmdbSuggestions(type: "movie" | "tv", id: string): Prom
  */
 const DISCOVER_VOTES = { movie: 300, tv: 150 } as const;
 
+/**
+ * The running time each length asks TMDB for: a film's whole length, a show's
+ * per episode. A show's total needs its episode count, which only its details
+ * have, so lib/search looks those up and checks the fit exactly. Null where
+ * TMDB has nothing that could fit: no film is "just an episode" or a weekend
+ * series, and a whole show hardly ever runs under an hour.
+ */
+const RUNTIMES: Record<"movie" | "tv", Record<DiscoverLength, { gte?: number; lte?: number } | null>> = {
+  movie: { hour: { gte: 1, lte: 60 }, evening: { gte: 61 }, weekend: null, episode: null },
+  tv: { hour: null, evening: { gte: 1, lte: 70 }, weekend: { gte: 1, lte: 70 }, episode: { gte: 1, lte: 60 } },
+};
+
 /** TMDB's discover query for a mood: any of the genres, any of the keywords, best rated first. */
-export function discoverPath(type: "movie" | "tv", filter: TmdbFilter, page: number, today: string): string {
+export function discoverPath(type: "movie" | "tv", filter: TmdbFilter, page: number, today: string, length?: DiscoverLength): string {
   const params = new URLSearchParams({
     include_adult: "false",
     language: "en-US",
@@ -361,16 +375,26 @@ export function discoverPath(type: "movie" | "tv", filter: TmdbFilter, page: num
   if (ids(filter.keywords)) params.set("with_keywords", ids(filter.keywords));
   // Anime lives on AniList shelves; on a Series shelf it would only be a namesake.
   if (type === "tv") params.set("without_genres", "16");
+  const runtime = length ? RUNTIMES[type][length] : null;
+  if (runtime?.gte) params.set("with_runtime.gte", String(runtime.gte));
+  if (runtime?.lte) params.set("with_runtime.lte", String(runtime.lte));
+  // TMDB's best-rated films under an hour are mostly making-ofs and documentaries.
+  if (type === "movie" && length === "hour") params.set("without_genres", "99");
   return `/discover/${type}?${params}`;
 }
 
-/** TMDB's best-rated films or shows for a mood (SPEC §20): two pages, forty titles. */
-export async function discoverTmdb(type: "movie" | "tv", filter: TmdbFilter): Promise<Suggestion[]> {
-  if (!filter.genres?.length && !filter.keywords?.length) return [];
+/**
+ * TMDB's best-rated films or shows for a mood (SPEC §20): two pages, forty
+ * titles. With `anyMood`, the best rated of all; with a `length`, only what
+ * runs about right, or nothing where TMDB has nothing that could fit.
+ */
+export async function discoverTmdb(type: "movie" | "tv", filter: TmdbFilter, options: DiscoverOptions = {}): Promise<Suggestion[]> {
+  if (!filter.genres?.length && !filter.keywords?.length && !options.anyMood) return [];
+  if (options.length && !RUNTIMES[type][options.length]) return [];
   const today = new Date().toISOString().slice(0, 10);
   const [first, second, genres] = await Promise.all([
-    request(discoverPath(type, filter, 1, today), suggestedSchema),
-    request(discoverPath(type, filter, 2, today), suggestedSchema),
+    request(discoverPath(type, filter, 1, today, options.length), suggestedSchema),
+    request(discoverPath(type, filter, 2, today, options.length), suggestedSchema),
     genreNames(type),
   ]);
   const seen = new Set<number>();

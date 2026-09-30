@@ -6,6 +6,8 @@ import {
   ProviderError,
   RESULT_LIMIT,
   type AniListFilter,
+  type DiscoverLength,
+  type DiscoverOptions,
   type Release,
   type SearchResult,
   type SeedSuggestions,
@@ -552,12 +554,17 @@ export async function getAniListSuggestions(ids: readonly string[]): Promise<See
  */
 const DISCOVER_LIMIT = 50;
 
-const DISCOVER_QUERY = `query ($genres: [String], $tags: [String]) {
+// Unset variables are null, and AniList ignores a null filter, so a mood alone sends only its genres or tags.
+const DISCOVER_QUERY = `query (
+  $genres: [String], $tags: [String], $formats: [MediaFormat] = [TV, TV_SHORT, MOVIE, ONA, OVA], $statuses: [MediaStatus],
+  $episodesGreater: Int, $episodesLesser: Int, $durationLesser: Int
+) {
   Page(perPage: ${DISCOVER_LIMIT}) {
     media(
       type: ANIME, isAdult: false, genre_in: $genres, tag_in: $tags, minimumTagRank: 60,
       sort: [SCORE_DESC, ID], popularity_greater: 5000,
-      format_in: [TV, TV_SHORT, MOVIE, ONA, OVA], status_not: NOT_YET_RELEASED
+      format_in: $formats, status_not: NOT_YET_RELEASED, status_in: $statuses,
+      episodes_greater: $episodesGreater, episodes_lesser: $episodesLesser, duration_lesser: $durationLesser
     ) {
       ${MEDIA_FIELDS} type isAdult
       relations { edges { relationType(version: 2) node { id type format } } }
@@ -566,21 +573,31 @@ const DISCOVER_QUERY = `query ($genres: [String], $tags: [String]) {
 }`;
 
 /**
+ * What can hold each length, as AniList's filters say it. They can't multiply
+ * episodes by minutes, so these are loose, and lib/lengths checks each title
+ * exactly afterwards. The bands need a finished run, whose length is known.
+ */
+const LENGTH_FILTERS: Record<DiscoverLength, Record<string, unknown>> = {
+  hour: { formats: ["MOVIE", "OVA", "ONA", "SPECIAL", "TV_SHORT"], statuses: ["FINISHED"], episodesLesser: 13, durationLesser: 61 },
+  evening: { formats: ["MOVIE", "OVA", "ONA", "SPECIAL", "TV", "TV_SHORT"], statuses: ["FINISHED"], episodesLesser: 13 },
+  weekend: { formats: ["TV", "ONA", "OVA", "TV_SHORT"], statuses: ["FINISHED"], episodesGreater: 3, episodesLesser: 40 },
+  episode: { formats: ["TV", "TV_SHORT", "ONA"], durationLesser: 61 },
+};
+
+/**
  * AniList's best-scored anime for a mood (SPEC §20): any of its genres, or any
  * of its tags where the tag is at least 60% of what the show is about. Only
  * titles enough people have seen, so the list isn't a row of curiosities.
+ * With `anyMood`, the best scored of all; with a `length`, only what might fit it.
  */
-export async function discoverAniList(filter: AniListFilter): Promise<Suggestion[]> {
-  if (!filter.genres?.length && !filter.tags?.length) return [];
+export async function discoverAniList(filter: AniListFilter, options: DiscoverOptions = {}): Promise<Suggestion[]> {
+  if (!filter.genres?.length && !filter.tags?.length && !options.anyMood) return [];
   const schema = z.object({ data: z.object({ Page: z.object({ media: z.array(recommendedSchema) }) }) });
+  const variables = { genres: filter.genres, tags: filter.tags, ...(options.length ? LENGTH_FILTERS[options.length] : {}) };
   const body = await fetchJson(
     "anilist",
     ENDPOINT,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: DISCOVER_QUERY, variables: { genres: filter.genres, tags: filter.tags } }),
-    },
+    { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: DISCOVER_QUERY, variables }) },
     schema,
   );
   return body.data.Page.media.flatMap((media) => toSuggestion(media) ?? []);

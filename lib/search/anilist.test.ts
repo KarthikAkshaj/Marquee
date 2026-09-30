@@ -413,6 +413,24 @@ describe("moods (SPEC §20)", () => {
     expect(await discoverAniList({})).toEqual([]);
     expect(fetch).not.toHaveBeenCalled();
   });
+
+  it("asks for the best of all with no mood, and narrows to what could fit a length (Surprise me)", async () => {
+    const fetch = reply(military);
+    vi.stubGlobal("fetch", fetch);
+    await discoverAniList({}, { anyMood: true, length: "hour" });
+    const sent = JSON.parse(String((fetch.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    expect(sent.variables).toEqual({
+      formats: ["MOVIE", "OVA", "ONA", "SPECIAL", "TV_SHORT"],
+      statuses: ["FINISHED"],
+      episodesLesser: 13,
+      durationLesser: 61,
+    });
+    expect(sent.query).toContain("episodes_lesser: $episodesLesser");
+
+    await discoverAniList({ genres: ["Romance"] }, { length: "weekend" });
+    const weekend = JSON.parse(String((fetch.mock.calls[1] as unknown as [string, RequestInit])[1].body));
+    expect(weekend.variables).toMatchObject({ genres: ["Romance"], formats: ["TV", "ONA", "OVA", "TV_SHORT"], episodesGreater: 3, episodesLesser: 40 });
+  });
 });
 
 describe("LATER_SEASON", () => {

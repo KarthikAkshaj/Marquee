@@ -5,6 +5,7 @@ import {
   lengthLine,
   nothingLine,
   pickSurprise,
+  rankWeight,
   reelFrames,
   surpriseCandidates,
   surpriseWeight,
@@ -140,6 +141,20 @@ describe("nothingLine", () => {
     expect(nothingLine({ ...ANY, length: "hour" }, null)).toBe("Nothing on your list can be finished in an hour.");
     expect(nothingLine({ shelf: "a", length: "evening", mood: "horror" }, "Anime")).toBe("No Horror on your Anime shelf runs one to three hours.");
     expect(nothingLine({ ...ANY, mood: "romance" }, "Games")).toBe("No Romance on your Games shelf.");
+  });
+
+  it("says it of new titles too", () => {
+    expect(nothingLine({ ...ANY, length: "hour" }, null, "new")).toBe("Nothing new can be finished in an hour.");
+    expect(nothingLine({ shelf: "a", length: null, mood: "horror" }, "Anime", "new")).toBe("No new Horror for your Anime shelf.");
+  });
+});
+
+describe("rankWeight", () => {
+  it("leans to the top of a list sorted for you, and never rules the bottom out", () => {
+    const weights = Array.from({ length: 5 }, (_, index) => rankWeight(index, 5));
+    expect(weights).toEqual([...weights].sort((a, b) => b - a));
+    expect(weights[4]).toBeGreaterThan(0);
+    expect(weights[0] / weights[4]).toBeCloseTo(Math.exp(4), 5);
   });
 });
 

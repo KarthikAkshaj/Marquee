@@ -1,6 +1,8 @@
 import type { Item } from "@/lib/items";
+import { fitsLength, lengthOption, type LengthSlug } from "@/lib/lengths";
 import { MOODS, fitsMood } from "@/lib/moods";
-import { lengthOf, type Length } from "@/lib/screen-time";
+import { lengthOf } from "@/lib/screen-time";
+import type { SearchResult } from "@/lib/search/types";
 import type { CategoryKind } from "@/lib/status";
 
 type Random = () => number;
@@ -23,45 +25,40 @@ export type SurpriseTitle = Pick<
 export type SurprisePool = { titles: SurpriseTitle[]; personal: boolean };
 
 /**
- * "How long have you got?": each answer, and which lengths fit it. The first
- * three are bands of the whole title, so what comes up both fits the time and
- * fills it: an evening doesn't land on a 20 minute special. `nothing` finishes
- * "Nothing on your list ..." when a choice leaves nothing to spin.
+ * A title from outside your shelves, as /api/surprise/new sends it: what a
+ * provider says, the shelf of yours it would go on, why, and the lean.
  */
-export const LENGTHS = [
-  {
-    slug: "hour",
-    label: "An hour",
-    hint: "Something you can finish in an hour",
-    nothing: "can be finished in an hour",
-    fits: (length: Length) => length.whole !== null && length.whole <= 60,
-  },
-  {
-    slug: "evening",
-    label: "An evening",
-    hint: "A film, or a short run: one to three hours in all",
-    nothing: "runs one to three hours",
-    // A film is an evening whatever it runs; a three hour epic isn't a weekend binge.
-    fits: (length: Length) => length.whole !== null && length.whole > 60 && (length.feature || length.whole <= 180),
-  },
-  {
-    slug: "weekend",
-    label: "A weekend",
-    hint: "A series you could finish in two days: three to twelve hours",
-    nothing: "has a series of three to twelve hours",
-    fits: (length: Length) => !length.feature && length.whole !== null && length.whole > 180 && length.whole <= 720,
-  },
-  // Not how long it all takes: just starting something longer, one episode tonight.
-  {
-    slug: "episode",
-    label: "Just an episode",
-    hint: "One episode of any show, however long it runs",
-    nothing: "comes in episodes of an hour or less",
-    fits: (length: Length) => !length.feature && length.sitting <= 60,
-  },
-] as const;
+export type NewSurprise = { key: string; result: SearchResult; categoryId: string; reason: string; weight: number };
 
-export type LengthSlug = (typeof LENGTHS)[number]["slug"];
+/** Something new for the choices, and a line for each provider that didn't answer. */
+export type NewSurprisePayload = { titles: NewSurprise[]; notices: string[] };
+
+/** Where the reel spins from: your planned titles, or ones you don't have yet. */
+export type SurpriseSource = "list" | "new";
+
+/** One cover on the reel, from either source, with what it stands for. */
+export type ReelEntry = { id: string; cover_url: string | null; category_id: string; weight: number } & (
+  | { own: SurpriseTitle; fresh?: never }
+  | { fresh: NewSurprise; own?: never }
+);
+
+export const ownEntry = (title: SurpriseTitle): ReelEntry => ({
+  id: title.id,
+  cover_url: title.cover_url,
+  category_id: title.category_id,
+  weight: title.weight,
+  own: title,
+});
+
+export const newEntry = (title: NewSurprise): ReelEntry => ({
+  id: title.key,
+  cover_url: title.result.coverUrl ?? null,
+  category_id: title.categoryId,
+  weight: title.weight,
+  fresh: title,
+});
+
+export { LENGTHS, type LengthSlug } from "@/lib/lengths";
 
 /** The three questions; null is "any". */
 export type SurpriseFilter = { shelf: string | null; length: LengthSlug | null; mood: string | null };
@@ -77,28 +74,28 @@ export function surpriseCandidates<T extends SurpriseTitle>(
   filter: SurpriseFilter,
   kinds: ReadonlyMap<string, CategoryKind>,
 ): T[] {
-  const length = LENGTHS.find((entry) => entry.slug === filter.length);
   const mood = MOODS.find((entry) => entry.slug === filter.mood);
   return titles.filter((title) => {
     if (filter.shelf && title.category_id !== filter.shelf) return false;
     if (mood && !fitsMood(title.genres, { mood, word: null })) return false;
-    if (!length) return true;
+    if (!filter.length) return true;
     const kind = kinds.get(title.category_id);
-    const timed = kind ? lengthOf({ ...title, kind }) : null;
-    return timed !== null && length.fits(timed);
+    return kind !== undefined && fitsLength({ ...title, kind }, filter.length);
   });
 }
 
 /**
  * Why there's nothing to spin, in words: "Nothing on your list can be
- * finished in an hour.", "No Horror on your Anime shelf runs one to three hours."
+ * finished in an hour.", "No Horror on your Anime shelf runs one to three
+ * hours.", or for titles you don't have, "Nothing new can be finished in an hour."
  */
-export function nothingLine(filter: SurpriseFilter, shelfName: string | null): string {
+export function nothingLine(filter: SurpriseFilter, shelfName: string | null, source: SurpriseSource = "list"): string {
+  const fresh = source === "new";
   const mood = MOODS.find((entry) => entry.slug === filter.mood);
-  const length = LENGTHS.find((entry) => entry.slug === filter.length);
-  const what = mood ? `No ${mood.label}` : "Nothing";
-  const where = shelfName ? `on your ${shelfName} shelf` : "on your list";
-  return `${what} ${where}${length ? ` ${length.nothing}` : ""}.`;
+  const length = lengthOption(filter.length);
+  const what = mood ? `No ${fresh ? "new " : ""}${mood.label}` : fresh ? "Nothing new" : "Nothing";
+  const where = shelfName ? `${fresh ? "for" : "on"} your ${shelfName} shelf` : fresh ? null : "on your list";
+  return `${[what, where, length?.nothing].filter(Boolean).join(" ")}.`;
 }
 
 /**
@@ -108,6 +105,14 @@ export function nothingLine(filter: SurpriseFilter, shelfName: string | null): s
  */
 export function surpriseWeight(score: number): number {
   return Math.exp(Math.max(-3, Math.min(3, score)) / 1.5);
+}
+
+/**
+ * The lean for a list already sorted best first (new titles, ranked like For
+ * you's): the top one comes up about seven times as often as the last.
+ */
+export function rankWeight(index: number, count: number): number {
+  return surpriseWeight(3 * (1 - (2 * index) / Math.max(count - 1, 1)));
 }
 
 /** A pick, leaning by weight, never the one just shown when there's anything else to choose. */

@@ -4,7 +4,8 @@
  * mood chips afterwards, so both always agree on what's offered.
  */
 import { SOURCE_FOR_KIND, SOURCE_NAMES, searchKindOf } from "@/lib/add";
-import { moodFilter, type MoodChoice } from "@/lib/moods";
+import type { LengthSlug } from "@/lib/lengths";
+import { moodFilter, type Mood, type MoodChoice } from "@/lib/moods";
 import { getCategories, getDismissedPicks, getTasteItems } from "@/lib/queries";
 import {
   backlogPicks,
@@ -22,7 +23,18 @@ import {
   type Taste,
   type TasteItem,
 } from "@/lib/recommend";
-import { discoverTitles, getSuggestions, resolveWord, type DiscoverResponse, type SearchError, type SearchKind } from "@/lib/search";
+import {
+  discoverTitles,
+  getSuggestions,
+  resolveWord,
+  type DiscoverFilter,
+  type DiscoverResponse,
+  type SearchError,
+  type SearchKind,
+} from "@/lib/search";
+import { rankWeight, type NewSurprise, type NewSurprisePayload } from "@/lib/surprise";
+
+export type { NewSurprisePayload } from "@/lib/surprise";
 
 export type PickContext = {
   shelves: PickShelf[];
@@ -93,6 +105,56 @@ async function discoverFor(kind: SearchKind, choice: NonNullable<MoodChoice>): P
   const word = await resolveWord(kind, choice.word);
   if (word.error) return { results: [], error: word.error };
   return word.filter ? discoverTitles(word.filter) : null;
+}
+
+/** A kind's provider, asked for its best with no mood at all. */
+function noMood(kind: SearchKind): DiscoverFilter {
+  switch (kind) {
+    case "anime":
+      return { kind, anilist: {} };
+    case "movie":
+    case "series":
+      return { kind, tmdb: {} };
+    case "game":
+      return { kind, igdb: {} };
+  }
+}
+
+/**
+ * Surprise me's "Something new" (SPEC §10): titles from outside your shelves
+ * that fit the time and the mood, reordered for your taste like For you's,
+ * leaving out what you have or waved away. The chosen shelf, or the first
+ * shelf of each kind a provider fills.
+ */
+export async function newSurprisesFor(
+  ctx: PickContext,
+  { shelf, length, mood }: { shelf: string | null; length: LengthSlug | null; mood: Mood | null },
+): Promise<NewSurprisePayload> {
+  const seen = new Set<SearchKind>();
+  const shelves = ctx.shelves.filter((candidate) => {
+    const kind = searchKindOf(candidate.kind);
+    if (!kind || (shelf ? candidate.id !== shelf : seen.has(kind))) return false;
+    seen.add(kind);
+    return true;
+  });
+
+  const answers = await Promise.all(
+    shelves.map((target) => {
+      const kind = searchKindOf(target.kind)!;
+      const base = mood ? moodFilter(mood, kind) : noMood(kind);
+      return discoverTitles({ ...base, length: length ?? undefined, anyMood: !mood });
+    }),
+  );
+
+  const titles: NewSurprise[] = [];
+  const notices: string[] = [];
+  shelves.forEach((target, index) => {
+    const answer = answers[index];
+    if (answer.error) return void notices.push(problem(searchKindOf(target.kind)!, answer.error));
+    const picks = moodPicks({ found: answer.results, recommended: [], categoryId: target.id, library: ctx.library, dismissed: ctx.dismissed, taste: ctx.taste });
+    titles.push(...picks.map((pick, rank) => ({ ...toView(pick), weight: rankWeight(rank, picks.length) })));
+  });
+  return { titles, notices };
 }
 
 /**

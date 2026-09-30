@@ -8,7 +8,11 @@ const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 vi.mock("next/link", () => ({ default: ({ children }: { children: ReactNode }) => children }));
 const setItemStatus = vi.fn();
-vi.mock("@/lib/actions/items", () => ({ setItemStatus: (...args: unknown[]) => setItemStatus(...args) }));
+const addFromSearch = vi.fn();
+vi.mock("@/lib/actions/items", () => ({
+  setItemStatus: (...args: unknown[]) => setItemStatus(...args),
+  addFromSearch: (...args: unknown[]) => addFromSearch(...args),
+}));
 const toastSuccess = vi.fn();
 vi.mock("sonner", () => ({ toast: { success: (...args: unknown[]) => toastSuccess(...args), error: vi.fn() } }));
 // The real reel spins for ~2.6s; land straight away.
@@ -67,6 +71,47 @@ describe("SurpriseContent", () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+    addFromSearch.mockReset();
+  });
+
+  it("looks beyond your list for something that fits the time, then adds it and starts it", async () => {
+    const lookBack = {
+      key: "anilist:1",
+      result: { source: "anilist", externalId: "1", title: "Look Back", format: "movie", progressTotal: 1, runtimeMinutes: 58 },
+      categoryId: "a",
+      reason: "AniList 86",
+      weight: 1,
+    };
+    const fetch = vi.fn(async () => new Response(JSON.stringify({ titles: [lookBack], notices: [] })));
+    vi.stubGlobal("fetch", fetch);
+    addFromSearch.mockResolvedValue({ ok: true });
+    const { onClose } = setup([title("One Piece", "a", { format: "tv", progress_total: 1100, runtime_minutes: 24 })]);
+
+    fireEvent.click(group("How long have you got?").getByRole("button", { name: /^An hour/ }));
+    expect(screen.getByText("Nothing on your list can be finished in an hour.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Find something new that fits" }));
+
+    expect(await screen.findByText("Look Back")).toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledWith("/api/surprise/new?length=hour", expect.anything());
+    expect(group("Look in").getByRole("button", { name: "Something new" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText(/New to you/)).toBeInTheDocument();
+    expect(screen.getByText("AniList 86 · 58m")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Add and start" }));
+    await waitFor(() =>
+      expect(addFromSearch).toHaveBeenCalledWith(expect.objectContaining({ categoryId: "a", status: "in_progress", result: lookBack.result })),
+    );
+    expect(onClose).toHaveBeenCalled();
+    expect(toastSuccess.mock.calls[0][0]).toBe("Added Look Back to your Anime. Enjoy the show.");
+  });
+
+  it("offers something new when nothing's queued, and says so when the providers have nothing", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ titles: [], notices: ["TMDB isn't answering right now. Try again in a bit."] }))));
+    setup([]);
+    fireEvent.click(screen.getByRole("button", { name: "Find something new" }));
+    expect(await screen.findByText("Nothing new.")).toBeInTheDocument();
+    expect(screen.getByText("TMDB isn't answering right now. Try again in a bit.")).toBeInTheDocument();
   });
 
   it("offers only shelves with something waiting, lands on a pick, and starts it", async () => {

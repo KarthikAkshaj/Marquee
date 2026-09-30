@@ -54,7 +54,7 @@ vi.mock("@/lib/search", () => ({
   resolveWord: (...args: unknown[]) => resolveWord(...args),
 }));
 
-const { loadPickContext, moodPicksFor, recommendedPicks } = await import("./picks");
+const { loadPickContext, moodPicksFor, newSurprisesFor, recommendedPicks } = await import("./picks");
 const { readMood } = await import("./moods");
 
 const anime = (id: string, title = `Anime ${id}`) => ({ result: { source: "anilist", externalId: id, title } });
@@ -86,6 +86,36 @@ describe("recommendedPicks", () => {
       f: "Rate a few Movies titles 8 or more, or star one, and picks show up here.",
       b: "A shelf of your own has nobody to ask for new titles, so your list above is the lot.",
     });
+  });
+});
+
+describe("newSurprisesFor", () => {
+  it("asks each kind's provider once for the time, with no mood, and leaves out what you have or waved away", async () => {
+    discoverTitles.mockImplementation(async (filter: DiscoverFilter) =>
+      filter.kind === "anime"
+        ? { results: [anime("154587", "Frieren"), anime("99", "Waved away"), anime("21827", "Violet Evergarden")] }
+        : { results: [{ result: { source: "tmdb", externalId: "9", title: "Planned film" } }, { result: { source: "tmdb", externalId: "27205", title: "Inception" } }] },
+    );
+    const { titles, notices } = await newSurprisesFor(await loadPickContext(), { shelf: null, length: "evening", mood: null });
+
+    expect(discoverTitles).toHaveBeenCalledWith({ kind: "anime", anilist: {}, length: "evening", anyMood: true });
+    expect(discoverTitles).toHaveBeenCalledWith({ kind: "movie", tmdb: {}, length: "evening", anyMood: true });
+    // A shelf of your own has no provider to ask.
+    expect(discoverTitles).toHaveBeenCalledTimes(2);
+    expect(titles.map((title) => [title.result.title, title.categoryId])).toEqual([
+      ["Violet Evergarden", "a"],
+      ["Inception", "f"],
+    ]);
+    expect(titles.every((title) => title.weight > 0)).toBe(true);
+    expect(notices).toEqual([]);
+  });
+
+  it("asks only the chosen shelf's provider, for the mood, and says when it doesn't answer", async () => {
+    discoverTitles.mockResolvedValue({ results: [], error: "unavailable" });
+    const { titles, notices } = await newSurprisesFor(await loadPickContext(), { shelf: "f", length: null, mood: readMood("war")!.mood });
+    expect(discoverTitles).toHaveBeenCalledExactlyOnceWith({ kind: "movie", tmdb: { genres: [10752] }, anyMood: false });
+    expect(titles).toEqual([]);
+    expect(notices).toEqual(["TMDB isn't answering right now. Try again in a bit."]);
   });
 });
 

@@ -230,6 +230,24 @@ describe("TMDB", () => {
     expect(tv.get("without_genres")).toBe("16");
   });
 
+  it("asks for a running time that could fit a length, and nothing where none could (Surprise me)", async () => {
+    const hour = new URL(`https://x${discoverPath("movie", {}, 1, "2026-09-30", "hour")}`).searchParams;
+    expect([hour.get("with_runtime.gte"), hour.get("with_runtime.lte")]).toEqual(["1", "60"]);
+    // The best-rated short films are mostly making-ofs.
+    expect(hour.get("without_genres")).toBe("99");
+    const evening = new URL(`https://x${discoverPath("movie", {}, 1, "2026-09-30", "evening")}`).searchParams;
+    expect([evening.get("with_runtime.gte"), evening.get("with_runtime.lte")]).toEqual(["61", null]);
+    const episode = new URL(`https://x${discoverPath("tv", {}, 1, "2026-09-30", "episode")}`).searchParams;
+    expect(episode.get("with_runtime.lte")).toBe("60");
+
+    const fetch = vi.fn(async () => json(warPage1));
+    vi.stubGlobal("fetch", fetch);
+    // No film is "just an episode", and a whole show hardly ever runs under an hour.
+    expect(await discoverTmdb("movie", {}, { anyMood: true, length: "episode" })).toEqual([]);
+    expect(await discoverTmdb("tv", {}, { anyMood: true, length: "hour" })).toEqual([]);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("fetches two pages of a mood and keeps each title once", async () => {
     const fetch = vi.fn(async (input: string) => {
       const url = new URL(input);

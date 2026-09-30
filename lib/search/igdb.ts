@@ -1,6 +1,14 @@
 import { z } from "zod";
 import { cleanGenres, fetchJson, toScore } from "./http";
-import { ProviderError, RESULT_LIMIT, type IgdbFilter, type SearchResult, type SeedSuggestions, type Suggestion } from "./types";
+import {
+  ProviderError,
+  RESULT_LIMIT,
+  type DiscoverOptions,
+  type IgdbFilter,
+  type SearchResult,
+  type SeedSuggestions,
+  type Suggestion,
+} from "./types";
 
 const GAMES = "https://api.igdb.com/v4/games";
 const THEMES = "https://api.igdb.com/v4/themes";
@@ -236,24 +244,29 @@ const DISCOVER_LIMIT = 50;
  * only, out already, best rated first. Ids only ever come from our own lists
  * or IGDB's, and are checked to be whole numbers anyway.
  */
-export function igdbDiscoverBody(filter: IgdbFilter, now = Date.now()): string | null {
+export function igdbDiscoverBody(filter: IgdbFilter, now = Date.now(), anyMood = false): string | null {
   const ids = (list: readonly number[] | undefined) => (list ?? []).filter((id) => Number.isInteger(id) && id > 0);
   const any = (["themes", "genres", "keywords"] as const)
     .filter((field) => ids(filter[field]).length > 0)
     .map((field) => `${field} = (${ids(filter[field]).join(",")})`);
-  if (any.length === 0) return null;
+  if (any.length === 0 && !anyMood) return null;
+  const mood = any.length > 0 ? `(${any.join(" | ")}) & ` : "";
   return [
     `fields ${GAME_FIELDS.join(",")};`,
-    `where (${any.join(" | ")}) & game_type = (${GAME_TYPES.join(",")}) & version_parent = null`,
+    `where ${mood}game_type = (${GAME_TYPES.join(",")}) & version_parent = null`,
     `& total_rating_count >= ${DISCOVER_RATINGS} & first_release_date < ${Math.floor(now / 1000)};`,
     "sort total_rating desc;",
     `limit ${DISCOVER_LIMIT};`,
   ].join(" ");
 }
 
-/** IGDB's best-rated games for a mood (SPEC §20). */
-export async function discoverIgdb(filter: IgdbFilter): Promise<Suggestion[]> {
-  const body = igdbDiscoverBody(filter);
+/**
+ * IGDB's best-rated games for a mood (SPEC §20), or of all with `anyMood`.
+ * Games have no length on record, so asking for one finds none.
+ */
+export async function discoverIgdb(filter: IgdbFilter, options: DiscoverOptions = {}): Promise<Suggestion[]> {
+  if (options.length) return [];
+  const body = igdbDiscoverBody(filter, Date.now(), options.anyMood);
   if (!body) return [];
   const games = await queryGames(body, gamesSchema);
   return games.flatMap((game) => {
