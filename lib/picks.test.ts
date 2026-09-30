@@ -20,6 +20,7 @@ const row = (overrides: Partial<TasteItem>): TasteItem => ({
   finished_at: null,
   runtime_minutes: null,
   progress_total: null,
+  started_at: null,
   community_score: null,
   source: "manual",
   external_id: null,

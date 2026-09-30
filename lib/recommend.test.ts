@@ -4,6 +4,7 @@ import {
   TASTE_MIN_RATED,
   backlogPicks,
   becauseLine,
+  binged,
   crowdLean,
   fitOf,
   recencyWeight,
@@ -43,6 +44,7 @@ function item(overrides: Partial<TasteItem> = {}): TasteItem {
     tags: null,
     runtime_minutes: null,
     progress_total: null,
+    started_at: null,
     ...overrides,
   };
 }
@@ -161,6 +163,53 @@ describe("tags", () => {
 
   it("ignores tags you have no view on, rather than thinning the fit", () => {
     expect(fitOf({ genres: ["Adventure"], tags: ["Unheard Of"] }, taste).score).toBe(fitOf({ genres: ["Adventure"] }, taste).score);
+  });
+});
+
+describe("what you do, not just what you rate", () => {
+  const lean = (library: Parameters<typeof tasteOf>[0], genre: string) => tasteOf(library).genres.get(genre)?.lean ?? 0;
+
+  it("counts an unrated favourite as a like, and a rated one's rating for more", () => {
+    expect(lean([...ratedLibrary, item({ is_favorite: true, genres: ["Horror"] })], "Horror")).toBeGreaterThan(0);
+    const starred = ratedLibrary.map((entry, index) => (index === 0 ? { ...entry, is_favorite: true } : entry));
+    expect(lean(starred, "Mystery")).toBeGreaterThan(lean(ratedLibrary, "Mystery"));
+  });
+
+  it("counts an unrated drop against its genres, but lets a rating speak for itself", () => {
+    expect(lean([...ratedLibrary, item({ status: "dropped", genres: ["Sports"] })], "Sports")).toBeLessThan(0);
+    // Rated 9 and dropped anyway: the 9 is what you said.
+    expect(lean([...ratedLibrary, item({ status: "dropped", rating: 9, genres: ["Sports"] })], "Sports")).toBeGreaterThan(0);
+  });
+
+  it("counts a run you tore through as a quiet like, and a slow one as nothing", () => {
+    const run = { status: "completed" as const, progress_total: 12, genres: ["Sports"] };
+    expect(lean([...ratedLibrary, item({ ...run, started_at: "2026-09-01", finished_at: "2026-09-02" })], "Sports")).toBeGreaterThan(0);
+    expect(tasteOf([...ratedLibrary, item({ ...run, started_at: "2026-09-01", finished_at: "2026-09-20" })]).genres.has("Sports")).toBe(false);
+  });
+
+  it("leaves your average and your reasons to what you actually rated", () => {
+    const taste = tasteOf([...ratedLibrary, item({ is_favorite: true, genres: ["Mystery"] }), item({ status: "dropped", genres: ["Mystery"] })]);
+    expect(taste.average).toBe(7);
+    expect(taste.rated).toBe(5);
+    expect(taste.genres.get("Mystery")).toMatchObject({ average: 9, rated: 3 });
+  });
+});
+
+describe("binged", () => {
+  const run = { status: "completed" as const, progress_total: 12, started_at: "2026-09-01", finished_at: "2026-09-02" };
+
+  it("knows a binge by its pace: six episodes a day or faster", () => {
+    expect(binged(run)).toBe(true);
+    expect(binged({ ...run, finished_at: "2026-09-01" })).toBe(true);
+    expect(binged({ ...run, progress_total: 24, finished_at: "2026-09-04" })).toBe(true);
+    expect(binged({ ...run, progress_total: 24, finished_at: "2026-09-05" })).toBe(false);
+  });
+
+  it("needs a real start, a real run, and a finish", () => {
+    // Imported or marked finished straight away: no day it was begun.
+    expect(binged({ ...run, started_at: null })).toBe(false);
+    expect(binged({ ...run, progress_total: 3 })).toBe(false);
+    expect(binged({ ...run, status: "in_progress" })).toBe(false);
   });
 });
 

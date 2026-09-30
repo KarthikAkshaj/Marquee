@@ -39,6 +39,8 @@ export type TasteItem = Pick<
   // How long it runs, for Surprise me's "How long have you got?" (SPEC §10).
   | "runtime_minutes"
   | "progress_total"
+  // When you began it, so a run finished in days reads as a binge (SPEC §20).
+  | "started_at"
 >;
 
 export type PickShelf = { id: string; name: string; slug: string; kind: CategoryKind; color: string };
@@ -64,6 +66,41 @@ const YEAR_MS = 365.25 * 24 * 60 * 60 * 1000;
 /** "Not for me" counts like a rating this far under your average, at this weight. */
 const DISMISS_DROP = 3;
 const DISMISS_WEIGHT = 0.5;
+
+/**
+ * What you do says something too (SPEC §20). Where you didn't rate a title, a
+ * favourite counts like a rating this far over your average, a drop like one
+ * under it, and a run you tore through like a quieter one over, each at its
+ * weight. Where you did, your rating stands, but a favourite's or a binge's
+ * counts for more.
+ */
+const FAVOURITE_ABOVE = 2;
+const FAVOURITE_WEIGHT = 1;
+const FAVOURITE_BOOST = 1.5;
+const DROP_BELOW = 2;
+const DROP_WEIGHT = 0.6;
+const BINGE_ABOVE = 1.5;
+const BINGE_WEIGHT = 0.6;
+const BINGE_BOOST = 1.25;
+
+/** A run of at least this many episodes, gone through at this many a day or faster, was binged. */
+const BINGE_MIN_EPISODES = 6;
+const BINGE_PER_DAY = 6;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Finished at a binge's pace: twelve episodes in two days, twenty-four in
+ * four. It needs the day you started, which only a title you moved to in
+ * progress yourself has, so an import or a straight-to-finished title never
+ * looks like one.
+ */
+export function binged(item: Pick<TasteItem, "status" | "progress_total" | "started_at" | "finished_at">): boolean {
+  const episodes = item.progress_total ?? 0;
+  if (item.status !== "completed" || episodes < BINGE_MIN_EPISODES || !item.started_at || !item.finished_at) return false;
+  // Started and finished on the same day is one day.
+  const days = (Date.parse(item.finished_at) - Date.parse(item.started_at)) / DAY_MS + 1;
+  return Number.isFinite(days) && days >= 1 && episodes / days >= BINGE_PER_DAY;
+}
 
 /** Tags are many and specific, so they share a title's fit with its genres rather than take it over. */
 const TAG_SHARE = 0.4;
@@ -131,15 +168,28 @@ function leansOf(votes: ReadonlyMap<string, Vote[]>, average: number): Map<strin
   );
 }
 
+/** What a title says about you when you didn't rate it, as a rating it stands in for; null when it says nothing. */
+function unratedSignal(item: Pick<TasteItem, "status" | "is_favorite" | "progress_total" | "started_at" | "finished_at">, average: number) {
+  // A favourite first: dropping one was probably about time, not taste.
+  if (item.is_favorite) return { value: Math.min(10, average + FAVOURITE_ABOVE), weight: FAVOURITE_WEIGHT };
+  if (item.status === "dropped") return { value: average - DROP_BELOW, weight: DROP_WEIGHT };
+  if (binged(item)) return { value: Math.min(10, average + BINGE_ABOVE), weight: BINGE_WEIGHT };
+  return null;
+}
+
 export function tasteOf(
-  items: readonly Pick<TasteItem, "rating" | "genres" | "tags" | "finished_at" | "updated_at">[],
+  items: readonly Pick<
+    TasteItem,
+    "rating" | "genres" | "tags" | "finished_at" | "updated_at" | "status" | "is_favorite" | "progress_total" | "started_at"
+  >[],
   { dismissed = [], today = new Date() }: TasteOptions = {},
 ): Taste {
   const rated = items.flatMap((item) => (item.rating === null ? [] : [{ item, rating: item.rating }]));
   if (rated.length === 0) return { rated: 0, average: null, genres: new Map(), tags: new Map() };
 
   // A finish is when the rating was most likely given; otherwise the last time the title changed.
-  const weighted = rated.map(({ item, rating }) => ({ item, rating, weight: recencyWeight(item.finished_at ?? item.updated_at, today) }));
+  const recency = (item: Pick<TasteItem, "finished_at" | "updated_at">) => recencyWeight(item.finished_at ?? item.updated_at, today);
+  const weighted = rated.map(({ item, rating }) => ({ item, rating, weight: recency(item) }));
   const average = sum(weighted.map(({ rating, weight }) => rating * weight)) / sum(weighted.map(({ weight }) => weight));
 
   const genres = new Map<string, Vote[]>();
@@ -148,8 +198,17 @@ export function tasteOf(
     for (const name of new Set(names)) into.set(name, [...(into.get(name) ?? []), vote]);
   };
   for (const { item, rating, weight } of weighted) {
-    add(genres, item.genres.flatMap(genreNames), { value: rating, weight, real: true });
-    add(tags, item.tags ?? [], { value: rating, weight, real: true });
+    // Your average stays your plain ratings; how much each one pulls a genre is what a star or a binge adds to.
+    const boost = (item.is_favorite ? FAVOURITE_BOOST : 1) * (binged(item) ? BINGE_BOOST : 1);
+    add(genres, item.genres.flatMap(genreNames), { value: rating, weight: weight * boost, real: true });
+    add(tags, item.tags ?? [], { value: rating, weight: weight * boost, real: true });
+  }
+  for (const item of items) {
+    const signal = item.rating === null ? unratedSignal(item, average) : null;
+    if (!signal) continue;
+    const vote = { value: signal.value, weight: signal.weight * recency(item), real: false };
+    add(genres, item.genres.flatMap(genreNames), vote);
+    add(tags, item.tags ?? [], vote);
   }
   for (const title of dismissed) {
     const vote = { value: average - DISMISS_DROP, weight: DISMISS_WEIGHT, real: false };
